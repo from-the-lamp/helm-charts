@@ -1,0 +1,7 @@
+.env
+.secrets.yml
+.DS_Store
+*.tgz
+Chart.lock
+.output
+.task
