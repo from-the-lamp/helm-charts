@@ -1,0 +1,33 @@
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: pgadmin-server-definitions
+spec:
+  refreshInterval: "{{ .Values.externalSecrets.refreshInterval }}"
+  secretStoreRef:
+    kind: "{{ .Values.externalSecrets.kind }}"
+    name: "{{ .Values.externalSecrets.name }}"
+  target:
+    name: pgadmin-server-definitions
+    creationPolicy: "{{ .Values.externalSecrets.creationPolicy }}"
+    template:
+      data:
+        servers.json: |
+          {
+            "Servers": {
+              "firstServer": {
+                "Group": "{{ .Values.server.auth.group }}",
+                "Host": "{{ include "auth.host" (index .Values "server") }}",
+                "MaintenanceDB": "{{ .Values.server.auth.maintenanceDB }}",
+                "Name": "{{ .Values.server.auth.name }}",
+                "PassFile": "/var/lib/pgadmin/pgpassfile",
+                "Port": {{ include "auth.port" (index .Values "server") }},
+                "SSLMode": "prefer",
+                "Shared": true,
+                "SharedUsername": "{{ include "auth.user" (index .Values "server") }}",
+                "Username": "{{ include "auth.user" (index .Values "server") }}"
+              }
+            }
+          }
+  data:
+    {{- include "auth.remoteRefs" (index .Values "server") | nindent 4 }}

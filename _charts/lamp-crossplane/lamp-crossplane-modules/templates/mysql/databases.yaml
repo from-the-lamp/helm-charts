@@ -1,0 +1,13 @@
+{{- if .Values.mysql.enabled }}
+{{- range .Values.mysql.databases }}
+apiVersion: mysql.sql.crossplane.io/v1alpha1
+kind: Database
+metadata:
+  name: {{ .name }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  forProvider: {}
+---
+{{- end }}
+{{- end }}

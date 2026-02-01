@@ -1,0 +1,58 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.ebpf.alloy.configMap.name }}
+data:
+  config: |
+    logging {
+      level  = "info"
+      format = "logfmt"
+    }
+    discovery.kubernetes "kubernetes_pods" {
+      role = "pod"
+    }
+    discovery.relabel "kubernetes_pods_for_ebpf" {
+      targets = discovery.kubernetes.kubernetes_pods.targets
+      rule {
+        action        = "drop"
+        source_labels = ["__meta_kubernetes_pod_phase"]
+        regex         = "Pending|Succeeded|Failed|Completed"
+      }
+      rule {
+        action = "labelmap"
+        regex  = "__meta_kubernetes_pod_label_(.+)"
+      }
+      rule {
+        action        = "replace"
+        source_labels = ["__meta_kubernetes_namespace"]
+        target_label  = "namespace"
+      }
+      rule {
+        action        = "replace"
+        source_labels = ["__meta_kubernetes_pod_name"]
+        target_label  = "pod"
+      }
+      rule {
+        action        = "replace"
+        source_labels = ["__meta_kubernetes_pod_container_name"]
+        target_label  = "container"
+      }
+    }
+    pyroscope.ebpf "ebpf" {
+      targets    = discovery.relabel.kubernetes_pods_for_ebpf.output
+      forward_to = [pyroscope.write.pyroscope_write.receiver]
+    }
+    pyroscope.write "pyroscope_write" {
+      endpoint {
+        url = "{{ .Values.alloy.config.endpoint.url }}"
+        basic_auth {
+          username = "{{ .Values.alloy.config.endpoint.username }}"
+          password = "{{ .Values.alloy.config.endpoint.password }}"
+        }
+      }
+      external_labels = {
+        {{- range $key, $value := .Values.alloy.config.labels }}
+        {{ $key }} = "{{ $value }}",
+        {{- end }}
+      }
+    }

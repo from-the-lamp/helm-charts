@@ -1,0 +1,23 @@
+apiVersion: v2
+name: lamp-istio-system
+version: 0.0.1
+
+dependencies:
+  - name: istiod
+    version: 1.28.0
+    repository: https://istio-release.storage.googleapis.com/charts
+
+  - name: base
+    version: 1.28.0
+    repository: https://istio-release.storage.googleapis.com/charts
+
+  - name: ztunnel
+    version: 1.28.0
+    repository: https://istio-release.storage.googleapis.com/charts
+
+  - name: cni
+    version: 1.28.0
+    repository: https://istio-release.storage.googleapis.com/charts
+
+annotations:
+  notes: "InferencePool v1 (AI) support, Dual-stack (IPv4/IPv6) in beta, native nftables support."

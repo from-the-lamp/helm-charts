@@ -1,0 +1,25 @@
+{{- if .Values.auth.gitlab.enabled }}
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: grafana-sso-gitlab
+spec:
+  refreshInterval: "{{ .Values.externalSecrets.refreshInterval }}"
+  secretStoreRef:
+    kind: "{{ .Values.externalSecrets.kind }}"
+    name: "{{ .Values.externalSecrets.name }}"
+  target:
+    name: grafana-sso-gitlab
+    creationPolicy: "{{ .Values.externalSecrets.creationPolicy }}"
+    template:
+      data:
+        client-id: "{{`{{ .client_id }}`}}"
+        client-secret: "{{`{{ .client_secret }}`}}"
+  data:
+  - secretKey: client_id
+    remoteRef:
+      key: "{{ .Values.auth.gitlab.remoteSecretKeys.clientId }}"
+  - secretKey: client_secret
+    remoteRef:
+      key: "{{ .Values.auth.gitlab.remoteSecretKeys.clientSecret }}"
+{{- end }}

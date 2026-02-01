@@ -1,0 +1,17 @@
+{{- if index .Values "analysis" "metrics-latency-p95" "enabled" }}
+apiVersion: argoproj.io/v1alpha1
+kind: ClusterAnalysisTemplate
+metadata:
+  name: metrics-latency-p95
+spec:
+  args:
+    - name: url
+  metrics:
+    - name: latency-p95
+      interval: 1m
+      successCondition: result[0] < 0.3
+      failureCondition: result[0] > 0.5
+      provider:
+        prometheus:
+          query: histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[1m])) by (le))
+{{- end }}

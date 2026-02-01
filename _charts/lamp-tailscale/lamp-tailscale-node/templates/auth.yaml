@@ -1,0 +1,19 @@
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: tailscale-auth-key
+spec:
+  refreshInterval: "{{ .Values.externalSecrets.refreshInterval }}"
+  secretStoreRef:
+    kind: "{{ .Values.externalSecrets.kind }}"
+    name: "{{ .Values.externalSecrets.name }}"
+  target:
+    name: tailscale-auth-key
+    creationPolicy: "{{ .Values.externalSecrets.creationPolicy }}"
+    template:
+      data:
+        TS_AUTHKEY: "{{`{{ .auth_key }}`}}"
+  data:
+  - secretKey: auth_key
+    remoteRef:
+      key: {{ .Values.auth.externalSecretKey }}

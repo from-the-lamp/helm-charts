@@ -1,0 +1,13 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: "{{ .Release.Name }}-configs"
+  namespace: {{ .Release.Namespace }}
+data: 
+  asf: |
+    {{- tpl (.Files.Get "files/ASF.json") . | nindent 4 }}
+  ipc: |
+    {{- tpl (.Files.Get "files/IPC.config") . | nindent 4 }}
+  bot: |
+    {{- tpl (.Files.Get "files/bot.json") . | nindent 4 }}

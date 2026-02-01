@@ -1,0 +1,3 @@
+apiVersion: v2
+name: lamp-crossplane-modules
+version: 0.0.1

@@ -1,0 +1,8 @@
+apiVersion: v2
+name: lamp-pgadmin
+version: 0.0.1
+
+dependencies:
+  - name: pgadmin4
+    version: 1.50.0
+    repository: https://helm.runix.net

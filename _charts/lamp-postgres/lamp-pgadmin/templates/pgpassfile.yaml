@@ -1,0 +1,17 @@
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: pgadmin-pgpassfile
+spec:
+  refreshInterval: "{{ .Values.externalSecrets.refreshInterval }}"
+  secretStoreRef:
+    kind: "{{ .Values.externalSecrets.kind }}"
+    name: "{{ .Values.externalSecrets.name }}"
+  target:
+    name: pgadmin-pgpassfile
+    creationPolicy: "{{ .Values.externalSecrets.creationPolicy }}"
+    template:
+      data:
+        pgpassfile: '{{ include "auth.host" (index .Values "server") }}:{{ include "auth.port" (index .Values "server") }}:*:{{ include "auth.user" (index .Values "server") }}:{{ include "auth.pass" (index .Values "server") }}'
+  data:
+    {{- include "auth.remoteRefs" (index .Values "server") | nindent 4 }}

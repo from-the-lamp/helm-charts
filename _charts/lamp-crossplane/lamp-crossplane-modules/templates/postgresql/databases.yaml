@@ -1,0 +1,13 @@
+{{- if .Values.postgresql.enabled }}
+{{- range .Values.postgresql.databases }}
+apiVersion: postgresql.sql.crossplane.io/v1alpha1
+kind: Database
+metadata:
+  name: {{ .name }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  forProvider: {}
+---
+{{- end }}
+{{- end }}

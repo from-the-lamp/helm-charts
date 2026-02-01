@@ -1,0 +1,70 @@
+cluster:
+  mode: standalone
+  type: postgresql
+  fullnameOverride: postgres
+  cluster:
+    instances: 1
+    logLevel: info
+    primaryUpdateStrategy: unsupervised
+    postgresql:
+      parameters:
+        max_connections: "1000"
+        shared_buffers: 256MB
+        pg_stat_statements.max: '10000'
+        pg_stat_statements.track: all
+        auto_explain.log_min_duration: '10s'
+    storage:
+      size: 10Gi
+      storageClass: local-path
+    walStorage:
+      size: 1Gi
+      storageClass: local-path
+    monitoring:
+      enabled: true
+      podMonitor:
+        enabled: true
+      prometheusRule:
+        excludeRules:
+          - CNPGClusterHAWarning
+          - CNPGClusterHACritical
+    enableSuperuserAccess: true
+    superuserSecret: postgres-superuser
+    superuser:
+      username: postgres
+      remoteSecretKeys:
+        password: postgres-superuser-password
+
+    databases:
+      - name: remnawave
+        owner: remnawave
+
+    roles:
+      - name: remnawave
+        ensure: present
+        login: true
+        superuser: false
+        connectionLimit: -1
+        inherit: true
+        passwordSecret:
+          name: postgres-remnawave-password
+          remoteSecretKey: postgres-remnawave-password
+
+  poolers:
+    - name: rw
+      type: rw
+      poolMode: transaction
+      instances: 1
+      parameters:
+        max_client_conn: "1000"
+        default_pool_size: "25"
+      monitoring:
+        enabled: true
+        podMonitor:
+          enabled: true
+      template: {}
+
+externalSecrets:
+  kind: ClusterSecretStore
+  name: oracle
+  refreshInterval: 1h
+  creationPolicy: Orphan

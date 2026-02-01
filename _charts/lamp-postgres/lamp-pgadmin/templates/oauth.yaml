@@ -1,0 +1,26 @@
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: pgadmin-oauth
+spec:
+  refreshInterval: "{{ .Values.externalSecrets.refreshInterval }}"
+  secretStoreRef:
+    kind: "{{ .Values.externalSecrets.kind }}"
+    name: "{{ .Values.externalSecrets.name }}"
+  target:
+    name: pgadmin-oauth
+    creationPolicy: "{{ .Values.externalSecrets.creationPolicy }}"
+    template:
+      data:
+        OAUTH2_CLIENT_ID: "{{`{{ .client_id }}`}}"
+        OAUTH2_CLIENT_SECRET: "{{`{{ .client_secret }}`}}"
+        PGADMIN_CONFIG_ENHANCED_COOKIE_PROTECTION: "False"
+        PGADMIN_CONFIG_WTF_CSRF_CHECK_DEFAULT: "False"
+        PGADMIN_CONFIG_WTF_CSRF_ENABLED: "False"
+  data:
+  - secretKey: client_id
+    remoteRef:
+      key: "{{ .Values.oauth.remoteSecretKeys.client_id }}"
+  - secretKey: client_secret
+    remoteRef:
+      key: "{{ .Values.oauth.remoteSecretKeys.client_secret }}"

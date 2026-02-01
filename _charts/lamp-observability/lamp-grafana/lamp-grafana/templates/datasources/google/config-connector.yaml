@@ -1,0 +1,35 @@
+{{- if .Values.datasources.google.enabled }}
+apiVersion: iam.cnrm.cloud.google.com/v1beta1
+kind: IAMServiceAccount
+metadata:
+  name: grafana-monitoring-viewer
+  annotations:
+    cnrm.cloud.google.com/project-id: "{{ .Values.global.projectId }}"
+spec:
+  displayName: "grafana-monitoring-viewer"
+  description: "Service account for grafana"
+---
+apiVersion: iam.cnrm.cloud.google.com/v1beta1
+kind: IAMServiceAccountKey
+metadata:
+  name: grafana-monitoring-viewer
+  annotations:
+    cnrm.cloud.google.com/project-id: "{{ .Values.global.projectId }}"
+spec:
+  privateKeyType: "TYPE_GOOGLE_CREDENTIALS_FILE"
+  serviceAccountRef:
+    name: grafana-monitoring-viewer
+---
+apiVersion: iam.cnrm.cloud.google.com/v1beta1
+kind: IAMPolicyMember
+metadata:
+  name: grafana-monitoring-viewer
+  annotations:
+    cnrm.cloud.google.com/project-id: "{{ .Values.global.projectId }}"
+spec:
+  member: "serviceAccount:grafana-monitoring-viewer@{{ .Values.global.projectId }}.iam.gserviceaccount.com"
+  role: "roles/monitoring.viewer"
+  resourceRef:
+    kind: Project
+    external: "{{ .Values.global.projectId }}"
+{{- end }}

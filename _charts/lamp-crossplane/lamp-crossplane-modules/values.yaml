@@ -1,0 +1,50 @@
+externalSecrets:
+  kind: ClusterSecretStore
+  name: gcp-platform
+  refreshInterval: 1h
+
+mysql:
+  enabled: false
+  secretPrefix: "mysql-password-"
+  auth: {}
+  #   host: example-value
+  #   port: 3306
+  #   user: example-value
+  #   pass: example-value
+  #   remoteSecretKeys:
+  #     host: example-key-name
+  #     port:
+  #     user:
+  #     pass:
+  databases: []
+    # - name: example-db
+  users: []
+    # - name: exporter
+    #   randomPassword: false
+    #   resourceOptions:
+    #     maxUserConnections: 3
+    #   grants:
+    #     - privileges: [PROCESS, REPLICATION CLIENT, SELECT]
+    #       scope: all
+
+postgresql:
+  enabled: false
+  secretPrefix: "postgresql-password-"
+  auth: {}
+    # host: example-value
+    # port: 5432
+    # user: example-value
+    # pass: example-value
+    # remoteSecretKeys:
+    #   host: example-key-name
+    #   port: 
+    #   user: 
+    #   pass:
+  users: []
+    # - name: exporter
+    #   randomPassword: false
+    #   connectionLimit: 10
+    #   grants:
+    #     - memberOf: pg_monitor
+  databases: []
+    # - name: example-db

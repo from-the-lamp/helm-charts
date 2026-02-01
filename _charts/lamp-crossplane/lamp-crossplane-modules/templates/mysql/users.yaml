@@ -1,0 +1,52 @@
+{{- if .Values.mysql.enabled }}
+{{- range .Values.mysql.users }}
+apiVersion: mysql.sql.crossplane.io/v1alpha1
+kind: User
+metadata:
+  name: "{{ .name }}"
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  forProvider:
+    resourceOptions:
+      maxQueriesPerHour: {{ .resourceOptions.maxQueriesPerHour }}
+      maxUpdatesPerHour: {{ .resourceOptions.maxUpdatesPerHour }}
+      maxConnectionsPerHour: {{ .resourceOptions.maxConnectionsPerHour }}
+      maxUserConnections: {{ .resourceOptions.maxUserConnections }}
+    {{- if .randomPassword }}
+    writeConnectionSecretToRef:
+      name: "mysql-user-{{ .name }}"
+      namespace: "{{ $.Release.Namespace }}"
+    {{- else }}
+    passwordSecretRef:
+      name: "mysql-user-{{ .name }}"
+      namespace: "{{ $.Release.Namespace }}"
+      key: password
+    {{- end }}
+---
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: "mysql-user-{{ .name }}"
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  refreshInterval: "{{ $.Values.externalSecrets.refreshInterval }}"
+  secretStoreRef:
+    kind: "{{ $.Values.externalSecrets.kind }}"
+    name: "{{ $.Values.externalSecrets.name }}"
+  target:
+    name: "mysql-user-{{ .name }}"
+    creationPolicy: "{{ .Values.externalSecrets.creationPolicy }}"
+    template:
+      data:
+        password: "{{`{{ .pass }}`}}"
+  data:
+  - secretKey: pass
+    remoteRef:
+      key: "{{ $.Values.mysql.secretPrefix }}{{ .name }}"
+      conversionStrategy: Default	
+      decodingStrategy: None	
+      metadataPolicy: None
+{{- end }}
+{{- end }}

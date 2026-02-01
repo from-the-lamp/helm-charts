@@ -1,0 +1,29 @@
+{{- if .Values.mysql.enabled }}
+{{- range $user := .Values.mysql.users }}
+{{- range $i, $grant := $user.grants }}
+apiVersion: mysql.sql.crossplane.io/v1alpha1
+kind: Grant
+metadata:
+  name: "{{ $user.name }}-grant-{{ $i }}"
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  forProvider:
+    privileges:
+    {{- range $grant.privileges }}
+      - {{ . }}
+    {{- end }}
+    userRef:
+      name: {{ $user.name }}
+    {{- if eq $grant.scope "database" }}
+    databaseRef:
+      name: {{ $grant.database }}
+    {{- else if eq $grant.scope "table" }}
+    databaseRef:
+      name: {{ $grant.database }}
+    table: {{ $grant.table }}
+    {{- end }}
+---
+{{- end }}
+{{- end }}
+{{- end }}

@@ -1,0 +1,126 @@
+opentelemetry-demo:
+  opentelemetry-collector:
+    enabled: false
+  jaeger:
+    enabled: false
+  prometheus:
+    enabled: false
+  grafana:
+    enabled: false
+  opensearch:
+    enabled: false
+  default:
+    env:
+      - name: OTEL_SERVICE_NAME
+        valueFrom:
+          fieldRef:
+            apiVersion: v1
+            fieldPath: "metadata.labels['app.kubernetes.io/component']"
+      - name: OTEL_COLLECTOR_NAME
+        value: alloy-otlp.tempo
+      - name: OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE
+        value: cumulative
+      - name: OTEL_RESOURCE_ATTRIBUTES
+        value: 'service.name=$(OTEL_SERVICE_NAME),service.namespace=opentelemetry-demo,service.version={{ .Chart.AppVersion }}'
+  components:
+    accounting:
+      resources:
+        requests:
+          cpu: 10m
+          memory: 10Mi
+    ad:
+      resources:
+        requests:
+          cpu: 10m
+          memory: 10Mi
+    cart:
+      resources:
+        requests:
+          cpu: 10m
+          memory: 10Mi
+    checkout:
+      resources:
+        requests:
+          cpu: 10m
+          memory: 10Mi
+    currency:
+      resources:
+        requests:
+          cpu: 10m
+          memory: 10Mi
+    email:
+      resources:
+        requests:
+          cpu: 10m
+          memory: 10Mi
+    fraud-detection:
+      resources:
+        requests:
+          cpu: 10m
+          memory: 10Mi
+    frontend:
+      resources:
+        requests:
+          cpu: 10m
+          memory: 10Mi
+    frontend-proxy:
+      resources:
+        requests:
+          cpu: 10m
+          memory: 10Mi
+    image-provider:
+      resources:
+        requests:
+          cpu: 10m
+          memory: 10Mi
+    load-generator:
+      resources:
+        requests:
+          cpu: 10m
+          memory: 10Mi
+    payment:
+      resources:
+        requests:
+          cpu: 10m
+          memory: 10Mi
+    product-catalog:
+      resources:
+        requests:
+          cpu: 10m
+          memory: 10Mi
+    quote:
+      resources:
+        requests:
+          cpu: 10m
+          memory: 10Mi
+    recommendation:
+      resources:
+        requests:
+          cpu: 10m
+          memory: 10Mi
+    shipping:
+      resources:
+        requests:
+          cpu: 10m
+          memory: 10Mi
+    flagd:
+      resources:
+        requests:
+          cpu: 10m
+          memory: 10Mi
+    flagd:
+      resources:
+        requests:
+          cpu: 10m
+          memory: 10Mi
+    kafka:
+      resources:
+        requests:
+          cpu: 10m
+          memory: 10Mi
+    valkey-cart:
+      resources:
+        requests:
+          cpu: 10m
+          memory: 10Mi
+          

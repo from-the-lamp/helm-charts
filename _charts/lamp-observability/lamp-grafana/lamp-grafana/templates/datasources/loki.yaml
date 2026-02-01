@@ -1,0 +1,23 @@
+{{- if .Values.datasources.loki.enabled }}
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDatasource
+metadata:
+  name: loki
+spec:
+  instanceSelector:
+    matchLabels:
+      dashboards: "grafana"
+  datasource:
+    name: Loki
+    type: loki
+    uid: loki
+    access: proxy
+    url: {{ .Values.datasources.loki.url}}
+    jsonData:
+      derivedFields:
+        - name: trace_id
+          matcherRegex: 'trace_id=([a-f0-9]{32})'
+          url: '${__value.raw}' 
+          datasourceUid: tempo
+          urlDisplayLabel: Trace
+{{- end }}

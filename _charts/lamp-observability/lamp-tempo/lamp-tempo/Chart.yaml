@@ -1,0 +1,19 @@
+apiVersion: v2
+name: lamp-tempo
+version: 0.0.6
+
+dependencies:
+  - name: tempo-distributed
+    alias: tempo
+    version: 1.48.0
+    repository: https://grafana.github.io/helm-charts
+    condition: tempo.enabled
+    
+  - name: tempo-vulture
+    alias: vulture
+    version: 0.9.1
+    repository: https://grafana.github.io/helm-charts
+    condition: vulture.enabled
+
+annotations:
+  notes: "Important security fixes and schema changes (Upgrading notes < 1.48)."

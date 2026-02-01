@@ -1,0 +1,38 @@
+{{- if .Values.mysql.enabled }}
+apiVersion: mysql.sql.crossplane.io/v1alpha1
+kind: ProviderConfig
+metadata:
+  name: default
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+spec:
+  credentials:
+    source: MySQLConnectionSecret
+    connectionSecretRef:
+      namespace: "{{ .Release.Namespace }}"
+      name: mysql-user-admin
+  tls: preferred
+---
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: mysql-user-admin
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+spec:
+  refreshInterval: "{{ .Values.externalSecrets.refreshInterval }}"
+  secretStoreRef:
+    kind: "{{ .Values.externalSecrets.kind }}"
+    name: "{{ .Values.externalSecrets.name }}"
+  target:
+    name: mysql-user-admin
+    creationPolicy: "{{ .Values.externalSecrets.creationPolicy }}"
+    template:
+      data:
+        endpoint: {{ include "auth.host" (index .Values "mysql") | quote }}
+        port: {{ include "auth.port" (index .Values "mysql") | quote}}
+        username: {{ include "auth.user" (index .Values "mysql") | quote }}
+        password: {{ include "auth.pass" (index .Values "mysql") | quote }}
+  data:
+    {{- include "auth.remoteRefs" (index .Values "mysql") | nindent 4 }}
+{{- end }}

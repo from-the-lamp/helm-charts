@@ -1,0 +1,22 @@
+image:
+  name: tailscale/tailscale
+  tag: stable
+
+hostname: k3s-infra-exit-node
+exitNode: true
+tags:
+  - exit
+
+auth:
+  externalSecretKey: tailscale-auth-key
+
+resources:
+  requests:
+    cpu: "10m"
+    memory: "10Mi"
+
+externalSecrets:
+  kind: ClusterSecretStore
+  name: oracle
+  refreshInterval: 1h
+  creationPolicy: Orphan

@@ -1,0 +1,141 @@
+global:
+  projectId: example-dev
+
+image:
+  name: grafana/grafana
+  tag: 10.0.3
+  
+domain: grafana.example.infra.cloud
+ingress:
+  enabled: false
+  ingressClassName: nginx-internal
+
+homeDashboardUid: loki-logs-by-service
+
+auth:
+  disable_login_form: true
+  auto_assign_org_role: Admin
+  viewers_can_edit: true
+  google:
+    enabled: false
+    allow_sign_up: true
+    auto_login: true
+    allowed_domains: example.allowed.domain
+    remoteSecretKeys:
+      clientId: grafana-oauth-client-id
+      clientSecret: grafana-oauth-client-secret
+  gitlab:
+    enabled: true
+    allow_sign_up: true
+    auto_login: true
+    auth_url: https://gitlab.com/oauth/authorize
+    token_url: https://gitlab.com/oauth/token
+    api_url: https://gitlab.com/api/v4
+    scopes: "read_user read_api"
+    tls_skip_verify_insecure: false
+    use_pkce: true
+    use_refresh_token: true
+    remoteSecretKeys:
+      clientId: grafana-oauth-client-id
+      clientSecret: grafana-oauth-client-secret
+
+datasources:
+  victoria_metrics:
+    enabled: true
+    url: http://vmselect-victoria-metrics.victoria-metrics:8481/select/0/prometheus
+  loki:
+    enabled: true
+    url: http://loki.loki.svc.cluster.local:3100
+  tempo:
+    enabled: true
+    url: http://tempo-query-frontend.tempo.svc.cluster.local:3200
+  pyroscope:
+    enabled: true
+    url: http://pyroscope.pyroscope.svc.cluster.local:4040
+  google:
+    enabled: false
+    serviceAccountEmail: grafana-monitoring-viewer@example-infra.iam.gserviceaccount.com
+    defaultProject: example-infra
+
+dashboards:
+  # Common
+  victoria_metrics:
+    enabled: true
+  cert_manager:
+    enabled: true
+  kubernetes: 
+    enabled: true
+    apiServer: false
+    global: true
+    namespaces: true
+    nodes: true
+    pods: true
+  google:
+    enabled: false
+    cloud-storage-monitoring: true
+    cloudfunctions-monitoring: true
+    cloudsql-monitoring: true
+    cloudsql-mysql-monitoring: true
+    cloudsql-postgre-monitoring: true
+    cloudtasks-monitoring: true
+    dataprocessing-monitoring: true
+    firewall-insight-monitoring: true
+    gce-network-monitoring: true
+    gce-vm-instance-monitoring: true
+    gke-prometheus-pod-node-monitoring: true
+    https-lb-backend-services-monitoring: true
+    https-loadbalancer-monitoring: true
+    micro-service-monitoring: true
+    network-tcp-loadbalancer-monitoring: true
+  argocd:
+    enabled: true
+  loki: 
+    enabled: true
+    logs-by-service: true
+  # Optional
+  istio:
+    enabled: false
+    mesh: true
+    service: true
+    workload: true
+    performance: true
+    control-plane: true
+    wasm: true
+  nginx:
+    enabled: false
+    ingress: true
+    loki: true
+  mongodb:
+    enabled: false
+  mysql:
+    enabled: false
+    mixin: true
+  postgresql: 
+    enabled: false
+    cnpg: false
+    mixin: false
+  kafka: 
+    enabled: false
+    strimzi-cruise-control: true
+    strimzi-bridge: true
+    strimzi-connect: true
+    strimzi-exporter: true
+    strimzi-mirror-maker: true
+    strimzi-oauth: true
+    strimzi-kafka: true
+    strimzi-kraft: true
+    strimzi-operators: true
+  redis:
+    enabled: false
+    exporter: true
+  elasticsearch:
+    enabled: false
+    overview: true
+  hazelcast:
+    enabled: false
+
+externalSecrets:
+  kind: ClusterSecretStore
+  name: oracle
+  refreshInterval: 1h
+  creationPolicy: Orphan

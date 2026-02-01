@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "remnawave-panel.fullname" . }}
+  labels:
+    {{- include "remnawave-panel.labels" . | nindent 4 }}
+  {{- with .Values.deployment.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  replicas: {{ .Values.deployment.replicas }}
+  selector:
+    matchLabels:
+      {{- include "remnawave-panel.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        {{- include "remnawave-panel.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+      - image: {{ .Values.image.name }}:{{ .Values.image.tag }}
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        name: remnawave
+        ports:
+          - name: http
+            containerPort: {{ .Values.service.port }}
+          - name: http-metrics
+            containerPort: {{ .Values.metrics.service.port }}
+        envFrom:
+          - configMapRef:
+              name: {{ include "remnawave-panel.fullname" . }}-config
+          {{- if and .Values.existingSecret (ne .Values.existingSecret "") }}
+          - secretRef:
+              name: {{ .Values.existingSecret }}
+          {{- end }}
+        {{- with .Values.probes.liveness }}
+        livenessProbe:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+        {{- with .Values.probes.readiness }}
+        readinessProbe:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+        {{- with .Values.probes.startup }}
+        startupProbe:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}

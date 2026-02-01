@@ -1,0 +1,26 @@
+{{- $project := .Values.project -}}
+{{- range $app := .Values.apps }}
+{{- range $warehouses := $.Values.warehouses }}
+---
+apiVersion: kargo.akuity.io/v1alpha1
+kind: Warehouse
+metadata:
+  name: {{ $warehouses.name }}-{{ $app.name }}
+  namespace: {{ $project.prefix }}-{{ $app.name }}
+spec:
+  subscriptions:
+  {{- if $warehouses.subscriptions }}
+    {{- toYaml $warehouses.subscriptions | nindent 4 }}
+  {{- else }}
+  - image:
+      repoURL: {{ $app.image }}
+      imageSelectionStrategy: {{ $warehouses.imageSelectionStrategy }}
+      {{- if eq $warehouses.imageSelectionStrategy "NewestBuild" }}
+      allowTags: {{ $warehouses.allowTags | quote }}
+      {{- end }}
+      {{- if eq $warehouses.imageSelectionStrategy "Digest" }}
+      semverConstraint: {{ $warehouses.constraint | quote }}
+      {{- end }}
+  {{- end }}
+{{- end }}
+{{- end }}

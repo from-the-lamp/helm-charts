@@ -1,0 +1,40 @@
+name: istio-gateway
+gatewayClassName: istio
+addresses: []
+  # - type: IPAddress
+  #   value: 10.1.1.5
+infrastructure:
+  annotations: {}
+    # oci.oraclecloud.com/load-balancer-type: "lb"
+    # oci.oraclecloud.com/node-label-selector: "node-role=worker"
+    # service.beta.kubernetes.io/oci-load-balancer-shape: "flexible"
+    # service.beta.kubernetes.io/oci-load-balancer-shape-flex-min: "10"
+    # service.beta.kubernetes.io/oci-load-balancer-shape-flex-max: "10"
+    # service.beta.kubernetes.io/oci-load-balancer-security-list-management-mode: "All"
+listeners:
+  - name: http
+    protocol: HTTP
+    port: 80
+    allowedRoutes:
+      namespaces:
+        from: All
+  - name: https
+    protocol: HTTPS
+    port: 443
+    allowedRoutes:
+      namespaces:
+        from: All
+    # tls:
+    #   mode: Terminate
+    #   certificateRefs:
+    #   - kind: Secret
+    #     group: cert-manager.io
+    #     name: wildcard-example-infra-cloud
+
+certificates: []
+  # - name: wildcard-example-infra-cloud
+  #   issuer:
+  #     kind: ClusterIssuer
+  #     name: selfsigned-cluster-issuer
+  #   hosts:
+  #     - "*.example.infra.cloud"

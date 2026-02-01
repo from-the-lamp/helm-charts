@@ -1,0 +1,43 @@
+server:
+  admin:
+    password: examplepass
+
+bots:
+  onlyrun:
+    user: exampleuser
+    pass: examplepass
+    FarmingPreferences: 8
+    GamesPlayedWhileIdle:
+    - 570
+    - 730
+    - 578080
+    - 1172470
+    - 1085660
+    - 1599340
+    - 252950
+    - 23095158
+    - 1938090
+
+gateway:
+  enabled: false
+  external: true
+  istioSelector: ingressgateway-alb
+  hosts:
+  - app.example.com
+  tls:
+    enabled: true
+    issuerRef:
+      name: origin-ca-issuer
+      kind: ClusterOriginIssuer
+      group: cert-manager.k8s.cloudflare.com
+    cert:
+      duration: 1440h
+      renewBefore: 120h
+  auth: 
+    enabled: false
+    provider: oauth2-proxy
+  virtualService:
+    enabled: true
+    basicAuth:
+      enabled: false
+      credentials: #base64

@@ -1,0 +1,36 @@
+{{- if .Values.dashboards.mysql.enabled }}
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaFolder
+metadata:
+  name: mysql
+spec:
+  instanceSelector:
+    matchLabels:
+      dashboards: "grafana"
+  title: MySQL
+---
+{{- if .Values.dashboards.mysql.mixin }}
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDashboard
+metadata:
+  name: mysql
+spec:
+  folder: MySQL
+  instanceSelector:
+    matchLabels:
+      dashboards: "grafana"
+  configMapRef:
+    name: dashboard-mysql
+    key: json
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dashboard-mysql
+  annotations:
+    argocd.argoproj.io/sync-options: ServerSideApply=true
+data:
+  json: >
+    {{- .Files.Get "files/mysql/mysql-mixin.json" | nindent 4 }}
+{{- end }}
+{{- end }}

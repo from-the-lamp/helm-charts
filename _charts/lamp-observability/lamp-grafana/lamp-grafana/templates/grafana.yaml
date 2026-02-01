@@ -1,0 +1,103 @@
+apiVersion: grafana.integreatly.org/v1beta1
+kind: Grafana
+metadata:
+  name: grafana
+  labels:
+    dashboards: "grafana"
+spec:
+  preferences:
+    homeDashboardUid: "{{ .Values.homeDashboardUid }}"
+  config:
+    log:
+      mode: "console"
+    server:
+      root_url: "https://{{ .Values.domain }}"
+    auth:
+      disable_login_form: "{{ .Values.auth.disable_login_form }}"
+    users:
+      auto_assign_org_role: "{{ .Values.auth.auto_assign_org_role }}"
+      viewers_can_edit: "{{ .Values.auth.viewers_can_edit }}"
+    {{- if .Values.auth.google.enabled }}
+    auth.google:
+      enabled: "true"
+      scopes: https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email
+      auth_url: https://accounts.google.com/o/oauth2/auth
+      token_url: https://accounts.google.com/o/oauth2/token
+      allowed_domains: "{{ .Values.auth.google.allowed_domains }}"
+      allow_sign_up: "{{ .Values.auth.google.allow_sign_up }}"
+      auto_login: "{{ .Values.auth.google.auto_login }}"
+    {{- end }}
+    {{- if .Values.auth.gitlab.enabled }}
+    auth.gitlab:
+      enabled: "true"
+      allow_sign_up: "{{ .Values.auth.gitlab.allow_sign_up }}"
+      auto_login: "{{ .Values.auth.gitlab.auto_login }}"
+      auth_url: "{{ .Values.auth.gitlab.auth_url }}"
+      token_url: "{{ .Values.auth.gitlab.token_url }}"
+      api_url: "{{ .Values.auth.gitlab.api_url }}"
+      scopes: "{{ .Values.auth.gitlab.scopes }}"
+      client_id: ${GF_AUTH_GITLAB_CLIENT_ID}
+      client_secret: ${GF_AUTH_GITLAB_CLIENT_SECRET}
+    {{- end }}
+  deployment:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: grafana
+              image: "{{ .Values.image.name }}:{{ .Values.image.tag }}"
+              env:
+              {{- if .Values.auth.google.enabled }}
+                - name: GF_AUTH_GOOGLE_CLIENT_ID
+                  valueFrom:
+                    secretKeyRef:
+                      name: grafana-sso-google
+                      key: client-id
+                - name: GF_AUTH_GOOGLE_CLIENT_SECRET
+                  valueFrom:
+                    secretKeyRef:
+                      name: grafana-sso-google
+                      key: client-secret
+              {{- if .Values.datasources.google.enabled }}
+                - name: GCP_SA_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      name: grafana-monitoring-viewer
+                      key: key.json
+              {{- end}}
+              {{- end}}
+              {{- if .Values.auth.gitlab.enabled }}
+                - name: GF_AUTH_GITLAB_CLIENT_ID
+                  valueFrom:
+                    secretKeyRef:
+                      name:  grafana-sso-gitlab
+                      key: client-id
+                - name: GF_AUTH_GITLAB_CLIENT_SECRET
+                  valueFrom:
+                    secretKeyRef:
+                      name:  grafana-sso-gitlab
+                      key: client-secret
+              {{- end }}
+  {{- if .Values.ingress.enabled }}
+  ingress:
+    metadata:
+      annotations:
+        cert-manager.io/cluster-issuer: selfsigned-cluster-issuer
+    spec:
+      ingressClassName: "{{ .Values.ingress.ingressClassName }}"
+      rules:
+        - host: "{{ .Values.domain }}"
+          http:
+            paths:
+              - backend:
+                  service:
+                    name: grafana-service
+                    port:
+                      number: 3000
+                path: /
+                pathType: Prefix
+      tls:
+        - hosts:
+            - "{{ .Values.domain }}"
+          secretName: grafana-tls-secret
+  {{- end }}

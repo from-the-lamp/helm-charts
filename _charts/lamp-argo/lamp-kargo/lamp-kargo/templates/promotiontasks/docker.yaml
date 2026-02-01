@@ -1,0 +1,45 @@
+apiVersion: kargo.akuity.io/v1alpha1
+kind: ClusterPromotionTask
+metadata:
+  name: docker
+spec:
+  vars:
+  - name: argocdApp
+  - name: imageName
+  - name: gitRepoURL
+  - name: gitBranch
+  - name: gitEnvPath
+  - name: gitResultFile
+  - name: gitImageNamePath
+  - name: gitImageTagPath
+  - name: gitImageDigestPath
+  steps:
+  - uses: git-clone
+    config:
+      repoURL: ${{`{{ vars.gitRepoURL }}`}}
+      checkout:
+      - branch: ${{`{{ vars.gitBranch }}`}}
+        path: ./out
+  - uses: yaml-update
+    as: update-image
+    config:
+      path: ./out/${{`{{ vars.gitEnvPath }}`}}/${{`{{ vars.gitResultFile }}`}}
+      updates:
+      - key: ${{`{{ vars.gitImageNamePath }}`}}
+        value: ${{`{{ vars.imageName }}`}}
+      - key: ${{`{{ vars.gitImageTagPath }}`}}
+        value: ${{`{{ imageFrom(vars.imageName, warehouse(ctx.targetFreight.origin.name)).Tag }}`}}
+      - key: ${{`{{ vars.gitImageDigestPath }}`}}
+        value: ${{`{{ imageFrom(vars.imageName, warehouse(ctx.targetFreight.origin.name)).Digest }}`}}
+  - uses: git-commit
+    as: commit
+    config:
+      path: ./out
+      message: ${{`{{ task.outputs['update-image'].commitMessage }}`}} [skip ci]
+  - uses: git-push
+    config:
+      path: ./out
+  - uses: argocd-update
+    config:
+      apps:
+      - name: ${{`{{ vars.argocdApp }}`}}

@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-app
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: {{ .Release.Name }}-app
+  annotations:
+    reloader.stakater.com/auto: "true"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-app
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: {{ .Release.Name }}-app
+    spec:
+      containers:
+      - image: justarchi/archisteamfarm
+        imagePullPolicy: IfNotPresent
+        name: archisteamfarm
+        ports:
+        - containerPort: 1242
+          protocol: TCP
+        volumeMounts:
+        - name: cache
+          mountPath: /app/config
+        - name: "{{ .Release.Name }}-configs"
+          subPath: asf
+          mountPath: /app/config/ASF.json
+        - name: "{{ .Release.Name }}-configs"
+          subPath: ipc
+          mountPath: /app/config/IPC.config
+        - name: "{{ .Release.Name }}-configs"
+          subPath: bot
+          mountPath: /app/config/bot.json
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000 
+        fsGroup: 1000
+      volumes:
+      - name: cache
+        emptyDir: {}
+      - name: "{{ .Release.Name }}-configs"
+        configMap:
+          name: "{{ .Release.Name }}-configs"

@@ -1,0 +1,25 @@
+alloy:
+  fullnameOverride: alloy-logs
+  alloy:
+    configMap:
+      create: false
+      name: alloy-logs-config
+      key: config
+  config:
+    logging:
+      level: info
+    endpoint:
+      url: https://loki.infra.example.cloud/loki/api/v1/push
+      tls:
+        enabled: false
+        skip_verify: true
+    labels:
+      cluster: staging
+    selector:
+      label:
+        enabled: false
+        label: "alloy.logs=enabled"
+      namespace:
+        enabled: false
+        namespaces:
+          - example-ns

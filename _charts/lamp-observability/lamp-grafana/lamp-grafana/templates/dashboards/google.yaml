@@ -1,0 +1,386 @@
+{{- if .Values.dashboards.google.enabled }}
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaFolder
+metadata:
+  name: google
+spec:
+  instanceSelector:
+    matchLabels:
+      dashboards: "grafana"
+  title: Google
+---
+{{- if index .Values "dashboards" "google" "cloud-storage-monitoring" }}
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDashboard
+metadata:
+  name: google-cloud-storage-monitoring
+spec:
+  folder: Google
+  instanceSelector:
+    matchLabels:
+      dashboards: "grafana"
+  configMapRef:
+    name: dashboard-google-cloud-storage-monitoring
+    key: json
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dashboard-google-cloud-storage-monitoring
+  annotations:
+    argocd.argoproj.io/sync-options: ServerSideApply=true
+data:
+  json: >
+    {{- .Files.Get "files/google/cloud-storage-monitoring.json" | nindent 4 }}
+{{- end }}
+---
+{{- if index .Values "dashboards" "google" "cloudfunctions-monitoring" }}
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDashboard
+metadata:
+  name: google-cloudfunctions-monitoring
+spec:
+  folder: Google
+  instanceSelector:
+    matchLabels:
+      dashboards: "grafana"
+  configMapRef:
+    name: dashboard-google-cloudfunctions-monitoring
+    key: json
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dashboard-google-cloudfunctions-monitoring
+  annotations:
+    argocd.argoproj.io/sync-options: ServerSideApply=true
+data:
+  json: >
+    {{- .Files.Get "files/google/cloudfunctions-monitoring.json" | nindent 4 }}
+{{- end }}
+---
+{{- if index .Values "dashboards" "google" "cloudsql-monitoring" }}
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDashboard
+metadata:
+  name: google-cloudsql-monitoring
+spec:
+  folder: Google
+  instanceSelector:
+    matchLabels:
+      dashboards: "grafana"
+  configMapRef:
+    name: dashboard-cloudsql-monitoring
+    key: json
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dashboard-cloudsql-monitoring
+  annotations:
+    argocd.argoproj.io/sync-options: ServerSideApply=true
+data:
+  json: >
+    {{- .Files.Get "files/google/cloudsql-monitoring.json" | nindent 4 }}
+{{- end }}
+---
+{{- if index .Values "dashboards" "google" "cloudsql-mysql-monitoring" }}
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDashboard
+metadata:
+  name: google-cloudsql-mysql-monitoring
+spec:
+  folder: Google
+  instanceSelector:
+    matchLabels:
+      dashboards: "grafana"
+  configMapRef:
+    name: dashboard-cloudsql-mysql-monitoring
+    key: json
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dashboard-cloudsql-mysql-monitoring
+  annotations:
+    argocd.argoproj.io/sync-options: ServerSideApply=true
+data:
+  json: >
+    {{- .Files.Get "files/google/cloudsql-mysql-monitoring.json" | nindent 4 }}
+{{- end }}
+---
+{{- if index .Values "dashboards" "google" "cloudsql-postgre-monitoring" }}
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDashboard
+metadata:
+  name: google-cloudsql-postgre-monitoring
+spec:
+  folder: Google
+  instanceSelector:
+    matchLabels:
+      dashboards: "grafana"
+  configMapRef:
+    name: dashboard-cloudsql-postgre-monitoring
+    key: json
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dashboard-cloudsql-postgre-monitoring
+  annotations:
+    argocd.argoproj.io/sync-options: ServerSideApply=true
+data:
+  json: >
+    {{- .Files.Get "files/google/cloudsql-postgre-monitoring.json" | nindent 4 }}
+{{- end }}
+---
+{{- if index .Values "dashboards" "google" "cloudtasks-monitoring" }}
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDashboard
+metadata:
+  name: google-cloudtasks-monitoring
+spec:
+  folder: Google
+  instanceSelector:
+    matchLabels:
+      dashboards: "grafana"
+  configMapRef:
+    name: dashboard-cloudtasks-monitoring
+    key: json
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dashboard-cloudtasks-monitoring
+  annotations:
+    argocd.argoproj.io/sync-options: ServerSideApply=true
+data:
+  json: >
+    {{- .Files.Get "files/google/cloudtasks-monitoring.json" | nindent 4 }}
+{{- end }}
+---
+{{- if index .Values "dashboards" "google" "dataprocessing-monitoring" }}
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDashboard
+metadata:
+  name: google-dataprocessing-monitoring
+spec:
+  folder: Google
+  instanceSelector:
+    matchLabels:
+      dashboards: "grafana"
+  configMapRef:
+    name: dashboard-dataprocessing-monitoring
+    key: json
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dashboard-dataprocessing-monitoring
+  annotations:
+    argocd.argoproj.io/sync-options: ServerSideApply=true
+data:
+  json: >
+    {{- .Files.Get "files/google/dataprocessing-monitoring.json" | nindent 4 }}
+{{- end }}
+---
+{{- if index .Values "dashboards" "google" "firewall-insight-monitoring" }}
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDashboard
+metadata:
+  name: google-firewall-insight-monitoring
+spec:
+  folder: Google
+  instanceSelector:
+    matchLabels:
+      dashboards: "grafana"
+  configMapRef:
+    name: dashboard-firewall-insight-monitoring
+    key: json
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dashboard-firewall-insight-monitoring
+  annotations:
+    argocd.argoproj.io/sync-options: ServerSideApply=true
+data:
+  json: >
+    {{- .Files.Get "files/google/firewall-insight-monitoring.json" | nindent 4 }}
+{{- end }}
+---
+{{- if index .Values "dashboards" "google" "gce-network-monitoring" }}
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDashboard
+metadata:
+  name: google-gce-network-monitoring
+spec:
+  folder: Google
+  instanceSelector:
+    matchLabels:
+      dashboards: "grafana"
+  configMapRef:
+    name: dashboard-gce-network-monitoring
+    key: json
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dashboard-gce-network-monitoring
+  annotations:
+    argocd.argoproj.io/sync-options: ServerSideApply=true
+data:
+  json: >
+    {{- .Files.Get "files/google/gce-network-monitoring.json" | nindent 4 }}
+{{- end }}
+---
+{{- if index .Values "dashboards" "google" "gce-vm-instance-monitoring" }}
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDashboard
+metadata:
+  name: google-gce-vm-instance-monitoring
+spec:
+  folder: Google
+  instanceSelector:
+    matchLabels:
+      dashboards: "grafana"
+  configMapRef:
+    name: dashboard-gce-vm-instance-monitoring
+    key: json
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dashboard-gce-vm-instance-monitoring
+  annotations:
+    argocd.argoproj.io/sync-options: ServerSideApply=true
+data:
+  json: >
+    {{- .Files.Get "files/google/gce-vm-instance-monitoring.json" | nindent 4 }}
+{{- end }}
+---
+{{- if index .Values "dashboards" "google" "gke-prometheus-pod-node-monitoring" }}
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDashboard
+metadata:
+  name: google-gke-prometheus-pod-node-monitoring
+spec:
+  folder: Google
+  instanceSelector:
+    matchLabels:
+      dashboards: "grafana"
+  configMapRef:
+    name: dashboard-gke-prometheus-pod-node-monitoring
+    key: json
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dashboard-gke-prometheus-pod-node-monitoring
+  annotations:
+    argocd.argoproj.io/sync-options: ServerSideApply=true
+data:
+  json: >
+    {{- .Files.Get "files/google/gke-prometheus-pod-node-monitoring.json" | nindent 4 }}
+{{- end }}
+---
+{{- if index .Values "dashboards" "google" "https-lb-backend-services-monitoring" }}
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDashboard
+metadata:
+  name: google-https-lb-backend-services-monitoring
+spec:
+  folder: Google
+  instanceSelector:
+    matchLabels:
+      dashboards: "grafana"
+  configMapRef:
+    name: dashboard-https-lb-backend-services-monitoring
+    key: json
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dashboard-https-lb-backend-services-monitoring
+  annotations:
+    argocd.argoproj.io/sync-options: ServerSideApply=true
+data:
+  json: >
+    {{- .Files.Get "files/google/https-lb-backend-services-monitoring.json" | nindent 4 }}
+{{- end }}
+---
+{{- if index .Values "dashboards" "google" "https-loadbalancer-monitoring" }}
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDashboard
+metadata:
+  name: google-https-loadbalancer-monitoring
+spec:
+  folder: Google
+  instanceSelector:
+    matchLabels:
+      dashboards: "grafana"
+  configMapRef:
+    name: dashboard-https-loadbalancer-monitoring
+    key: json
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dashboard-https-loadbalancer-monitoring
+  annotations:
+    argocd.argoproj.io/sync-options: ServerSideApply=true
+data:
+  json: >
+    {{- .Files.Get "files/google/https-loadbalancer-monitoring.json" | nindent 4 }}
+{{- end }}
+---
+{{- if index .Values "dashboards" "google" "micro-service-monitoring" }}
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDashboard
+metadata:
+  name: google-micro-service-monitoring
+spec:
+  folder: Google
+  instanceSelector:
+    matchLabels:
+      dashboards: "grafana"
+  configMapRef:
+    name: dashboard-micro-service-monitoring
+    key: json
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dashboard-micro-service-monitoring
+  annotations:
+    argocd.argoproj.io/sync-options: ServerSideApply=true
+data:
+  json: >
+    {{- .Files.Get "files/google/micro-service-monitoring.json" | nindent 4 }}
+{{- end }}
+---
+{{- if index .Values "dashboards" "google" "network-tcp-loadbalancer-monitoring" }}
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDashboard
+metadata:
+  name: google-network-tcp-loadbalancer-monitoring
+spec:
+  folder: Google
+  instanceSelector:
+    matchLabels:
+      dashboards: "grafana"
+  configMapRef:
+    name: dashboard-network-tcp-loadbalancer-monitoring
+    key: json
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dashboard-network-tcp-loadbalancer-monitoring
+  annotations:
+    argocd.argoproj.io/sync-options: ServerSideApply=true
+data:
+  json: >
+    {{- .Files.Get "files/google/network-tcp-loadbalancer-monitoring.json" | nindent 4 }}
+{{- end }}
+{{- end }}

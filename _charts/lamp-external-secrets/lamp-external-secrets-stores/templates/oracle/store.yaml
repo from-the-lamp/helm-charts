@@ -1,0 +1,25 @@
+{{- range .Values.clusterStores }}
+---
+apiVersion: external-secrets.io/v1
+kind: ClusterSecretStore
+metadata:
+  name: {{ .name }}
+spec:
+  provider:
+    oracle:
+      vault: {{ .ocid }}
+      region: {{ .region }}
+      principalType: UserPrincipal
+      auth:
+        user: {{ .user }}
+        tenancy: {{ .tenancy }}
+        secretRef:
+          privatekey:
+            namespace: {{ $.Release.Namespace }}
+            name: {{ .name }}
+            key: privateKey
+          fingerprint:
+            namespace: {{ $.Release.Namespace }}
+            name: {{ .name }}
+            key: fingerprint
+{{- end }}

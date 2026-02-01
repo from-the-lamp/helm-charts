@@ -1,0 +1,70 @@
+# 🏗️ ArgoCD Applications
+
+This repository manages **ArgoCD Application** manifests and custom **Helm charts** for deploying infrastructure and product components across multiple environments.
+
+## 📁 Repository Structure
+
+The project is organized to separate reusable logic (charts) from environment-specific configurations:
+
+- **[`_charts/`](./_charts)**: Contains custom Helm charts. Each chart is a self-contained unit of deployment logic.
+- **[`infra/`](./infra)** Infrastructure environment (cluster `prod-0`) ArgoCD applications, including product-level deployments.
+- **[`prod-0/`](./prod-0)**: Production environment (cluster `prod-0`) ArgoCD applications, including product-level deployments.
+
+## 📊 Compatibility Matrix
+
+<!-- MATRIX_START -->
+
+| Chart | Version | Dependencies | Notes |
+| :--- | :--- | :--- | :--- |
+{{- range (datasource "charts" | coll.Sort "name") }}
+{{- $dir := .path | filepath.Dir -}}
+{{- $note := "" -}}
+{{- if (has . "annotations") -}}
+  {{- $note = .annotations.notes -}}
+{{- end -}}
+{{- if not $note }}
+  {{- range (coll.Slice "NOTES.txt" "NOTES.md") }}
+    {{- if file.Exists (filepath.Join $dir .) }}
+      {{- $note = (file.Read (filepath.Join $dir .) | strings.TrimSpace | strings.Split "\n" | coll.First) -}}
+      {{- break -}}
+    {{- end }}
+  {{- end }}
+{{- end }}
+| {{ .name }} | `{{ .version }}` | {{ if (has . "dependencies") }}{{ range $i, $d := .dependencies }}{{ if $i }}, {{ end }}{{ $d.name }} (`{{ $d.version }}`) {{ end }}{{ else }}-{{ end }} | {{ $note | default "-" }} |
+{{- end }}
+
+<!-- MATRIX_END -->
+
+## 🤖 Automation & CI/CD
+
+### 🔄 Renovate
+We use [Renovate](https://www.mend.io/renovate/) to keep our dependencies up-to-date. It automatically scans the repository for:
+- Helm chart versions in `Chart.yaml`
+- Container images in `Dockerfile` and values files
+- External dependencies in ArgoCD manifests
+
+Updates are proposed via Merge Requests, ensuring our infrastructure stays secure and current.
+
+### 🚀 GitLab CI
+The pipeline is designed to:
+1. **Build** and push the custom Docker image used for CI tasks.
+2. **Package** and push Helm charts from `_charts/` to our OCI registry when changes are detected.
+3. **Validate** manifests to ensure deployment stability.
+
+## 🛠️ Local Development
+
+We use [Task](https://taskfile.dev/) as a task runner. Common commands:
+
+```bash
+# List all available tasks
+task --list-all
+
+# List all Helm charts in the repo
+task list:all
+
+# Authenticate with the Helm OCI registry
+task auth
+```
+
+## 📜 License
+This project is licensed under the Apache License 2.0. See [LICENSE](./LICENSE) for details.

@@ -1,0 +1,278 @@
+global:
+  slack_api_url: https://slack.com/api/chat.postMessage
+
+alertManagerConfig:
+  slack:
+    apiUrl: https://slack.com/api/chat.postMessage
+    token: token # FIXME, but it's realy hard
+  receivers: []
+    # - name: slack-dev-product
+    #   channel: alerts-dev-product
+    # - name: slack-dev-platform
+    #   channel: alerts-dev-platform
+  routes: []
+    # - continue: false
+    #   matchers:
+    #   - cluster="dev"
+    #   - alertgroup="kubernetes-apps"
+    #   - severity=~"info|warning|critical"
+    #   receiver: slack-dev-product
+    # - continue: false
+    #   matchers:
+    #   - cluster="dev"
+    #   - severity=~"info|warning|critical"
+    #   receiver: slack-dev-platform
+
+additionDashboards:
+  kubernetes: false
+
+prometheus-operator-crds:
+  crds:
+    annotations:
+      argocd.argoproj.io/sync-options: ServerSideApply=true
+
+victoria-metrics-k8s-stack:
+  fullnameOverride: "victoria-metrics"
+  argocdReleaseOverride: "victoria-metrics"
+  defaultDashboards:
+    enabled: false
+  grafana:
+    enabled: false
+  kubeControllerManager:
+    enabled: false
+  kubeEtcd:
+    enabled: false
+  kubeApiServer:
+    enabled: false
+  kubeScheduler:
+    enabled: false
+  vmsingle:
+    enabled: false
+  coreDns:
+    enabled: false
+  victoria-metrics-operator:
+    operator:
+      disable_prometheus_converter: false
+      prometheus_converter_add_argocd_ignore_annotations: true
+
+  defaultRules:
+    create: true
+    groups:
+      etcd:
+        create: false
+
+      general:
+        create: true
+        rules: {}
+
+      k8sContainerCpuLimits:
+        create: true
+        rules: {}
+      k8sContainerCpuRequests:
+        create: true
+        rules: {}
+      k8sContainerCpuUsageSecondsTotal:
+        create: true
+        rules: {}
+      k8sContainerMemoryLimits:
+        create: true
+        rules: {}
+      k8sContainerMemoryRequests:
+        create: true
+        rules: {}
+      k8sContainerMemoryRss:
+        create: true
+        rules: {}
+      k8sContainerMemoryCache:
+        create: true
+        rules: {}
+      k8sContainerMemoryWorkingSetBytes:
+        create: true
+        rules: {}
+      k8sContainerMemorySwap:
+        create: true
+        rules: {}
+
+      k8sPodOwner:
+        create: true
+        rules: {}
+
+      k8sContainerResource:
+        create: true
+        rules: {}
+
+      kubeApiserver:
+        create: false
+        rules: {}
+      kubeApiserverAvailability:
+        create: false
+        rules: {}
+      kubeApiserverBurnrate:
+        create: false
+        rules: {}
+      kubeApiserverHistogram:
+        create: false
+        rules: {}
+      kubeApiserverSlos:
+        create: false
+        rules: {}
+
+      kubelet:
+        create: true
+        rules: {}
+
+      kubernetesSystemControllerManager:
+        create: false
+
+      kubePrometheusGeneral:
+        create: true
+        rules: {}
+      kubePrometheusNodeRecording:
+        create: true
+        rules: {}
+
+      kubernetesApps:
+        create: true
+        rules: {}
+        targetNamespace: ".*"
+      kubernetesResources:
+        create: true
+        rules: {}
+      kubernetesStorage:
+        create: true
+        rules: {}
+        targetNamespace: ".*"
+      kubernetesSystem:
+        create: true
+        rules: {}
+
+      kubernetesSystemApiserver:
+        create: false
+        rules: {}
+
+      kubeScheduler:
+        create: false
+      kubernetesSystemScheduler:
+        create: false
+
+      kubeStateMetrics:
+        create: true
+        rules: {}
+
+      nodeNetwork:
+        create: true
+        rules: {}
+      node:
+        create: true
+        rules: {}
+
+      vmagent:
+        create: true
+        rules: {}
+      vmsingle:
+        create: true
+        rules: {}
+      vmcluster:
+        create: true
+        rules: {}
+      vmHealth:
+        create: true
+        rules: {}
+      vmoperator:
+        create: true
+        rules: {}
+
+      alertmanager:
+        create: true
+        rules: {}
+
+  alertmanager:
+    enabled: true
+    useManagedConfig: false
+    spec:
+      replicaCount: 1
+      configSecret: vmalertmanager-config
+      resources:
+        limits: {}
+        requests:
+          cpu: "0.01"
+          memory: 10Mi
+
+  kubelet:
+    vmScrape:
+      spec:
+        metricRelabelConfigs:
+          - action: labeldrop
+            regex: (uid)
+          - action: labeldrop
+            regex: (id|name)
+          - action: drop
+            source_labels: [__name__]
+            regex: (rest_client_request_duration_seconds_bucket|rest_client_request_duration_seconds_sum|rest_client_request_duration_seconds_count)
+          - action: replace
+            sourceLabels: ['__meta_kubernetes_pod_node_name']
+            targetLabel: 'nodename'
+          - action: labeldrop
+            regex: "beta_kubernetes_io_.*|cloud_google_com_gke_.*|failure_domain_.*|topology_.*|iam_gke_io_.*"
+
+  vmagent:
+    spec:
+      externalLabels:
+        cluster: infra
+      resources:
+        limits: {}
+        requests:
+          cpu: "0.01"
+          memory: 10Mi
+
+  vmalert:
+    spec:
+      resources:
+        limits: {}
+        requests:
+          cpu: "0.01"
+          memory: 10Mi
+
+  vmcluster:
+    enabled: true
+    spec:
+      retentionPeriod: "7"
+      replicationFactor: 1
+
+      vmstorage:
+        replicaCount: 1
+        storage:
+          volumeClaimTemplate:
+            spec:
+              resources:
+                requests:
+                  storage: 30Gi
+        resources:
+          limits: {}
+          requests:
+            cpu: "0.01"
+            memory: 10Mi
+
+      vmselect:
+        replicaCount: 1
+        resources:
+          limits: {}
+          requests:
+            cpu: "0.01"
+            memory: 10Mi
+        storage:
+          volumeClaimTemplate:
+            spec:
+              resources:
+                requests:
+                  storage: 10Gi
+
+      vminsert:
+        replicaCount: 1
+        extraArgs:
+          maxLabelsPerTimeseries: "50"
+        resources:
+          requests:
+            cpu: "0.01"
+            memory: 10Mi
+          limits: {}

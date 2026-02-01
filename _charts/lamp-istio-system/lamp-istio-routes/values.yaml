@@ -1,0 +1,13 @@
+httpRoutes: []
+  # - name: example-argocd-route
+  #   gateways: 
+  #     - istio-gateway-internal
+  #   parentRefs:
+  #   - name: istio-gateway-internal
+  #     namespace: istio-system
+  #   hosts: 
+  #     - argocd.example.infra.cloud
+  #   rules:
+  #     - backendRefs:
+  #       - name: argocd-argocd-server
+  #         port: 80

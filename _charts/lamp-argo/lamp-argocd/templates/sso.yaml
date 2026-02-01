@@ -1,0 +1,26 @@
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: argocd-sso-secrets
+spec:
+  refreshInterval: "{{ .Values.externalSecrets.refreshInterval }}"
+  secretStoreRef:
+    kind: "{{ .Values.externalSecrets.kind }}"
+    name: "{{ .Values.externalSecrets.name }}"
+  target:
+    name: argocd-sso-secrets
+    creationPolicy: "{{ .Values.externalSecrets.creationPolicy }}"
+    template:
+      metadata:
+        labels:
+          app.kubernetes.io/part-of: argocd
+      data:
+        clientId: "{{`{{ .client_id }}`}}"
+        clientSecret: "{{`{{ .client_secret }}`}}"
+  data:
+  - secretKey: client_id
+    remoteRef:
+      key: {{ .Values.remoteSecretKeys.oauthClientID }}
+  - secretKey: client_secret
+    remoteRef:
+      key: {{ .Values.remoteSecretKeys.oauthClientSecret }}

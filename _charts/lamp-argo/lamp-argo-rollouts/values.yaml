@@ -1,0 +1,9 @@
+analysis:
+  http-200:
+    enabled: true
+  metrics-error-rate:
+    enabled: true
+  metrics-latency-p95:
+    enabled: true
+  metrics-success-rate:
+    enabled: true

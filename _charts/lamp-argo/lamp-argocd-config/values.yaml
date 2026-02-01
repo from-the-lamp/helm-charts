@@ -1,0 +1,18 @@
+notifications:
+  enabled: true
+  remoteSecretKeys:
+    slackToken: argocd-notifications-slack-token
+
+clusters:
+  - name: "prod-0"
+    server: "https://130.61.104.2:6443"
+    insecure: false
+    remoteSecretKeys:
+      token: cluster-prod-0-token
+      cert: cluster-prod-0-cert
+
+externalSecrets:
+  kind: ClusterSecretStore
+  name: oracle
+  refreshInterval: 1h
+  creationPolicy: Orphan

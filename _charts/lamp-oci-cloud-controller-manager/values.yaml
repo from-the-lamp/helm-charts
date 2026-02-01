@@ -1,0 +1,5 @@
+config:
+  compartment: 
+  vcn:
+  loadBalancer:
+    subnet1:

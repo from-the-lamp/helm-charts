@@ -1,0 +1,36 @@
+{{- if .Values.dashboards.redis.enabled }}
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaFolder
+metadata:
+  name: redis
+spec:
+  instanceSelector:
+    matchLabels:
+      dashboards: "grafana"
+  title: Redis
+---
+{{- if .Values.dashboards.redis.exporter }}
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDashboard
+metadata:
+  name: redis-exporter
+spec:
+  folder: Redis
+  instanceSelector:
+    matchLabels:
+      dashboards: "grafana"
+  configMapRef:
+    name: dashboard-redis-exporter
+    key: json
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dashboard-redis-exporter
+  annotations:
+    argocd.argoproj.io/sync-options: ServerSideApply=true
+data:
+  json: >
+    {{- .Files.Get "files/redis/redis-exporter.json" | nindent 4 }}
+{{- end }}
+{{- end }}

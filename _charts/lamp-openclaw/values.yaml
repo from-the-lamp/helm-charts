@@ -1,0 +1,134 @@
+image:
+  registry: registry.gitlab.com
+  repository: from-the-lamp/backend/openclaw/openclaw
+  tag: latest
+  pullPolicy: Always
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+# Replica count - MUST be 1 for single-user architecture
+replicaCount: 1
+# Service account
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+# Pod annotations
+podAnnotations: {}
+# Pod security context
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 1000
+  runAsGroup: 1000
+  fsGroup: 1000
+# Container security context
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+      - ALL
+  readOnlyRootFilesystem: false # Node needs write access to /tmp
+config:
+  data:
+    browser:
+      headless: true
+      noSandbox: true
+    auth:
+      profiles:
+        "openai-codex:default": 
+          provider: openai-codex
+          mode: oauth
+        "google-gemini-cli:default":
+          mode: oauth
+          provider: google-gemini-cli
+        "anthropic:default":
+          mode: token
+          provider: anthropic
+    gateway:
+      mode: local
+      bind: auto
+      auth:
+        mode: token
+      controlUi:
+        enabled: true
+    channels:
+      telegram:
+        enabled: true
+        dmPolicy: "allowlist"
+        allowFrom:
+          - "306361331"
+    meta:
+      lastTouchedVersion: "2026.1.29"
+persistence:
+  enabled: true
+  storageClass: local-path
+  size: 20Gi
+  accessMode: ReadWriteOnce
+  annotations: {}
+  selector: {}
+service:
+  type: ClusterIP
+  port: 8080
+  annotations: {}
+resources:
+  limits:
+    memory: 4Gi
+    cpu: 1
+  requests:
+    memory: 1Gi
+    cpu: 200m
+nodeSelector: {}
+tolerations: []
+affinity: {}
+lifecycle:
+  preStop:
+    exec:
+      command:
+        - sh
+        - -c
+        - rm -f /home/node/.openclaw/gateway.*.lock; sleep 10
+# Probes
+livenessProbe:
+  enabled: true
+  exec:
+    command:
+      - node
+      - dist/index.js
+      - health
+  initialDelaySeconds: 60
+  periodSeconds: 60
+  timeoutSeconds: 30
+  failureThreshold: 3
+readinessProbe:
+  enabled: true
+  tcpSocket:
+    port: 8080
+  initialDelaySeconds: 10
+  periodSeconds: 5
+  timeoutSeconds: 3
+  failureThreshold: 3
+startupProbe:
+  enabled: true
+  tcpSocket:
+    port: 8080
+  initialDelaySeconds: 10
+  periodSeconds: 5
+  timeoutSeconds: 3
+  failureThreshold: 30
+
+remoteSecretKeys:
+  gatewayToken: moltbot-gateway-token
+  # openaiApiKey: openapi-api-key
+  anthropicApiKey: claude-api-key
+  telegramBotToken: telegram-bot-openclaw-djinn
+  braveApiKey: brave-api-key
+
+externalSecrets:
+  kind: ClusterSecretStore
+  name: oracle
+  refreshInterval: 1h
+  creationPolicy: Orphan

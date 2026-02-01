@@ -1,0 +1,63 @@
+{{- if .Values.dashboards.victoria_metrics }}
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaFolder
+metadata:
+  name: victoria-metrics
+spec:
+  instanceSelector:
+    matchLabels:
+      dashboards: "grafana"
+  title: VictoriaMetrics
+---
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDashboard
+metadata:
+  name: victoria-metrics-operator
+spec:
+  folder: VictoriaMetrics
+  instanceSelector:
+    matchLabels:
+      dashboards: "grafana"
+  grafanaCom:
+    id: 17869
+    revision: 3
+---
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDashboard
+metadata:
+  name: victoria-metrics-cluster
+spec:
+  folder: VictoriaMetrics
+  instanceSelector:
+    matchLabels:
+      dashboards: "grafana"
+  grafanaCom:
+    id: 11176
+    revision: 39
+---
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDashboard
+metadata:
+  name: victoria-metrics-vmagent
+spec:
+  folder: VictoriaMetrics
+  instanceSelector:
+    matchLabels:
+      dashboards: "grafana"
+  grafanaCom:
+    id: 12683
+    revision: 21
+---
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDashboard
+metadata:
+  name: victoria-metrics-vmalert
+spec:
+  folder: VictoriaMetrics
+  instanceSelector:
+    matchLabels:
+      dashboards: "grafana"
+  grafanaCom:
+    id: 14950
+    revision: 13
+{{- end }}

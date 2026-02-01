@@ -1,0 +1,281 @@
+global:
+  domain: argocd.internal.from-the-lamp.work
+  logging:
+    level: error
+
+env:
+  ARGOCD_K8S_CLIENT_QPS: 500
+  ARGOCD_K8S_CLIENT_BURST: 1000
+
+remoteSecretKeys:
+  oauthClientID: argocd-oauth-client-id
+  oauthClientSecret: argocd-oauth-client-secret
+
+argo-cd:
+  server:
+    tolerations:
+    - key: "CriticalAddonsOnly"
+      operator: "Exists"
+    name: "argocd-server"
+    configEnabled: true
+    autoscaling:
+      enabled: true
+      minReplicas: 1
+      maxReplicas: 3
+      targetCPUUtilizationPercentage: 60
+      targetMemoryUtilizationPercentage: 70
+    metrics:
+      serviceMonitor:
+        enabled: true
+      enabled: true
+      service:
+        portName: http-metrics
+        servicePort: 8083
+        annotations:
+          prometheus.io/path: "/metrics"
+          prometheus.io/port: "8083"
+          prometheus.io/scrape: "true"
+    extensions:
+      enabled: true
+      extensionList:
+        - name: rollout-extension
+          env:
+            - name: EXTENSION_URL
+              value: https://github.com/argoproj-labs/rollout-extension/releases/download/v0.3.7/extension.tar
+
+  configs:
+    params:
+      controller.operation.processors: 20
+      server.enable.gzip: "true"
+      server.insecure: "true"
+      controller.repo.server.timeout.seconds: "15s"
+    cm:
+      admin.enabled: false
+      exec.enabled: true
+      rbac:
+        policy.default: deny
+        scopes: "[email, groups]"
+      #   policy.csv: |
+      #     p, role:developer, applications, *, product-dev/*, allow
+      #     p, role:developer, exec, create, product-dev/*, allow
+      #     p, role:developer, logs, get, product-dev/*, allow
+      #     g, devops@exmaple.com, role:admin
+      #     g, developers@exmaple.com, role:developer
+      #     g, analytics@exmaple.com, role:readonly
+
+      application.resourceTrackingMethod: annotation
+      resource.customizations: |
+        "*.upbound.io/*":
+          health.lua: |
+            health_status = {
+              status = "Progressing",
+              message = "Provisioning ..."
+            }
+            local function contains (table, val)
+              for i, v in ipairs(table) do
+                if v == val then
+                  return true
+                end
+              end
+              return false
+            end
+            local has_no_status = {
+              "ProviderConfig",
+              "ProviderConfigUsage"
+            }
+            if obj.status == nil or next(obj.status) == nil and contains(has_no_status, obj.kind) then
+              health_status.status = "Healthy"
+              health_status.message = "Resource is up-to-date."
+              return health_status
+            end
+            if obj.status == nil or next(obj.status) == nil or obj.status.conditions == nil then
+              if obj.kind == "ProviderConfig" and obj.status.users ~= nil then
+                health_status.status = "Healthy"
+                health_status.message = "Resource is in use."
+                return health_status
+              end
+              return health_status
+            end
+            for i, condition in ipairs(obj.status.conditions) do
+              if condition.type == "LastAsyncOperation" then
+                if condition.status == "False" then
+                  health_status.status = "Degraded"
+                  health_status.message = condition.message
+                  return health_status
+                end
+              end
+              if condition.type == "Synced" then
+                if condition.status == "False" then
+                  health_status.status = "Degraded"
+                  health_status.message = condition.message
+                  return health_status
+                end
+              end
+              if condition.type == "Ready" then
+                if condition.status == "True" then
+                  health_status.status = "Healthy"
+                  health_status.message = "Resource is up-to-date."
+                  return health_status
+                end
+              end
+            end
+            return health_status
+        "*.crossplane.io/*":
+          health.lua: |
+            health_status = {
+              status = "Progressing",
+              message = "Provisioning ..."
+            }
+            local function contains (table, val)
+              for i, v in ipairs(table) do
+                if v == val then
+                  return true
+                end
+              end
+              return false
+            end
+            local has_no_status = {
+              "Composition",
+              "CompositionRevision",
+              "DeploymentRuntimeConfig",
+              "ControllerConfig",
+              "ProviderConfig",
+              "ProviderConfigUsage"
+            }
+            if obj.status == nil or next(obj.status) == nil and contains(has_no_status, obj.kind) then
+                health_status.status = "Healthy"
+                health_status.message = "Resource is up-to-date."
+              return health_status
+            end
+            if obj.status == nil or next(obj.status) == nil or obj.status.conditions == nil then
+              if obj.kind == "ProviderConfig" and obj.status.users ~= nil then
+                health_status.status = "Healthy"
+                health_status.message = "Resource is in use."
+                return health_status
+              end
+              return health_status
+            end
+            for i, condition in ipairs(obj.status.conditions) do
+              if condition.type == "LastAsyncOperation" then
+                if condition.status == "False" then
+                  health_status.status = "Degraded"
+                  health_status.message = condition.message
+                  return health_status
+                end
+              end
+              if condition.type == "Synced" then
+                if condition.status == "False" then
+                  health_status.status = "Degraded"
+                  health_status.message = condition.message
+                  return health_status
+                end
+              end
+              if contains({"Ready", "Healthy", "Offered", "Established"}, condition.type) then
+                if condition.status == "True" then
+                  health_status.status = "Healthy"
+                  health_status.message = "Resource is up-to-date."
+                  return health_status
+                end
+              end
+            end
+            return health_status
+      resource.exclusions: |
+        - apiGroups:
+          - "*"
+          kinds:
+          - ProviderConfigUsage
+
+  controller:
+    tolerations:
+    - key: "CriticalAddonsOnly"
+      operator: "Exists"
+    replicas: 1
+    enableStatefulSet: true
+    args:
+      appResyncPeriod: "30"
+      repoServerTimeoutSeconds: "15"
+    metrics:
+      serviceMonitor:
+        enabled: true
+      enabled: true
+      service:
+        portName: http-metrics
+        servicePort: 8082
+        annotations:
+          prometheus.io/path: "/metrics"
+          prometheus.io/port: "8082"
+          prometheus.io/scrape: "true"
+
+  repoServer:
+    tolerations:
+    - key: "CriticalAddonsOnly"
+      operator: "Exists"
+    autoscaling:
+      enabled: true
+      minReplicas: 1
+      maxReplicas: 4
+      targetCPUUtilizationPercentage: 60
+      targetMemoryUtilizationPercentage: 70
+    serviceAccount:
+      create: true
+      name: argocd-repo-server
+    metrics:
+      serviceMonitor:
+        enabled: true
+      enabled: true
+      service:
+        portName: http-metrics
+        servicePort: 8084
+        annotations:
+          prometheus.io/path: "/metrics"
+          prometheus.io/port: "8084"
+          prometheus.io/scrape: "true"
+
+  redis:
+    metrics:
+      enabled: true
+      serviceMonitor:
+        enabled: true
+    tolerations:
+    - key: "CriticalAddonsOnly"
+      operator: "Exists"
+
+  notifications:
+    metrics:
+      enabled: true
+      serviceMonitor:
+        enabled: true
+    tolerations:
+    - key: "CriticalAddonsOnly"
+      operator: "Exists"
+
+  applicationSet:
+    tolerations:
+    - key: "CriticalAddonsOnly"
+      operator: "Exists"
+    replicaCount: 1
+    webhook:
+      ingress:
+        enabled: false
+    metrics:
+      serviceMonitor:
+        enabled: true
+      enabled: true
+      service:
+        portName: http-metrics
+        servicePort: 8085
+        annotations:
+          prometheus.io/path: "/metrics"
+          prometheus.io/port: "8085"
+          prometheus.io/scrape: "true"
+
+  notifications:
+    secret:
+      create: false
+      name: "argocd-notifications-secret"
+
+externalSecrets:
+  kind: ClusterSecretStore
+  name: oracle
+  refreshInterval: 1h
+  creationPolicy: Orphan

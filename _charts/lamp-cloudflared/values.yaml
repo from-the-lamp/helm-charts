@@ -1,0 +1,33 @@
+rollout: # Sometimes the tunnel (very rarely) stops resolving DNS, so we just do a rollout every once in a while.
+  enabled: true
+  cron: "0 3 * * *" # Every night
+
+replicaCount: 1
+# cloudflare:
+#   tunnel_token:
+
+image:
+  repository: cloudflare/cloudflared
+  pullPolicy: IfNotPresent
+  tag: 2025.11.1
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: cloudflared
+serviceAccount:
+  annotations: {}
+  name: ""
+podAnnotations: {}
+podLabels: {}
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 65532
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+    - ALL
+  readOnlyRootFilesystem: true
+resources: {}
+nodeSelector: {}
+tolerations: []
+affinity: {}

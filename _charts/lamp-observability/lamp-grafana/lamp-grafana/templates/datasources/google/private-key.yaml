@@ -1,0 +1,70 @@
+{{- if .Values.datasources.google.enabled }}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: grafana-secret-reader
+rules:
+- apiGroups: [""]
+  resources:
+  - secrets
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - authorization.k8s.io
+  resources:
+  - selfsubjectrulesreviews
+  verbs:
+  - create
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: grafana-secret-reader-binding
+subjects:
+- kind: ServiceAccount 
+  name: grafana-sa
+  namespace: "{{ .Release.Namespace }}"
+roleRef:
+  kind: Role
+  name: grafana-secret-reader
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: external-secrets.io/v1
+kind: SecretStore
+metadata:
+  name: grafana
+spec:
+  provider:
+    kubernetes:
+      server:
+        caProvider:
+          type: ConfigMap
+          name: kube-root-ca.crt
+          key: ca.crt
+      auth:
+        serviceAccount:
+          name: "grafana-sa"
+      remoteNamespace: "{{ .Release.Namespace }}"
+---
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: grafana-monitoring-viewer-private-key
+spec:
+  refreshInterval: 1h
+  secretStoreRef:
+    kind: SecretStore
+    name: grafana
+  target:
+    name: grafana-monitoring-viewer-private-key
+    template:
+      data:
+        GCP_SA_PRIVATE_KEY: '{{`{{ ( .key | fromJson ).private_key }}`}}'
+  data:
+  - secretKey: key
+    remoteRef:
+      key: grafana-monitoring-viewer
+      property: key.json
+{{- end }}

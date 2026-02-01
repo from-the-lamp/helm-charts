@@ -1,0 +1,23 @@
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: kargo-sso-secrets
+spec:
+  refreshInterval: "{{ .Values.externalSecrets.refreshInterval }}"
+  secretStoreRef:
+    kind: "{{ .Values.externalSecrets.kind }}"
+    name: "{{ .Values.externalSecrets.name }}"
+  target:
+    name: kargo-sso-secrets
+    creationPolicy: "{{ .Values.externalSecrets.creationPolicy }}"
+    template:
+      data:
+        OAUTH_CLIENT_ID: "{{`{{ .client_id }}`}}"
+        OAUTH_CLIENT_SECRET: "{{`{{ .client_secret }}`}}"
+  data:
+  - secretKey: client_id
+    remoteRef:
+      key: {{ .Values.kargo.api.oidc.remoteSecretKeys.client_id }}
+  - secretKey: client_secret
+    remoteRef:
+      key: {{ .Values.kargo.api.oidc.remoteSecretKeys.client_secret }}

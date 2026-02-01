@@ -1,0 +1,15 @@
+istiod:
+  profile: ambient
+
+cni:
+  profile: ambient
+  resources:
+    requests: 
+      cpu: 10m
+      memory: 10Mi
+
+ztunnel:
+  resources:
+    requests: 
+      cpu: 10m
+      memory: 10Mi

@@ -1,0 +1,19 @@
+{{- if .Values.datasources.victoria_metrics.enabled }}
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDatasource
+metadata:
+  name: victoria-metrics
+spec:
+  instanceSelector:
+    matchLabels:
+      dashboards: "grafana"
+  datasource:
+    name: VictoriaMetrics
+    type: prometheus
+    access: proxy
+    url: {{ .Values.datasources.victoria_metrics.url }}
+    isDefault: true
+    jsonData:
+      tlsSkipVerify: true
+      timeInterval: "5s"
+{{- end }}

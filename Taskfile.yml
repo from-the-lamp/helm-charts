@@ -1,0 +1,49 @@
+version: '3'
+
+dotenv: [.env]
+vars:
+  CHART_DIRS:
+    sh: find ./_charts -type f -name "Chart.yaml" -exec dirname {} \; | sed 's|^\./||' | tr '\n' ' '
+  CHANGED_CHART_DIRS:
+    sh: git diff --name-only HEAD~1 | grep 'Chart.yaml$' | xargs -n1 dirname | grep '^_charts' | sort -u | tr '\n' ' '
+
+includes:
+  build:
+    taskfile: .tasks/build.yml
+    flatten: true
+  readme: 
+    taskfile: .tasks/readme.yml
+    flatten: true
+  template: 
+    taskfile: .tasks/template.yml
+    flatten: true
+
+silent: true
+tasks:
+  default:
+    desc: List all available tasks
+    cmd: task --list-all
+        
+  list:all:
+    desc: List all Chart directories
+    cmd: echo {{.CHART_DIRS}} | tr ' ' '\n'
+
+  list:changed:
+    desc: List changed Chart directories
+    cmd: echo {{.CHANGED_CHART_DIRS}} | tr ' ' '\n'
+    preconditions:
+      - sh: '[ -n "{{.CHANGED_CHART_DIRS}}" ]'
+        msg: "No changed chart directories found."
+
+  cleanup:
+    desc: Remove temporary files
+    cmds:
+    - find . -type d -name ".output" -prune -exec rm -rf {} \;
+    - find . -type d -name "charts" -prune -exec rm -rf {} \;
+    - find . -iname "*tmpcharts*" -delete;
+    - find . -iname "Chart.lock" -delete;
+
+  auth:
+    desc: Auth in Helm registry
+    cmds:
+      - echo "${OCI_REPO_PASS}" | helm registry login -u "${OCI_REPO_USER}" --password-stdin "${OCI_REPO}"

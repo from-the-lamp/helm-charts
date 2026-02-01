@@ -1,0 +1,21 @@
+{{- if .Values.disableOnboarding }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-onboarding
+data:
+  onboarding: |
+    {
+      "version": 4,
+      "minor_version": 1,
+      "key": "onboarding",
+      "data": {
+        "done": [
+          "user",
+          "core_config",
+          "analytics",
+          "integration"
+        ]
+      }
+    }
+{{- end }}

@@ -1,0 +1,28 @@
+{{- if .Values.gateway.enabled }}
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: {{ .Release.Name }}
+spec:
+  selector:
+    istio: {{ .Values.gateway.istioSelector }}
+  servers:
+  {{- if .Values.gateway.tls }}
+  - port:
+      number: 443
+      name: https
+      protocol: HTTPS
+    tls:
+      mode: SIMPLE
+      credentialName: "{{ .Release.Name }}-cert"
+  {{- else }}
+  - port:
+      number: 80
+      name: http
+      protocol: HTTP
+  {{- end }}
+    {{- with .Values.gateway.hosts }}
+    hosts:
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+{{- end }}

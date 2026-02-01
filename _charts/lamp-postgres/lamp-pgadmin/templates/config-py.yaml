@@ -1,0 +1,28 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pgadmin-config
+data:
+  config_local.py: |-
+    import os
+    AUTHENTICATION_SOURCES = ['oauth2']
+    OAUTH2_AUTO_CREATE_USER = True
+    MASTER_PASSWORD_REQUIRED = False
+    UPGRADE_CHECK_ENABLED = False
+    OAUTH2_CONFIG = [
+      {
+        'OAUTH2_NAME': '{{ .Values.oauth.name }}',
+        'OAUTH2_DISPLAY_NAME': '{{ .Values.oauth.display_name }}',
+        'OAUTH2_CLIENT_ID': os.environ['OAUTH2_CLIENT_ID'],
+        'OAUTH2_CLIENT_SECRET': os.environ['OAUTH2_CLIENT_SECRET'],
+        'OAUTH2_TOKEN_URL': '{{ .Values.oauth.token_url }}',
+        'OAUTH2_AUTHORIZATION_URL': '{{ .Values.oauth.auth_url }}',
+        'OAUTH2_SERVER_METADATA_URL': '{{ .Values.oauth.metadata_url }}',
+        'OAUTH2_API_BASE_URL': '{{ .Values.oauth.api_url }}',
+        'OAUTH2_USERINFO_ENDPOINT': '{{ .Values.oauth.userinfo_url }}',
+        'OAUTH2_USERNAME_CLAIM': None,
+        'OAUTH2_ICON': '{{ .Values.oauth.icon }}',
+        'OAUTH2_BUTTON_COLOR': '{{ .Values.oauth.button_color }}',
+        'OAUTH2_SCOPE': '{{ .Values.oauth.scope }}',
+      }
+    ]

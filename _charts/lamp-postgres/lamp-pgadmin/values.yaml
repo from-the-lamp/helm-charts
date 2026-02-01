@@ -1,0 +1,96 @@
+oauth:
+  name: gitlab
+  display_name: GitLab
+  scope: "openid email profile"
+  token_url: https://gitlab.com/oauth/token
+  auth_url: https://gitlab.com/oauth/authorize
+  api_url: https://gitlab.com/oauth
+  userinfo_url: https://gitlab.com/oauth/userinfo
+  metadata_url: https://gitlab.com/.well-known/openid-configuration
+  icon: fa-gitlab
+  button_color: "#FC6D26"
+  remoteSecretKeys:
+    client_id: pgadmin-client-id
+    client_secret: pgadmin-client-secret
+
+server:
+  auth:
+    name: Default
+    group: Servers
+    host: postgres-rw
+    port: 5432
+    user: postgres
+    maintenanceDB: postgres
+    remoteSecretKeys:
+      pass: postgres-superuser-password
+
+pgadmin4:
+  fullnameOverride: pgadmin
+  serverDefinitions:
+    enabled: true
+    resourceType: Secret
+    existingSecret: pgadmin-server-definitions
+
+  ingress:
+    enabled: false
+
+  extraVolumes:
+    - name: pgpassfile
+      secret:
+        secretName: pgadmin-pgpassfile
+
+  VolumePermissions:
+    enabled: true
+
+  extraInitContainers: |
+    - name: prepare-pgpass-file
+      image: busybox:stable
+      command: ['sh', '-c', "cp /var/pgpassfile /var/lib/pgadmin/pgpassfile && chown 5050:5050 /var/lib/pgadmin/pgpassfile && chmod 600 /var/lib/pgadmin/pgpassfile"]
+      volumeMounts:
+        - name: pgpassfile
+          mountPath: /var/pgpassfile
+          subPath: pgpassfile
+          readOnly: true
+        - name: pgadmin-data
+          mountPath: /var/lib/pgadmin
+      securityContext:
+        runAsUser: 0
+
+  livenessProbe:
+    initialDelaySeconds: 10
+    periodSeconds: 10
+    timeoutSeconds: 15
+    successThreshold: 1
+    failureThreshold: 3
+
+  readinessProbe:
+    initialDelaySeconds: 10
+    periodSeconds: 10
+    timeoutSeconds: 15
+    successThreshold: 1
+    failureThreshold: 3
+
+  envVarsFromSecrets:
+    - pgadmin-oauth
+
+  env:
+    pgpassfile: /var/lib/pgadmin/pgpassfile
+    
+  extraConfigmapMounts:
+    - name: config-local
+      configMap: pgadmin-config
+      mountPath: /pgadmin4/config_local.py
+      subPath: config_local.py
+      readOnly: true
+
+  persistentVolume:
+    enabled: false
+
+  annotations:
+    reloader.stakater.com/auto: "true"
+
+externalSecrets:
+  kind: ClusterSecretStore
+  name: oracle
+  refreshInterval: 1h
+  creationPolicy: Orphan

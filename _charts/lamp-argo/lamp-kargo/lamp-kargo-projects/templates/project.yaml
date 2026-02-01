@@ -1,0 +1,34 @@
+{{- range .Values.apps }}
+{{- $app := . }}
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: {{ $.Values.project.prefix }}-{{ $app.name }}
+  labels:
+    kargo.akuity.io/project: "true"
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+---
+apiVersion: kargo.akuity.io/v1alpha1
+kind: Project
+metadata:
+  name: {{ $.Values.project.prefix }}-{{ $app.name }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+---
+apiVersion: kargo.akuity.io/v1alpha1
+kind: ProjectConfig
+metadata:
+  name: {{ $.Values.project.prefix }}-{{ $app.name }}
+  namespace: {{ $.Values.project.prefix }}-{{ $app.name }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+spec:
+  promotionPolicies:
+  {{- range $p := $.Values.project.autoPromotion }}
+    - stageSelector:
+        name: {{ $p.stage }}-{{ $app.name }}
+      autoPromotionEnabled: true
+  {{- end }}
+{{- end }}

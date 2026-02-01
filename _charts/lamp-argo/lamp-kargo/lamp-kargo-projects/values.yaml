@@ -1,0 +1,65 @@
+githubApps: []
+  # - name: orgname
+  #   type: git
+  #   url: https://github.com/orgname
+  #   clientId: "123"
+  #   installationid: "123"
+  #   remoteSecretKey: argocd-github-orgname-private-key
+  #   repoURLIsRegex: true
+
+repositories: []
+  # - name: gitlab-from-the-lamp
+  #   type: git
+  #   url: https://gitlab.com/from-the-lamp/infra/argo-apps.git
+  #   username: token
+  #   passwordRemoteSecretKey: gitlab-token
+  # - name: gitlab-from-the-lamp
+  #   type: image
+  #   url: registry.gitlab.com/from-the-lamp
+  #   username: token
+  #   passwordRemoteSecretKey: gitlab-token
+
+project:
+  prefix: kargo-project
+  autoPromotion: 
+    # - stage: dev
+    # - stage: preprod
+  task:
+    kind: ClusterPromotionTask
+    name: docker
+  git:
+    url: https://example.git
+    branch: main
+
+apps: 
+  # - name: example-service
+  #   image: example-registry/example-service
+
+warehouses: []
+  # - name: dev
+  #   imageSelectionStrategy: NewestBuild
+  #   allowTags: "^dev-[0-9a-z]+$"
+
+  # - name: preprod
+  #   imageSelectionStrategy: NewestBuild
+  #   allowTags: "^preprod-[0-9a-z]+$"
+
+stages: []
+  # - name: dev
+  #   color: green
+  #   promoters: 
+  #     - devops@example.com
+  # - name: preprod
+  #   color: yellow
+  #   promoters: []
+  # - name: prod
+  #   color: red
+  #   require: preprod
+  #   promoters: []
+  #   viewers: []
+
+externalSecrets:
+  kind: ClusterSecretStore
+  name: oracle
+  refreshInterval: 1h
+  creationPolicy: Orphan

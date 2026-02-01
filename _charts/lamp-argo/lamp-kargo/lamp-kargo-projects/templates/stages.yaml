@@ -1,0 +1,54 @@
+{{- $project := .Values.project -}}
+{{- range $app := .Values.apps }}
+{{- range $stage := $.Values.stages }}
+---
+apiVersion: kargo.akuity.io/v1alpha1
+kind: Stage
+metadata:
+  name: {{ $stage.name }}-{{ $app.name }}
+  namespace: {{ $project.prefix }}-{{ $app.name }}
+  annotations:
+    kargo.akuity.io/color: {{ $stage.color }}
+spec:
+  requestedFreight:
+  {{- if $stage.require }}
+    - origin:
+        kind: Warehouse
+        name: {{ printf "%s-%s" $stage.require $app.name }}
+      sources:
+        stages: 
+        - {{ $stage.require }}-{{ $app.name }}
+  {{- else }} 
+    - origin:
+        kind: Warehouse
+        name: {{ printf "%s-%s" $stage.name $app.name }}
+      sources:
+        direct: true
+  {{- end }}
+  promotionTemplate:
+    spec:
+      steps:
+      - task:
+          kind: {{ $project.task.kind }}
+          name: {{ $project.task.name }}
+        vars:
+        - name: argocdApp
+          value: {{ printf "%s-%s" $stage.name $app.name }}
+        - name: imageName
+          value: {{ $app.image }}
+        - name: gitRepoURL
+          value: {{ $project.git.url }}
+        - name: gitBranch
+          value: {{ $project.git.branch }}
+        - name: gitEnvPath
+          value: {{ $stage.name }}/product/{{ $app.name }}
+        - name: gitResultFile
+          value: .kargo.values.yaml
+        - name: gitImageNamePath
+          value: base.image.name
+        - name: gitImageTagPath
+          value: base.image.tag
+        - name: gitImageDigestPath
+          value: base.image.digest
+{{- end }}
+{{- end }}

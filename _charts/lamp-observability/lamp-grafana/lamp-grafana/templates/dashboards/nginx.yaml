@@ -1,0 +1,61 @@
+{{- if .Values.dashboards.nginx }}
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaFolder
+metadata:
+  name: nginx
+spec:
+  instanceSelector:
+    matchLabels:
+      dashboards: "grafana"
+  title: Nginx
+---
+{{- if index .Values "dashboards" "nginx" "ingress" }}
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDashboard
+metadata:
+  name: nginx-ingress
+spec:
+  folder: Nginx
+  instanceSelector:
+    matchLabels:
+      dashboards: "grafana"
+  configMapRef:
+    name: dashboard-nginx-ingress
+    key: json
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dashboard-nginx-ingress
+  annotations:
+    argocd.argoproj.io/sync-options: ServerSideApply=true
+data:
+  json: >
+    {{- .Files.Get "files/nginx/ingress.json" | nindent 4 }}
+{{- end }}
+---
+{{- if index .Values "dashboards" "nginx" "loki" }}
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDashboard
+metadata:
+  name: nginx-loki
+spec:
+  folder: Nginx
+  instanceSelector:
+    matchLabels:
+      dashboards: "grafana"
+  configMapRef:
+    name: dashboard-nginx-loki
+    key: json
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dashboard-nginx-loki
+  annotations:
+    argocd.argoproj.io/sync-options: ServerSideApply=true
+data:
+  json: >
+    {{- .Files.Get "files/nginx/loki.json" | nindent 4 }}
+{{- end }}
+{{- end }}

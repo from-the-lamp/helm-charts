@@ -1,0 +1,95 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: vmalertmanager-config
+type: Opaque
+stringData:
+  alertmanager.yaml: |
+    global:
+      slack_api_url: {{ .Values.alertManagerConfig.slack.apiUrl }}
+    route:
+      receiver: blackhole
+      group_by:
+        - alertname
+        - cluster
+        - service
+      routes:
+      {{- toYaml .Values.alertManagerConfig.routes | nindent 8 }}
+      group_wait: 30s
+      group_interval: 5m
+      repeat_interval: 12h
+    inhibit_rules:
+      - equal:
+        - cluster
+        - namespace
+        - alertname
+        source_matchers:
+        - severity=critical
+        target_matchers:
+        - severity=~"warning|info"
+      - equal:
+        - cluster
+        - namespace
+        - alertname
+        source_matchers:
+        - severity=warning
+        target_matchers:
+        - severity=info
+      - equal:
+        - cluster
+        - namespace
+        source_matchers:
+        - alertname=InfoInhibitor
+        target_matchers:
+        - severity=info
+    receivers:
+      - name: blackhole
+      {{- range .Values.alertManagerConfig.receivers }}
+      - name: {{ .name }}
+        slack_configs:
+        - channel: "#{{ .channel }}"
+          http_config:
+            authorization:
+              credentials: {{ $.Values.alertManagerConfig.slack.token }}
+          color: '{{`{{ template "slack.monzo.color" . }}`}}'
+          icon_emoji: '{{`{{ template "slack.monzo.icon_emoji" . }}`}}'
+          send_resolved: true
+          text: |-
+            {{`{{ range .Alerts }}`}}
+              *Alert:* {{`{{ .Annotations.summary }}`}} - `{{`{{ .Labels.severity }}`}}`
+              *Description:* {{`{{ .Annotations.description }}`}}
+              *Details:*
+              {{`{{ range .Labels.SortedPairs }}`}} • *{{`{{ .Name }}`}}:* `{{`{{ .Value }}`}}`
+              {{`{{ end }}`}}
+            {{`{{ end }}`}}
+          title: '{{`{{ template "slack.monzo.title" . }}`}}'
+          actions:
+            - name: runbookbutton
+              text: 'Runbook :green_book:'
+              type: button
+              url: '{{`{{ (index .Alerts 0).Annotations.runbook_url }}`}}'
+              value: text
+            - name: querybutton
+              text: 'Query :mag:'
+              type: button
+              url: '{{`{{ (index .Alerts 0).GeneratorURL }}`}}'
+              value: text
+            - name: grafanabutton
+              text: 'Dashboard :grafana:'
+              type: button
+              url: '{{`{{ (index .Alerts 0).Annotations.dashboard }}`}}'
+              value: text
+            - name: mutebutton
+              text: 'Mute :no_bell:'
+              type: button
+              url: '{{`{{ template "__alert_silence_link" . }}`}}'
+              value: text
+            - name: linkbutton
+              text: '{{`{{ template "slack.monzo.link_button_text" . }}`}}'
+              type: button
+              url: '{{`{{ .CommonAnnotations.link_url }}`}}'
+              value: text
+      {{- end }}
+    templates:
+    - /etc/vm/configs/**/*.tmpl
+    - /etc/vm/templates/vmalertmanager-victoria-metrics-monzo-tpl/monzo.tmpl

@@ -1,0 +1,42 @@
+{{- if .Values.issuers.letsencrypt.cloudflare.enabled }}
+---
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: letsencrypt-cloudflare
+spec:
+  refreshInterval: "{{ .Values.externalSecrets.refreshInterval }}"
+  secretStoreRef:
+    kind: "{{ .Values.externalSecrets.kind }}"
+    name: "{{ .Values.externalSecrets.name }}"
+  target:
+    name: letsencrypt-cloudflare
+    creationPolicy: "{{ .Values.externalSecrets.creationPolicy }}"
+    template:
+      data:
+        cloudflare: "{{`{{ .cloudflare }}`}}"
+  data:
+  - secretKey: cloudflare
+    remoteRef:
+      key: "{{ .Values.issuers.letsencrypt.cloudflare.remoteSecretKey }}"
+      conversionStrategy: Default
+      decodingStrategy: None
+      metadataPolicy: None
+---
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-cloudflare
+spec:
+  acme:
+    server: https://acme-v02.api.letsencrypt.org/directory
+    email: devops@infra.cloud
+    privateKeySecretRef:
+      name: cert-manager-cloudflare-private-key
+    solvers:
+    - dns01:
+        cloudflare:
+          apiTokenSecretRef:
+            name: letsencrypt-cloudflare
+            key: cloudflare
+{{- end }}

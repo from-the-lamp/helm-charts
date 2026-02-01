@@ -1,0 +1,11 @@
+apiVersion: v2
+name: lamp-reloader
+version: 0.0.2
+
+dependencies:
+  - name: reloader
+    version: 2.2.7
+    repository: https://stakater.github.io/stakater-charts
+
+annotations:
+  notes: "Support for imagePullSecrets in object and string formats."

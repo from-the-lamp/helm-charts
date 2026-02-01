@@ -1,0 +1,35 @@
+auth:
+  platform: gitlab
+  endpoint: https://gitlab.com/api/v4
+  token:
+    remoteSecretKey: gitlab-token
+
+config:
+  autodiscover: false
+  printConfig: false
+  recreateWhen: always
+  bumpVersion: true
+  repositories: ["from-the-lamp/infra/argo-apps"]
+  includePaths: []
+  ignorePaths: []
+
+renovate:
+  renovate:
+    existingConfigFile: /etc/renovate/config.json
+  envFrom:
+    - secretRef:
+        name: renovate-auth
+  extraVolumes:
+    - name: renovate-config
+      configMap:
+        name: renovate-config
+  extraVolumeMounts:
+    - name: renovate-config
+      mountPath: /etc/renovate
+      readOnly: true
+      
+externalSecrets:
+  kind: ClusterSecretStore
+  name: oracle
+  refreshInterval: 1h
+  creationPolicy: Orphan

@@ -1,0 +1,3 @@
+apiVersion: v2
+name: lamp-tailscale-node
+version: 0.0.1

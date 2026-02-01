@@ -1,0 +1,22 @@
+{{- if not (empty .Values.cluster.cluster.superuserSecret) }}
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: postgres-superuser
+spec:
+  refreshInterval: "{{ .Values.externalSecrets.refreshInterval }}"
+  secretStoreRef:
+    kind: "{{ .Values.externalSecrets.kind }}"
+    name: "{{ .Values.externalSecrets.name }}"
+  target:
+    name: postgres-superuser
+    creationPolicy: "{{ .Values.externalSecrets.creationPolicy }}"
+    template:
+      data:
+        username: "{{ .Values.cluster.cluster.superuser.username }}"
+        password: "{{`{{ .superuser_password }}`}}"
+  data:
+  - secretKey: superuser_password
+    remoteRef:
+      key: "{{ .Values.cluster.cluster.superuser.remoteSecretKeys.password }}"
+{{- end }}

@@ -1,0 +1,115 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "home-assistant.fullname" . }}
+  annotations:
+    reloader.stakater.com/auto: "true"
+  labels:
+    {{- include "home-assistant.labels" . | nindent 4 }}
+spec:
+  serviceName: {{ include "home-assistant.fullname" . }}
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "home-assistant.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "home-assistant.selectorLabels" . | nindent 8 }}
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    spec:
+    {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          {{- with .Values.envFrom }}
+          envFrom:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.env }}
+          env:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          ports:
+            - name: http
+              containerPort: 8123
+              protocol: TCP
+          {{- if .Values.additionalPorts }}
+            {{- .Values.additionalPorts | toYaml | nindent 12 }}
+          {{- end }}
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+          {{- with .Values.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          volumeMounts:
+          - mountPath: /config
+            name: {{ include "home-assistant.fullname" . }}
+          - name: configuration-yaml
+            mountPath: /config/configuration.yaml
+            subPath: configuration
+          - name: lovelace-yaml
+            mountPath: /config/ui-lovelace.yaml
+            subPath: lovelace
+          {{- if .Values.disableOnboarding }}
+          - name: onboarding
+            mountPath: /config/.storage/onboarding
+            subPath: onboarding
+          {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+      volumes:
+      - name: configuration-yaml
+        configMap:
+          name: {{ .Release.Name }}-configuration
+      - name: lovelace-yaml
+        configMap:
+          name: {{ .Release.Name }}-lovelace
+      {{- if .Values.disableOnboarding }}
+      - name: onboarding
+        configMap:
+          name: {{ .Release.Name }}-onboarding
+      {{- end }}
+  volumeClaimTemplates:
+  - metadata:
+      name: {{ include "home-assistant.fullname" . }}
+    spec:
+      accessModes:
+        - {{ .Values.persistence.accessMode }}
+      {{- if .Values.persistence.existingVolume }}
+      volumeName: {{ .Values.persistence.existingVolume }}
+      {{- end }}
+      resources:
+        requests:
+          storage: {{ .Values.persistence.size }}
+      {{- if .Values.persistence.storageClass }}
+      storageClassName: {{ .Values.persistence.storageClass }}
+      {{- end }}

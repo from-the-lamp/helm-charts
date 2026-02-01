@@ -1,0 +1,4 @@
+providers:
+  - name: provider-sql
+    package: xpkg.upbound.io/crossplane-contrib/provider-sql:v0.11.0
+    enabled: false

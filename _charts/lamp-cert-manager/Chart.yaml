@@ -1,0 +1,11 @@
+apiVersion: v2
+name: lamp-cert-manager
+version: 0.1.1
+
+dependencies:
+  - name: cert-manager
+    version: v1.19.2
+    repository: https://charts.jetstack.io
+
+annotations:
+  notes: "Fixes in ACME HTTP-01, IPv6 support in policies, Go update."

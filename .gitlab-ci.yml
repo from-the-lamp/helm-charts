@@ -1,0 +1,28 @@
+include:
+  - project: from-the-lamp/infra/ci-cd-includes
+    file: functions/build_and_push_docker.yml
+
+stages:
+  - Build
+  - Update
+
+Build:Docker:
+  extends: .build
+  rules:
+    - changes:
+        - Dockerfile
+    - if: $CI_PIPELINE_SOURCE == "web"
+
+Build:Helm:
+  image: registry.gitlab.com/from-the-lamp/infra/argo-apps:latest
+  stage: Build
+  allow_failure: true
+  variables:
+    OCI_REPO: $CI_REGISTRY_IMAGE/charts
+    OCI_REPO_USER: $CI_REGISTRY_USER
+    OCI_REPO_PASS: $CI_REGISTRY_PASSWORD
+  script:
+    - task auth
+    - task list:changed
+    - task build:changed
+    - task push:changed

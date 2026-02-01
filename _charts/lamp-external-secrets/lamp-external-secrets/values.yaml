@@ -1,0 +1,15 @@
+external-secrets:
+  serviceAccount:
+    create: true
+    name: external-secrets
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits: {}
+  certController:
+    resources:
+      requests:
+        cpu: 100m
+        memory: 128Mi
+      limits: {}

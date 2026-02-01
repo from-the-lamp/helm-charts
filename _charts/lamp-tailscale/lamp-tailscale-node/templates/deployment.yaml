@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tailscale-exit
+spec:
+  strategy:
+    type: Recreate
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tailscale-exit
+  template:
+    metadata:
+      labels:
+        app: tailscale-exit
+    spec:
+      hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
+      containers:
+        - name: tailscaled
+          image: "{{ .Values.image.name }}:{{ .Values.image.tag }}"
+          securityContext:
+            privileged: true
+          env:
+            - name: TS_AUTHKEY
+              valueFrom:
+                secretKeyRef:
+                  name: tailscale-auth-key
+                  key: TS_AUTHKEY
+            - name: TS_HOSTNAME
+              value: "{{ .Values.hostname }}"
+          args:
+            - /bin/sh
+            - -c
+            - |
+              tailscaled &
+              sleep 2
+              tailscale up \
+                --authkey="${TS_AUTHKEY}" \
+                --hostname="${TS_HOSTNAME}" \
+                {{- if .Values.tags }}
+                --advertise-tags={{- range $i, $t := .Values.tags -}}{{- if $i -}},{{- end -}}tag:{{ $t }}{{- end }} \
+                {{- end }}
+                {{- if .Values.exitNode }}
+                --advertise-exit-node
+                {{- end }}
+              wait
+          {{- with .Values.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}

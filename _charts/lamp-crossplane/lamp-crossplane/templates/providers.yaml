@@ -1,0 +1,14 @@
+{{- range .Values.providers }}
+{{- if .enabled }}
+---
+apiVersion: pkg.crossplane.io/v1
+kind: Provider
+metadata:
+  name: {{ .name }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+spec:
+  package: {{ .package }}
+{{- end }}
+{{- end }}

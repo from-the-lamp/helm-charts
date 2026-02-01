@@ -1,0 +1,32 @@
+{{- $project := .Values.project -}}
+{{- range $app := .Values.apps }}
+{{- range $repo := $.Values.repositories }}
+---
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: "kargo-repo-{{ $repo.type }}-{{ $repo.name }}-{{ $app.name }}"
+  namespace: {{ $project.prefix }}-{{ $app.name }}
+spec:
+  refreshInterval: "{{ $.Values.externalSecrets.refreshInterval }}"
+  secretStoreRef:
+    kind: "{{ $.Values.externalSecrets.kind }}"
+    name: "{{ $.Values.externalSecrets.name }}"
+  target:
+    name: "kargo-repo-{{ $repo.type }}-{{ $repo.name }}-{{ $app.name }}"
+    creationPolicy: "{{ $.Values.externalSecrets.creationPolicy }}"
+    template:
+      metadata:
+        labels:
+          kargo.akuity.io/cred-type: {{ $repo.type }}
+      data:
+        repoURL: "{{ $repo.url }}"
+        username: "{{ $repo.username }}"
+        password: "{{`{{ .password }}`}}"
+        repoURLIsRegex: "{{ $repo.repoURLIsRegex }}"
+  data:
+  - secretKey: password
+    remoteRef:
+      key: {{ $repo.passwordRemoteSecretKey }}
+{{- end }}
+{{- end }}

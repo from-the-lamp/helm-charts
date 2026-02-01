@@ -1,0 +1,25 @@
+{{- if index .Values "mongodb-exporter" "enabled" }}
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: mongodb-exporter-auth
+spec:
+  refreshInterval: "{{ .Values.externalSecrets.refreshInterval }}"
+  secretStoreRef:
+    kind: "{{ .Values.externalSecrets.kind }}"
+    name: "{{ .Values.externalSecrets.name }}"
+  target:
+    name: mongodb-exporter-auth
+    creationPolicy: "{{ .Values.externalSecrets.creationPolicy }}"
+    template:
+      data:
+        uri: {{ printf "mongodb://%s:%s@%s:%s/%s"
+          (include "auth.user" (index .Values "mongodb-exporter"))
+          (include "auth.pass" (index .Values "mongodb-exporter"))
+          (include "auth.host" (index .Values "mongodb-exporter"))
+          (include "auth.port" (index .Values "mongodb-exporter"))
+          (include "auth.db" (index .Values "mongodb-exporter"))
+        }}
+  data:
+    {{- include "auth.remoteRefs" (index .Values "mongodb-exporter") | nindent 4 }}
+{{- end }}

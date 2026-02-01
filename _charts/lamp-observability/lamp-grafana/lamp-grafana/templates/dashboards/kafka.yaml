@@ -1,0 +1,128 @@
+{{ if .Values.dashboards.kafka.enabled }}
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaFolder
+metadata:
+  name: kafka
+spec:
+  instanceSelector:
+    matchLabels:
+      dashboards: "grafana"
+  title: Kafka
+---
+{{- if index .Values "dashboards" "kafka" "strimzi-cruise-control" }}
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDashboard
+metadata:
+  name: kafka-strimzi-cruise-control
+spec:
+  folder: Kafka
+  instanceSelector:
+    matchLabels:
+      dashboards: "grafana"
+  url: "https://raw.githubusercontent.com/strimzi/strimzi-kafka-operator/main/helm-charts/helm3/strimzi-kafka-operator/files/grafana-dashboards/strimzi-cruise-control.json"
+{{- end }}
+---
+{{- if index .Values "dashboards" "kafka" "strimzi-bridge" }}
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDashboard
+metadata:
+  name: kafka-strimzi-bridge
+spec:
+  folder: Kafka
+  instanceSelector:
+    matchLabels:
+      dashboards: "grafana"
+  url: "https://raw.githubusercontent.com/strimzi/strimzi-kafka-operator/main/helm-charts/helm3/strimzi-kafka-operator/files/grafana-dashboards/strimzi-kafka-bridge.json"
+{{- end }}
+---
+{{- if index .Values "dashboards" "kafka" "strimzi-connect" }}
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDashboard
+metadata:
+  name: kafka-strimzi-connect
+spec:
+  folder: Kafka
+  instanceSelector:
+    matchLabels:
+      dashboards: "grafana"
+  url: "https://raw.githubusercontent.com/strimzi/strimzi-kafka-operator/main/helm-charts/helm3/strimzi-kafka-operator/files/grafana-dashboards/strimzi-kafka-connect.json"
+{{- end }}
+---
+{{- if index .Values "dashboards" "kafka" "strimzi-exporter" }}
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDashboard
+metadata:
+  name: kafka-strimzi-exporter
+spec:
+  folder: Kafka
+  instanceSelector:
+    matchLabels:
+      dashboards: "grafana"
+  url: "https://raw.githubusercontent.com/strimzi/strimzi-kafka-operator/main/helm-charts/helm3/strimzi-kafka-operator/files/grafana-dashboards/strimzi-kafka-exporter.json"
+{{- end }}
+---
+{{- if index .Values "dashboards" "kafka" "strimzi-mirror-maker" }}
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDashboard
+metadata:
+  name: kafka-strimzi-mirror-maker
+spec:
+  folder: Kafka
+  instanceSelector:
+    matchLabels:
+      dashboards: "grafana"
+  url: "https://raw.githubusercontent.com/strimzi/strimzi-kafka-operator/main/helm-charts/helm3/strimzi-kafka-operator/files/grafana-dashboards/strimzi-kafka-mirror-maker-2.json"
+{{- end }}
+---
+{{- if index .Values "dashboards" "kafka" "strimzi-oauth" }}
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDashboard
+metadata:
+  name: kafka-strimzi-oauth
+spec:
+  folder: Kafka
+  instanceSelector:
+    matchLabels:
+      dashboards: "grafana"
+  url: "https://raw.githubusercontent.com/strimzi/strimzi-kafka-operator/main/helm-charts/helm3/strimzi-kafka-operator/files/grafana-dashboards/strimzi-kafka-oauth.json"
+{{- end }}
+---
+{{- if index .Values "dashboards" "kafka" "strimzi-kafka" }}
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDashboard
+metadata:
+  name: kafka-strimzi
+spec:
+  folder: Kafka
+  instanceSelector:
+    matchLabels:
+      dashboards: "grafana"
+  url: "https://raw.githubusercontent.com/strimzi/strimzi-kafka-operator/main/helm-charts/helm3/strimzi-kafka-operator/files/grafana-dashboards/strimzi-kafka.json"
+{{- end }}
+---
+{{- if index .Values "dashboards" "kafka" "strimzi-kraft" }}
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDashboard
+metadata:
+  name: kafka-strimzi-kraft
+spec:
+  folder: Kafka
+  instanceSelector:
+    matchLabels:
+      dashboards: "grafana"
+  url: "https://raw.githubusercontent.com/strimzi/strimzi-kafka-operator/main/helm-charts/helm3/strimzi-kafka-operator/files/grafana-dashboards/strimzi-kraft.json"
+{{- end }}
+---
+{{- if index .Values "dashboards" "kafka" "strimzi-operators" }}
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDashboard
+metadata:
+  name: kafka-strimzi-operators
+spec:
+  folder: Kafka
+  instanceSelector:
+    matchLabels:
+      dashboards: "grafana"
+  url: "https://raw.githubusercontent.com/strimzi/strimzi-kafka-operator/main/helm-charts/helm3/strimzi-kafka-operator/files/grafana-dashboards/strimzi-operators.json"
+{{- end }}
+{{- end }}

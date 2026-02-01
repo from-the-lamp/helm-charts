@@ -1,0 +1,45 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.alloy.alloy.configMap.name }}
+data:
+  config: |
+    otelcol.receiver.otlp "default" {
+      grpc {
+        endpoint = "0.0.0.0:4317"
+      }
+      http {
+        endpoint = "0.0.0.0:4318"
+        cors {
+          allowed_origins = ["http://frontend-proxy:8080"]
+          allowed_headers = [
+            "Content-Type",
+            "Authorization",
+            "Traceparent",
+            "Baggage",
+            "X-Requested-With",
+          ]
+        }
+      }
+      output {
+        traces = [otelcol.processor.batch.traces.input]
+      }
+    }
+    otelcol.processor.batch "traces" {
+      output {
+        traces = [otelcol.exporter.otlp.tempo.input]
+      }
+    }
+    otelcol.exporter.otlp "tempo" {
+      client {
+        endpoint = "{{ .Values.alloy.config.endpoint.url }}"
+        tls {
+          {{- if not .Values.alloy.config.endpoint.tls.enabled }}
+          insecure = true
+          {{- end }}
+          {{- if not .Values.alloy.config.endpoint.tls.skip_verify }}
+          insecure_skip_verify = {{ .Values.alloy.config.endpoint.tls.skip_verify }}
+          {{- end }}
+        }
+      }
+    }

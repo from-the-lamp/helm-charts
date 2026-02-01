@@ -1,0 +1,52 @@
+{{- if .Values.dashboards.postgresql.enabled }}
+---
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaFolder
+metadata:
+  name: postgresql
+spec:
+  instanceSelector:
+    matchLabels:
+      dashboards: "grafana"
+  title: PostgreSQL
+{{- if .Values.dashboards.postgresql.cnpg }}
+---
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDashboard
+metadata:
+  name: postgresql-cnpg
+spec:
+  folder: PostgreSQL
+  instanceSelector:
+    matchLabels:
+      dashboards: "grafana"
+  grafanaCom:
+    id: 20417
+    revision: 2
+{{- end }}
+{{- if .Values.dashboards.postgresql.mixin }}
+---
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDashboard
+metadata:
+  name: postgresql-mixin
+spec:
+  folder: PostgreSQL
+  instanceSelector:
+    matchLabels:
+      dashboards: "grafana"
+  configMapRef:
+    name: dashboard-mixin
+    key: json
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dashboard-mixin
+  annotations:
+    argocd.argoproj.io/sync-options: ServerSideApply=true
+data:
+  json: >
+    {{- .Files.Get "files/postgresql/mixin.json" | nindent 4 }}
+{{- end }}
+{{- end }}

@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: renovate-config
+data:
+  config.json: |
+    {
+      "platform": "${RENOVATE_PLATFORM}",
+      "endpoint": "${RENOVATE_ENDPOINT}",
+      "token": "${RENOVATE_TOKEN}",
+      "autodiscover": {{ .Values.config.autodiscover }},
+      "printConfig": {{ .Values.config.printConfig }},
+      "repositories": {{ toJson .Values.config.repositories }},
+      "recreateWhen": "{{ .Values.config.recreateWhen }}",
+      "enabledManagers": ["helmv3"],
+      "helmv3": {},
+      "includePaths": {{ toJson .Values.config.includePaths }},
+      "ignorePaths": {{ toJson .Values.config.ignorePaths }},
+      {{- if .Values.config.bumpVersion }}
+      "bumpVersion": "patch",
+      "packageRules": [
+        { "matchManagers": ["helmv3"], "matchUpdateTypes": ["major"], "bumpVersion": "major" },
+        { "matchManagers": ["helmv3"], "matchUpdateTypes": ["minor"], "bumpVersion": "minor" },
+        { "matchManagers": ["helmv3"], "matchUpdateTypes": ["patch"], "bumpVersion": "patch" }
+      ]
+      {{- end }}
+    }

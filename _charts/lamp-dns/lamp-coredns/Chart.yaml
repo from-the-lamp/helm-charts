@@ -1,0 +1,12 @@
+apiVersion: v2
+name: lamp-coredns
+version: 0.2.0
+
+dependencies:
+  - name: coredns
+    alias: private-resolver
+    version: 1.45.0
+    repository: https://coredns.github.io/helm
+
+annotations:
+  notes: "CoreDNS image update to v1.13.1."

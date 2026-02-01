@@ -1,0 +1,86 @@
+version: '3'
+
+silent: true
+tasks:
+  .build:
+    internal: true
+    dir: '{{.DIR}}'
+    cmds:
+      - helm dependency update
+      - helm package . -d .output
+
+  build:push:*:
+    desc: Build and Push specific Chart
+    cmds:
+      - echo "Cleanup..."
+      - task: cleanup
+      - echo "Building..."
+      - task: .build 
+        vars: { DIR: "{{index .MATCH 0}}" }
+      - echo "Pushing..."
+      - task: .push 
+        vars: { DIR: "{{index .MATCH 0}}" }
+
+  build:push:changed:
+    desc: Build and Push changed Charts
+    cmds:
+      - echo "Building..."
+      - task: build:changed
+      - echo "Pushing..."
+      - task: push:changed
+      
+  build:*:
+    desc: Build specific Chart (ex. task build:dirname)
+    cmds:
+      - task: .build 
+        vars: { DIR: "{{index .MATCH 0}}" }
+
+  build:all:
+    desc: Build all Charts
+    deps:
+      - for: { var: CHART_DIRS }
+        task: .build
+        vars:
+          DIR: '{{.ITEM}}'
+
+  build:changed:
+    desc: Build changed Charts
+    deps:
+      - for: { var: CHANGED_CHART_DIRS }
+        task: .build
+        vars:
+          DIR: '{{.ITEM}}'
+    preconditions:
+      - sh: '[ -n "{{.CHANGED_CHART_DIRS}}" ]'
+        msg: "No changed chart directories found."
+        
+  .push:
+    internal: true
+    dir: '{{.DIR}}'
+    cmds:
+      - helm push $(find .output -type f -name "*.tgz") oci://{{.OCI_REPO}}
+
+  push:*:
+    desc: Push specific Chart (ex. task push:dirname)
+    cmds:
+      - task: .push 
+        vars: { DIR: "{{index .MATCH 0}}" }
+
+  push:all:
+    desc: Push all Charts
+    deps:
+      - for: { var: CHART_DIRS }
+        task: .push
+        vars:
+          DIR: '{{.ITEM}}'
+
+  push:changed:
+    desc: Push changed Charts
+    deps:
+      - for: { var: CHANGED_CHART_DIRS }
+        task: .push
+        vars:
+          DIR: '{{.ITEM}}'
+    preconditions:
+      - sh: '[ -n "{{.CHANGED_CHART_DIRS}}" ]'
+        msg: "No changed chart directories found."

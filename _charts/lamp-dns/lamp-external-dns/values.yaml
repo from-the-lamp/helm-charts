@@ -1,0 +1,26 @@
+cloudflare:
+  remoteSecretKey: cloudflare-dns-solver-token
+
+external-dns:
+  # domainFilters:
+  #   - from-the-lamp.work
+  extraArgs:
+    - --cloudflare-proxied
+  sources:
+    - istio-gateway
+  policy: sync
+  logLevel: debug
+  provider: 
+    name: cloudflare
+  env:
+    - name: CF_API_TOKEN
+      valueFrom:
+        secretKeyRef:
+          name: cloudflare
+          key: token
+
+externalSecrets:
+  kind: ClusterSecretStore
+  name: oracle
+  refreshInterval: 1h
+  creationPolicy: Orphan

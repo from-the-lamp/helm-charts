@@ -1,0 +1,41 @@
+apiVersion: v2
+name: lamp-victoria-metrics-agent
+version: 1.1.0
+
+annotations:
+  notes: "Initial version with VMAgent and several exporters (MySQL, PostgreSQL, MongoDB, Blackbox)."
+
+dependencies:
+  - name: prometheus-operator-crds
+    condition: prometheus-operator-crds.enabled
+    version: 23.0.0
+    repository: https://prometheus-community.github.io/helm-charts
+
+  - name: victoria-metrics-k8s-stack
+    condition: victoria-metrics-k8s-stack.enabled
+    version: 0.63.6
+    repository: https://victoriametrics.github.io/helm-charts
+
+  - name: prometheus-mysql-exporter
+    alias: mysql-exporter
+    condition: mysql-exporter.enabled
+    version: 2.11.0
+    repository: https://prometheus-community.github.io/helm-charts
+
+  - name: prometheus-mongodb-exporter
+    alias: mongodb-exporter
+    condition: mongodb-exporter.enabled
+    version: 3.14.0
+    repository: https://prometheus-community.github.io/helm-charts
+
+  - name: prometheus-postgres-exporter
+    alias: postgres-exporter
+    condition: postgres-exporter.enabled
+    version: 7.3.0
+    repository: https://prometheus-community.github.io/helm-charts
+
+  - name: prometheus-blackbox-exporter
+    alias: blackbox-exporter
+    condition: blackbox-exporter.enabled
+    version: 11.5.0
+    repository: https://prometheus-community.github.io/helm-charts

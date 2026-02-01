@@ -1,0 +1,119 @@
+{{ if .Values.dashboards.istio.enabled }}
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaFolder
+metadata:
+  name: istio
+spec:
+  instanceSelector:
+    matchLabels:
+      dashboards: "grafana"
+  title: Istio
+---
+{{- if index .Values "dashboards" "istio" "mesh" }}
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDashboard
+metadata:
+  name: istio-mesh
+spec:
+  folder: Istio
+  instanceSelector:
+    matchLabels:
+      dashboards: "grafana"
+  datasources:
+    - inputName: DS_PROMETHEUS
+      datasourceName: VictoriaMetrics
+  grafanaCom:
+    id: 7639
+    revision: 194
+{{- end }}
+---
+{{- if index .Values "dashboards" "istio" "service" }}
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDashboard
+metadata:
+  name: istio-service
+spec:
+  folder: Istio
+  instanceSelector:
+    matchLabels:
+      dashboards: "grafana"
+  datasources:
+    - inputName: DS_PROMETHEUS
+      datasourceName: VictoriaMetrics
+  grafanaCom:
+    id: 7636
+    revision: 194
+{{- end }}
+---
+{{- if index .Values "dashboards" "istio" "workload" }}
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDashboard
+metadata:
+  name: istio-workload
+spec:
+  folder: Istio
+  instanceSelector:
+    matchLabels:
+      dashboards: "grafana"
+  datasources:
+    - inputName: DS_PROMETHEUS
+      datasourceName: VictoriaMetrics
+  grafanaCom:
+    id: 7630
+    revision: 194
+{{- end }}
+---
+{{- if index .Values "dashboards" "istio" "performance" }}
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDashboard
+metadata:
+  name: istio-performance
+spec:
+  folder: Istio
+  instanceSelector:
+    matchLabels:
+      dashboards: "grafana"
+  datasources:
+    - inputName: DS_PROMETHEUS
+      datasourceName: VictoriaMetrics
+  grafanaCom:
+    id: 11829
+    revision: 194
+{{- end }}
+---
+{{- if index .Values "dashboards" "istio" "control-plane" }}
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDashboard
+metadata:
+  name: istio-control-plane
+spec:
+  folder: Istio
+  instanceSelector:
+    matchLabels:
+      dashboards: "grafana"
+  datasources:
+    - inputName: DS_PROMETHEUS
+      datasourceName: VictoriaMetrics
+  grafanaCom:
+    id: 7645
+    revision: 194
+{{- end }}
+---
+{{- if index .Values "dashboards" "istio" "wasm" }}
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDashboard
+metadata:
+  name: istio-wasm
+spec:
+  folder: Istio
+  instanceSelector:
+    matchLabels:
+      dashboards: "grafana"
+  datasources:
+    - inputName: DS_PROMETHEUS
+      datasourceName: VictoriaMetrics
+  grafanaCom:
+    id: 13277
+    revision: 151
+{{- end }}
+{{- end }}

@@ -1,0 +1,20 @@
+{{- if .Values.gateway.enabled }}
+{{- if and .Values.gateway.tls }}
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: {{ .Release.Name }}
+spec:
+  secretName: "{{ .Release.Name }}-cert"
+  dnsNames:
+  {{- with .Values.gateway.hosts }}
+  {{- toYaml . | nindent 2 }}
+  {{- end }}
+  duration: {{ .Values.gateway.tls.cert.duration }}
+  renewBefore: {{ .Values.gateway.tls.cert.renewBefore }}
+  {{- with .Values.gateway.tls.issuerRef }}
+  issuerRef:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+{{- end }}
+{{- end }}

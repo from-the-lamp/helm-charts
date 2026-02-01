@@ -1,0 +1,15 @@
+apiVersion: v2
+name: lamp-victoria-metrics
+version: 1.1.0
+
+annotations:
+  notes: "VictoriaMetrics v1.131.0, configurable RBAC roles for VMAgent."
+
+dependencies:
+  - name: prometheus-operator-crds
+    version: 23.0.0
+    repository: https://prometheus-community.github.io/helm-charts
+
+  - name: victoria-metrics-k8s-stack
+    version: 0.63.6
+    repository: https://victoriametrics.github.io/helm-charts/

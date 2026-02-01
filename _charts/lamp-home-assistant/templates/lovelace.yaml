@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-lovelace
+data:
+  lovelace: |
+    {{- toYaml .Values.lovelace | nindent 4 }}

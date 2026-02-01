@@ -1,0 +1,52 @@
+alloy:
+  enabled: true
+  fullnameOverride: alloy-profiles
+  alloy:
+    configMap:
+      create: false
+      name: alloy-profiles-config
+      key: config
+  controller:
+    type: deployment
+    replicas: 1
+  config:
+    endpoint:
+      url: http://pyroscope.pyroscope.default.svc.cluster.local.:4040
+    labels:
+      cluster: staging
+
+ebpf:
+  enabled: true
+  fullnameOverride: alloy-profiles-ebpf
+  alloy:
+    configMap:
+      create: false
+      name: alloy-profiles-config-ebpf
+      key: config
+    securityContext:
+      privileged: true
+      runAsUser: 0
+      runAsGroup: 0
+      capabilities:
+        add: ["SYS_ADMIN", "BPF", "PERFMON", "SYS_PTRACE", "NET_ADMIN"]
+    extraVolumes:
+      - name: sys
+        hostPath:
+          path: /sys
+      - name: lib-modules
+        hostPath:
+          path: /lib/modules
+      - name: bpf
+        hostPath:
+          path: /sys/fs/bpf
+    extraVolumeMounts:
+      - name: sys
+        mountPath: /sys
+        readOnly: true
+      - name: lib-modules
+        mountPath: /lib/modules
+        readOnly: true
+      - name: bpf
+        mountPath: /sys/fs/bpf
+  controller:
+    hostPID: true

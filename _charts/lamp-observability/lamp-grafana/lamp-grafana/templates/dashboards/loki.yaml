@@ -1,0 +1,44 @@
+{{- if .Values.dashboards.loki.enabled }}
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaFolder
+metadata:
+  name: loki
+spec:
+  instanceSelector:
+    matchLabels:
+      dashboards: "grafana"
+  title: Loki
+---
+{{- if index .Values "dashboards" "loki" "logs-by-service" }}
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDashboard
+metadata:
+  name: loki-logs-by-service
+spec:
+  folder: Loki
+  instanceSelector:
+    matchLabels:
+      dashboards: "grafana"
+  plugins:
+    - name: grafana-piechart-panel
+      version: 1.6.4
+  datasources:
+    - inputName: DS_LOKI
+      datasourceName: Loki
+    - inputName: DS_PROMETHEUS
+      datasourceName: VictoriaMetrics
+  configMapRef:
+    name: dashboard-loki-logs-by-service
+    key: json
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dashboard-loki-logs-by-service
+  annotations:
+    argocd.argoproj.io/sync-options: ServerSideApply=true
+data:
+  json: >
+    {{- .Files.Get "files/loki/loki-logs-by-service.json" | nindent 4 }}
+{{- end }}
+{{- end }}

@@ -1,0 +1,21 @@
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: renovate-auth
+spec:
+  refreshInterval: "{{ $.Values.externalSecrets.refreshInterval }}"
+  secretStoreRef:
+    kind: "{{ $.Values.externalSecrets.kind }}"
+    name: "{{ $.Values.externalSecrets.name }}"
+  target:
+    name: renovate-auth
+    creationPolicy: "{{ .Values.externalSecrets.creationPolicy }}"
+    template:
+      data:
+        RENOVATE_PLATFORM: "{{ .Values.auth.platform }}"
+        RENOVATE_ENDPOINT: "{{ .Values.auth.endpoint }}"
+        RENOVATE_TOKEN: "{{`{{ .token }}`}}"
+  data:
+    - secretKey: token
+      remoteRef:
+        key: "{{ .Values.auth.token.remoteSecretKey }}"

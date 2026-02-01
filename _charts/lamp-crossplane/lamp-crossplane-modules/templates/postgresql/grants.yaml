@@ -1,0 +1,27 @@
+{{- if .Values.postgresql.enabled }}
+{{- range $user := .Values.postgresql.users }}
+{{- range $i, $grant := $user.grants }}
+apiVersion: postgresql.sql.crossplane.io/v1alpha1
+kind: Grant
+metadata:
+  name: "{{ $user.name }}-grant-{{ $i }}"
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  forProvider:
+    roleRef:
+      name: {{ $user.name }}
+    {{- if $grant.memberOf }}
+    memberOf: {{ $grant.memberOf | quote }}
+    {{- else }}
+    privileges:
+    {{- range $grant.privileges }}
+      - {{ . }}
+    {{- end }}
+    databaseRef:
+      name: {{ $grant.database }}
+    {{- end }}
+---
+{{- end }}
+{{- end }}
+{{- end }}

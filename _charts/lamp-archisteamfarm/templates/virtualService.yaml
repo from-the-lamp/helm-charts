@@ -1,0 +1,56 @@
+{{- if .Values.gateway.enabled }}
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: {{ .Release.Name }}
+spec:
+  gateways:
+  - "{{ .Release.Name }}"
+  {{- with .Values.gateway.hosts }}
+  hosts:
+  {{- toYaml . | nindent 2 }}
+  {{- end }}
+  http:
+  {{- range .Values.gateway.virtualService.redirects }}
+  - match:
+      {{- toYaml .match | nindent 4 }}
+    redirect:
+      {{- toYaml .redirect | nindent 6 }}
+  {{- end }}
+
+  - match:
+    - uri:
+        prefix: /
+      {{- if .Values.gateway.virtualService.basicAuth.enabled }}
+      headers:
+        Authorization:
+          exact: "Basic {{ .Values.gateway.virtualService.basicAuth.credentials }}"
+      {{- end }}
+    route:
+    {{- if .Values.gateway.virtualService.destination }}
+    - destination:
+        host: "{{ .Values.gateway.virtualService.destination.host }}"
+        port:
+          number: {{ .Values.gateway.virtualService.destination.port }}
+    {{- else }}
+    - destination:
+        host: "{{ .Release.Name }}-app.{{ .Release.Namespace }}.svc.cluster.local"
+        port:
+          number: 80
+    {{- end }}
+    {{- with .Values.corsPolicy }}
+    corsPolicy:
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
+  {{- if .Values.gateway.virtualService.basicAuth.enabled }}
+  - match:
+    - uri:
+        prefix: /
+    directResponse:
+      status: 401
+    headers:
+      response:
+        set:
+          Www-Authenticate: 'Basic realm="Authentication Required"'
+  {{- end }}
+{{- end }}

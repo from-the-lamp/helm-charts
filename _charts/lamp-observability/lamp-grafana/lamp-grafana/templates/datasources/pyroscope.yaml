@@ -1,0 +1,16 @@
+{{- if .Values.datasources.pyroscope.enabled }}
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDatasource
+metadata:
+  name: pyroscope
+spec:
+  instanceSelector:
+    matchLabels:
+      dashboards: "grafana"
+  datasource:
+    name: Pyroscope
+    type: phlare
+    uid: pyroscope
+    access: proxy
+    url: {{ .Values.datasources.pyroscope.url}}
+{{- end }}

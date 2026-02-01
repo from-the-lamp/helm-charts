@@ -1,0 +1,49 @@
+kargo:
+  api:
+    host: kargo.internal.from-the-lamp.work
+    adminAccount:
+      enabled: false
+    tls:
+      enabled: false
+      terminatedUpstream: true
+    oidc:
+      enabled: true
+      remoteSecretKeys:
+        client_id: kargo-oauth-client-id
+        client_secret: kargo-oauth-client-secret
+      dex:
+        enabled: true
+        connectors:
+          - id: gitlab
+            name: Gitlab
+            type: gitlab
+            config:
+              baseURL: https://gitlab.com
+              clientID: $OAUTH_CLIENT_ID
+              clientSecret: $OAUTH_CLIENT_SECRET
+              redirectURI: https://kargo.internal.from-the-lamp.work/dex/callback
+        envFrom:
+          - secretRef:
+              name: kargo-sso-secrets
+      admins:
+        claims:
+          groups:
+            - from-the-lamp
+      projectCreators:
+        claims:
+          groups:
+            - from-the-lamp
+      users:
+        claims:
+          groups:
+            - from-the-lamp
+      viewers:
+        claims:
+          groups:
+            - from-the-lamp
+
+externalSecrets:
+  kind: ClusterSecretStore
+  name: oracle
+  refreshInterval: 1h
+  creationPolicy: Orphan

@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "remnawave-node.fullname" . }}
+  labels:
+    {{- include "remnawave-node.labels" . | nindent 4 }}
+  {{- with .Values.deployment.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  replicas: {{ .Values.deployment.replicas }}
+  selector:
+    matchLabels:
+      {{- include "remnawave-node.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        {{- include "remnawave-node.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+      - image: {{ .Values.image.name }}:{{ .Values.image.tag }}
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        name: remnawave
+        envFrom:
+          - configMapRef:
+              name: {{ include "remnawave-node.fullname" . }}-config
+          {{- if and .Values.existingSecret (ne .Values.existingSecret "") }}
+          - secretRef:
+              name: {{ .Values.existingSecret }}
+          {{- end }}

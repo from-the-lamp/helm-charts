@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "remnawave-subscription.fullname" . }}
+  labels:
+    {{- include "remnawave-subscription.labels" . | nindent 4 }}
+  {{- with .Values.deployment.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  replicas: {{ .Values.deployment.replicas }}
+  selector:
+    matchLabels:
+      {{- include "remnawave-subscription.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        {{- include "remnawave-subscription.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+      - image: {{ .Values.image.name }}:{{ .Values.image.tag }}
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        name: remnawave
+        ports:
+          - name: http
+            containerPort: {{ .Values.service.port }}
+        envFrom:
+          - configMapRef:
+              name: {{ include "remnawave-subscription.fullname" . }}-config
+          {{- if and .Values.existingSecret (ne .Values.existingSecret "") }}
+          - secretRef:
+              name: {{ .Values.existingSecret }}
+          {{- end }}

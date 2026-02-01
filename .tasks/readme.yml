@@ -1,0 +1,57 @@
+version: '3'
+
+silent: true
+tasks:
+  .readme:
+    internal: true
+    dir: '{{.DIR}}'
+    cmds:
+      - mkdir -p .output
+      # Helm-docs
+      - helm-docs --skip-version-footer -o .output/helm.md
+      # Trivy
+      - echo "# Trivy scan - Helm Chart" > .output/trivy.md
+      - echo '```' >> .output/trivy.md
+      - trivy config . --format table >> .output/trivy.md
+      - echo '```' >> .output/trivy.md
+      # README.md
+      - cat .output/helm.md > README.md
+      - cat .output/trivy.md >> README.md
+      
+  readme:all:
+    desc: Generate README.md for all Charts
+    deps:
+      - for: { var: CHART_DIRS }
+        task: .readme
+        vars:
+          DIR: '{{.ITEM}}'
+
+  readme:changed:
+    desc: Generate README.md for changed Charts
+    deps:
+      - for: { var: CHANGED_CHART_DIRS }
+        task: .readme
+        vars:
+          DIR: '{{.ITEM}}'
+    preconditions:
+      - sh: '[ -n "{{.CHANGED_CHART_DIRS}}" ]'
+        msg: "No changed chart directories found."
+
+  readme:matrix:
+    desc: Generate compatibility matrix using gomplate
+    cmds:
+      - mkdir -p .output
+      - |
+        find _charts -name Chart.yaml | while read f; do 
+          yq . "$f" | jq --arg p "$f" '. + {path: $p}'
+        done | jq -s '.' > .output/charts.json
+      - gomplate -d charts=.output/charts.json -f .tasks/README.md.gotmpl -o README.md
+    sources:
+      - _charts/**/Chart.yaml
+      - _charts/**/NOTES.txt
+      - _charts/**/NOTES.md
+      - README.md.gotmpl
+    generates:
+      - README.md
+    status:
+      - "false"

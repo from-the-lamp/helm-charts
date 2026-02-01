@@ -1,0 +1,25 @@
+{{- if index .Values "postgres-exporter" "enabled" }}
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: postgres-exporter-auth
+spec:
+  refreshInterval: "{{ .Values.externalSecrets.refreshInterval }}"
+  secretStoreRef:
+    kind: "{{ .Values.externalSecrets.kind }}"
+    name: "{{ .Values.externalSecrets.name }}"
+  target:
+    name: postgres-exporter-auth
+    creationPolicy: "{{ .Values.externalSecrets.creationPolicy }}"
+    template:
+      data:
+        dsn: {{ printf "postgresql://%s:%s@%s:%s/%s"
+          (include "auth.user" (index .Values "postgres-exporter"))
+          (include "auth.pass" (index .Values "postgres-exporter"))
+          (include "auth.host" (index .Values "postgres-exporter"))
+          (include "auth.port" (index .Values "postgres-exporter"))
+          (include "auth.db" (index .Values "postgres-exporter"))
+        }}
+  data:
+    {{- include "auth.remoteRefs" (index .Values "postgres-exporter") | nindent 4 }}
+{{- end }}

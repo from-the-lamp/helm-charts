@@ -1,0 +1,36 @@
+{{- if .Values.dashboards.elasticsearch.enabled }}
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaFolder
+metadata:
+  name: elasticsearch
+spec:
+  instanceSelector:
+    matchLabels:
+      dashboards: "grafana"
+  title: Elasticsearch
+---
+{{- if .Values.dashboards.elasticsearch.overview }}
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDashboard
+metadata:
+  name: elasticsearch-overview
+spec:
+  folder: Elasticsearch
+  instanceSelector:
+    matchLabels:
+      dashboards: "grafana"
+  configMapRef:
+    name: dashboard-elasticsearch-overview
+    key: json
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dashboard-elasticsearch-overview
+  annotations:
+    argocd.argoproj.io/sync-options: ServerSideApply=true
+data:
+  json: >
+    {{- .Files.Get "files/elasticsearch/elasticsearch-overview.json" | nindent 4 }}
+{{- end }}
+{{- end }}

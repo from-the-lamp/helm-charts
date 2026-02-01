@@ -1,0 +1,28 @@
+alloy:
+  enabled: true
+  fullnameOverride: alloy-traces
+  alloy:
+    configMap:
+      create: false
+      name: alloy-traces-config
+      key: config
+  controller:
+    type: deployment
+    replicas: 1
+  config:
+    endpoint:
+      url: #http://tempo.infra.example.cloud
+      tls:
+        enabled: false
+        skip_verify: true
+
+beyla:
+  enabled: true
+  config:
+    data:
+      discovery:
+        instrument:
+          - k8s_pod_labels:
+              alloy.traces: enabled
+      otel_traces_export:
+        endpoint: http://alloy-traces-grpc:4317

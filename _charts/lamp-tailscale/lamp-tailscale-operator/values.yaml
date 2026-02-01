@@ -1,0 +1,16 @@
+remoteSecretKeys:
+  clientId: tailscale-client-id
+  clientSecret: tailscale-client-secret
+
+tailscale-operator:
+  operatorConfig:
+    # defaultTags: {}
+    #   - "tag:k8s-operator"
+  proxyConfig: {}
+    # defaultTags: "tag:k8s"
+
+externalSecrets:
+  kind: ClusterSecretStore
+  name: oracle
+  refreshInterval: 1h
+  creationPolicy: Orphan

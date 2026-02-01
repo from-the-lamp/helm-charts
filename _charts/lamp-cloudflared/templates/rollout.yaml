@@ -1,0 +1,50 @@
+{{ if .Values.rollout.enabled }}
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: rollout-deployment
+spec:
+  schedule: "{{ .Values.rollout.cron }}"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          serviceAccountName: rollout-sa
+          nodeSelector:
+            {{- toYaml .Values.nodeSelector | nindent 12 }}
+          containers:
+          - name: kubectl
+            image: bitnamilegacy/kubectl:latest
+            command:
+            - /bin/sh
+            - -c
+            - |
+              kubectl rollout restart deployment cloudflared -n {{ .Release.Namespace }}
+          restartPolicy: OnFailure
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: rollout-sa
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: rollout-role
+rules:
+- apiGroups: ["apps"]
+  resources: ["deployments"]
+  verbs: ["get", "list", "patch", "update"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: rollout-rolebinding
+subjects:
+- kind: ServiceAccount
+  name: rollout-sa
+roleRef:
+  kind: Role
+  name: rollout-role
+  apiGroup: rbac.authorization.k8s.io
+{{- end }}

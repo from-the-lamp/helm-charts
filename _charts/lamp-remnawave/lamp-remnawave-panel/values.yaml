@@ -1,0 +1,85 @@
+image:
+  name: remnawave/backend
+  tag: 2.1.9
+  pullPolicy: IfNotPresent
+  pullSecrets: []
+
+deployment:
+  replicas: 1
+  annotations: {}
+
+probes:
+  liveness:
+    httpGet:
+      path: /health
+      port: http-metrics
+    initialDelaySeconds: 10
+    periodSeconds: 10
+    timeoutSeconds: 2
+    failureThreshold: 3
+  readiness:
+    httpGet:
+      path: /health
+      port: http-metrics
+    initialDelaySeconds: 5
+    periodSeconds: 5
+    timeoutSeconds: 2
+    failureThreshold: 3
+
+existingSecret: ""
+env:
+  SWAGGER_PATH: /docs
+  SCALAR_PATH: /scalar
+  IS_DOCS_ENABLED: false
+  HWID_DEVICE_LIMIT_ENABLED: false
+  BANDWIDTH_USAGE_NOTIFICATIONS_ENABLED: false
+  IS_TELEGRAM_NOTIFICATIONS_ENABLED: false
+  TELEGRAM_BOT_TOKEN: change_me
+  TELEGRAM_NOTIFY_USERS_CHAT_ID: change_me
+  TELEGRAM_NOTIFY_NODES_CHAT_ID: change_me
+  TELEGRAM_NOTIFY_CRM_CHAT_ID: change_me
+  TELEGRAM_OAUTH_ENABLED: false
+  TELEGRAM_NOTIFY_USERS_THREAD_ID: 
+  TELEGRAM_NOTIFY_NODES_THREAD_ID: 
+  TELEGRAM_NOTIFY_CRM_THREAD_ID: 
+  JWT_AUTH_SECRET: "" #openssl rand -hex 64
+  JWT_API_TOKENS_SECRET: "" #openssl rand -hex 64
+  CLOUDFLARE_TOKEN: ""
+  WEBHOOK_ENABLED: false
+  WEBHOOK_URL: https://webhook.site/1234567890
+  WEBHOOK_SECRET_HEADER: "" #openssl rand -hex 64
+  FRONT_END_DOMAIN: remnawave.from-the-lamp.work
+  SUB_PUBLIC_DOMAIN: remnawave.from-the-lamp.work/api/sub
+
+service:
+  type: ClusterIP
+  port: 3000
+  targetPort: 3000
+  annotations: {}
+
+metrics:
+  user: admin
+  pass: admin
+  service:
+    port: 3001
+    targetPort: 3001
+    annotations: {}
+  serviceMonitor:
+    enabled: false
+
+postgresql:
+  enabled: true
+  auth:
+    username: "remnawave"
+    database: "remnawave"
+    password: "remnawave"
+
+valkey:
+  enabled: true
+  replica:
+    replicaCount: 0
+  auth:
+    enabled: false
+  primary:
+    replicaCount: 1
+    disableCommands: []

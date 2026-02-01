@@ -1,0 +1,20 @@
+image:
+  name: remnawave/subscription-page
+  tag: latest
+  pullPolicy: IfNotPresent
+  pullSecrets: []
+
+deployment:
+  replicas: 1
+  annotations: {}
+
+existingSecret: ""
+env:
+  REMNAWAVE_PANEL_URL: https://remnawave.from-the-lamp.work
+  META_TITLE: "Subscription Page Title"
+  META_DESCRIPTION: "Subscription Page Description"
+
+service:
+  type: ClusterIP
+  port: 3010
+  annotations: {}

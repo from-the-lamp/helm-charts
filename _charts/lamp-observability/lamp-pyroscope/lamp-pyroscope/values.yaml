@@ -1,0 +1,7 @@
+pyroscope:
+  alloy:
+    enabled: false
+  pyroscope:
+    service:
+      annotations:
+        tailscale.com/expose: 'true'

@@ -1,0 +1,20 @@
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: {{ .Chart.Name }}-auth-profiles
+spec:
+  refreshInterval: "{{ .Values.externalSecrets.refreshInterval }}"
+  secretStoreRef:
+    kind: "{{ .Values.externalSecrets.kind }}"
+    name: "{{ .Values.externalSecrets.name }}"
+  target:
+    name: {{ .Chart.Name }}-auth-profiles
+    creationPolicy: "{{ .Values.externalSecrets.creationPolicy }}"
+    template:
+      data:
+        auth-profiles.json: |
+          {{`{{ .auth_profiles }}`}}
+  data:
+  - secretKey: auth_profiles
+    remoteRef:
+      key: openclaw-auth-profiles-json

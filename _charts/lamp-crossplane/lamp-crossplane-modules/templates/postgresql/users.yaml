@@ -1,0 +1,59 @@
+{{- if .Values.postgresql.enabled }}
+{{- range .Values.postgresql.users }}
+apiVersion: postgresql.sql.crossplane.io/v1alpha1
+kind: Role
+metadata:
+  name: "{{ .name }}"
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  forProvider:
+    privileges:
+      login: true
+    {{- if .connectionLimit }}
+    connectionLimit: {{ .connectionLimit }}
+    {{- end }}
+    {{- if .configurationParameters }}
+    configurationParameters:
+      {{- range .configurationParameters }}
+      - name: "{{ .name }}"
+        value: "{{ .value }}"
+      {{- end }}
+    {{- end }}
+    {{- if .randomPassword }}
+    writeConnectionSecretToRef:
+      name: "postgresql-user-{{ .name }}"
+      namespace: "{{ $.Release.Namespace }}"
+    {{- else }}
+    passwordSecretRef:
+      name: "postgresql-user-{{ .name }}"
+      namespace: "{{ $.Release.Namespace }}"
+      key: password
+    {{- end }}
+---
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: "postgresql-user-{{ .name }}"
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  refreshInterval: "{{ $.Values.externalSecrets.refreshInterval }}"
+  secretStoreRef:
+    kind: "{{ $.Values.externalSecrets.kind }}"
+    name: "{{ $.Values.externalSecrets.name }}"
+  target:
+    name: "postgresql-user-{{ .name }}"
+    creationPolicy: "{{ .Values.externalSecrets.creationPolicy }}"
+    template:
+      data:
+        password: "{{`{{ .pass }}`}}"
+  data:
+    - secretKey: pass
+      remoteRef:
+        key: "{{ $.Values.postgresql.secretPrefix }}{{ .name }}"
+        conversionStrategy: Default
+        decodingStrategy: None
+        metadataPolicy: None
+{{- end }}
+{{- end }}

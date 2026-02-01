@@ -1,0 +1,27 @@
+{{- if .Values.datasources.google.enabled }}
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDatasource
+metadata:
+  name: google
+spec:
+  instanceSelector:
+    matchLabels:
+      dashboards: "grafana"
+  datasource:
+    name: Google
+    type: stackdriver
+    access: proxy
+    jsonData:
+      tokenUri: https://oauth2.googleapis.com/token
+      clientEmail: {{ .Values.datasources.google.serviceAccountEmail }}
+      authenticationType: jwt
+      defaultProject: {{ .Values.datasources.google.defaultProject }}
+    secureJsonData:
+      privateKey: ${GCP_SA_PRIVATE_KEY}
+  valuesFrom:
+    - targetPath: "secureJsonData.privateKey"
+      valueFrom:
+        secretKeyRef:
+          name: "grafana-monitoring-viewer-private-key"
+          key: "GCP_SA_PRIVATE_KEY"
+{{- end }}

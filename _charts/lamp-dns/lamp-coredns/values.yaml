@@ -1,0 +1,41 @@
+private-resolver:
+  isClusterService: false
+  serviceType: "ClusterIP"
+  servers:
+    - zones:
+      - zone: .
+      port: 53
+      plugins:
+      - name: errors
+      - name: log
+      - name: health
+        configBlock: |-
+          lameduck 5s
+      - name: ready
+      - name: kubernetes
+        parameters: cluster.local in-addr.arpa ip6.arpa
+        configBlock: |-
+          pods insecure
+          fallthrough in-addr.arpa ip6.arpa
+          ttl 30
+      - name: file
+        parameters: /etc/coredns/from-the-lamp.db from-the-lamp.work
+      - name: prometheus
+        parameters: 0.0.0.0:9153
+      - name: forward
+        parameters: . /etc/resolv.conf
+      - name: cache
+        parameters: 30
+      - name: loop
+      - name: reload
+      - name: loadbalance
+
+  zoneFiles:
+    - filename: from-the-lamp.db
+      domain: from-the-lamp.work
+      contents: |
+        from-the-lamp.work.   IN SOA sns.dns.icann.com. noc.dns.icann.com. 2015082541 7200 3600 1209600 3600
+        from-the-lamp.work.   IN NS  b.iana-servers.net.
+        from-the-lamp.work.   IN NS  a.iana-servers.net.
+        from-the-lamp.work.   IN A   10.43.173.155
+        *.from-the-lamp.work. IN A   10.43.173.155

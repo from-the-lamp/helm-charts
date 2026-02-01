@@ -1,0 +1,39 @@
+{{- if .Values.postgresql.enabled }}
+apiVersion: postgresql.sql.crossplane.io/v1alpha1
+kind: ProviderConfig
+metadata:
+  name: default
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+spec:
+  defaultDatabase: postgres
+  sslMode: disable
+  credentials:
+    source: PostgreSQLConnectionSecret
+    connectionSecretRef:
+      namespace: "{{ .Release.Namespace }}"
+      name: postgresql-user-admin
+---
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: postgresql-user-admin
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+spec:
+  refreshInterval: "{{ .Values.externalSecrets.refreshInterval }}"
+  secretStoreRef:
+    kind: "{{ .Values.externalSecrets.kind }}"
+    name: "{{ .Values.externalSecrets.name }}"
+  target:
+    name: postgresql-user-admin
+    creationPolicy: "{{ .Values.externalSecrets.creationPolicy }}"
+    template:
+      data:
+        endpoint: {{ include "auth.host" (index .Values "postgresql") | quote }}
+        port: {{ include "auth.port" (index .Values "postgresql") | quote}}
+        username: {{ include "auth.user" (index .Values "postgresql") | quote }}
+        password: {{ include "auth.pass" (index .Values "postgresql") | quote }}
+  data:
+    {{- include "auth.remoteRefs" (index .Values "postgresql") | nindent 4 }}
+{{- end }}
