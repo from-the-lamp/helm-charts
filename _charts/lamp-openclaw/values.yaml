@@ -126,6 +126,7 @@ remoteSecretKeys:
   anthropicApiKey: claude-api-key
   telegramBotToken: telegram-bot-openclaw-djinn
   braveApiKey: brave-api-key
+  gitlabToken: gitlab-token-jorik
 
 externalSecrets:
   kind: ClusterSecretStore
