@@ -30,8 +30,8 @@ spec:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
         - name: gateway
-          image: "{{ .Values.base.image.name }}{{ if .Values.base.image.digest }}@{{ .Values.base.image.digest }}{{ else }}:{{ .Values.base.image.tag }}{{ end }}"
-          imagePullPolicy: {{ .Values.base.image.pullPolicy }}
+          image: "{{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
           envFrom:
             - secretRef:
                 name: {{ .Chart.Name }}-env
