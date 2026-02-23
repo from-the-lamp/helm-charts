@@ -18,7 +18,7 @@ Build:Helm:
   stage: Build
   allow_failure: true
   variables:
-    OCI_REPO: $CI_REGISTRY_IMAGE/charts
+    OCI_REPO: $CI_REGISTRY_IMAGE
     OCI_REPO_USER: $CI_REGISTRY_USER
     OCI_REPO_PASS: $CI_REGISTRY_PASSWORD
   script:
