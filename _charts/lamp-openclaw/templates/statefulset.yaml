@@ -31,7 +31,7 @@ spec:
       containers:
         - name: gateway
           image: "{{ .Values.base.image.name }}{{ if .Values.base.image.digest }}@{{ .Values.base.image.digest }}{{ else }}:{{ .Values.base.image.tag }}{{ end }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          imagePullPolicy: {{ .Values.base.image.pullPolicy }}
           envFrom:
             - secretRef:
                 name: {{ .Chart.Name }}-env
