@@ -3,7 +3,13 @@ remoteSecretKeys:
 
 gitlab-runner:
   gitlabUrl: https://gitlab.com
+  rbac:
+    create: true
+  serviceAccount:
+    create: true
+    name: gitlab-runner
   runners:
+    serviceAccountName: gitlab-runner
     secret: gitlab-runner
     config: |
       [[runners]]
@@ -12,7 +18,9 @@ gitlab-runner:
           FF_USE_ADAPTIVE_REQUEST_CONCURRENCY = true
         [runners.kubernetes]
           namespace = "{{ default .Release.Namespace .Values.runners.jobNamespace }}"
-          image = "alpine"
+          image = "ubuntu:latest"
+          helper_image = "gitlab/gitlab-runner-helper:arm64-latest"
+          privileged = true
      
 externalSecrets:
   kind: ClusterSecretStore
