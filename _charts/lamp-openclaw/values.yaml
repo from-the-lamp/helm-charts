@@ -1,10 +1,8 @@
-base:
-  image:
-    registry: registry.gitlab.com
-    repository: from-the-lamp/backend/openclaw/openclaw
-    tag: latest
-    pullPolicy: Always
-    
+image:
+  registry: registry.gitlab.com
+  repository: from-the-lamp/backend/openclaw/openclaw
+  tag: latest
+  pullPolicy: Always
 imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""

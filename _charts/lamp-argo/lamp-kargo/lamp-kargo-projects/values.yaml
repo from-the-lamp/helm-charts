@@ -30,8 +30,12 @@ project:
   git:
     url: https://example.git
     branch: main
+    resultFile: .kargo.values.yaml
+    imageNamePath: base.image.name
+    imageTagPath: base.image.tag
+    imageDigestPath: base.image.digest
 
-apps: 
+apps:
   # - name: example-service
   #   image: example-registry/example-service
 

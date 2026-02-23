@@ -43,12 +43,12 @@ spec:
         - name: gitEnvPath
           value: {{ $stage.name }}/product/{{ $app.name }}
         - name: gitResultFile
-          value: .kargo.values.yaml
+          value: {{ default $project.git.resultFile $app.gitResultFile }}
         - name: gitImageNamePath
-          value: base.image.name
+          value: {{ default $project.git.imageNamePath $app.gitImageNamePath }}
         - name: gitImageTagPath
-          value: base.image.tag
+          value: {{ default $project.git.imageTagPath $app.gitImageTagPath }}
         - name: gitImageDigestPath
-          value: base.image.digest
+          value: {{ default $project.git.imageTagPath $app.gitImageDigestPath }}
 {{- end }}
 {{- end }}
