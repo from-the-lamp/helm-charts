@@ -1,0 +1,21 @@
+remoteSecretKeys:
+  token: gitlab-runner-token
+
+gitlab-runner:
+  gitlabUrl: https://gitlab.com
+  runners:
+    secret: gitlab-runner
+    config: |
+      [[runners]]
+        request_concurrency = 2
+        [runners.feature_flags]
+          FF_USE_ADAPTIVE_REQUEST_CONCURRENCY = true
+        [runners.kubernetes]
+          namespace = "{{ default .Release.Namespace .Values.runners.jobNamespace }}"
+          image = "alpine"
+     
+externalSecrets:
+  kind: ClusterSecretStore
+  name: oracle
+  refreshInterval: 1h
+  creationPolicy: Orphan
