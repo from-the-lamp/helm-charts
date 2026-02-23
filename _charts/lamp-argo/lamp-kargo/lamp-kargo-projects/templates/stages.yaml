@@ -41,7 +41,7 @@ spec:
         - name: gitBranch
           value: {{ $project.git.branch }}
         - name: gitEnvPath
-          value: {{ $stage.name }}/product/{{ $app.name }}
+          value: {{ default (printf "%s/product/%s" $stage.name $app.name) $app.gitEnvPath }}
         - name: gitResultFile
           value: {{ default $project.git.resultFile $app.gitResultFile }}
         - name: gitImageNamePath
