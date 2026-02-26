@@ -1,14 +1,14 @@
 apiVersion: external-secrets.io/v1
 kind: ExternalSecret
 metadata:
-  name: {{ .Chart.Name }}-auth-profiles
+  name: {{ .Release.Name }}-auth-profiles
 spec:
   refreshInterval: "{{ .Values.externalSecrets.refreshInterval }}"
   secretStoreRef:
     kind: "{{ .Values.externalSecrets.kind }}"
     name: "{{ .Values.externalSecrets.name }}"
   target:
-    name: {{ .Chart.Name }}-auth-profiles
+    name: {{ .Release.Name }}-auth-profiles
     creationPolicy: "{{ .Values.externalSecrets.creationPolicy }}"
     template:
       data:

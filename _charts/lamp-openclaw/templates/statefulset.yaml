@@ -34,7 +34,7 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           envFrom:
             - secretRef:
-                name: {{ .Chart.Name }}-env
+                name: {{ .Release.Name }}-env
           volumeMounts:
             - name: config
               subPath: openclaw.json
@@ -71,10 +71,10 @@ spec:
       volumes:
         - name: auth-profiles
           secret:
-            secretName: {{ .Chart.Name }}-auth-profiles
+            secretName: {{ .Release.Name }}-auth-profiles
         - name: config
           configMap:
-            name: {{ .Chart.Name }}-config
+            name: {{ .Release.Name }}-config
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
