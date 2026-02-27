@@ -9,7 +9,7 @@ config:
   printConfig: false
   recreateWhen: always
   bumpVersion: true
-  repositories: ["from-the-lamp/infra/argo-apps"]
+  repositories: ["from-the-lamp/infra/helm-charts"]
   includePaths: []
   ignorePaths: []
 
