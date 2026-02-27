@@ -1,8 +1,8 @@
 apiVersion: v2
 name: lamp-argo-rollouts
-version: 0.0.1
+version: 0.0.2
 
 dependencies:
   - name: argo-rollouts
-    version: 2.40.5
+    version: 2.40.6
     repository: https://argoproj.github.io/argo-helm
