@@ -127,7 +127,8 @@ remoteSecretKeys:
   telegramBotToken: telegram-bot-openclaw-djinn
   braveApiKey: brave-api-key
   gitlabToken: gitlab-token-jorik
-
+  tavilyApiKey: tavily-api-key
+  
 externalSecrets:
   kind: ClusterSecretStore
   name: oracle
