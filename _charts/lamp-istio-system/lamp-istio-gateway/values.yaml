@@ -5,11 +5,12 @@ addresses: []
   #   value: 10.1.1.5
 
 service:
-  type: LoadBalancer
   annotations: {}
-  externalTrafficPolicy: Local
-  healthCheckNodePort: 30042
-  
+  spec: {}
+    # type: LoadBalancer
+    # externalTrafficPolicy: Local
+    # healthCheckNodePort: 30042
+
 affinity:
   nodeAffinity:
     requiredDuringSchedulingIgnoredDuringExecution:
