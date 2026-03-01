@@ -26,7 +26,10 @@ issuers:
     remoteSecretKeys:
       zerossl: zerossl-api-token
       cloudflare: cloudflare-dns-solver-token
-
+  originCAIssuer:
+    enabled: false
+    tokenRemoteSecretKey: origin-ca-issuer-token
+    
 externalSecrets:
   kind: ClusterSecretStore
   name: oracle

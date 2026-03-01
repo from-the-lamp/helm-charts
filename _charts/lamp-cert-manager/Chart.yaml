@@ -1,11 +1,16 @@
 apiVersion: v2
 name: lamp-cert-manager
-version: 0.1.2
+version: 0.1.3
 
 dependencies:
   - name: cert-manager
     version: v1.19.4
     repository: https://charts.jetstack.io
+
+  - name: origin-ca-issuer
+    version: 0.6.2
+    repository: oci://ghcr.io/cloudflare/origin-ca-issuer-charts
+    condition: issuers.originCAIssuer.enabled
 
 annotations:
   notes: "Fixes in ACME HTTP-01, IPv6 support in policies, Go update."

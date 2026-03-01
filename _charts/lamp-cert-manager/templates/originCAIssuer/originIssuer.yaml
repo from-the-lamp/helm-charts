@@ -1,0 +1,12 @@
+{{- if .Values.issuers.originCAIssuer.enabled }}
+apiVersion: cert-manager.k8s.cloudflare.com/v1
+kind: ClusterOriginIssuer
+metadata:
+  name: cloudflare-origin-ca-issuer
+spec:
+  requestType: OriginECC
+  auth:
+    tokenRef:
+      name: origin-ca-issuer-token
+      key: key
+{{- end }}

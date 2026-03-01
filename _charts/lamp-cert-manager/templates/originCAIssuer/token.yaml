@@ -1,0 +1,24 @@
+{{-  if .Values.issuers.originCAIssuer.enabled }}
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: origin-ca-issuer-token
+spec:
+  refreshInterval: "{{ .Values.externalSecrets.refreshInterval }}"
+  secretStoreRef:
+    kind: "{{ .Values.externalSecrets.kind }}"
+    name: "{{ .Values.externalSecrets.name }}"
+  target:
+    name: origin-ca-issuer-token
+    creationPolicy: "{{ .Values.externalSecrets.creationPolicy }}"
+    template:
+      data:
+        key: "{{`{{ .token }}`}}"
+  data:
+  - secretKey: token
+    remoteRef:
+      key: "{{ .Values.issuers.originCAIssuer.tokenRemoteSecretKey }}"
+      conversionStrategy: Default
+      decodingStrategy: None
+      metadataPolicy: None
+{{- end }}
