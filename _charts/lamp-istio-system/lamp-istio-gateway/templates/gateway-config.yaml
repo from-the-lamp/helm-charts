@@ -13,10 +13,10 @@ data:
           {{- end }}
   service: |-
     metadata:
-      {{- with .Values.annotations }}
+      {{- with .Values.service.annotations }}
       annotations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
     spec:
-      externalTrafficPolicy: {{ .Values.externalTrafficPolicy }}
-      healthCheckNodePort: {{ .Values.healthCheckNodePort }}
+      externalTrafficPolicy: {{ .Values.service.externalTrafficPolicy }}
+      healthCheckNodePort: {{ .Values.service.healthCheckNodePort }}

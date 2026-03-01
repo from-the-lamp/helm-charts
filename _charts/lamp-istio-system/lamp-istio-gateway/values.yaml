@@ -3,9 +3,13 @@ gatewayClassName: istio
 addresses: []
   # - type: IPAddress
   #   value: 10.1.1.5
-externalTrafficPolicy: Local
-healthCheckNodePort: 30042
-annotations: {}
+
+service:
+  type: LoadBalancer
+  annotations: {}
+  externalTrafficPolicy: Local
+  healthCheckNodePort: 30042
+  
 affinity:
   nodeAffinity:
     requiredDuringSchedulingIgnoredDuringExecution:
