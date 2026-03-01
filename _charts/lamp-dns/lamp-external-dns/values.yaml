@@ -7,7 +7,7 @@ external-dns:
   extraArgs:
     - --cloudflare-proxied
   sources:
-    - istio-gateway
+    - service
   policy: sync
   logLevel: debug
   provider: 

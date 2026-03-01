@@ -29,7 +29,17 @@ issuers:
   originCAIssuer:
     enabled: false
     tokenRemoteSecretKey: origin-ca-issuer-token
-    
+
+origin-ca-issuer:
+  controller:
+    resources:
+      requests:
+        cpu: "10m"
+        memory: 10Mi
+      limits:
+        cpu: "1"
+        memory: 512Mi
+        
 externalSecrets:
   kind: ClusterSecretStore
   name: oracle

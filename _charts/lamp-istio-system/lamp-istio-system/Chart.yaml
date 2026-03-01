@@ -21,3 +21,4 @@ dependencies:
 
 annotations:
   notes: "InferencePool v1 (AI) support, Dual-stack (IPv4/IPv6) in beta, native nftables support."
+  
