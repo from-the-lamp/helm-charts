@@ -3,14 +3,19 @@ gatewayClassName: istio
 addresses: []
   # - type: IPAddress
   #   value: 10.1.1.5
-infrastructure:
-  annotations: {}
-    # oci.oraclecloud.com/load-balancer-type: "lb"
-    # oci.oraclecloud.com/node-label-selector: "node-role=worker"
-    # service.beta.kubernetes.io/oci-load-balancer-shape: "flexible"
-    # service.beta.kubernetes.io/oci-load-balancer-shape-flex-min: "10"
-    # service.beta.kubernetes.io/oci-load-balancer-shape-flex-max: "10"
-    # service.beta.kubernetes.io/oci-load-balancer-security-list-management-mode: "All"
+externalTrafficPolicy: Local
+healthCheckNodePort: 30042
+annotations: {}
+affinity:
+  nodeAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: istio-gateway
+          operator: In
+          values:
+          - "true"
+
 listeners:
   - name: http
     protocol: HTTP

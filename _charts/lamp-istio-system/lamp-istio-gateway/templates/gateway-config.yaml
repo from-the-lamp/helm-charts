@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.name }}-config
+data:
+  deployment: |-
+    spec:
+      template:
+        spec:
+          {{- with .Values.affinity }}
+          affinity:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+  service: |-
+    metadata:
+      {{- with .Values.annotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    spec:
+      externalTrafficPolicy: {{ .Values.externalTrafficPolicy }}
+      healthCheckNodePort: {{ .Values.healthCheckNodePort }}

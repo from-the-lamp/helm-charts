@@ -12,7 +12,8 @@ spec:
   listeners:
     {{- toYaml . | nindent 4 }}
   {{- end }}
-  {{- with .Values.infrastructure }}
   infrastructure:
-    {{- toYaml . | nindent 4 }}
-  {{- end }}
+    parametersRef:
+      group: ""
+      kind: ConfigMap
+      name: {{ .Values.name }}-config
