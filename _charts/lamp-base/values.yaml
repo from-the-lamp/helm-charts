@@ -17,8 +17,8 @@ deployment:
   podLabels:
     alloy.logs: enabled
     alloy.traces: enabled
-  strategy:
-    canary: {}
+  strategy: {}
+    # canary: {}
       # link.argocd.argoproj.io/external-link: http://my-grafana.example.com/pre-generated-link
     # command: ["./command"]
     # args: ["arg1", "arg2"]
