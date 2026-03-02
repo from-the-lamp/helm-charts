@@ -1,0 +1,12 @@
+{{- range .Values.services }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .name }}
+  annotations:
+    tailscale.com/tailnet-fqdn: {{ .name }}.{{ $.Values.tailnet }}
+spec:
+  type: ExternalName
+  externalName: placeholder
+{{- end }}
