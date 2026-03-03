@@ -35,6 +35,19 @@ tasks:
       - sh: '[ -n "{{.CHANGED_CHART_DIRS}}" ]'
         msg: "No changed chart directories found."
 
+  lint:changed:
+    desc: Helm lint for changed charts
+    cmds:
+      - |
+        set -e
+        for d in {{.CHANGED_CHART_DIRS}}; do
+          echo "== helm lint: $d =="
+          helm lint "$d"
+        done
+    preconditions:
+      - sh: '[ -n "{{.CHANGED_CHART_DIRS}}" ]'
+        msg: "No changed chart directories found."
+
   cleanup:
     desc: Remove temporary files
     cmds:

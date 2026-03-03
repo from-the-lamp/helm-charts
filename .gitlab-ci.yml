@@ -17,6 +17,15 @@ Build:Helm:
   image: registry.gitlab.com/from-the-lamp/infra/argo-apps:latest
   stage: Build
   allow_failure: true
+  rules:
+    - changes:
+        - _charts/**/*
+        - Taskfile.yml
+        - .tasks/**/*
+        - .env.example
+        - renovate.json
+        - .gitlab-ci.yml
+    - if: $CI_PIPELINE_SOURCE == "web"
   variables:
     OCI_REPO: $CI_REGISTRY_IMAGE
     OCI_REPO_USER: $CI_REGISTRY_USER
@@ -24,5 +33,6 @@ Build:Helm:
   script:
     - task auth
     - task list:changed
+    - task lint:changed
     - task build:changed
     - task push:changed
