@@ -1,0 +1,66 @@
+nameOverride: ""
+fullnameOverride: ""
+image:
+  name: # from kargo
+  tag: # from kargo
+  pullSecrets:
+    - name: gitlab
+      url: registry.gitlab.com/from-the-lamp
+      username: token
+      passwordRemoteSecretKey: gitlab-token
+
+service:
+  port: 80
+  targetPort: 8080
+
+deployment:
+  podLabels:
+    alloy.logs: enabled
+    alloy.traces: enabled
+  strategy:
+    canary: {}
+      # link.argocd.argoproj.io/external-link: http://my-grafana.example.com/pre-generated-link
+    # command: ["./command"]
+    # args: ["arg1", "arg2"]
+    # env:
+    # - name: "EXAMPLE"
+    #   value: "ENV"
+    # pdb:
+    #   minAvailable: 1
+    # hpa: 
+    #   minReplicas: 1
+    #   maxReplicas: 1
+    # probes:
+    #   liveness:
+    #     httpGet:
+    #       port: 8080
+    #       path: /health
+    #       initialDelaySeconds: 10
+    #       periodSeconds: 10
+    #   readiness:
+    #     httpGet:
+    #       port: 8080
+    #       path: /health
+    #       initialDelaySeconds: 10
+    #       periodSeconds: 10
+    # resources:
+    #   requests:
+    #     cpu: 100m
+    #     memory: 250Mi
+    #     ephemeral-storage: "10Mi"
+    #   limits:
+    #     cpu: 500m
+    #     memory: 500Mi
+    #     ephemeral-storage: "1Gi"
+    
+nodeSelector:
+  node-role: worker
+
+affinity:
+  enabled: false
+
+externalSecrets:
+  kind: ClusterSecretStore
+  name: oracle
+  refreshInterval: 1h
+  creationPolicy: Orphan

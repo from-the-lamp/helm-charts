@@ -1,0 +1,8 @@
+apiVersion: v2
+name: lamp-backstage
+version: 0.0.1
+
+dependencies:
+  - name: backstage
+    version: 2.6.3
+    repository: https://backstage.github.io/charts
