@@ -1,6 +1,6 @@
 apiVersion: v2
 name: lamp-victoria-metrics-agent
-version: 1.1.0
+version: 1.2.0
 
 annotations:
   notes: "Initial version with VMAgent and several exporters (MySQL, PostgreSQL, MongoDB, Blackbox)."
@@ -25,7 +25,7 @@ dependencies:
   - name: prometheus-mongodb-exporter
     alias: mongodb-exporter
     condition: mongodb-exporter.enabled
-    version: 3.14.0
+    version: 3.18.0
     repository: https://prometheus-community.github.io/helm-charts
 
   - name: prometheus-postgres-exporter
