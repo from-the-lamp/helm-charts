@@ -7,8 +7,8 @@ Expand the name of the chart.
 
 {{/*
 Create a default fully qualified app name.
-If fullnameOverride is set, use that. 
-Otherwise use the release name + chart name (или nameOverride).
+If fullnameOverride is set, use that.
+Otherwise use the release name + chart name (or nameOverride).
 */}}
 {{- define "app.fullname" -}}
 {{- if .Values.fullnameOverride }}
