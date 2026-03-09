@@ -2,14 +2,14 @@
 apiVersion: batch/v1
 kind: CronJob
 metadata:
-  name: rollout-deployment
+  name: {{ include "cloudflare-tunnel-remote.fullname" . }}-rollout
 spec:
   schedule: "{{ .Values.rollout.cron }}"
   jobTemplate:
     spec:
       template:
         spec:
-          serviceAccountName: rollout-sa
+          serviceAccountName: {{ include "cloudflare-tunnel-remote.fullname" . }}-rollout
           nodeSelector:
             {{- toYaml .Values.nodeSelector | nindent 12 }}
           containers:
@@ -19,18 +19,18 @@ spec:
             - /bin/sh
             - -c
             - |
-              kubectl rollout restart deployment cloudflared -n {{ .Release.Namespace }}
+              kubectl rollout restart deployment {{ include "cloudflare-tunnel-remote.fullname" . }} -n {{ .Release.Namespace }}
           restartPolicy: OnFailure
 ---
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: rollout-sa
+  name: {{ include "cloudflare-tunnel-remote.fullname" . }}-rollout
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
-  name: rollout-role
+  name: {{ include "cloudflare-tunnel-remote.fullname" . }}-rollout
 rules:
 - apiGroups: ["apps"]
   resources: ["deployments"]
@@ -39,12 +39,12 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: rollout-rolebinding
+  name: {{ include "cloudflare-tunnel-remote.fullname" . }}-rollout
 subjects:
 - kind: ServiceAccount
-  name: rollout-sa
+  name: {{ include "cloudflare-tunnel-remote.fullname" . }}-rollout
 roleRef:
   kind: Role
-  name: rollout-role
+  name: {{ include "cloudflare-tunnel-remote.fullname" . }}-rollout
   apiGroup: rbac.authorization.k8s.io
 {{- end }}
