@@ -13,7 +13,7 @@ dependencies:
 
   - name: victoria-metrics-k8s-stack
     condition: victoria-metrics-k8s-stack.enabled
-    version: 0.63.6
+    version: 0.72.4
     repository: https://victoriametrics.github.io/helm-charts
 
   - name: prometheus-mysql-exporter
