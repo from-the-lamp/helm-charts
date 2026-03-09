@@ -1,9 +1,9 @@
 apiVersion: v2
 name: lamp-kargo
-version: 0.0.3
+version: 0.1.0
 
 dependencies:
   - name: kargo
-    version: 1.8.4
+    version: 1.9.5
     repository: oci://ghcr.io/akuity/kargo-charts
     
