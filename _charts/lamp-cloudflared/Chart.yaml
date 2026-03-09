@@ -1,5 +1,6 @@
 apiVersion: v2
 name: lamp-cloudflared
+description: Cloudflare Tunnel chart with secret-based credentials and scheduled rollout restarts
 version: 0.0.1
 
 annotations:
