@@ -1,5 +1,6 @@
 apiVersion: v2
 name: lamp-archisteamfarm
+description: ArchiSteamFarm deployment chart with IPC and bot configuration
 version: 0.0.1
 
 annotations:
