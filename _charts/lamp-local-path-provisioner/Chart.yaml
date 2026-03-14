@@ -1,10 +1,10 @@
 apiVersion: v2
 name: lamp-local-path-provisioner
-version: 0.0.2
+version: 0.0.3
 
 dependencies:
   - name: local-path-provisioner
-    version: 0.0.35
+    version: 0.0.36
     repository: https://charts.containeroo.ch
 
 annotations:
