@@ -1,10 +1,10 @@
 apiVersion: v2
 name: lamp-trivy-operator
-version: 0.1.0
+version: 0.1.1
 
 dependencies:
   - name: trivy-operator
-    version: 0.32.0
+    version: 0.32.1
     repository: https://aquasecurity.github.io/helm-charts/
 
 annotations:

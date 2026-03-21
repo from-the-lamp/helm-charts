@@ -1,10 +1,10 @@
 apiVersion: v2
 name: lamp-renovate
-version: 1.0.0
+version: 1.2.0
 
 dependencies:
   - name: renovate
-    version: 46.56.4
+    version: 46.68.1
     repository: oci://ghcr.io/renovatebot/charts
 
 annotations:
