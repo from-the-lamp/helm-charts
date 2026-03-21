@@ -1,10 +1,10 @@
 apiVersion: v2
 name: lamp-pyroscope
-version: 0.3.0
+version: 0.3.1
 
 dependencies:
   - name: pyroscope
-    version: 1.19.0
+    version: 1.19.1
     repository: https://grafana.github.io/helm-charts
 
 annotations:
