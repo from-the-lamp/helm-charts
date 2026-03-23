@@ -128,8 +128,8 @@ remoteSecretKeys:
   braveApiKey: brave-api-key
   gitlabToken: gitlab-token-jorik
   tavilyApiKey: tavily-api-key
-  openrouter_api_key: openrouter-api-key
-  
+  openrouterApiKey: openrouter-api-key
+
 externalSecrets:
   kind: ClusterSecretStore
   name: oracle
