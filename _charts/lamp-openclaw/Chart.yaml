@@ -1,7 +1,7 @@
 apiVersion: v2
 name: lamp-openclaw
 description: OpenClaw deployment chart with configurable image and values
-version: 0.0.3
+version: 0.0.4
 
 annotations:
   notes: "OpenClaw deployment chart; supports configuration via values and image overrides."
