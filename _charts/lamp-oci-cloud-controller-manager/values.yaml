@@ -1,5 +1,5 @@
 image:
-  name: docker pull ghcr.io/oracle/cloud-provider-oci
+  name: ghcr.io/oracle/cloud-provider-oci
   tag: v1.34.0
   
 config:
