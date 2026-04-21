@@ -1,0 +1,89 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: {{ .Values.project.type }}-{{ .Values.project.environment }}-{{ .Values.project.name }}
+  namespace: argocd
+spec:
+  generators:
+    - git:
+        directories:
+        {{- if eq .Values.project.type "product" }}
+          - path: apps/*/{{ .Values.project.environment }}
+        {{- end }}
+        {{- if eq .Values.project.type "platform" }}
+          - path: envs/{{ .Values.project.environment }}/{{ .Values.project.type }}/*
+        {{- end }}
+        repoURL: {{ .Values.git.repo }}
+        revision: {{ .Values.git.revision }}
+  {{- if .Values.sync.changeSyncPolicy }}
+  ignoreApplicationDifferences:
+    - jsonPointers:
+        - /spec/syncPolicy
+  {{- end }}
+  syncPolicy:
+    preserveResourcesOnDeletion: {{ .Values.sync.preserveResourcesOnDeletion }}
+  goTemplate: true
+  template:
+    metadata:
+      {{- if eq .Values.project.type "product" }}
+      name: "{{ .Values.project.type }}-{{ .Values.project.environment }}-{{`{{ index .path.segments 1 }}`}}"
+      annotations:
+        kargo.akuity.io/authorized-stage: "kargo-project-{{ .Values.project.name }}:{{`{{ .path.basename }}`}}-{{`{{ index .path.segments 1 }}`}}"
+      {{- end }}
+      {{- if eq .Values.project.type "platform" }}
+      name: "{{ .Values.project.type }}-{{ .Values.project.environment }}-{{`{{ .path.basename }}`}}"
+      {{- end }}
+    spec:
+      project: {{ .Values.project.type }}-{{ .Values.project.environment }}-{{ .Values.project.name }}
+      destination:
+        name: gke-{{ .Values.project.projectId }}-{{ .Values.project.clusterName }}
+        {{- if eq .Values.project.type "product" }}
+        {{- if .Values.destination.namespacePerApp }}
+        namespace: {{ .Values.project.type }}-{{ .Values.project.environment }}-{{`{{ .path.basename }}`}}
+        {{- else }}
+        namespace: {{ .Values.project.type }}-{{ .Values.project.environment }}-{{ .Values.project.name }}
+        {{- end }}
+        {{- end }}
+        {{- if eq .Values.project.type "platform" }}
+        namespace: "{{`{{ .path.basename }}`}}"
+        {{- end }}
+      source:
+        helm:
+          parameters:
+            - name: global.environment
+              value: {{ .Values.project.environment }}
+            - name: global.projectName
+              value: {{ .Values.project.projectName }}
+            - name: global.projectId
+              value: {{ .Values.project.projectId }}
+            - name: global.region
+              value: {{ .Values.project.region }}
+            - name: global.networkName
+              value: {{ .Values.project.networkName }}
+            - name: global.clusterName
+              value: {{ .Values.project.clusterName }}
+          {{- if eq .Values.project.type "product" }}
+          releaseName: "{{`{{ index .path.segments 1 }}`}}"
+          {{- end }}
+          {{- if eq .Values.project.type "platform" }}
+          releaseName: "{{`{{ .path.basename }}`}}"
+          {{- end }}
+          passCredentials: true
+          ignoreMissingValueFiles: true
+          valueFiles:
+            - ../values.yaml
+            - values.yaml
+            - .kargo.values.yaml
+        path: "{{`{{ .path.path }}`}}"
+        repoURL: {{ .Values.git.repo }}
+        targetRevision: {{ .Values.git.revision }}
+      {{- with .Values.ignoreDifferences }}
+      ignoreDifferences:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      syncPolicy:
+        automated:
+          prune: {{ .Values.sync.prune }}
+          selfHeal: {{ .Values.sync.selfHeal }}
+        syncOptions:
+          - CreateNamespace={{ .Values.sync.createNamespace }}

@@ -1,0 +1,51 @@
+project:
+  enabled: true
+  type: product
+  name: example
+  description: ""
+  environment: #dev
+  region: #europe-west4
+  projectName: #common
+  projectId: #common-dev-347a
+  networkName: #common-dev-eu-w4-main-0
+  clusterName: #common-dev-eu-w4-main-0
+  roles:
+    developer: []
+      # - example-developers@xdatagroup.io
+
+git:
+  repo: https://github.com/xdatagroup/example-project.git
+  revision: HEAD
+
+destination:
+  namespacePerApp: false
+
+sync:
+  prune: true
+  selfHeal: true
+  createNamespace: true
+  changeSyncPolicy: true
+  preserveResourcesOnDeletion: true
+
+ignoreDifferences:
+  - group: apps
+    jqPathExpressions:
+      - .spec.volumeClaimTemplates[].apiVersion
+      - .spec.volumeClaimTemplates[].kind
+    jsonPointers:
+      - /spec/replicas
+    kind: StatefulSet
+  - group: apps
+    jsonPointers:
+      - /spec/replicas
+    kind: Deployment
+  - group: admissionregistration.k8s.io
+    jsonPointers:
+      - /webhooks/0/failurePolicy
+    kind: ValidatingWebhookConfiguration
+    name: istio-validator-istio-system
+  - group: admissionregistration.k8s.io
+    jsonPointers:
+      - /webhooks/0/failurePolicy
+    kind: ValidatingWebhookConfiguration
+    name: istiod-default-validator

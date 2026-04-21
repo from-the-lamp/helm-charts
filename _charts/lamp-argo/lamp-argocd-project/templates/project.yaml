@@ -1,0 +1,30 @@
+{{- if .Values.project.enabled }}
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: {{ .Values.project.type }}-{{ .Values.project.environment }}-{{ .Values.project.name }}
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+spec:
+  clusterResourceWhitelist:
+    - group: '*'
+      kind: '*'
+  description: {{ .Values.project.description }}
+  destinations:
+    - name: '*'
+      namespace: '*'
+  sourceRepos:
+    - '*'
+  roles:
+    - name: developer
+      groups:
+      {{- range .Values.project.roles.developer }}
+        - {{ . }}
+      {{- end }}
+      policies:
+        - p, proj:{{ .Values.project.type }}-{{ .Values.project.environment }}-{{ .Values.project.name }}:developer, applications, *, {{ .Values.project.type }}-{{ .Values.project.environment }}-{{ .Values.project.name }}/*, allow
+        - p, proj:{{ .Values.project.type }}-{{ .Values.project.environment }}-{{ .Values.project.name }}:developer, applicationsets, get, *, allow
+        - p, proj:{{ .Values.project.type }}-{{ .Values.project.environment }}-{{ .Values.project.name }}:developer, exec, create, {{ .Values.project.type }}-{{ .Values.project.environment }}-{{ .Values.project.name }}/*, allow
+        - p, proj:{{ .Values.project.type }}-{{ .Values.project.environment }}-{{ .Values.project.name }}:developer, logs, get, {{ .Values.project.type }}-{{ .Values.project.environment }}-{{ .Values.project.name }}/*, allow
+{{- end }}
