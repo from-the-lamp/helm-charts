@@ -4,21 +4,12 @@ project:
   name: example
   description: ""
   environment: #dev
-  region: #europe-west4
-  projectName: #common
-  projectId: #common-dev-347a
-  networkName: #common-dev-eu-w4-main-0
-  clusterName: #common-dev-eu-w4-main-0
   roles:
     developer: []
-      # - example-developers@xdatagroup.io
 
 git:
-  repo: https://github.com/xdatagroup/example-project.git
+  repo: https://git.example
   revision: HEAD
-
-destination:
-  namespacePerApp: false
 
 sync:
   prune: true
@@ -49,3 +40,11 @@ ignoreDifferences:
       - /webhooks/0/failurePolicy
     kind: ValidatingWebhookConfiguration
     name: istiod-default-validator
+  - group: ""
+    kind: Service
+    jsonPointers:
+      - /spec/externalName
+  - group: apiextensions.k8s.io
+    kind: CustomResourceDefinition
+    jsonPointers:
+      - /spec/preserveUnknownFields

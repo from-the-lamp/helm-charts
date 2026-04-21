@@ -8,10 +8,10 @@ spec:
     - git:
         directories:
         {{- if eq .Values.project.type "product" }}
-          - path: apps/*/{{ .Values.project.environment }}
+          - path: {{ .Values.project.environment }}/{{ .Values.project.type }}/*
         {{- end }}
         {{- if eq .Values.project.type "platform" }}
-          - path: envs/{{ .Values.project.environment }}/{{ .Values.project.type }}/*
+          - path: {{ .Values.project.environment }}/{{ .Values.project.type }}/*
         {{- end }}
         repoURL: {{ .Values.git.repo }}
         revision: {{ .Values.git.revision }}
@@ -25,45 +25,25 @@ spec:
   goTemplate: true
   template:
     metadata:
+      name: "{{ .Values.project.type }}-{{ .Values.project.environment }}-{{`{{ .path.basename }}`}}"
       {{- if eq .Values.project.type "product" }}
-      name: "{{ .Values.project.type }}-{{ .Values.project.environment }}-{{`{{ index .path.segments 1 }}`}}"
       annotations:
         kargo.akuity.io/authorized-stage: "kargo-project-{{ .Values.project.name }}:{{`{{ .path.basename }}`}}-{{`{{ index .path.segments 1 }}`}}"
-      {{- end }}
-      {{- if eq .Values.project.type "platform" }}
-      name: "{{ .Values.project.type }}-{{ .Values.project.environment }}-{{`{{ .path.basename }}`}}"
       {{- end }}
     spec:
       project: {{ .Values.project.type }}-{{ .Values.project.environment }}-{{ .Values.project.name }}
       destination:
-        name: gke-{{ .Values.project.projectId }}-{{ .Values.project.clusterName }}
+        name: {{ .Values.project.environment }}
         {{- if eq .Values.project.type "product" }}
-        {{- if .Values.destination.namespacePerApp }}
-        namespace: {{ .Values.project.type }}-{{ .Values.project.environment }}-{{`{{ .path.basename }}`}}
-        {{- else }}
-        namespace: {{ .Values.project.type }}-{{ .Values.project.environment }}-{{ .Values.project.name }}
-        {{- end }}
+        namespace: product
         {{- end }}
         {{- if eq .Values.project.type "platform" }}
         namespace: "{{`{{ .path.basename }}`}}"
         {{- end }}
       source:
         helm:
-          parameters:
-            - name: global.environment
-              value: {{ .Values.project.environment }}
-            - name: global.projectName
-              value: {{ .Values.project.projectName }}
-            - name: global.projectId
-              value: {{ .Values.project.projectId }}
-            - name: global.region
-              value: {{ .Values.project.region }}
-            - name: global.networkName
-              value: {{ .Values.project.networkName }}
-            - name: global.clusterName
-              value: {{ .Values.project.clusterName }}
           {{- if eq .Values.project.type "product" }}
-          releaseName: "{{`{{ index .path.segments 1 }}`}}"
+          releaseName: "{{`{{ .path.basename }}`}}"
           {{- end }}
           {{- if eq .Values.project.type "platform" }}
           releaseName: "{{`{{ .path.basename }}`}}"
