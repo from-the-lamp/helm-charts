@@ -33,7 +33,7 @@ spec:
           name: {{ $project.task.name }}
         vars:
         - name: argocdApp
-          value: {{ printf "%s-%s" $stage.name $app.name }}
+          value: {{ printf "%s-%s-%s" "product" $stage.name $app.name }}
         - name: imageName
           value: {{ $app.image }}
         - name: gitRepoURL
