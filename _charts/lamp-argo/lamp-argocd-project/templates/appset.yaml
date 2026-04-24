@@ -28,7 +28,7 @@ spec:
       name: "{{ .Values.project.type }}-{{ .Values.project.environment }}-{{`{{ .path.basename }}`}}"
       {{- if eq .Values.project.type "product" }}
       annotations:
-        kargo.akuity.io/authorized-stage: "kargo-project-{{ .Values.project.name }}:{{`{{ .path.basename }}`}}-{{`{{ index .path.segments 1 }}`}}"
+        kargo.akuity.io/authorized-stage: "kargo-project-{{`{{ .path.basename }}`}}:{{ .Values.project.environment }}-{{`{{ .path.basename }}`}}"
       {{- end }}
     spec:
       project: {{ .Values.project.type }}-{{ .Values.project.environment }}-{{ .Values.project.name }}
