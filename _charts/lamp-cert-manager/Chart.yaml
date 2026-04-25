@@ -1,6 +1,6 @@
 apiVersion: v2
 name: lamp-cert-manager
-version: 0.2.2
+version: 0.2.3
 
 dependencies:
   - name: cert-manager
@@ -8,7 +8,7 @@ dependencies:
     repository: https://charts.jetstack.io
 
   - name: origin-ca-issuer
-    version: 0.6.2
+    version: 0.6.4
     repository: oci://ghcr.io/cloudflare/origin-ca-issuer-charts
     condition: issuers.originCAIssuer.enabled
 
