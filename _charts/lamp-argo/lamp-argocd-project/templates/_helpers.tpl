@@ -1,4 +1,4 @@
-{{- define "lamp-argocd-project.tplValue" -}}
+{{- define "tplValue" -}}
 {{- $value := .value -}}
 {{- $context := .context -}}
 {{- if kindIs "string" $value -}}

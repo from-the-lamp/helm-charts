@@ -2,7 +2,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: AppProject
 metadata:
-  name: {{ include "lamp-argocd-project.tplValue" (dict "value" .Values.project.nameGenerator "context" $) | trim }}
+  name: {{ include "tplValue" (dict "value" .Values.project.nameGenerator "context" $) | trim }}
   namespace: argocd
   annotations:
     argocd.argoproj.io/sync-wave: "-1"
@@ -23,8 +23,8 @@ spec:
         - {{ . }}
       {{- end }}
       policies:
-        - p, proj:{{ include "lamp-argocd-project.tplValue" (dict "value" .Values.project.nameGenerator "context" $) | trim }}:developer, applications, *, {{ include "lamp-argocd-project.tplValue" (dict "value" .Values.project.nameGenerator "context" $) | trim }}/*, allow
-        - p, proj:{{ include "lamp-argocd-project.tplValue" (dict "value" .Values.project.nameGenerator "context" $) | trim }}:developer, applicationsets, get, *, allow
-        - p, proj:{{ include "lamp-argocd-project.tplValue" (dict "value" .Values.project.nameGenerator "context" $) | trim }}:developer, exec, create, {{ include "lamp-argocd-project.tplValue" (dict "value" .Values.project.nameGenerator "context" $) | trim }}/*, allow
-        - p, proj:{{ include "lamp-argocd-project.tplValue" (dict "value" .Values.project.nameGenerator "context" $) | trim }}:developer, logs, get, {{ include "lamp-argocd-project.tplValue" (dict "value" .Values.project.nameGenerator "context" $) | trim }}/*, allow
+        - p, proj:{{ include "tplValue" (dict "value" .Values.project.nameGenerator "context" $) | trim }}:developer, applications, *, {{ include "tplValue" (dict "value" .Values.project.nameGenerator "context" $) | trim }}/*, allow
+        - p, proj:{{ include "tplValue" (dict "value" .Values.project.nameGenerator "context" $) | trim }}:developer, applicationsets, get, *, allow
+        - p, proj:{{ include "tplValue" (dict "value" .Values.project.nameGenerator "context" $) | trim }}:developer, exec, create, {{ include "tplValue" (dict "value" .Values.project.nameGenerator "context" $) | trim }}/*, allow
+        - p, proj:{{ include "tplValue" (dict "value" .Values.project.nameGenerator "context" $) | trim }}:developer, logs, get, {{ include "tplValue" (dict "value" .Values.project.nameGenerator "context" $) | trim }}/*, allow
 {{- end }}

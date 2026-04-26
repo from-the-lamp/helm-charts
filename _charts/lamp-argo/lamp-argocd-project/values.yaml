@@ -31,7 +31,7 @@ appset:
     nameGenerator: "{{ .Values.project.type }}-{{ .Values.project.environment }}-{{`{{ .path.basename }}`}}"
     annotations:
       kargo.akuity.io/authorized-stage: "kargo-project-{{`{{ .path.basename }}`}}:{{ .Values.project.environment }}-{{`{{ .path.basename }}`}}"
-
+      
 destination:
   name: "{{ .Values.project.environment }}"
   namespace: "{{`{{ .path.basename }}`}}"

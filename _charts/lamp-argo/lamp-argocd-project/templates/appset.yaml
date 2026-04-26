@@ -1,11 +1,11 @@
 apiVersion: argoproj.io/v1alpha1
 kind: ApplicationSet
 metadata:
-  name: {{ include "lamp-argocd-project.tplValue" (dict "value" .Values.appset.nameGenerator "context" $) | trim }}
+  name: {{ include "tplValue" (dict "value" .Values.appset.nameGenerator "context" $) | trim }}
   namespace: {{ .Values.project.namespace }}
 spec:
   generators:
-{{ include "lamp-argocd-project.tplValue" (dict "value" .Values.appset.generators "context" $) | trim | indent 4 }}
+{{ include "tplValue" (dict "value" .Values.appset.generators "context" $) | trim | indent 4 }}
   {{- if .Values.sync.changeSyncPolicy }}
   ignoreApplicationDifferences:
     - jsonPointers:
@@ -16,24 +16,24 @@ spec:
   goTemplate: true
   template:
     metadata:
-      name: {{ include "lamp-argocd-project.tplValue" (dict "value" .Values.appset.app.nameGenerator "context" $) | trim }}
+      name: {{ include "tplValue" (dict "value" .Values.appset.app.nameGenerator "context" $) | trim }}
       annotations:
-        {{ include "lamp-argocd-project.tplValue" (dict "value" .Values.appset.app.annotations "context" $) | trim }}
+{{ include "tplValue" (dict "value" .Values.appset.app.annotations "context" $) | trim | indent 8 }}
     spec:
-      project: {{ include "lamp-argocd-project.tplValue" (dict "value" .Values.project.nameGenerator "context" $) | trim }}
+      project: {{ include "tplValue" (dict "value" .Values.project.nameGenerator "context" $) | trim }}
       destination:
-        name: "{{ include "lamp-argocd-project.tplValue" (dict "value" .Values.destination.name "context" $) | trim }}"
-        namespace: "{{ include "lamp-argocd-project.tplValue" (dict "value" .Values.destination.namespace "context" $) | trim }}"
+        name: "{{ include "tplValue" (dict "value" .Values.destination.name "context" $) | trim }}"
+        namespace: "{{ include "tplValue" (dict "value" .Values.destination.namespace "context" $) | trim }}"
       source:
         helm:
-          releaseName: "{{ include "lamp-argocd-project.tplValue" (dict "value" .Values.destination.releaseName "context" $) | trim }}"
+          releaseName: "{{ include "tplValue" (dict "value" .Values.destination.releaseName "context" $) | trim }}"
           passCredentials: true
           ignoreMissingValueFiles: true
           {{- with .Values.git.valueFiles }}
           valueFiles:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-        path: "{{ include "lamp-argocd-project.tplValue" (dict "value" .Values.git.path "context" $) | trim }}"
+        path: "{{ include "tplValue" (dict "value" .Values.git.path "context" $) | trim }}"
         repoURL: {{ .Values.git.repo }}
         targetRevision: {{ .Values.git.revision }}
       {{- with .Values.ignoreDifferences }}
