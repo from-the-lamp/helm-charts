@@ -1,15 +1,41 @@
 project:
   enabled: true
-  type: product
   name: example
+  nameGenerator: "{{ .Values.project.type }}-{{ .Values.project.environment }}-{{ .Values.project.name }}"
+  namespace: argocd
+  type: product
   description: ""
-  environment: #dev
+  environment: dev
   roles:
     developer: []
 
 git:
   repo: https://git.example
   revision: HEAD
+  path: "{{`{{ .path.path }}`}}"
+  valueFiles:
+    - ../values.yaml
+    - values.yaml
+    - .kargo.values.yaml
+
+appset:
+  name: example
+  nameGenerator: "{{ .Values.project.type }}-{{ .Values.project.environment }}-{{ .Values.project.name }}"
+  generators:
+    - git:
+        files:
+          - path: "{{ .Values.project.environment }}/{{ .Values.project.type }}/*/appConfig.yaml"
+        repoURL: "{{ .Values.git.repo }}"
+        revision: "{{ .Values.git.revision }}"
+  app:
+    nameGenerator: "{{ .Values.project.type }}-{{ .Values.project.environment }}-{{`{{ .path.basename }}`}}"
+    annotations:
+      kargo.akuity.io/authorized-stage: "kargo-project-{{`{{ .path.basename }}`}}:{{ .Values.project.environment }}-{{`{{ .path.basename }}`}}"
+
+destination:
+  name: "{{ .Values.project.environment }}"
+  namespace: "{{`{{ .path.basename }}`}}"
+  releaseName: "{{`{{ .path.basename }}`}}"
 
 sync:
   prune: true

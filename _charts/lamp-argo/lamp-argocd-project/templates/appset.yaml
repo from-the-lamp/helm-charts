@@ -1,20 +1,11 @@
 apiVersion: argoproj.io/v1alpha1
 kind: ApplicationSet
 metadata:
-  name: {{ .Values.project.type }}-{{ .Values.project.environment }}-{{ .Values.project.name }}
-  namespace: argocd
+  name: {{ include "lamp-argocd-project.tplValue" (dict "value" .Values.appset.nameGenerator "context" $) | trim }}
+  namespace: {{ .Values.project.namespace }}
 spec:
   generators:
-    - git:
-        directories:
-        {{- if eq .Values.project.type "product" }}
-          - path: {{ .Values.project.environment }}/{{ .Values.project.type }}/*
-        {{- end }}
-        {{- if eq .Values.project.type "platform" }}
-          - path: {{ .Values.project.environment }}/{{ .Values.project.type }}/*
-        {{- end }}
-        repoURL: {{ .Values.git.repo }}
-        revision: {{ .Values.git.revision }}
+{{ include "lamp-argocd-project.tplValue" (dict "value" .Values.appset.generators "context" $) | trim | indent 4 }}
   {{- if .Values.sync.changeSyncPolicy }}
   ignoreApplicationDifferences:
     - jsonPointers:
@@ -25,36 +16,24 @@ spec:
   goTemplate: true
   template:
     metadata:
-      name: "{{ .Values.project.type }}-{{ .Values.project.environment }}-{{`{{ .path.basename }}`}}"
-      {{- if eq .Values.project.type "product" }}
+      name: {{ include "lamp-argocd-project.tplValue" (dict "value" .Values.appset.app.nameGenerator "context" $) | trim }}
       annotations:
-        kargo.akuity.io/authorized-stage: "kargo-project-{{`{{ .path.basename }}`}}:{{ .Values.project.environment }}-{{`{{ .path.basename }}`}}"
-      {{- end }}
+        {{ include "lamp-argocd-project.tplValue" (dict "value" .Values.appset.app.annotations "context" $) | trim }}
     spec:
-      project: {{ .Values.project.type }}-{{ .Values.project.environment }}-{{ .Values.project.name }}
+      project: {{ include "lamp-argocd-project.tplValue" (dict "value" .Values.project.nameGenerator "context" $) | trim }}
       destination:
-        name: {{ .Values.project.environment }}
-        {{- if eq .Values.project.type "product" }}
-        namespace: product
-        {{- end }}
-        {{- if eq .Values.project.type "platform" }}
-        namespace: "{{`{{ .path.basename }}`}}"
-        {{- end }}
+        name: "{{ include "lamp-argocd-project.tplValue" (dict "value" .Values.destination.name "context" $) | trim }}"
+        namespace: "{{ include "lamp-argocd-project.tplValue" (dict "value" .Values.destination.namespace "context" $) | trim }}"
       source:
         helm:
-          {{- if eq .Values.project.type "product" }}
-          releaseName: "{{`{{ .path.basename }}`}}"
-          {{- end }}
-          {{- if eq .Values.project.type "platform" }}
-          releaseName: "{{`{{ .path.basename }}`}}"
-          {{- end }}
+          releaseName: "{{ include "lamp-argocd-project.tplValue" (dict "value" .Values.destination.releaseName "context" $) | trim }}"
           passCredentials: true
           ignoreMissingValueFiles: true
+          {{- with .Values.git.valueFiles }}
           valueFiles:
-            - ../values.yaml
-            - values.yaml
-            - .kargo.values.yaml
-        path: "{{`{{ .path.path }}`}}"
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+        path: "{{ include "lamp-argocd-project.tplValue" (dict "value" .Values.git.path "context" $) | trim }}"
         repoURL: {{ .Values.git.repo }}
         targetRevision: {{ .Values.git.revision }}
       {{- with .Values.ignoreDifferences }}
