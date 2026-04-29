@@ -1,6 +1,6 @@
 apiVersion: v2
 name: lamp-victoria-metrics-agent
-version: 2.0.1
+version: 2.1.0
 
 annotations:
   notes: "Initial version with VMAgent and several exporters (MySQL, PostgreSQL, MongoDB, Blackbox)."
@@ -13,7 +13,7 @@ dependencies:
 
   - name: victoria-metrics-k8s-stack
     condition: victoria-metrics-k8s-stack.enabled
-    version: 0.72.4
+    version: 0.76.0
     repository: https://victoriametrics.github.io/helm-charts
 
   - name: prometheus-mysql-exporter
