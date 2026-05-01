@@ -1,0 +1,30 @@
+kestra:
+  configurations:
+    application:
+      kestra:
+        repository:
+          type: h2
+
+        queue:
+          type: h2
+
+        storage:
+          type: local
+          local:
+            base-path: /app/storage
+
+        tasks:
+          tmp-dir:
+            path: /tmp/kestra-wd/tmp
+
+      datasources:
+        h2:
+          url: jdbc:h2:file:/app/storage/h2;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+          driverClassName: org.h2.Driver
+          username: sa
+          password: ""
+
+  deployments:
+    standalone:
+      dind:
+        enabled: false
