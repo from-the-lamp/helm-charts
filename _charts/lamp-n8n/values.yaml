@@ -1,0 +1,23 @@
+n8n:
+  main:
+    config:
+      db:
+        type: postgresdb
+        postgresdb:
+          host: postgres.default.svc.cluster.local
+          port: 5432
+          database: n8n
+          user: n8n
+          schema: public
+    extraEnv:
+      DB_POSTGRESDB_PASSWORD:
+        valueFrom:
+          secretKeyRef:
+            name: n8n-postgres-secret
+            key: password
+
+externalSecrets:
+  kind: ClusterSecretStore
+  name: oracle
+  refreshInterval: 1h
+  creationPolicy: Orphan
