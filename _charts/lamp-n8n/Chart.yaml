@@ -1,0 +1,9 @@
+apiVersion: v2
+name: lamp-n8n
+version: 0.0.3
+
+dependencies:
+  - name: my-n8n
+    alias: n8n
+    version: 2.0.1
+    repository: oci://8gears.container-registry.com/library/n8n
