@@ -74,3 +74,8 @@ ignoreDifferences:
     kind: CustomResourceDefinition
     jsonPointers:
       - /spec/preserveUnknownFields
+  - group: postgresql.cnpg.io
+    kind: Cluster
+    jqPathExpressions:
+      - .spec.managed.roles[].passwordSecret.remoteSecretKey
+      - .spec.managed.roles[].passwordSecret.remoteSecretProperty

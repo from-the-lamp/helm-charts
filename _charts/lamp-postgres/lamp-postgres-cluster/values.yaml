@@ -34,20 +34,20 @@ cluster:
       remoteSecretKeys:
         password: postgres-superuser-password
 
-    databases:
-      - name: remnawave
-        owner: remnawave
+    databases: []
+      # - name: remnawave
+      #   owner: remnawave
 
-    roles:
-      - name: remnawave
-        ensure: present
-        login: true
-        superuser: false
-        connectionLimit: -1
-        inherit: true
-        passwordSecret:
-          name: postgres-remnawave-password
-          remoteSecretKey: postgres-remnawave-password
+    roles: []
+      # - name: remnawave
+      #   ensure: present
+      #   login: true
+      #   superuser: false
+      #   connectionLimit: -1
+      #   inherit: true
+      #   passwordSecret:
+      #     name: postgres-remnawave-password
+      #     remoteSecretKey: postgres-remnawave-password
 
   poolers:
     - name: rw
