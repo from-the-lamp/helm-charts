@@ -1,6 +1,6 @@
 apiVersion: v2
 name: lamp-remnawave-panel
-version: 1.1.0
+version: 1.2.0
 
 annotations:
   notes: "Initial version and basic configuration."
@@ -8,7 +8,7 @@ annotations:
 dependencies:
   - name: valkey
     repository: "oci://registry-1.docker.io/bitnamicharts"
-    version: 5.4.11
+    version: 5.5.1
     condition: valkey.enabled
   - name: postgresql
     repository: "oci://registry-1.docker.io/bitnamicharts"
