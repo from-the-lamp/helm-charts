@@ -1,8 +1,8 @@
 apiVersion: v2
 name: lamp-litellm
-version: 0.0.1
+version: 0.1.0
 
 dependencies:
   - name: litellm-helm
-    version: 1.82.3-stable.patch.2
+    version: 1.83.14-stable.patch.2
     repository: oci://ghcr.io/berriai
