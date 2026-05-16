@@ -1,0 +1,26 @@
+openchoreo-control-plane:
+  gateway:
+    enabled: false
+
+  clusterGateway:
+    enabled: false
+    tlsRoute:
+      enabled: false
+    tls:
+      enabled: false
+
+  openchoreoApi:
+    http:
+      enabled: false
+
+  backstage:
+    secretName: backstage-secrets
+    baseUrl: "https://console.openchoreo.internal.from-the-lamp.work"
+    http:
+      enabled: false
+      hostnames:
+        - "console.openchoreo.internal.from-the-lamp.work"
+        
+openchoreo-data-plane:
+  gateway:
+    enabled: false

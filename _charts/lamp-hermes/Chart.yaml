@@ -1,0 +1,7 @@
+apiVersion: v2
+name: lamp-hermes
+description: Hermes Agent (Nous Research) deployment chart with configurable image and values
+version: 0.0.1
+
+annotations:
+  notes: "Hermes Agent deployment chart; gateway/dashboard modes via container args, env via External Secrets, cli config.yaml via ConfigMap."

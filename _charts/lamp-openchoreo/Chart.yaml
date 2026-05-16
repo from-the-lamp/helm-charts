@@ -1,0 +1,12 @@
+apiVersion: v2
+name: lamp-openchoreo
+version: 0.0.1
+
+dependencies:
+  - name: openchoreo-control-plane
+    version: 1.0.1
+    repository: oci://ghcr.io/openchoreo/helm-charts
+
+  # - name: openchoreo-data-plane
+  #   version: 1.0.1
+  #   repository: oci://ghcr.io/openchoreo/helm-charts
