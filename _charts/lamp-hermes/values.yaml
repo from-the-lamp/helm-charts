@@ -48,9 +48,14 @@ securityContext: {}
 config:
   data:
     model:
-      default: "anthropic/claude-opus-4.6"
-      provider: "auto"
-      base_url: "https://openrouter.ai/api/v1"
+      # Primary: ChatGPT via Codex OAuth (credentials seeded from auth.json).
+      # See https://github.com/NousResearch/hermes-agent — Codex provider uses
+      # gpt-5.3-codex by default when model.default is just a Codex model ID.
+      default: "gpt-5.5"
+      provider: "openai-codex"
+      # base_url is ignored for openai-codex (uses ChatGPT backend directly).
+      # max_tokens cap — avoids OpenRouter low-balance 402s on Anthropic fallback.
+      max_tokens: 8192
     terminal:
       backend: "local"
       cwd: "."
@@ -158,40 +163,27 @@ startupProbe:
   timeoutSeconds: 3
   failureThreshold: 30
 
-# Optional auth.json bootstrap (OAuth tokens for nous/codex/etc.).
-# When enabled, an ExternalSecret pulls a JSON blob from the secret store
-# and mounts it at /opt/data/auth.json — the entrypoint loads it on first
-# boot when HERMES_AUTH_JSON_BOOTSTRAP=1 is set in env.
+# OAuth bootstrap for Codex / Nous / Gemini providers.
+# When enabled, ESO pulls the JSON blob from the secret store and the
+# entrypoint writes it to /opt/data/auth.json on FIRST BOOT ONLY. After that,
+# Hermes rotates refresh tokens in-place on the PV — the env var is no longer
+# consulted, so token rotation survives pod restarts.
+# Required for `provider: openai-codex` (ChatGPT OAuth) and similar.
 authJson:
-  enabled: false
+  enabled: true
   remoteKey: hermes-auth-json
 
-# External Secrets — env vars consumed by Hermes (read from process env,
-# overriding the bootstrapped ~/.hermes/.env defaults).
-# Only keys with a non-empty value here are wired into the ExternalSecret.
-# Set them to the secret names in your secret store (Vault/OCI/etc.).
 remoteSecretKeys:
   openrouterApiKey: openrouter-api-key
   anthropicApiKey: claude-api-key
-  # openaiApiKey: openai-api-key
-  # googleApiKey: google-api-key
   telegramBotToken: telegram-bot-hermes-djinn
-  # slackBotToken: slack-bot-token
-  # slackAppToken: slack-app-token
-  # discordBotToken: discord-bot-token
-  # apiServerKey: hermes-api-server-key
-  # browserbaseApiKey: browserbase-api-key
-  # browserbaseProjectId: browserbase-project-id
-  # falKey: fal-key
-  # exaApiKey: exa-api-key
-  # firecrawlApiKey: firecrawl-api-key
-  # githubToken: github-token
+  gitlabToken: gitlab-token-jorik
 
-# Static (non-secret) env vars merged into the env secret template.
-# Use for things like TELEGRAM_ALLOWED_USERS, HERMES_INFERENCE_PROVIDER, etc.
-extraEnv: {}
-  # TELEGRAM_ALLOWED_USERS: "306361331"
-  # GATEWAY_ALLOW_ALL_USERS: "false"
+extraEnv:
+  TELEGRAM_ALLOWED_USERS: "306361331"
+  GATEWAY_ALLOW_ALL_USERS: "false"
+  TELEGRAM_HOME_CHANNEL: "306361331"
+  TELEGRAM_HOME_CHANNEL_NAME: "DM"
 
 externalSecrets:
   kind: ClusterSecretStore

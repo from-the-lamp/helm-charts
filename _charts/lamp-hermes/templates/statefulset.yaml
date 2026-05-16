@@ -41,11 +41,6 @@ spec:
             - name: config
               subPath: config.yaml
               mountPath: /opt/data/config.yaml
-            {{- if .Values.authJson.enabled }}
-            - name: auth-json
-              subPath: auth.json
-              mountPath: /opt/data/auth.json
-            {{- end }}
             - name: data
               mountPath: /opt/data
               subPath: hermes-state
@@ -73,11 +68,6 @@ spec:
         - name: config
           configMap:
             name: {{ .Release.Name }}-config
-        {{- if .Values.authJson.enabled }}
-        - name: auth-json
-          secret:
-            secretName: {{ .Release.Name }}-auth-json
-        {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
