@@ -63,6 +63,13 @@ config:
         dmPolicy: "allowlist"
         allowFrom:
           - "306361331"
+    mcp:
+      servers:
+        fetch:
+          command: python3
+          args:
+            - "-m"
+            - "mcp_server_fetch"
     meta:
       lastTouchedVersion: "2026.1.29"
 persistence:
@@ -129,6 +136,7 @@ remoteSecretKeys:
   gitlabToken: gitlab-token-jorik
   tavilyApiKey: tavily-api-key
   openrouterApiKey: openrouter-api-key
+  jira: jira
 
 externalSecrets:
   kind: ClusterSecretStore
