@@ -84,7 +84,8 @@ service:
   port: 8080
   annotations: {}
 resources:  
-  limits: {}
+  limits:
+    memory: 4Gi
   requests:
     memory: 1Gi
     cpu: 200m
