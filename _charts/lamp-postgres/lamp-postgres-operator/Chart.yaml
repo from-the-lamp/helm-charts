@@ -1,8 +1,8 @@
 apiVersion: v2
 name: lamp-postgres-operator
-version: 0.2.1
+version: 0.3.0
 
 dependencies:
   - name: cloudnative-pg
-    version: 0.28.0
+    version: 0.29.0
     repository: https://cloudnative-pg.github.io/charts
