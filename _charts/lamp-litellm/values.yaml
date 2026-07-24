@@ -1,0 +1,87 @@
+externalSecrets:
+  kind: ClusterSecretStore
+  name: oracle
+  refreshInterval: 1h
+  creationPolicy: Orphan
+
+masterKey:
+  secretName: litellm-masterkey
+  remoteKey: litellm-master-key
+
+authJson:
+  secretName: litellm-codex-auth
+  remoteKey: litellm-codex-auth-json
+
+imagePullSecret:
+  secretName: litellm-image-pull
+  registry: registry.gitlab.com/from-the-lamp
+  username: token
+  remoteKey: gitlab-token
+
+litellm-helm:
+  image:
+    repository: registry.gitlab.com/from-the-lamp/infra/docker-images/lamp-litellm
+    tag: latest
+    pullPolicy: IfNotPresent
+
+  imagePullSecrets:
+    - name: litellm-image-pull
+
+  replicaCount: 1
+
+  deploymentAnnotations:
+    reloader.stakater.com/auto: "true"
+
+  masterkeySecretName: litellm-masterkey
+  masterkeySecretKey: masterkey
+
+  db:
+    deployStandalone: false
+    useExisting: false
+
+  migrationJob:
+    enabled: false
+
+  service:
+    type: ClusterIP
+    port: 4000
+
+  envVars:
+    CODEX_AUTH_FILE: /etc/litellm/auth.json
+    OPENAI_API_KEY: sk-litellm-codex-placeholder
+
+  volumes:
+    - name: codex-auth
+      secret:
+        secretName: litellm-codex-auth
+  volumeMounts:
+    - name: codex-auth
+      mountPath: /etc/litellm/auth.json
+      subPath: auth.json
+      readOnly: true
+
+  resources:
+    requests:
+      cpu: 250m
+      memory: 512Mi
+    limits:
+      memory: 3Gi
+
+  proxy_config:
+    model_list:
+      - model_name: gpt-5.6-sol
+        litellm_params:
+          model: codex/gpt-5.6-sol
+      - model_name: gpt-5.6-terra
+        litellm_params:
+          model: codex/gpt-5.6-terra
+      - model_name: gpt-5.6-luna
+        litellm_params:
+          model: codex/gpt-5.6-luna
+    litellm_settings:
+      drop_params: true
+      custom_provider_map:
+        - provider: codex
+          custom_handler: codex_handler.codex_auth_provider
+    general_settings:
+      master_key: os.environ/PROXY_MASTER_KEY
