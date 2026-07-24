@@ -22,7 +22,7 @@ litellm-helm:
   image:
     repository: registry.gitlab.com/from-the-lamp/infra/docker-images/lamp-litellm
     tag: latest
-    pullPolicy: IfNotPresent
+    pullPolicy: Always
 
   imagePullSecrets:
     - name: litellm-image-pull
@@ -71,13 +71,13 @@ litellm-helm:
     model_list:
       - model_name: gpt-5.6-sol
         litellm_params:
-          model: codex/gpt-5.6-sol
+          model: codex/codex-gpt-5.6-sol
       - model_name: gpt-5.6-terra
         litellm_params:
-          model: codex/gpt-5.6-terra
+          model: codex/codex-gpt-5.6-terra
       - model_name: gpt-5.6-luna
         litellm_params:
-          model: codex/gpt-5.6-luna
+          model: codex/codex-gpt-5.6-luna
     litellm_settings:
       drop_params: true
       custom_provider_map:

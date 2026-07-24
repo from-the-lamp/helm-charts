@@ -120,8 +120,8 @@ service:
 resources:
   limits: {}
   requests:
-    memory: 2Gi
-    cpu: 500m
+    memory: 10Mi
+    cpu: 10m
 
 nodeSelector: {}
 tolerations: []
