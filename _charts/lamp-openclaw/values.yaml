@@ -131,6 +131,7 @@ startupProbe:
 remoteSecretKeys:
   gatewayToken: moltbot-gateway-token
   # openaiApiKey: openapi-api-key
+  # litellmApiKey: litellm-master-key
   anthropicApiKey: claude-api-key
   telegramBotToken: telegram-bot-openclaw-djinn
   braveApiKey: brave-api-key
