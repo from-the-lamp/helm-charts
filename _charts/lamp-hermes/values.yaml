@@ -1,60 +1,28 @@
 image:
-  # Official multi-arch image (amd64 + arm64) published by Nous Research.
-  # Tags: latest, vYYYY.M.D (e.g. v2026.5.16), main, sha-<commit>.
-  # When `tag` starts with "sha256:" the template uses `@` digest pinning;
-  # otherwise it uses `:tag` notation. Override with Kargo-pinned digest for
-  # reproducible deploys.
   name: docker.io/nousresearch/hermes-agent
-  tag: v2026.5.16
+  tag: v2026.7.20
   pullPolicy: IfNotPresent
 imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
 
-# Replica count - MUST be 1; Hermes keeps single-user state in /opt/data
 replicaCount: 1
-
-# Container args passed to the entrypoint (it prepends `hermes` if needed).
-# Default: run the messaging gateway. To run the dashboard instead, override to:
-#   args: ["dashboard", "--host", "0.0.0.0", "--no-open"]
 args:
   - gateway
   - run
 
-# Service account
 serviceAccount:
   create: true
   annotations: {}
   name: ""
-
-# Pod annotations
 podAnnotations: {}
-
-# Pod security context.
-# The Hermes image MUST start as root so its entrypoint can usermod/groupmod
-# and drop privileges via gosu to the `hermes` user (UID set via HERMES_UID).
-# Do not set runAsNonRoot here.
 podSecurityContext: {}
-
-# Container security context.
-# Kept minimal for the same reason as above. /opt/data needs to be writable
-# (skills, sessions, lazy_deps installs).
 securityContext: {}
-
-# Cli configuration (mounted as /opt/data/config.yaml via subPath).
-# Hermes' entrypoint copies cli-config.yaml.example only when the file is
-# absent, so providing one here makes the bootstrap a no-op.
-# See https://github.com/NousResearch/hermes-agent for the full schema.
 config:
   data:
     model:
-      # Primary: ChatGPT via Codex OAuth (credentials seeded from auth.json).
-      # See https://github.com/NousResearch/hermes-agent — Codex provider uses
-      # gpt-5.3-codex by default when model.default is just a Codex model ID.
       default: "gpt-5.5"
       provider: "openai-codex"
-      # base_url is ignored for openai-codex (uses ChatGPT backend directly).
-      # max_tokens cap — avoids OpenRouter low-balance 402s on Anthropic fallback.
       max_tokens: 8192
     terminal:
       backend: "local"
@@ -95,9 +63,6 @@ config:
       local:
         model: "base"
 
-# Persistent volume for /opt/data (HERMES_HOME).
-# Holds: .env, config.yaml (after first run), skills/, sessions, MEMORY.md,
-# USER.md, auth.json, gateway.lock, .playwright cache fallback, etc.
 persistence:
   enabled: true
   storageClass: local-path
@@ -105,10 +70,6 @@ persistence:
   accessMode: ReadWriteOnce
   annotations: {}
   selector: {}
-
-# Service for the optional OpenAI-compatible API server / dashboard.
-# Disabled by default — pure messaging gateway does not expose any port.
-# Enable for `dashboard` mode (port 9119) or when API_SERVER_HOST is set.
 service:
   enabled: false
   type: ClusterIP
@@ -127,7 +88,6 @@ nodeSelector: {}
 tolerations: []
 affinity: {}
 
-# Clean up gateway lock files so the next pod can claim the gateway cleanly.
 lifecycle:
   preStop:
     exec:
@@ -136,8 +96,6 @@ lifecycle:
         - -c
         - rm -f /opt/data/gateway.*.lock; sleep 10
 
-# Probes — Hermes has no dedicated health endpoint by default.
-# Enable the TCP probes if you turn on the dashboard or API server.
 livenessProbe:
   enabled: false
   tcpSocket:
@@ -163,12 +121,6 @@ startupProbe:
   timeoutSeconds: 3
   failureThreshold: 30
 
-# OAuth bootstrap for Codex / Nous / Gemini providers.
-# When enabled, ESO pulls the JSON blob from the secret store and the
-# entrypoint writes it to /opt/data/auth.json on FIRST BOOT ONLY. After that,
-# Hermes rotates refresh tokens in-place on the PV — the env var is no longer
-# consulted, so token rotation survives pod restarts.
-# Required for `provider: openai-codex` (ChatGPT OAuth) and similar.
 authJson:
   enabled: true
   remoteKey: hermes-auth-json
