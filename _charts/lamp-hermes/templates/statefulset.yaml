@@ -80,6 +80,12 @@ spec:
             - name: data
               mountPath: /opt/data
               subPath: hermes-state
+            {{- if .Values.googleSheets.enabled }}
+            - name: gcp-sa
+              mountPath: {{ .Values.googleSheets.mountPath }}
+              subPath: service-account.json
+              readOnly: true
+            {{- end }}
           {{- if .Values.livenessProbe.enabled }}
           livenessProbe:
             {{- omit .Values.livenessProbe "enabled" | toYaml | nindent 12 }}
@@ -108,6 +114,11 @@ spec:
         - name: env-secret
           secret:
             secretName: {{ .Release.Name }}-env
+        {{- end }}
+        {{- if .Values.googleSheets.enabled }}
+        - name: gcp-sa
+          secret:
+            secretName: {{ .Release.Name }}-gcp-sa
         {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:

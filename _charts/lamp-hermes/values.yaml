@@ -16,6 +16,11 @@ seedDotenv:
   uid: 10000
   gid: 10000
 
+googleSheets:
+  enabled: false
+  remoteKey: google-sa-json
+  mountPath: /etc/hermes/google-sa.json
+
 serviceAccount:
   create: true
   annotations: {}
