@@ -11,6 +11,11 @@ args:
   - gateway
   - run
 
+seedDotenv:
+  enabled: true
+  uid: 10000
+  gid: 10000
+
 serviceAccount:
   create: true
   annotations: {}

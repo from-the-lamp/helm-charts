@@ -28,6 +28,42 @@ spec:
       serviceAccountName: {{ include "hermes.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      {{- if .Values.seedDotenv.enabled }}
+      initContainers:
+        - name: seed-dotenv
+          image: "{{ .Values.image.name }}{{ if hasPrefix "sha256:" .Values.image.tag }}@{{ else }}:{{ end }}{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command:
+            - sh
+            - -c
+            - |
+              set -eu
+              env_file=/opt/data/.env
+              tmp="$env_file.seed.tmp"
+              touch "$env_file"
+              for f in /run/hermes-env/*; do
+                [ -f "$f" ] || continue
+                key=$(basename "$f")
+                case "$key" in
+                  *_KEY|*_TOKEN) : ;;
+                  *) continue ;;
+                esac
+                val=$(cat "$f")
+                [ -n "$val" ] || continue
+                grep -v "^$key=" "$env_file" > "$tmp" 2>/dev/null || true
+                printf '%s=%s\n' "$key" "$val" >> "$tmp"
+                mv "$tmp" "$env_file"
+              done
+              chown {{ .Values.seedDotenv.uid }}:{{ .Values.seedDotenv.gid }} "$env_file" || true
+              chmod 600 "$env_file"
+          volumeMounts:
+            - name: data
+              mountPath: /opt/data
+              subPath: hermes-state
+            - name: env-secret
+              mountPath: /run/hermes-env
+              readOnly: true
+      {{- end }}
       containers:
         - name: hermes
           image: "{{ .Values.image.name }}{{ if hasPrefix "sha256:" .Values.image.tag }}@{{ else }}:{{ end }}{{ .Values.image.tag }}"
@@ -68,6 +104,11 @@ spec:
         - name: config
           configMap:
             name: {{ .Release.Name }}-config
+        {{- if .Values.seedDotenv.enabled }}
+        - name: env-secret
+          secret:
+            secretName: {{ .Release.Name }}-env
+        {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
