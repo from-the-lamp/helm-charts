@@ -1,0 +1,11 @@
+{{- range .Values.proxyClasses }}
+---
+apiVersion: tailscale.com/v1alpha1
+kind: ProxyClass
+metadata:
+  name: {{ .name }}
+spec:
+  statefulSet:
+    pod:
+      {{- toYaml (.pod | default dict) | nindent 6 }}
+{{- end }}

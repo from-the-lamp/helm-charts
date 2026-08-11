@@ -1,0 +1,28 @@
+proxyClasses:
+  - name: exit-node
+    pod:
+      tailscaleContainer:
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+      # nodeSelector:
+      #   kubernetes.io/hostname: infra-worker-03
+      # securityContext:
+      #   sysctls:
+      #     - name: net.core.rmem_max
+      #       value: "7500000"
+      #     - name: net.core.wmem_max
+      #       value: "7500000"
+
+connectors:
+  - name: exit-node
+    hostname: k3s-infra-exit-node
+    exitNode: true
+    proxyClass: exit-node
+    tags:
+      - tag:exit
+    # replicas: 1
+    # hostnamePrefix: k3s-infra-exit-node
+    # advertiseRoutes:
+    #   - 10.0.1.0/24

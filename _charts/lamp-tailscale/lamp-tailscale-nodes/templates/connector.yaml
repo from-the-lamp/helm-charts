@@ -1,0 +1,30 @@
+{{- range .Values.connectors }}
+---
+apiVersion: tailscale.com/v1alpha1
+kind: Connector
+metadata:
+  name: {{ .name }}
+spec:
+  exitNode: {{ .exitNode | default false }}
+  {{- with .hostname }}
+  hostname: {{ . }}
+  {{- end }}
+  {{- with .hostnamePrefix }}
+  hostnamePrefix: {{ . }}
+  {{- end }}
+  {{- if hasKey . "replicas" }}
+  replicas: {{ .replicas }}
+  {{- end }}
+  {{- with .proxyClass }}
+  proxyClass: {{ . }}
+  {{- end }}
+  {{- with .tags }}
+  tags:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- with .advertiseRoutes }}
+  subnetRouter:
+    advertiseRoutes:
+      {{- toYaml . | nindent 6 }}
+  {{- end }}
+{{- end }}
