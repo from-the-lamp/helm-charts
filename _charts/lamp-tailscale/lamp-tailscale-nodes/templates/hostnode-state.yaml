@@ -1,0 +1,10 @@
+{{- range .Values.hostNodes }}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ .stateSecret | default (printf "tailscale-%s-state" .name) }}
+  annotations:
+    argocd.argoproj.io/sync-options: Prune=false
+type: Opaque
+{{- end }}

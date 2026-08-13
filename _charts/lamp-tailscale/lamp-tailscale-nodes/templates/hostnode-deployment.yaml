@@ -1,0 +1,81 @@
+{{- range .Values.hostNodes }}
+{{- $args := list }}
+{{- if .exitNode }}{{ $args = append $args "--advertise-exit-node" }}{{ end }}
+{{- with .advertiseRoutes }}{{ $args = append $args (printf "--advertise-routes=%s" (join "," .)) }}{{ end }}
+{{- with .tags }}{{ $args = append $args (printf "--advertise-tags=%s" (join "," .)) }}{{ end }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tailscale-{{ .name }}
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: tailscale-{{ .name }}
+  template:
+    metadata:
+      labels:
+        app: tailscale-{{ .name }}
+    spec:
+      serviceAccountName: tailscale-{{ .name }}
+      hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
+      {{- with .nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .sysctls }}
+      initContainers:
+        - name: sysctls
+          image: "{{ $.Values.image.name }}:{{ $.Values.image.tag }}"
+          securityContext:
+            privileged: true
+          command:
+            - /bin/sh
+            - -c
+            - |
+              {{- range $key, $value := . }}
+              sysctl -w {{ $key }}={{ $value }}
+              {{- end }}
+      {{- end }}
+      containers:
+        - name: tailscale
+          image: "{{ $.Values.image.name }}:{{ $.Values.image.tag }}"
+          securityContext:
+            privileged: true
+          env:
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: POD_UID
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.uid
+            - name: TS_USERSPACE
+              value: "false"
+            - name: TS_AUTH_ONCE
+              value: "true"
+            - name: TS_KUBE_SECRET
+              value: "{{ .stateSecret | default (printf "tailscale-%s-state" .name) }}"
+            - name: TS_HOSTNAME
+              value: "{{ .hostname }}"
+            - name: TS_EXTRA_ARGS
+              value: "{{ join " " $args }}"
+            - name: TS_AUTHKEY
+              valueFrom:
+                secretKeyRef:
+                  name: tailscale-{{ .name }}-auth
+                  key: TS_AUTHKEY
+          {{- with .resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+{{- end }}

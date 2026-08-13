@@ -1,0 +1,22 @@
+{{- range .Values.hostNodes }}
+---
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: tailscale-{{ .name }}-auth
+spec:
+  refreshInterval: "{{ $.Values.externalSecrets.refreshInterval }}"
+  secretStoreRef:
+    kind: "{{ $.Values.externalSecrets.kind }}"
+    name: "{{ $.Values.externalSecrets.name }}"
+  target:
+    name: tailscale-{{ .name }}-auth
+    creationPolicy: "{{ $.Values.externalSecrets.creationPolicy }}"
+    template:
+      data:
+        TS_AUTHKEY: "{{`{{ .client_secret }}`}}?ephemeral=false&preauthorized=true"
+  data:
+    - secretKey: client_secret
+      remoteRef:
+        key: "{{ $.Values.remoteSecretKeys.clientSecret }}"
+{{- end }}

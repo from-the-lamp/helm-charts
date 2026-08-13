@@ -1,0 +1,36 @@
+{{- range .Values.hostNodes }}
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: tailscale-{{ .name }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: tailscale-{{ .name }}
+rules:
+  - apiGroups: [""]
+    resources: ["secrets"]
+    verbs: ["create"]
+  - apiGroups: [""]
+    resources: ["secrets"]
+    resourceNames:
+      - "{{ .stateSecret | default (printf "tailscale-%s-state" .name) }}"
+    verbs: ["get", "update", "patch"]
+  - apiGroups: [""]
+    resources: ["events"]
+    verbs: ["get", "create", "patch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: tailscale-{{ .name }}
+subjects:
+  - kind: ServiceAccount
+    name: tailscale-{{ .name }}
+roleRef:
+  kind: Role
+  name: tailscale-{{ .name }}
+  apiGroup: rbac.authorization.k8s.io
+{{- end }}
