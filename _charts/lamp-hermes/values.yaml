@@ -68,6 +68,9 @@ config:
       compact: false
       tool_progress: all
       skin: default
+      platforms:
+          telegram:
+            tool_progress: off
     stt:
       enabled: true
       local:
