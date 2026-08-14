@@ -30,7 +30,7 @@ podSecurityContext: {}
 securityContext: {}
 config:
   data:
-    timezone: Europe/Buchares
+    timezone: Europe/Bucharest
     model:
       default: "gpt-5.5"
       provider: "openai-codex"
