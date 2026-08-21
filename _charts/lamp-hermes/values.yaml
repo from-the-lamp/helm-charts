@@ -11,15 +11,13 @@ args:
   - gateway
   - run
 
-seedDotenv:
-  enabled: true
+hermes:
+  home: /opt/data
   uid: 10000
   gid: 10000
 
-googleSheets:
-  enabled: false
-  remoteKey: google-sa-json
-  mountPath: /etc/hermes/google-sa.json
+seedDotenv:
+  enabled: true
 
 serviceAccount:
   create: true
@@ -30,11 +28,6 @@ podSecurityContext: {}
 securityContext: {}
 config:
   data:
-    timezone: Europe/Bucharest
-    model:
-      default: "gpt-5.5"
-      provider: "openai-codex"
-      max_tokens: 8192
     terminal:
       backend: "local"
       cwd: "."
@@ -79,7 +72,8 @@ config:
 
 persistence:
   enabled: true
-  storageClass: local-path
+  storageClass: ""
+  subPath: hermes-state
   size: 20Gi
   accessMode: ReadWriteOnce
   annotations: {}
@@ -135,21 +129,11 @@ startupProbe:
   timeoutSeconds: 3
   failureThreshold: 30
 
-authJson:
-  enabled: true
-  remoteKey: hermes-auth-json
+secrets: {}
 
-remoteSecretKeys:
-  openrouterApiKey: openrouter-api-key
-  anthropicApiKey: claude-api-key
-  telegramBotToken: telegram-bot-hermes-djinn
-  gitlabToken: gitlab-token-jorik
+secretFiles: {}
 
-extraEnv:
-  TELEGRAM_ALLOWED_USERS: "306361331"
-  GATEWAY_ALLOW_ALL_USERS: "false"
-  TELEGRAM_HOME_CHANNEL: "306361331"
-  TELEGRAM_HOME_CHANNEL_NAME: "DM"
+extraEnv: {}
 
 externalSecrets:
   kind: ClusterSecretStore

@@ -38,7 +38,7 @@ spec:
             - -c
             - |
               set -eu
-              env_file=/opt/data/.env
+              env_file={{ .Values.hermes.home }}/.env
               tmp="$env_file.seed.tmp"
               touch "$env_file"
               for f in /run/hermes-env/*; do
@@ -54,12 +54,12 @@ spec:
                 printf '%s=%s\n' "$key" "$val" >> "$tmp"
                 mv "$tmp" "$env_file"
               done
-              chown {{ .Values.seedDotenv.uid }}:{{ .Values.seedDotenv.gid }} "$env_file" || true
+              chown {{ .Values.hermes.uid }}:{{ .Values.hermes.gid }} "$env_file" || true
               chmod 600 "$env_file"
           volumeMounts:
             - name: data
-              mountPath: /opt/data
-              subPath: hermes-state
+              mountPath: {{ .Values.hermes.home }}
+              subPath: {{ .Values.persistence.subPath }}
             - name: env-secret
               mountPath: /run/hermes-env
               readOnly: true
@@ -76,14 +76,15 @@ spec:
           volumeMounts:
             - name: config
               subPath: config.yaml
-              mountPath: /opt/data/config.yaml
+              mountPath: {{ .Values.hermes.home }}/config.yaml
             - name: data
-              mountPath: /opt/data
-              subPath: hermes-state
-            {{- if .Values.googleSheets.enabled }}
-            - name: gcp-sa
-              mountPath: {{ .Values.googleSheets.mountPath }}
-              subPath: service-account.json
+              mountPath: {{ .Values.hermes.home }}
+              subPath: {{ .Values.persistence.subPath }}
+            {{- range $file, $ref := .Values.secretFiles }}
+            {{- if not $ref.mountPath }}{{ fail (printf "lamp-hermes: secretFiles.%s needs .mountPath" $file) }}{{ end }}
+            - name: secret-files
+              mountPath: {{ $ref.mountPath }}
+              subPath: {{ $file }}
               readOnly: true
             {{- end }}
           {{- if .Values.livenessProbe.enabled }}
@@ -115,10 +116,10 @@ spec:
           secret:
             secretName: {{ .Release.Name }}-env
         {{- end }}
-        {{- if .Values.googleSheets.enabled }}
-        - name: gcp-sa
+        {{- if .Values.secretFiles }}
+        - name: secret-files
           secret:
-            secretName: {{ .Release.Name }}-gcp-sa
+            secretName: {{ .Release.Name }}-files
         {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:

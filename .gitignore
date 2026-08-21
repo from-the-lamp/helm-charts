@@ -1,5 +1,7 @@
 .env
 .secrets.yml
+oci/
+*.pem
 .DS_Store
 *.tgz
 Chart.lock
