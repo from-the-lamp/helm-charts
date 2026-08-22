@@ -36,9 +36,9 @@ spec:
                 - {{ .Release.Name }}
             topologyKey: "kubernetes.io/hostname"
       {{- end }}
-      imagePullSecrets: 
+      imagePullSecrets:
       {{- range .Values.image.pullSecrets }}
-        - name: image-pull-secret-{{ .name }}
+        - name: {{ include "app.fullname" $ }}-image-pull-secret-{{ .name }}
       {{- end }}
       enableServiceLinks: false
       containers:
