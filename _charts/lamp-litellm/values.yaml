@@ -4,19 +4,46 @@ externalSecrets:
   refreshInterval: 1h
   creationPolicy: Orphan
 
+# All litellm secrets live as properties of a single Oracle Vault secret
+# (remoteRef.key below) - one JSON object with a field per property.
 masterKey:
   secretName: litellm-masterkey
-  remoteKey: litellm-master-key
+  remoteRef:
+    key: litellm
+    property: master_key
 
 authJson:
   secretName: litellm-codex-auth
-  remoteKey: litellm-codex-auth-json
+  remoteRef:
+    key: litellm
+    property: auth_json
 
+# Unrelated to the "litellm" vault secret above - shared GitLab registry
+# token reused by many charts, stays its own Vault entry.
 imagePullSecret:
   secretName: litellm-image-pull
   registry: registry.gitlab.com/from-the-lamp
   username: token
   remoteKey: gitlab-token
+
+# Models served through the ChatGPT/Codex OAuth handler. Shared by the main
+# proxy config and every account worker's config.
+codexModels:
+  - gpt-5.6-sol
+  - gpt-5.6-terra
+  - gpt-5.6-luna
+
+# Additional ChatGPT accounts. The account already wired into the main proxy
+# (authJson above) always stays; each entry here spins up its own isolated
+# worker deployment + secret and is added to the main proxy's model_list as
+# an extra load-balanced/failover deployment. To add an account: add its
+# auth.json under a new property in the "litellm" Vault secret, then add one
+# entry here.
+codexAccounts: []
+
+proxyConfigMap:
+  name: litellm-proxy-config
+  key: config.yaml
 
 litellm-helm:
   image:
@@ -67,21 +94,7 @@ litellm-helm:
     limits:
       memory: 3Gi
 
-  proxy_config:
-    model_list:
-      - model_name: gpt-5.6-sol
-        litellm_params:
-          model: codex/codex-gpt-5.6-sol
-      - model_name: gpt-5.6-terra
-        litellm_params:
-          model: codex/codex-gpt-5.6-terra
-      - model_name: gpt-5.6-luna
-        litellm_params:
-          model: codex/codex-gpt-5.6-luna
-    litellm_settings:
-      drop_params: true
-      custom_provider_map:
-        - provider: codex
-          custom_handler: codex_handler.codex_auth_provider
-    general_settings:
-      master_key: os.environ/PROXY_MASTER_KEY
+  proxyConfigMap:
+    create: false
+    name: litellm-proxy-config
+    key: config.yaml

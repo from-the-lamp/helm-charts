@@ -1,0 +1,85 @@
+{{- range .Values.codexAccounts }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: litellm-codex-{{ .name }}
+  annotations:
+    reloader.stakater.com/auto: "true"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: litellm-codex-{{ .name }}
+  template:
+    metadata:
+      labels:
+        app: litellm-codex-{{ .name }}
+    spec:
+      imagePullSecrets:
+        - name: {{ $.Values.imagePullSecret.secretName }}
+      containers:
+        - name: litellm
+          image: "{{ (index $.Values "litellm-helm").image.repository }}:{{ (index $.Values "litellm-helm").image.tag }}"
+          imagePullPolicy: {{ (index $.Values "litellm-helm").image.pullPolicy }}
+          args:
+            - --config
+            - /etc/litellm/config.yaml
+          ports:
+            - name: http
+              containerPort: 4000
+          env:
+            - name: CODEX_AUTH_FILE
+              value: /etc/litellm/auth.json
+            - name: OPENAI_API_KEY
+              value: sk-litellm-codex-placeholder
+            - name: PROXY_MASTER_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $.Values.masterKey.secretName }}
+                  key: masterkey
+          livenessProbe:
+            httpGet:
+              path: /health/liveliness
+              port: http
+            periodSeconds: 10
+            timeoutSeconds: 1
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /health/readiness
+              port: http
+            periodSeconds: 10
+            timeoutSeconds: 1
+            failureThreshold: 3
+          resources:
+            {{- toYaml $.Values.resources | nindent 12 }}
+          volumeMounts:
+            - name: codex-auth
+              mountPath: /etc/litellm/auth.json
+              subPath: auth.json
+              readOnly: true
+            - name: litellm-config
+              mountPath: /etc/litellm/config.yaml
+              subPath: config.yaml
+              readOnly: true
+      volumes:
+        - name: codex-auth
+          secret:
+            secretName: litellm-codex-auth-{{ .name }}
+        - name: litellm-config
+          configMap:
+            name: litellm-codex-{{ .name }}-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: litellm-codex-{{ .name }}
+spec:
+  selector:
+    app: litellm-codex-{{ .name }}
+  ports:
+    - name: http
+      port: 4000
+      targetPort: http
+{{- end }}

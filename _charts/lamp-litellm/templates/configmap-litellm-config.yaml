@@ -1,0 +1,24 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.proxyConfigMap.name }}
+data:
+  {{ .Values.proxyConfigMap.key }}: |
+    model_list:
+      {{- range $model := .Values.codexModels }}
+      - model_name: {{ $model }}
+        litellm_params:
+          model: codex/codex-{{ $model }}
+      {{- end }}
+      {{- range $account := .Values.codexAccounts }}
+      {{- range $model := $.Values.codexModels }}
+      - model_name: {{ $model }}
+        litellm_params:
+          model: openai/{{ $model }}
+          api_base: http://litellm-codex-{{ $account.name }}:4000
+          api_key: os.environ/PROXY_MASTER_KEY
+      {{- end }}
+      {{- end }}
+    router_settings:
+      routing_strategy: simple-shuffle
+    {{- include "lamp-litellm.codexHandlerSettings" . | nindent 4 }}

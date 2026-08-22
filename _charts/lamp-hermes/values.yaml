@@ -1,8 +1,14 @@
 image:
-  name: docker.io/nousresearch/hermes-agent
-  tag: v2026.7.20
-  pullPolicy: IfNotPresent
-imagePullSecrets: []
+  name: registry.gitlab.com/from-the-lamp/infra/docker-images/lamp-hermes
+  tag: latest
+  pullPolicy: Always
+imagePullSecrets:
+  - name: hermes-image-pull
+imagePullSecret:
+  secretName: hermes-image-pull
+  registry: registry.gitlab.com/from-the-lamp
+  username: token
+  remoteKey: gitlab-token
 nameOverride: ""
 fullnameOverride: ""
 

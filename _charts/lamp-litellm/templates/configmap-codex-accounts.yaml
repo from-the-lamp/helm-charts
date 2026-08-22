@@ -1,0 +1,16 @@
+{{- range .Values.codexAccounts }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: litellm-codex-{{ .name }}-config
+data:
+  config.yaml: |
+    model_list:
+      {{- range $model := $.Values.codexModels }}
+      - model_name: {{ $model }}
+        litellm_params:
+          model: codex/codex-{{ $model }}
+      {{- end }}
+    {{- include "lamp-litellm.codexHandlerSettings" $ | nindent 4 }}
+{{- end }}
