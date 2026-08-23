@@ -17,9 +17,9 @@ issuers:
   selfsigned: true
   letsencrypt:
     http: false
-    cloudflare: 
-      enabled: false
-      remoteSecretKey: cloudflare-dns-solver-token 
+    cloudflare:
+      enabled: true
+      remoteSecretKey: cloudflare-dns-solver-token
   zerossl:
     enabled: false
     keyID: #from zerossl web site
@@ -27,8 +27,8 @@ issuers:
       zerossl: zerossl-api-token
       cloudflare: cloudflare-dns-solver-token
   originCAIssuer:
-    enabled: false
-    tokenRemoteSecretKey: origin-ca-issuer-token
+    enabled: true
+    tokenRemoteSecretKey: cloudflare-dns-solver-token
 
 origin-ca-issuer:
   controller:

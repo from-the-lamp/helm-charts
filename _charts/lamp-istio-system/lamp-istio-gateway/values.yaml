@@ -41,10 +41,12 @@ listeners:
     #     group: cert-manager.io
     #     name: wildcard-example-infra-cloud
 
+certificateIssuer:
+  name: cloudflare-origin-ca-issuer
+  group: cert-manager.k8s.cloudflare.com
+  kind: ClusterOriginIssuer
+
 certificates: []
   # - name: wildcard-example-infra-cloud
-  #   issuer:
-  #     kind: ClusterIssuer
-  #     name: selfsigned-cluster-issuer
   #   hosts:
   #     - "*.example.infra.cloud"

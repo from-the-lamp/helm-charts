@@ -1,0 +1,19 @@
+oauth2-proxy:
+  config:
+    cookieName: "eikooc"
+  extraArgs:
+    provider: "gitlab"
+    cookie-secure: false
+    reverse-proxy: true
+    cookie-csrf-per-request: true
+    cookie-csrf-expire: "5m"
+    set-xauthrequest: true
+    set-authorization-header: true
+    pass-authorization-header: true
+    pass-access-token: true
+    skip-provider-button: true
+    upstream: static://200
+    gitlab-group: "from-the-lamp"
+    email-domain: "*"
+    oidc-issuer-url: "https://gitlab.com"
+    scope: "openid email"

@@ -41,11 +41,26 @@ codexModels:
 # entry here.
 codexAccounts: []
 
+# Cheap delegation/worker models served directly off the DeepSeek API. To
+# enable: point deepseekApiKey.remoteRef at wherever the key lives in Vault
+# and list the model ids here - each becomes `deepseek/<model>` in litellm's
+# model_list.
+deepseekApiKey:
+  secretName: litellm-deepseek
+  remoteRef:
+    key: litellm
+    property: deepseek_api_key
+deepseekModels:
+  - deepseek-v4-flash
+
 proxyConfigMap:
   name: litellm-proxy-config
   key: config.yaml
 
 litellm-helm:
+  environmentSecrets:
+    - litellm-deepseek
+
   image:
     repository: registry.gitlab.com/from-the-lamp/infra/docker-images/lamp-litellm
     tag: latest

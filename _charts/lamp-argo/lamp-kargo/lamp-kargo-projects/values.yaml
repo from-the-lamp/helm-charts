@@ -7,28 +7,35 @@ githubApps: []
   #   remoteSecretKey: argocd-github-orgname-private-key
   #   repoURLIsRegex: true
 
-repositories: []
-  # - name: gitlab-from-the-lamp
-  #   type: git
-  #   url: https://gitlab.com/from-the-lamp/infra/argo-apps.git
-  #   username: token
-  #   passwordRemoteSecretKey: gitlab-token
-  # - name: gitlab-from-the-lamp
-  #   type: image
-  #   url: registry.gitlab.com/from-the-lamp
-  #   username: token
-  #   passwordRemoteSecretKey: gitlab-token
+repositories:
+  - name: gitlab-from-the-lamp
+    type: git
+    url: https://gitlab.com/from-the-lamp/infra/argo-apps.git
+    username: token
+    passwordRemoteSecretKey: gitlab-token
+  - name: gitlab-from-the-lamp
+    type: image
+    url: registry.gitlab.com/from-the-lamp/backend/monorepo
+    repoURLIsRegex: true
+    username: token
+    passwordRemoteSecretKey: gitlab-token
+  - name: gitlab-from-the-lamp-docker-images
+    type: image
+    url: registry.gitlab.com/from-the-lamp/infra/docker-images
+    repoURLIsRegex: true
+    username: token
+    passwordRemoteSecretKey: gitlab-token
 
 project:
+  rbac: []
   prefix: kargo-project
-  autoPromotion: 
-    # - stage: dev
-    # - stage: preprod
+  autoPromotion:
+    - stage: prod-0
   task:
     kind: ClusterPromotionTask
     name: docker
   git:
-    url: https://example.git
+    url: https://gitlab.com/from-the-lamp/infra/argo-apps.git
     branch: main
     resultFile: .kargo.values.yaml
     imageNamePath: base.image.name
@@ -36,31 +43,37 @@ project:
     imageDigestPath: base.image.digest
 
 apps:
-  # - name: example-service
-  #   image: example-registry/example-service
+  - name: debug
+    image: registry.gitlab.com/from-the-lamp/frontend/debug
+  - name: book
+    image: registry.gitlab.com/from-the-lamp/infra/docker-images/lamp-book
+  - name: general
+    image: registry.gitlab.com/from-the-lamp/infra/docker-images/lamp-general
+  - name: openclaw-0
+    image: registry.gitlab.com/from-the-lamp/backend/openclaw
+  - name: openclaw-1
+    image: registry.gitlab.com/from-the-lamp/backend/openclaw
+  - name: banking-callback
+    image: registry.gitlab.com/from-the-lamp/infra/docker-images/lamp-banking-callback-service
+  - name: litellm
+    image: registry.gitlab.com/from-the-lamp/infra/docker-images/lamp-litellm
+    gitImageNamePath: litellm-helm.image.repository
+    gitImageTagPath: litellm-helm.image.tag
+    gitImageDigestPath: litellm-helm.image.digest
+  - name: hermes
+    image: registry.gitlab.com/from-the-lamp/infra/docker-images/lamp-hermes
+    gitImageNamePath: lamp-hermes.image.name
+    gitImageTagPath: lamp-hermes.image.tag
+    gitImageDigestPath: lamp-hermes.image.tag
 
-warehouses: []
-  # - name: dev
-  #   imageSelectionStrategy: NewestBuild
-  #   allowTags: "^dev-[0-9a-z]+$"
+warehouses:
+  - name: prod-0
+    imageSelectionStrategy: Digest
+    constraint: latest
 
-  # - name: preprod
-  #   imageSelectionStrategy: NewestBuild
-  #   allowTags: "^preprod-[0-9a-z]+$"
-
-stages: []
-  # - name: dev
-  #   color: green
-  #   promoters: 
-  #     - devops@example.com
-  # - name: preprod
-  #   color: yellow
-  #   promoters: []
-  # - name: prod
-  #   color: red
-  #   require: preprod
-  #   promoters: []
-  #   viewers: []
+stages:
+  - name: prod-0
+    color: green
 
 externalSecrets:
   kind: ClusterSecretStore

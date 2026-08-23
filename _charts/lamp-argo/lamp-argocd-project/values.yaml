@@ -10,7 +10,7 @@ project:
     developer: []
 
 git:
-  repo: https://git.example
+  repo: https://gitlab.com/from-the-lamp/infra/argo-apps.git
   revision: HEAD
   path: "{{`{{ .path.path }}`}}"
   valueFiles:

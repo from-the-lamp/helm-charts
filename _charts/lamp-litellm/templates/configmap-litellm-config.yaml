@@ -19,6 +19,12 @@ data:
           api_key: os.environ/PROXY_MASTER_KEY
       {{- end }}
       {{- end }}
+      {{- range $model := .Values.deepseekModels }}
+      - model_name: {{ $model }}
+        litellm_params:
+          model: deepseek/{{ $model }}
+          api_key: os.environ/DEEPSEEK_API_KEY
+      {{- end }}
     router_settings:
       routing_strategy: simple-shuffle
     {{- include "lamp-litellm.codexHandlerSettings" . | nindent 4 }}

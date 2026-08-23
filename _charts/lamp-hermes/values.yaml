@@ -34,6 +34,28 @@ podSecurityContext: {}
 securityContext: {}
 config:
   data:
+    timezone: Europe/Bucharest
+    model:
+      default: gpt-5.6-terra
+      provider: litellm
+      max_tokens: 8192
+    delegation:
+      provider: litellm
+      model: deepseek-v4-flash
+    providers:
+      litellm:
+        name: LiteLLM Gateway
+        base_url: http://litellm.product.svc.cluster.local:4000/v1
+        key_env: OPENAI_API_KEY
+        transport: openai_chat
+    cron:
+      wrap_response: false
+      mirror_delivery: true
+    mcp_servers:
+      google-sheets:
+        command: mcp-google-sheets
+        env:
+          SERVICE_ACCOUNT_PATH: /etc/hermes/google-sa.json
     terminal:
       backend: "local"
       cwd: "."
@@ -78,7 +100,7 @@ config:
 
 persistence:
   enabled: true
-  storageClass: ""
+  storageClass: local-path
   subPath: hermes-state
   size: 20Gi
   accessMode: ReadWriteOnce
@@ -135,11 +157,69 @@ startupProbe:
   timeoutSeconds: 3
   failureThreshold: 30
 
-secrets: {}
+secrets:
+  # OAuth bootstrap: entrypoint writes this JSON to /opt/data/auth.json on
+  # first boot only ([ ! -f ... ] guard). After that, Hermes rotates the
+  # refresh token in-place on the persistent volume, so this env var is
+  # consumed exactly once.
+  HERMES_AUTH_JSON_BOOTSTRAP:
+    key: hermes
+    property: auth_json
+  OPENROUTER_API_KEY:
+    key: hermes
+    property: openrouter_api_key
+  ANTHROPIC_API_KEY:
+    key: hermes
+    property: anthropic_api_key
+  OPENAI_API_KEY:
+    key: hermes
+    property: litellm_master_key
+  TELEGRAM_BOT_TOKEN:
+    key: hermes
+    property: telegram_bot_openclaw
+  GITLAB_TOKEN:
+    key: hermes
+    property: gitlab_token
+  SERPAPI_API_KEY:
+    key: hermes
+    property: serpapi_api_key
+  TRAVELPAYOUTS_TOKEN:
+    key: hermes
+    property: travelpayouts_token
 
-secretFiles: {}
+secretFiles:
+  google-sa.json:
+    key: hermes
+    property: google_sa_json
+    mountPath: /etc/hermes/google-sa.json
 
-extraEnv: {}
+  # OCI CLI access for all 3 accounts (infra vault owner + prod-0 + prod-1
+  # clusters), same credentials/permissions as the human operator's - so
+  # the agent can inspect/manage infra with `oci --profile <name> ...`.
+  oci-config:
+    key: hermes
+    property: oci_config
+    mountPath: /etc/hermes/.oci/config
+  oci-key-lamp-infra.pem:
+    key: hermes
+    property: oci_key_lamp_infra
+    mountPath: /etc/hermes/.oci/lamp-infra.pem
+  oci-key-lamp-prod-0.pem:
+    key: hermes
+    property: oci_key_lamp_prod_0
+    mountPath: /etc/hermes/.oci/lamp-prod-0.pem
+  oci-key-lamp-prod-1.pem:
+    key: hermes
+    property: oci_key_lamp_prod_1
+    mountPath: /etc/hermes/.oci/lamp-prod-1.pem
+
+extraEnv:
+  TELEGRAM_ALLOWED_USERS: "306361331"
+  GATEWAY_ALLOW_ALL_USERS: "false"
+  TELEGRAM_HOME_CHANNEL: "306361331"
+  TELEGRAM_HOME_CHANNEL_NAME: "DM"
+  # lets `oci` (once installed) find the mounted config without --config-file
+  OCI_CLI_CONFIG_FILE: /etc/hermes/.oci/config
 
 externalSecrets:
   kind: ClusterSecretStore

@@ -21,6 +21,14 @@ tasks:
       - task: .push 
         vars: { DIR: "{{index .MATCH 0}}" }
 
+  build:push:all:
+    desc: Build and Push all Charts
+    cmds:
+      - echo "Building..."
+      - task: build:all
+      - echo "Pushing..."
+      - task: push:all
+
   build:push:changed:
     desc: Build and Push changed Charts
     cmds:

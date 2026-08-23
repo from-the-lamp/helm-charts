@@ -1,4 +1,5 @@
 {{- range .Values.certificates }}
+{{- $issuer := .issuer | default $.Values.certificateIssuer }}
 ---
 apiVersion: cert-manager.io/v1
 kind: Certificate
@@ -7,9 +8,9 @@ metadata:
 spec:
   secretName: {{ .name }}
   issuerRef:
-    group: {{ .issuer.group }}
-    name: {{ .issuer.name }}
-    kind: {{ .issuer.kind }}
+    group: {{ $issuer.group }}
+    name: {{ $issuer.name }}
+    kind: {{ $issuer.kind }}
   dnsNames:
   {{- range .hosts }}
     - {{ . | quote }}
