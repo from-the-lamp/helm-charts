@@ -56,6 +56,71 @@ config:
         command: mcp-google-sheets
         env:
           SERVICE_ACCOUNT_PATH: /etc/hermes/google-sa.json
+      atlassian-cas:
+        command: bash
+        args:
+          - "-c"
+          - "set -a && export READ_ONLY_MODE=\"${READ_ONLY_MODE:-true}\" && . /etc/hermes/creds/atlassian/cas.env && exec mcp-atlassian"
+      atlassian-xdata:
+        command: bash
+        args:
+          - "-c"
+          - "set -a && export READ_ONLY_MODE=\"${READ_ONLY_MODE:-true}\" && . /etc/hermes/creds/atlassian/xdata.env && exec mcp-atlassian"
+      gitlab-cas-dev:
+        command: bash
+        args:
+          - "-c"
+          - "set -a && export GITLAB_READ_ONLY_MODE=\"${GITLAB_READ_ONLY_MODE:-true}\" && . /etc/hermes/creds/gitlab/cas-dev.env && exec mcp-gitlab"
+      gitlab-cas-gitops:
+        command: bash
+        args:
+          - "-c"
+          - "set -a && export GITLAB_READ_ONLY_MODE=\"${GITLAB_READ_ONLY_MODE:-true}\" && . /etc/hermes/creds/gitlab/cas-gitops.env && exec mcp-gitlab"
+      gitlab-from-the-lamp:
+        command: bash
+        args:
+          - "-c"
+          - "set -a && export GITLAB_READ_ONLY_MODE=\"${GITLAB_READ_ONLY_MODE:-true}\" && . /etc/hermes/creds/gitlab/from-the-lamp.env && exec mcp-gitlab"
+      github-xdata:
+        command: bash
+        args:
+          - "-c"
+          - "set -a && . /etc/hermes/creds/github/xdata.env && export GITHUB_PERSONAL_ACCESS_TOKEN=\"${GITHUB_PERSONAL_ACCESS_TOKEN:-$GH_TOKEN}\" && export GITHUB_TOOLSETS=\"${GITHUB_TOOLSETS:-all}\" && export GITHUB_READ_ONLY=\"${GITHUB_READ_ONLY:-1}\" && exec github-mcp-server stdio"
+      grafana-cas-dev:
+        command: bash
+        args:
+          - "-c"
+          - "set -a && export GRAFANA_DISABLE_WRITE=\"${GRAFANA_DISABLE_WRITE:-true}\" && . /etc/hermes/creds/grafana/cas-dev.env && exec mcp-grafana -t stdio -tls-skip-verify"
+      grafana-cas-gke-infra:
+        command: bash
+        args:
+          - "-c"
+          - "set -a && export GRAFANA_DISABLE_WRITE=\"${GRAFANA_DISABLE_WRITE:-true}\" && . /etc/hermes/creds/grafana/cas-gke-infra.env && exec mcp-grafana -t stdio -tls-skip-verify"
+      grafana-cas-sg:
+        command: bash
+        args:
+          - "-c"
+          - "set -a && export GRAFANA_DISABLE_WRITE=\"${GRAFANA_DISABLE_WRITE:-true}\" && . /etc/hermes/creds/grafana/cas-sg.env && exec mcp-grafana -t stdio -tls-skip-verify"
+      grafana-xdata-common:
+        command: bash
+        args:
+          - "-c"
+          - "set -a && export GRAFANA_DISABLE_WRITE=\"${GRAFANA_DISABLE_WRITE:-true}\" && . /etc/hermes/creds/grafana/xdata-common.env && exec mcp-grafana -t stdio -tls-skip-verify"
+      grafana-xdata-complycontrol:
+        command: bash
+        args:
+          - "-c"
+          - "set -a && export GRAFANA_DISABLE_WRITE=\"${GRAFANA_DISABLE_WRITE:-true}\" && . /etc/hermes/creds/grafana/xdata-complycontrol.env && exec mcp-grafana -t stdio -tls-skip-verify"
+      slack-cas:
+        command: bash
+        args:
+          - "-c"
+          - "set -a && export SLACK_MCP_USERS_CACHE=\"${SLACK_MCP_USERS_CACHE:-/opt/data/slack-cas-users.json}\" SLACK_MCP_CHANNELS_CACHE=\"${SLACK_MCP_CHANNELS_CACHE:-/opt/data/slack-cas-channels.json}\" && . /etc/hermes/creds/slack/cas.env && exec slack-mcp-server --transport stdio"
+      slack-xdata:
+        command: bash
+        args:
+          - "-c"
+          - "set -a && export SLACK_MCP_USERS_CACHE=\"${SLACK_MCP_USERS_CACHE:-/opt/data/slack-xdata-users.json}\" SLACK_MCP_CHANNELS_CACHE=\"${SLACK_MCP_CHANNELS_CACHE:-/opt/data/slack-xdata-channels.json}\" && . /etc/hermes/creds/slack/xdata.env && exec slack-mcp-server --transport stdio"
     terminal:
       backend: "local"
       cwd: "."
@@ -186,6 +251,35 @@ secrets:
   TRAVELPAYOUTS_TOKEN:
     key: hermes
     property: travelpayouts_token
+  # defi plugin (djinn-home/skills marketplace) on-chain scripts read these
+  # as plain process env vars - not MCP servers, so no secretFiles wrapper.
+  ETHERSCAN_API_KEY:
+    key: hermes
+    property: etherscan_api_key
+  ALCHEMY_API_KEY:
+    key: hermes
+    property: alchemy_api_key
+  THEGRAPH_API_KEY:
+    key: hermes
+    property: thegraph_api_key
+  ALCHEMY_RPC_ARB:
+    key: hermes
+    property: alchemy_rpc_arb
+  ALCHEMY_RPC_BASE:
+    key: hermes
+    property: alchemy_rpc_base
+  ALCHEMY_RPC_ETH:
+    key: hermes
+    property: alchemy_rpc_eth
+  ALCHEMY_NFT_BASE:
+    key: hermes
+    property: alchemy_nft_base
+  ALCHEMY_NFT_ETH:
+    key: hermes
+    property: alchemy_nft_eth
+  DEFI_WALLET:
+    key: hermes
+    property: defi_wallet
 
 secretFiles:
   google-sa.json:
@@ -213,6 +307,62 @@ secretFiles:
     property: oci_key_lamp_prod_1
     mountPath: /etc/hermes/.oci/lamp-prod-1.pem
 
+  # Multi-instance MCP creds (Jira, GitLab, GitHub, Grafana, Slack) - each
+  # server's mcp_servers entry above sources its own file directly rather
+  # than relying on inherited process env, matching cbox's wrapper pattern.
+  atlassian-cas.env:
+    key: hermes
+    property: atlassian_cas_env
+    mountPath: /etc/hermes/creds/atlassian/cas.env
+  atlassian-xdata.env:
+    key: hermes
+    property: atlassian_xdata_env
+    mountPath: /etc/hermes/creds/atlassian/xdata.env
+  gitlab-cas-dev.env:
+    key: hermes
+    property: gitlab_cas_dev_env
+    mountPath: /etc/hermes/creds/gitlab/cas-dev.env
+  gitlab-cas-gitops.env:
+    key: hermes
+    property: gitlab_cas_gitops_env
+    mountPath: /etc/hermes/creds/gitlab/cas-gitops.env
+  gitlab-from-the-lamp.env:
+    key: hermes
+    property: gitlab_from_the_lamp_env
+    mountPath: /etc/hermes/creds/gitlab/from-the-lamp.env
+  github-xdata.env:
+    key: hermes
+    property: github_xdata_env
+    mountPath: /etc/hermes/creds/github/xdata.env
+  grafana-cas-dev.env:
+    key: hermes
+    property: grafana_cas_dev_env
+    mountPath: /etc/hermes/creds/grafana/cas-dev.env
+  grafana-cas-gke-infra.env:
+    key: hermes
+    property: grafana_cas_gke_infra_env
+    mountPath: /etc/hermes/creds/grafana/cas-gke-infra.env
+  grafana-cas-sg.env:
+    key: hermes
+    property: grafana_cas_sg_env
+    mountPath: /etc/hermes/creds/grafana/cas-sg.env
+  grafana-xdata-common.env:
+    key: hermes
+    property: grafana_xdata_common_env
+    mountPath: /etc/hermes/creds/grafana/xdata-common.env
+  grafana-xdata-complycontrol.env:
+    key: hermes
+    property: grafana_xdata_complycontrol_env
+    mountPath: /etc/hermes/creds/grafana/xdata-complycontrol.env
+  slack-cas.env:
+    key: hermes
+    property: slack_cas_env
+    mountPath: /etc/hermes/creds/slack/cas.env
+  slack-xdata.env:
+    key: hermes
+    property: slack_xdata_env
+    mountPath: /etc/hermes/creds/slack/xdata.env
+
 extraEnv:
   TELEGRAM_ALLOWED_USERS: "306361331"
   GATEWAY_ALLOW_ALL_USERS: "false"
@@ -220,6 +370,9 @@ extraEnv:
   TELEGRAM_HOME_CHANNEL_NAME: "DM"
   # lets `oci` (once installed) find the mounted config without --config-file
   OCI_CLI_CONFIG_FILE: /etc/hermes/.oci/config
+  # defi plugin's DEFI_SA_KEY alias contract wants a file path, not raw JSON -
+  # point it at the same Google SA already mounted for the sheets MCP server.
+  DEFI_SA_KEY: /etc/hermes/google-sa.json
 
 externalSecrets:
   kind: ClusterSecretStore
