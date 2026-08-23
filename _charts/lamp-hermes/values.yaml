@@ -25,6 +25,19 @@ hermes:
 seedDotenv:
   enabled: true
 
+# Syncs the djinn-home/skills marketplace (full copy of xdatagroup/claude-marketplace,
+# rebranded xdatagroup -> djinn) onto the persistent skills/ dir on every pod start.
+# Hermes discovers skills via a recursive SKILL.md scan (rglob), so the marketplace's
+# nested plugins/<plugin>/skills/<skill>/SKILL.md layout works as-is - no flattening
+# needed. Re-uses the gitlab-from-the-lamp secretFile token, already mounted for the
+# gitlab-from-the-lamp MCP server, instead of a separate Vault property.
+skillsSync:
+  enabled: true
+  repo: https://gitlab.com/djinn-home/skills.git
+  ref: main
+  subdir: djinn-marketplace
+  tokenSecretFile: gitlab-from-the-lamp.env
+
 serviceAccount:
   create: true
   annotations: {}

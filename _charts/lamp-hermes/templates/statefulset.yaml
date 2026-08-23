@@ -28,8 +28,47 @@ spec:
       serviceAccountName: {{ include "hermes.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
-      {{- if .Values.seedDotenv.enabled }}
+      {{- if or .Values.seedDotenv.enabled .Values.skillsSync.enabled }}
       initContainers:
+        {{- if .Values.skillsSync.enabled }}
+        - name: sync-skills
+          image: "{{ .Values.image.name }}{{ if hasPrefix "sha256:" .Values.image.tag }}@{{ else }}:{{ end }}{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command:
+            - sh
+            - -c
+            - |
+              set -eu
+              dest="{{ .Values.hermes.home }}/skills/{{ .Values.skillsSync.subdir }}"
+              token_file="/etc/hermes/creds-all/{{ .Values.skillsSync.tokenSecretFile }}"
+              token=""
+              if [ -f "$token_file" ]; then
+                token=$(grep '^GITLAB_TOKEN=' "$token_file" | head -1 | cut -d= -f2-)
+              fi
+              repo_url="{{ .Values.skillsSync.repo }}"
+              if [ -n "$token" ]; then
+                repo_url=$(printf '%s' "$repo_url" | sed "s#https://#https://oauth2:${token}@#")
+              fi
+              mkdir -p "$(dirname "$dest")"
+              if [ -d "$dest/.git" ]; then
+                git -C "$dest" remote set-url origin "$repo_url"
+                git -C "$dest" fetch --depth 1 origin "{{ .Values.skillsSync.ref }}"
+                git -C "$dest" reset --hard "origin/{{ .Values.skillsSync.ref }}"
+              else
+                rm -rf "$dest"
+                git clone --depth 1 --branch "{{ .Values.skillsSync.ref }}" "$repo_url" "$dest"
+              fi
+              rm -rf "$dest/.git"
+              chown -R {{ .Values.hermes.uid }}:{{ .Values.hermes.gid }} "$dest"
+          volumeMounts:
+            - name: data
+              mountPath: {{ .Values.hermes.home }}
+              subPath: {{ .Values.persistence.subPath }}
+            - name: secret-files
+              mountPath: /etc/hermes/creds-all
+              readOnly: true
+        {{- end }}
+        {{- if .Values.seedDotenv.enabled }}
         - name: seed-dotenv
           image: "{{ .Values.image.name }}{{ if hasPrefix "sha256:" .Values.image.tag }}@{{ else }}:{{ end }}{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
@@ -63,6 +102,7 @@ spec:
             - name: env-secret
               mountPath: /run/hermes-env
               readOnly: true
+        {{- end }}
       {{- end }}
       containers:
         - name: hermes
