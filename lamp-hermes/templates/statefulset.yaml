@@ -28,38 +28,8 @@ spec:
       serviceAccountName: {{ include "hermes.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
-      {{- if or .Values.seedDotenv.enabled .Values.skillsSync.enabled .Values.gkeSync.enabled }}
+      {{- if or .Values.seedDotenv.enabled .Values.skillsSync.enabled }}
       initContainers:
-        {{- if .Values.gkeSync.enabled }}
-        - name: setup-gke
-          image: "{{ .Values.image.name }}{{ if hasPrefix "sha256:" .Values.image.tag }}@{{ else }}:{{ end }}{{ .Values.image.tag }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
-          command:
-            - sh
-            - -c
-            - |
-              set -eu
-              export GOOGLE_APPLICATION_CREDENTIALS=/etc/hermes/gcp/{{ .Values.gkeSync.saKeySecretFile }}
-              export KUBECONFIG={{ .Values.hermes.home }}/.kube/config
-              mkdir -p "$(dirname "$KUBECONFIG")"
-              gcloud auth activate-service-account --key-file="$GOOGLE_APPLICATION_CREDENTIALS" --quiet
-              {{- range .Values.gkeSync.clusters }}
-              gcloud container clusters get-credentials {{ .name }} --zone {{ .zone }} --project {{ .project }} --quiet
-              {{- end }}
-              # gcloud writes an exec block with no explicit credential source, relying
-              # on whatever gcloud session is ambient at kubectl-call time. Pin it to
-              # this SA key explicitly so the kubeconfig is self-contained.
-              yq -i '(.users[].user.exec.env) = [{"name":"GOOGLE_APPLICATION_CREDENTIALS","value":strenv(GOOGLE_APPLICATION_CREDENTIALS)}]' "$KUBECONFIG"
-              chown -R {{ .Values.hermes.uid }}:{{ .Values.hermes.gid }} "$(dirname "$KUBECONFIG")"
-          volumeMounts:
-            - name: data
-              mountPath: {{ .Values.hermes.home }}
-              subPath: {{ .Values.persistence.subPath }}
-            - name: secret-files
-              mountPath: /etc/hermes/gcp/{{ .Values.gkeSync.saKeySecretFile }}
-              subPath: {{ .Values.gkeSync.saKeySecretFile }}
-              readOnly: true
-        {{- end }}
         {{- if .Values.skillsSync.enabled }}
         - name: sync-skills
           image: "{{ .Values.image.name }}{{ if hasPrefix "sha256:" .Values.image.tag }}@{{ else }}:{{ end }}{{ .Values.image.tag }}"
