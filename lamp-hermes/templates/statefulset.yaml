@@ -48,6 +48,11 @@ spec:
               # already via an incautious `git remote -v`) - and .git now survives
               # (see below) so Hermes itself can pull/commit/push skill edits.
               cred_helper='!f() { echo username=oauth2; set -a; . "'"$token_file"'" 2>/dev/null; set +a; echo password="$GITLAB_TOKEN"; }; f'
+              # This init container runs as root, but $dest ends up owned by
+              # the hermes uid/gid after the chown below - without this, git's
+              # dubious-ownership check rejects every `-C "$dest"` call on the
+              # next restart with "fatal: not in a git directory".
+              git config --global --add safe.directory "$dest"
               mkdir -p "$(dirname "$dest")"
               if [ -d "$dest/.git" ]; then
                 git -C "$dest" config credential.helper "$cred_helper"
