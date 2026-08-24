@@ -1,20 +1,28 @@
-include:
-  - project: from-the-lamp/infra/ci-cd-includes
-    file: functions/build_and_push_docker.yml
-
 stages:
   - Build
   - Update
 
 Build:Docker:
-  extends: .build
+  stage: Build
+  image: docker:27-cli
+  services:
+    - docker:27-dind
+  variables:
+    DOCKER_HOST: tcp://docker:2376
+    DOCKER_TLS_CERTDIR: "/certs"
+    DOCKER_TLS_VERIFY: "1"
+    DOCKER_CERT_PATH: "/certs/client"
   rules:
     - changes:
         - Dockerfile
     - if: $CI_PIPELINE_SOURCE == "web"
+  script:
+    - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin "$CI_REGISTRY"
+    - docker build -t $CI_REGISTRY_IMAGE:latest .
+    - docker push $CI_REGISTRY_IMAGE:latest
 
 Build:Helm:
-  image: registry.gitlab.com/from-the-lamp/infra/argo-apps:latest
+  image: $CI_REGISTRY_IMAGE:latest
   stage: Build
   allow_failure: true
   rules:
@@ -34,5 +42,4 @@ Build:Helm:
     - task auth
     - task list:changed
     - task lint:changed
-    - task build:changed
-    - task push:changed
+    - task build:push:changed
