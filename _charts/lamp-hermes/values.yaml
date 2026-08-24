@@ -134,6 +134,16 @@ config:
         args:
           - "-c"
           - "set -a && export SLACK_MCP_USERS_CACHE=\"${SLACK_MCP_USERS_CACHE:-/opt/data/slack-xdata-users.json}\" SLACK_MCP_CHANNELS_CACHE=\"${SLACK_MCP_CHANNELS_CACHE:-/opt/data/slack-xdata-channels.json}\" && . /etc/hermes/creds/slack/xdata.env && exec slack-mcp-server --transport stdio"
+      # ai-agent-viewer-xdata SA: viewer on GCP resources + K8s viewer RBAC on
+      # common-dev/common-infra (GKE, private control-plane endpoints - cross-
+      # cloud reachability from OCI unverified as of this writing). Static
+      # service-account auth, mirrors the same wrapper cbox's mcp-config
+      # generator uses, instead of an interactive human gcloud session.
+      gcloud:
+        command: bash
+        args:
+          - "-c"
+          - "export GOOGLE_APPLICATION_CREDENTIALS=/etc/hermes/gcp/ai-agent-viewer-xdata.json && gcloud auth activate-service-account --key-file=\"$GOOGLE_APPLICATION_CREDENTIALS\" --quiet >/dev/null 2>&1; exec gcloud-mcp"
     terminal:
       backend: "local"
       cwd: "."
@@ -375,6 +385,14 @@ secretFiles:
     key: hermes
     property: slack_xdata_env
     mountPath: /etc/hermes/creds/slack/xdata.env
+
+  # Separate Vault secret: the "hermes" secret is already near OCI Vault's
+  # 25600-char content ceiling, and this key is unrelated to the rest anyway
+  # (same pattern as litellm-image-pull staying its own entry in lamp-litellm).
+  ai-agent-viewer-xdata.json:
+    key: hermes-gcp
+    property: gcp_viewer_xdata_json
+    mountPath: /etc/hermes/gcp/ai-agent-viewer-xdata.json
 
 extraEnv:
   TELEGRAM_ALLOWED_USERS: "306361331"
