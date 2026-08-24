@@ -40,36 +40,40 @@ spec:
             - |
               set -eu
               dest="{{ .Values.hermes.home }}/skills/{{ .Values.skillsSync.subdir }}"
-              token_file="/etc/hermes/creds-all/{{ .Values.skillsSync.tokenSecretFile }}"
-              # GITLAB_TOKEN in this file is `${GITLAB_PERSONAL_ACCESS_TOKEN}` - a
-              # reference resolved only by sourcing the file, not a literal value.
-              # A flat grep/cut read would capture that placeholder unexpanded.
-              if [ -f "$token_file" ]; then
-                set -a
-                . "$token_file"
-                set +a
-              fi
+              token_file="/etc/hermes/creds/gitlab/from-the-lamp.env"
               repo_url="{{ .Values.skillsSync.repo }}"
-              if [ -n "${GITLAB_TOKEN:-}" ]; then
-                repo_url=$(printf '%s' "$repo_url" | sed "s#https://#https://oauth2:${GITLAB_TOKEN}@#")
-              fi
+              # Credential helper reads GITLAB_TOKEN from the mounted secret at
+              # git-invocation time instead of embedding it in the remote URL, so
+              # the token never sits in .git/config in plaintext (that leaked once
+              # already via an incautious `git remote -v`) - and .git now survives
+              # (see below) so Hermes itself can pull/commit/push skill edits.
+              cred_helper='!f() { echo username=oauth2; set -a; . "'"$token_file"'" 2>/dev/null; set +a; echo password="$GITLAB_TOKEN"; }; f'
               mkdir -p "$(dirname "$dest")"
               if [ -d "$dest/.git" ]; then
-                git -C "$dest" remote set-url origin "$repo_url"
-                git -C "$dest" fetch --depth 1 origin "{{ .Values.skillsSync.ref }}"
-                git -C "$dest" reset --hard "origin/{{ .Values.skillsSync.ref }}"
+                git -C "$dest" config credential.helper "$cred_helper"
+                git -C "$dest" config user.name "Hermes"
+                git -C "$dest" config user.email "hermes@djinn-home"
+                # Only fast-forward: never clobber commits Hermes made itself but
+                # hasn't pushed yet, or edits it's mid-way through.
+                if git -C "$dest" diff --quiet && git -C "$dest" diff --cached --quiet; then
+                  git -c credential.helper="$cred_helper" -C "$dest" fetch origin "{{ .Values.skillsSync.ref }}"
+                  git -C "$dest" merge --ff-only "origin/{{ .Values.skillsSync.ref }}" || true
+                fi
               else
                 rm -rf "$dest"
-                git clone --depth 1 --branch "{{ .Values.skillsSync.ref }}" "$repo_url" "$dest"
+                git -c credential.helper="$cred_helper" clone --branch "{{ .Values.skillsSync.ref }}" "$repo_url" "$dest"
+                git -C "$dest" config credential.helper "$cred_helper"
+                git -C "$dest" config user.name "Hermes"
+                git -C "$dest" config user.email "hermes@djinn-home"
               fi
-              rm -rf "$dest/.git"
               chown -R {{ .Values.hermes.uid }}:{{ .Values.hermes.gid }} "$dest"
           volumeMounts:
             - name: data
               mountPath: {{ .Values.hermes.home }}
               subPath: {{ .Values.persistence.subPath }}
             - name: secret-files
-              mountPath: /etc/hermes/creds-all
+              mountPath: /etc/hermes/creds/gitlab/from-the-lamp.env
+              subPath: gitlab-from-the-lamp.env
               readOnly: true
         {{- end }}
         {{- if .Values.seedDotenv.enabled }}
