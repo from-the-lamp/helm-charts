@@ -3,9 +3,9 @@ version: '3'
 dotenv: [.env]
 vars:
   CHART_DIRS:
-    sh: find ./_charts -type f -name "Chart.yaml" -exec dirname {} \; | sed 's|^\./||' | tr '\n' ' '
+    sh: find . -type f -name "Chart.yaml" -not -path "./.git/*" -exec dirname {} \; | sed 's|^\./||' | tr '\n' ' '
   CHANGED_CHART_DIRS:
-    sh: git diff --name-only HEAD~1 | grep 'Chart.yaml$' | xargs -n1 dirname | grep '^_charts' | sort -u | tr '\n' ' '
+    sh: git diff --name-only HEAD~1 | grep 'Chart.yaml$' | xargs -n1 dirname | sort -u | tr '\n' ' '
 
 includes:
   build:

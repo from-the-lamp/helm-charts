@@ -42,14 +42,14 @@ tasks:
     cmds:
       - mkdir -p .output
       - |
-        find _charts -name Chart.yaml | while read f; do 
+        find . -name Chart.yaml -not -path './.git/*' | while read f; do
           yq . "$f" | jq --arg p "$f" '. + {path: $p}'
         done | jq -s '.' > .output/charts.json
       - gomplate -d charts=.output/charts.json -f .tasks/README.md.gotmpl -o README.md
     sources:
-      - _charts/**/Chart.yaml
-      - _charts/**/NOTES.txt
-      - _charts/**/NOTES.md
+      - lamp-*/**/Chart.yaml
+      - lamp-*/**/NOTES.txt
+      - lamp-*/**/NOTES.md
       - README.md.gotmpl
     generates:
       - README.md

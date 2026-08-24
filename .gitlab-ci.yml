@@ -27,7 +27,7 @@ Build:Helm:
   allow_failure: true
   rules:
     - changes:
-        - _charts/**/*
+        - lamp-*/**/*
         - Taskfile.yml
         - .tasks/**/*
         - .env.example
