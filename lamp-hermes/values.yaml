@@ -69,68 +69,95 @@ config:
         command: mcp-google-sheets
         env:
           SERVICE_ACCOUNT_PATH: /etc/hermes/google-sa.json
+          MISE_DATA_DIR: /opt/tools/mise
       atlassian-cas:
         command: bash
+        env:
+          MISE_DATA_DIR: /opt/tools/mise
         args:
           - "-c"
           - "set -a && export READ_ONLY_MODE=\"${READ_ONLY_MODE:-true}\" && . /etc/hermes/creds/atlassian/cas.env && exec mcp-atlassian"
       atlassian-xdata:
         command: bash
+        env:
+          MISE_DATA_DIR: /opt/tools/mise
         args:
           - "-c"
           - "set -a && export READ_ONLY_MODE=\"${READ_ONLY_MODE:-true}\" && . /etc/hermes/creds/atlassian/xdata.env && exec mcp-atlassian"
       gitlab-cas-dev:
         command: bash
+        env:
+          MISE_DATA_DIR: /opt/tools/mise
         args:
           - "-c"
           - "set -a && export GITLAB_READ_ONLY_MODE=\"${GITLAB_READ_ONLY_MODE:-true}\" && . /etc/hermes/creds/gitlab/cas-dev.env && exec mcp-gitlab"
       gitlab-cas-gitops:
         command: bash
+        env:
+          MISE_DATA_DIR: /opt/tools/mise
         args:
           - "-c"
           - "set -a && export GITLAB_READ_ONLY_MODE=\"${GITLAB_READ_ONLY_MODE:-true}\" && . /etc/hermes/creds/gitlab/cas-gitops.env && exec mcp-gitlab"
       gitlab-from-the-lamp:
         command: bash
+        env:
+          MISE_DATA_DIR: /opt/tools/mise
         args:
           - "-c"
           - "set -a && export GITLAB_READ_ONLY_MODE=\"${GITLAB_READ_ONLY_MODE:-true}\" && . /etc/hermes/creds/gitlab/from-the-lamp.env && exec mcp-gitlab"
       github-xdata:
         command: bash
+        env:
+          MISE_DATA_DIR: /opt/tools/mise
         args:
           - "-c"
           - "set -a && . /etc/hermes/creds/github/xdata.env && export GITHUB_PERSONAL_ACCESS_TOKEN=\"${GITHUB_PERSONAL_ACCESS_TOKEN:-$GH_TOKEN}\" && export GITHUB_TOOLSETS=\"${GITHUB_TOOLSETS:-all}\" && export GITHUB_READ_ONLY=\"${GITHUB_READ_ONLY:-1}\" && exec github-mcp-server stdio"
       grafana-cas-dev:
         command: bash
+        env:
+          MISE_DATA_DIR: /opt/tools/mise
         args:
           - "-c"
           - "set -a && export GRAFANA_DISABLE_WRITE=\"${GRAFANA_DISABLE_WRITE:-true}\" && . /etc/hermes/creds/grafana/cas-dev.env && exec mcp-grafana -t stdio -tls-skip-verify"
       grafana-cas-gke-infra:
         command: bash
+        env:
+          MISE_DATA_DIR: /opt/tools/mise
         args:
           - "-c"
           - "set -a && export GRAFANA_DISABLE_WRITE=\"${GRAFANA_DISABLE_WRITE:-true}\" && . /etc/hermes/creds/grafana/cas-gke-infra.env && exec mcp-grafana -t stdio -tls-skip-verify"
       grafana-cas-sg:
         command: bash
+        env:
+          MISE_DATA_DIR: /opt/tools/mise
         args:
           - "-c"
           - "set -a && export GRAFANA_DISABLE_WRITE=\"${GRAFANA_DISABLE_WRITE:-true}\" && . /etc/hermes/creds/grafana/cas-sg.env && exec mcp-grafana -t stdio -tls-skip-verify"
       grafana-xdata-common:
         command: bash
+        env:
+          MISE_DATA_DIR: /opt/tools/mise
         args:
           - "-c"
           - "set -a && export GRAFANA_DISABLE_WRITE=\"${GRAFANA_DISABLE_WRITE:-true}\" && . /etc/hermes/creds/grafana/xdata-common.env && exec mcp-grafana -t stdio -tls-skip-verify"
       grafana-xdata-complycontrol:
         command: bash
+        env:
+          MISE_DATA_DIR: /opt/tools/mise
         args:
           - "-c"
           - "set -a && export GRAFANA_DISABLE_WRITE=\"${GRAFANA_DISABLE_WRITE:-true}\" && . /etc/hermes/creds/grafana/xdata-complycontrol.env && exec mcp-grafana -t stdio -tls-skip-verify"
       slack-cas:
         command: bash
+        env:
+          MISE_DATA_DIR: /opt/tools/mise
         args:
           - "-c"
           - "set -a && export SLACK_MCP_USERS_CACHE=\"${SLACK_MCP_USERS_CACHE:-/opt/data/slack-cas-users.json}\" SLACK_MCP_CHANNELS_CACHE=\"${SLACK_MCP_CHANNELS_CACHE:-/opt/data/slack-cas-channels.json}\" && . /etc/hermes/creds/slack/cas.env && exec slack-mcp-server --transport stdio"
       slack-xdata:
         command: bash
+        env:
+          MISE_DATA_DIR: /opt/tools/mise
         args:
           - "-c"
           - "set -a && export SLACK_MCP_USERS_CACHE=\"${SLACK_MCP_USERS_CACHE:-/opt/data/slack-xdata-users.json}\" SLACK_MCP_CHANNELS_CACHE=\"${SLACK_MCP_CHANNELS_CACHE:-/opt/data/slack-xdata-channels.json}\" && . /etc/hermes/creds/slack/xdata.env && exec slack-mcp-server --transport stdio"
@@ -140,6 +167,8 @@ config:
       # human gcloud session.
       gcloud:
         command: bash
+        env:
+          MISE_DATA_DIR: /opt/tools/mise
         args:
           - "-c"
           - "export GOOGLE_APPLICATION_CREDENTIALS=/etc/hermes/gcp/ai-agent-viewer-xdata.json && gcloud auth activate-service-account --key-file=\"$GOOGLE_APPLICATION_CREDENTIALS\" --quiet >/dev/null 2>&1; exec gcloud-mcp"
@@ -149,6 +178,8 @@ config:
       # subprocess's own env. No live `gcloud get-credentials` at pod start.
       kubernetes:
         command: bash
+        env:
+          MISE_DATA_DIR: /opt/tools/mise
         args:
           - "-c"
           - "export KUBECONFIG=/etc/hermes/kube/common-dev.yaml:/etc/hermes/kube/common-infra.yaml && exec kubernetes-mcp-server --read-only --list-output table"
