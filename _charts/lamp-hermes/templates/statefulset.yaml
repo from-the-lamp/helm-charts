@@ -41,13 +41,17 @@ spec:
               set -eu
               dest="{{ .Values.hermes.home }}/skills/{{ .Values.skillsSync.subdir }}"
               token_file="/etc/hermes/creds-all/{{ .Values.skillsSync.tokenSecretFile }}"
-              token=""
+              # GITLAB_TOKEN in this file is `${GITLAB_PERSONAL_ACCESS_TOKEN}` - a
+              # reference resolved only by sourcing the file, not a literal value.
+              # A flat grep/cut read would capture that placeholder unexpanded.
               if [ -f "$token_file" ]; then
-                token=$(grep '^GITLAB_TOKEN=' "$token_file" | head -1 | cut -d= -f2-)
+                set -a
+                . "$token_file"
+                set +a
               fi
               repo_url="{{ .Values.skillsSync.repo }}"
-              if [ -n "$token" ]; then
-                repo_url=$(printf '%s' "$repo_url" | sed "s#https://#https://oauth2:${token}@#")
+              if [ -n "${GITLAB_TOKEN:-}" ]; then
+                repo_url=$(printf '%s' "$repo_url" | sed "s#https://#https://oauth2:${GITLAB_TOKEN}@#")
               fi
               mkdir -p "$(dirname "$dest")"
               if [ -d "$dest/.git" ]; then
