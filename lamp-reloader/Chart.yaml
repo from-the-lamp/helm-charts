@@ -1,10 +1,10 @@
 apiVersion: v2
 name: lamp-reloader
-version: 0.0.5
+version: 0.0.6
 
 dependencies:
   - name: reloader
-    version: 2.2.11
+    version: 2.2.16
     repository: https://stakater.github.io/stakater-charts
 
 annotations:
