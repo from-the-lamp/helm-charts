@@ -242,10 +242,14 @@ service:
   annotations: {}
 
 resources:
-  limits: {}
+  limits:
+    cpu: 1000m
+    memory: 2560Mi
   requests:
-    memory: 10Mi
-    cpu: 10m
+    memory: 1280Mi
+    cpu: 200m
+
+priorityClassName: hermes-critical
 
 nodeSelector: {}
 tolerations: []

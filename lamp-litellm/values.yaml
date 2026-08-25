@@ -104,9 +104,10 @@ litellm-helm:
 
   resources:
     requests:
-      cpu: 250m
-      memory: 512Mi
+      cpu: 100m
+      memory: 1280Mi
     limits:
+      cpu: 750m
       memory: 3Gi
 
   proxyConfigMap:

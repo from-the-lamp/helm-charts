@@ -1,0 +1,10 @@
+{{- if .Values.priorityClassName }}
+apiVersion: scheduling.k8s.io/v1
+kind: PriorityClass
+metadata:
+  name: {{ .Values.priorityClassName }}
+value: 1000000
+preemptionPolicy: PreemptLowerPriority
+globalDefault: false
+description: Protects the hermes pod from eviction/OOM ahead of best-effort workloads on the same node.
+{{- end }}
