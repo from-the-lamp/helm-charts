@@ -1,8 +1,8 @@
 apiVersion: v2
 name: lamp-kestra
-version: 0.0.1
+version: 0.1.0
 
 dependencies:
   - name: kestra
-    version: 1.0.53
+    version: 1.3.37
     repository: https://helm.kestra.io
