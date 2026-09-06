@@ -1,0 +1,28 @@
+{{- if .Values.mcp.kubernetes.enabled }}
+{{- $serviceAccounts := list }}
+{{- range $item := .Values.mcp.kubernetes.mcps }}
+{{- if and $item.serviceAccount (not $item.kubeconfig) (not $item.connectGateway) }}
+{{- $serviceAccounts = append $serviceAccounts $item.serviceAccount }}
+{{- end }}
+{{- end }}
+{{- range $sa := uniq $serviceAccounts }}
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ $sa }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ $sa }}-view
+subjects:
+  - kind: ServiceAccount
+    name: {{ $sa }}
+    namespace: {{ $.Release.Namespace }}
+roleRef:
+  kind: ClusterRole
+  name: view
+  apiGroup: rbac.authorization.k8s.io
+{{- end }}
+{{- end }}

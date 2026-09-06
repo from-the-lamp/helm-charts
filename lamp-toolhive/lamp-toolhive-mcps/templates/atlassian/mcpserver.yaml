@@ -1,0 +1,31 @@
+{{- if .Values.mcp.atlassian.enabled }}
+{{- range $item := .Values.mcp.atlassian.mcps }}
+---
+apiVersion: toolhive.stacklok.dev/v1beta1
+kind: MCPServer
+metadata:
+  name: {{ $item.name }}
+spec:
+  image: {{ $.Values.mcp.atlassian.image }}
+  transport: stdio
+  groupRef:
+    name: {{ $item.groupRef | default $.Values.mcp.defaults.groupRef }}
+  permissionProfile:
+    type: builtin
+    name: {{ $.Values.mcp.defaults.permissionProfile }}
+  audit:
+    enabled: true
+  env:
+    - name: ATLASSIAN_DOMAIN
+      value: {{ $item.domain }}
+    - name: ATLASSIAN_EMAIL
+      value: {{ $item.email }}
+    {{- with $item.env }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  secrets:
+    - name: {{ $item.name }}-mcp-secret
+      key: api-token
+      targetEnvName: ATLASSIAN_API_TOKEN
+{{- end }}
+{{- end }}

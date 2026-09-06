@@ -1,0 +1,59 @@
+{{- if .Values.mcp.victoriametrics.enabled }}
+{{- range $item := .Values.mcp.victoriametrics.mcps }}
+---
+apiVersion: toolhive.stacklok.dev/v1beta1
+kind: MCPServer
+metadata:
+  name: {{ $item.name }}
+spec:
+  image: {{ $.Values.mcp.victoriametrics.image }}
+  transport: stdio
+  groupRef:
+    name: {{ $item.groupRef | default $.Values.mcp.defaults.groupRef }}
+  permissionProfile:
+    type: builtin
+    name: {{ $.Values.mcp.defaults.permissionProfile }}
+  audit:
+    enabled: true
+  {{- with $item.toolConfig }}
+  toolConfigRef:
+    name: {{ $item.name }}-tool-config
+  {{- end }}
+  env:
+    - name: MCP_SERVER_MODE
+      value: stdio
+    - name: VM_INSTANCE_ENTRYPOINT
+      value: {{ $item.entrypoint }}
+    - name: VM_INSTANCE_TYPE
+      value: {{ $item.instanceType | default "cluster" }}
+    {{- if $item.bearerToken }}
+    - name: VM_INSTANCE_BEARER_TOKEN
+      value: {{ $item.bearerToken | quote }}
+    {{- end }}
+    {{- with $item.env }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- if not $item.bearerToken }}
+  secrets:
+    - name: {{ $item.name }}-mcp-secret
+      key: bearer-token
+      targetEnvName: VM_INSTANCE_BEARER_TOKEN
+  {{- end }}
+  {{- with $item.toolConfig }}
+---
+apiVersion: toolhive.stacklok.dev/v1beta1
+kind: MCPToolConfig
+metadata:
+  name: {{ $item.name }}-tool-config
+spec:
+  {{- with .toolsFilter }}
+  toolsFilter:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- with .toolsOverride }}
+  toolsOverride:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- end }}
+{{- end }}
+{{- end }}

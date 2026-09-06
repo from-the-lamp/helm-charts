@@ -1,0 +1,50 @@
+{{- if .Values.mcp.kubernetes.enabled }}
+{{- range $item := .Values.mcp.kubernetes.mcps }}
+{{- if $item.connectGateway }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ $item.name }}-kubeconfig
+data:
+  config: |
+    apiVersion: v1
+    kind: Config
+    current-context: connect-gateway
+    clusters:
+      - cluster:
+          server: https://connectgateway.googleapis.com/v1/projects/{{ $item.connectGateway.fleetProjectNumber }}/locations/global/gkeMemberships/{{ $item.connectGateway.membershipName }}
+        name: connect-gateway
+    users:
+      - name: connect-gateway-user
+        user:
+          exec:
+            apiVersion: client.authentication.k8s.io/v1beta1
+            command: /etc/toolhive/kubeconfig/get-token.sh
+            interactiveMode: Never
+    contexts:
+      - name: connect-gateway
+        context:
+          cluster: connect-gateway
+          user: connect-gateway-user
+          namespace: default
+  get-token.sh: |
+    #!/bin/sh
+    set -eu
+    response="$(curl -sf -H 'Metadata-Flavor: Google' 'http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token')"
+    token="$(echo "$response" | grep -o '"access_token":"[^"]*"' | cut -d'"' -f4)"
+    expires_in="$(echo "$response" | grep -o '"expires_in":[0-9]*' | cut -d: -f2)"
+    expiry="$(date -u -d "+${expires_in} seconds" +%Y-%m-%dT%H:%M:%SZ)"
+    cat <<EOF
+    {
+      "apiVersion": "client.authentication.k8s.io/v1beta1",
+      "kind": "ExecCredential",
+      "status": {
+        "token": "${token}",
+        "expirationTimestamp": "${expiry}"
+      }
+    }
+    EOF
+{{- end }}
+{{- end }}
+{{- end }}

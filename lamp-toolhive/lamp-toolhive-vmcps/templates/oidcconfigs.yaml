@@ -1,0 +1,11 @@
+{{- range .Values.oidcConfigs }}
+---
+apiVersion: toolhive.stacklok.dev/v1beta1
+kind: MCPOIDCConfig
+metadata:
+  name: {{ .name }}
+spec:
+  type: inline
+  inline:
+    issuer: {{ .issuer }}
+{{- end }}

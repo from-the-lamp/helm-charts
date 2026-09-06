@@ -1,0 +1,8 @@
+toolhive-operator-crds:
+  crds:
+    install: false
+
+toolhive-operator:
+  operator:
+    nodeSelector:
+      role: worker

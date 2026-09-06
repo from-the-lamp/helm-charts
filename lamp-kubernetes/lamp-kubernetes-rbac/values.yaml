@@ -1,0 +1,38 @@
+roles: []
+  # - name: example-reader
+  #   namespace: product-example # default: release namespace
+  #   rules:
+  #   - apiGroups: [""]
+  #     resources: ["pods", "pods/log"]
+  #     verbs: ["get", "list", "watch"]
+
+clusterRoles: []
+  # - name: example-node-reader
+  #   rules:
+  #   - apiGroups: [""]
+  #     resources: ["nodes"]
+  #     verbs: ["get", "list", "watch"]
+
+roleBindings: []
+  # - name: example-reader
+  #   namespace: product-example # default: release namespace
+  #   roleRef:
+  #     kind: Role # Role | ClusterRole, default: Role
+  #     name: example-reader
+  #   subjects:
+  #   - kind: Group # Group | User | ServiceAccount
+  #     name: developers@example.com
+  #   - kind: ServiceAccount
+  #     name: example-sa
+  #     namespace: product-example # default: binding namespace
+
+clusterRoleBindings: []
+  # - name: example-node-reader
+  #   roleRef:
+  #     name: example-node-reader
+  #   subjects:
+  #   - kind: Group
+  #     name: developers@example.com
+  #   - kind: ServiceAccount
+  #     name: example-sa
+  #     namespace: product-example # required for ServiceAccount

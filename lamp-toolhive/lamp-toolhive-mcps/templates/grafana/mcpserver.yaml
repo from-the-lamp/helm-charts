@@ -1,0 +1,65 @@
+{{- if .Values.mcp.grafana.enabled }}
+{{- range $item := .Values.mcp.grafana.mcps }}
+---
+apiVersion: toolhive.stacklok.dev/v1beta1
+kind: MCPServer
+metadata:
+  name: {{ $item.name }}
+spec:
+  image: {{ $.Values.mcp.grafana.image }}
+  transport: stdio
+  args:
+    - "-t"
+    - "stdio"
+  groupRef:
+    name: {{ $item.groupRef | default $.Values.mcp.defaults.groupRef }}
+  permissionProfile:
+    type: builtin
+    name: {{ $.Values.mcp.defaults.permissionProfile }}
+  audit:
+    enabled: true
+  {{- with $item.toolConfig }}
+  toolConfigRef:
+    name: {{ $item.name }}-tool-config
+  {{- end }}
+  env:
+    - name: GRAFANA_URL
+      value: {{ $item.url }}
+    - name: GRAFANA_SERVICE_ACCOUNT_TOKEN_FILE
+      value: /etc/toolhive/grafana/token
+    {{- with $item.env }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  podTemplateSpec:
+    spec:
+      containers:
+        - name: mcp
+          volumeMounts:
+            - name: grafana-token
+              mountPath: /etc/toolhive/grafana
+              readOnly: true
+      volumes:
+        - name: grafana-token
+          secret:
+            secretName: {{ $item.name }}-mcp-secret
+            items:
+              - key: token
+                path: token
+  {{- with $item.toolConfig }}
+---
+apiVersion: toolhive.stacklok.dev/v1beta1
+kind: MCPToolConfig
+metadata:
+  name: {{ $item.name }}-tool-config
+spec:
+  {{- with .toolsFilter }}
+  toolsFilter:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- with .toolsOverride }}
+  toolsOverride:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- end }}
+{{- end }}
+{{- end }}

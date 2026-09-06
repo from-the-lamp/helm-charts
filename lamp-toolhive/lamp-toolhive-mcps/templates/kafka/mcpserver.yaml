@@ -1,0 +1,65 @@
+{{- if .Values.mcp.kafka.enabled }}
+{{- range $item := .Values.mcp.kafka.mcps }}
+---
+apiVersion: toolhive.stacklok.dev/v1beta1
+kind: MCPServer
+metadata:
+  name: {{ $item.name }}
+spec:
+  image: {{ $.Values.mcp.kafka.image }}
+  transport: stdio
+  groupRef:
+    name: {{ $item.groupRef | default $.Values.mcp.defaults.groupRef }}
+  permissionProfile:
+    type: builtin
+    name: {{ $.Values.mcp.defaults.permissionProfile }}
+  audit:
+    enabled: true
+  {{- with $item.toolConfig }}
+  toolConfigRef:
+    name: {{ $item.name }}-tool-config
+  {{- end }}
+  podTemplateSpec:
+    spec:
+      containers:
+        - name: mcp
+          env:
+            - name: KAFKA_BROKERS
+              value: {{ $item.brokers }}
+            - name: KAFKA_CLIENT_ID
+              value: {{ $item.name }}
+            - name: KAFKA_SASL_MECHANISM
+              value: scram-sha-512
+            - name: KAFKA_SASL_USER
+              value: {{ $item.user }}
+            - name: KAFKA_SASL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $item.name }}-mcp-secret
+                  key: password
+            - name: KAFKA_TLS_ENABLE
+              value: "true"
+            - name: KAFKA_TLS_INSECURE_SKIP_VERIFY
+              value: "true"
+  {{- with $item.env }}
+  env:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- with $item.toolConfig }}
+---
+apiVersion: toolhive.stacklok.dev/v1beta1
+kind: MCPToolConfig
+metadata:
+  name: {{ $item.name }}-tool-config
+spec:
+  {{- with .toolsFilter }}
+  toolsFilter:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- with .toolsOverride }}
+  toolsOverride:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- end }}
+{{- end }}
+{{- end }}

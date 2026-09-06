@@ -8,6 +8,8 @@ metadata:
     reloader.stakater.com/auto: "true"
 spec:
   replicas: 1
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       app: litellm-codex-{{ .name }}
@@ -30,7 +32,9 @@ spec:
               containerPort: 4000
           env:
             - name: CODEX_AUTH_FILE
-              value: /etc/litellm/auth.json
+              value: /var/lib/litellm/codex-auth/auth.json
+            - name: CODEX_AUTH_BOOTSTRAP_FILE
+              value: /etc/litellm/auth.json.bootstrap
             - name: OPENAI_API_KEY
               value: sk-litellm-codex-placeholder
             - name: PROXY_MASTER_KEY
@@ -55,18 +59,23 @@ spec:
           resources:
             {{- toYaml $.Values.resources | nindent 12 }}
           volumeMounts:
-            - name: codex-auth
-              mountPath: /etc/litellm/auth.json
+            - name: codex-auth-bootstrap
+              mountPath: /etc/litellm/auth.json.bootstrap
               subPath: auth.json
               readOnly: true
+            - name: codex-auth-persistent
+              mountPath: /var/lib/litellm/codex-auth
             - name: litellm-config
               mountPath: /etc/litellm/config.yaml
               subPath: config.yaml
               readOnly: true
       volumes:
-        - name: codex-auth
+        - name: codex-auth-bootstrap
           secret:
             secretName: litellm-codex-auth-{{ .name }}
+        - name: codex-auth-persistent
+          persistentVolumeClaim:
+            claimName: litellm-codex-auth-persistent-{{ .name }}
         - name: litellm-config
           configMap:
             name: litellm-codex-{{ .name }}-config

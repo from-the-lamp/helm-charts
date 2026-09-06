@@ -1,0 +1,88 @@
+{{- if .Values.mcp.kubernetes.enabled }}
+{{- range $item := .Values.mcp.kubernetes.mcps }}
+---
+apiVersion: toolhive.stacklok.dev/v1beta1
+kind: MCPServer
+metadata:
+  name: {{ $item.name }}
+spec:
+  image: {{ $.Values.mcp.kubernetes.image }}
+  transport: stdio
+  groupRef:
+    name: {{ $item.groupRef | default $.Values.mcp.defaults.groupRef }}
+  permissionProfile:
+    type: builtin
+    name: {{ $.Values.mcp.defaults.permissionProfile }}
+  audit:
+    enabled: true
+  {{- with $item.toolConfig }}
+  toolConfigRef:
+    name: {{ $item.name }}-tool-config
+  {{- end }}
+  {{- if $item.kubeconfig }}
+  args:
+    - --kubeconfig
+    - /etc/toolhive/kubeconfig/config
+  podTemplateSpec:
+    spec:
+      containers:
+        - name: mcp
+          volumeMounts:
+            - name: kubeconfig
+              mountPath: /etc/toolhive/kubeconfig
+              readOnly: true
+      volumes:
+        - name: kubeconfig
+          secret:
+            secretName: {{ $item.name }}-mcp-secret
+            items:
+              - key: kubeconfig
+                path: config
+  {{- else if $item.connectGateway }}
+  args:
+    - --kubeconfig
+    - /etc/toolhive/kubeconfig/config
+  serviceAccount: {{ $item.connectGateway.serviceAccount }}
+  podTemplateSpec:
+    spec:
+      nodeSelector:
+        iam.gke.io/gke-metadata-server-enabled: "true"
+      containers:
+        - name: mcp
+          volumeMounts:
+            - name: kubeconfig
+              mountPath: /etc/toolhive/kubeconfig
+              readOnly: true
+      volumes:
+        - name: kubeconfig
+          configMap:
+            name: {{ $item.name }}-kubeconfig
+            defaultMode: 0755
+  {{- else }}
+  args:
+    - --cluster-provider
+    - in-cluster
+  serviceAccount: {{ $item.serviceAccount }}
+  {{- end }}
+  {{- with $item.env }}
+  env:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- with $item.toolConfig }}
+---
+apiVersion: toolhive.stacklok.dev/v1beta1
+kind: MCPToolConfig
+metadata:
+  name: {{ $item.name }}-tool-config
+spec:
+  {{- with .toolsFilter }}
+  toolsFilter:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- with .toolsOverride }}
+  toolsOverride:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- end }}
+{{- end }}
+{{- end }}

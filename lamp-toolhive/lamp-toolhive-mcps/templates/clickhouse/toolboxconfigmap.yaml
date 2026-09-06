@@ -1,0 +1,37 @@
+{{- if .Values.mcp.clickhouse.enabled }}
+{{- range $item := .Values.mcp.clickhouse.mcps }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ $item.name }}-tools
+data:
+  tools.yaml: |
+    sources:
+    {{- range $e := $item.envs }}
+    {{- range $db := $e.databases }}
+      {{ $e.env }}_{{ $db }}:
+        kind: clickhouse
+        host: {{ $e.host }}
+        port: {{ $item.port | default "8123" | quote }}
+        database: {{ $db }}
+        user: {{ $item.role }}
+        password: ${{ "{" }}{{ $e.env | upper }}_PASSWORD{{ "}" }}
+        protocol: {{ $item.protocol | default "http" }}
+    {{- end }}
+    {{- end }}
+    tools:
+    {{- range $e := $item.envs }}
+    {{- range $db := $e.databases }}
+      {{ $e.env }}_{{ $db }}_execute_sql:
+        kind: clickhouse-execute-sql
+        source: {{ $e.env }}_{{ $db }}
+        description: "Execute a SQL statement against the {{ $db }} ClickHouse database in {{ $e.env }}"
+      {{ $e.env }}_{{ $db }}_list_tables:
+        kind: clickhouse-list-tables
+        source: {{ $e.env }}_{{ $db }}
+        description: "List tables in the {{ $db }} ClickHouse database in {{ $e.env }}"
+    {{- end }}
+    {{- end }}
+{{- end }}
+{{- end }}

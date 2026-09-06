@@ -1,0 +1,34 @@
+{{- if .Values.mcp.oracle.enabled }}
+{{- range $item := .Values.mcp.oracle.mcps }}
+---
+apiVersion: toolhive.stacklok.dev/v1beta1
+kind: MCPServer
+metadata:
+  name: {{ $item.name }}
+spec:
+  image: {{ $.Values.mcp.oracle.image }}
+  transport: stdio
+  groupRef:
+    name: {{ $item.groupRef | default $.Values.mcp.defaults.groupRef }}
+  permissionProfile:
+    type: builtin
+    name: {{ $.Values.mcp.defaults.permissionProfile }}
+  audit:
+    enabled: true
+  env:
+    - name: OCI_CONFIG_PROFILE
+      value: {{ $item.profile | default "DEFAULT" }}
+  podTemplateSpec:
+    spec:
+      containers:
+        - name: mcp
+          volumeMounts:
+            - name: ociconfig
+              mountPath: /home/mcp/.oci
+              readOnly: true
+      volumes:
+        - name: ociconfig
+          secret:
+            secretName: {{ $item.name }}-mcp-secret
+{{- end }}
+{{- end }}

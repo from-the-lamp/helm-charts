@@ -1,0 +1,27 @@
+{{- if .Values.mcp.sheets.enabled }}
+{{- range $item := .Values.mcp.sheets.mcps }}
+---
+apiVersion: toolhive.stacklok.dev/v1beta1
+kind: MCPServer
+metadata:
+  name: {{ $item.name }}
+spec:
+  image: {{ $.Values.mcp.sheets.image }}
+  transport: stdio
+  groupRef:
+    name: {{ $item.groupRef | default $.Values.mcp.defaults.groupRef }}
+  permissionProfile:
+    type: builtin
+    name: {{ $.Values.mcp.defaults.permissionProfile }}
+  audit:
+    enabled: true
+  {{- with $item.env }}
+  env:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  secrets:
+    - name: {{ $item.name }}-mcp-secret
+      key: credentials-config
+      targetEnvName: CREDENTIALS_CONFIG
+{{- end }}
+{{- end }}

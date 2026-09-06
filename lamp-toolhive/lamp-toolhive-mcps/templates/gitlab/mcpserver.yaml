@@ -1,0 +1,51 @@
+{{- if .Values.mcp.gitlab.enabled }}
+{{- range $item := .Values.mcp.gitlab.mcps }}
+---
+apiVersion: toolhive.stacklok.dev/v1beta1
+kind: MCPServer
+metadata:
+  name: {{ $item.name }}
+spec:
+  image: {{ $.Values.mcp.gitlab.image }}
+  transport: stdio
+  groupRef:
+    name: {{ $item.groupRef | default $.Values.mcp.defaults.groupRef }}
+  permissionProfile:
+    type: builtin
+    name: {{ $.Values.mcp.defaults.permissionProfile }}
+  audit:
+    enabled: true
+  {{- with $item.toolConfig }}
+  toolConfigRef:
+    name: {{ $item.name }}-tool-config
+  {{- end }}
+  env:
+    - name: GITLAB_API_URL
+      value: {{ $item.apiUrl | default "https://git.v-gitops.cc/api/v4" }}
+    - name: GITLAB_PERMISSION_MODE
+      value: {{ $item.permissionMode | default "readonly" }}
+    {{- with $item.env }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  secrets:
+    - name: {{ $item.name }}-mcp-secret
+      key: token
+      targetEnvName: GITLAB_PERSONAL_ACCESS_TOKEN
+  {{- with $item.toolConfig }}
+---
+apiVersion: toolhive.stacklok.dev/v1beta1
+kind: MCPToolConfig
+metadata:
+  name: {{ $item.name }}-tool-config
+spec:
+  {{- with .toolsFilter }}
+  toolsFilter:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- with .toolsOverride }}
+  toolsOverride:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- end }}
+{{- end }}
+{{- end }}

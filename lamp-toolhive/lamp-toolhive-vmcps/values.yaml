@@ -1,0 +1,196 @@
+global:
+  projectId: example-project
+
+dex:
+  enabled: true
+
+  sso:
+    google:
+      enabled: false
+      # redirectURI: https://toolhive-dex.example.com/dex/callback
+      # hostedDomains:
+      #   - example.com
+      # domainToAdminEmail:
+      #   example.com: admin@example.com
+      # fetchTransitiveGroupMembership: true
+      # serviceAccountKey:
+      #   name: toolhive-dex-gsa
+      # clientId:
+      #   key: example-secret
+      #   property: google-oauth-client-id
+      # clientSecret:
+      #   key: example-secret
+      #   property: google-oauth-client-secret
+
+    zitadel:
+      enabled: false
+      # issuer: https://example.zitadel.cloud
+      # redirectURI: https://toolhive-dex.example.com/dex/callback
+      # clientId:
+      #   key: example-secret
+      #   property: zitadel-client-id
+      # clientSecret:
+      #   key: example-secret
+      #   property: zitadel-client-secret
+
+    gitlab:
+      enabled: true
+      baseURL: https://gitlab.com
+      redirectURI: https://mcp.from-the-lamp.work/dex/callback
+      groups:
+        - from-the-lamp
+      clientId:
+        key: toolhive
+        property: oauth-client-id
+      clientSecret:
+        key: toolhive
+        property: oauth-client-secret
+
+  config:
+    issuer: https://mcp.from-the-lamp.work/dex
+    storage:
+      type: kubernetes
+      config:
+        inCluster: true
+    web:
+      http: 0.0.0.0:5556
+    oauth2:
+      skipApprovalScreen: true
+    staticClients:
+      - id: vmcp-mcp-tools
+        name: "ToolHive vMCP"
+        redirectURIs:
+          - https://mcp.from-the-lamp.work/oauth/callback
+        secretEnv: VMCP_CLIENT_SECRET
+
+  configSecret:
+    create: false
+    name: toolhive-dex-config
+
+  nodeSelector:
+    role: worker
+
+  podAnnotations:
+    reloader.stakater.com/auto: "true"
+
+  envFrom:
+    - secretRef:
+        name: dex-sso-secrets
+    - secretRef:
+        name: toolhive-vmcp-client-secret
+
+  # volumes:
+  #   - name: google-sa
+  #     secret:
+  #       secretName: toolhive-dex-gsa
+  # volumeMounts:
+  #   - name: google-sa
+  #     mountPath: /etc/dex/google
+  #     readOnly: true
+
+redis:
+  enabled: false
+  # passwordSecret:
+  #   key: example-secret
+  #   property: redis-password
+  architecture: standalone
+  fullnameOverride: toolhive-redis
+  image:
+    tag: latest
+  auth:
+    enabled: true
+    existingSecret: toolhive-redis-password
+    existingSecretPasswordKey: password
+  master:
+    persistence:
+      enabled: true
+      size: 1Gi
+    resources:
+      requests:
+        cpu: 50m
+        memory: 64Mi
+      limits:
+        cpu: 100m
+        memory: 128Mi
+  replica:
+    replicaCount: 0
+
+oidcConfigs:
+  - name: mcp-tools-oidc
+    issuer: https://mcp.from-the-lamp.work
+
+authzConfigs:
+  - name: mcp-tools-authz
+    allowedGroups:
+      - from-the-lamp
+
+mcpGroups:
+  - name: mcp-tools
+
+virtualMcpServers:
+  - name: mcp-tools
+    groupRef: mcp-tools
+    incomingAuth:
+      type: oidc
+      oidcConfigRef:
+        name: mcp-tools-oidc
+        audience: https://mcp.from-the-lamp.work/mcp
+        resourceUrl: https://mcp.from-the-lamp.work/mcp
+        scopes:
+          - openid
+          - offline_access
+      authzConfigRef:
+        name: mcp-tools-authz
+    authServerConfig:
+      issuer: https://mcp.from-the-lamp.work
+      baselineClientScopes:
+        - openid
+        - offline_access
+      hmacSecretRefs:
+        - name: toolhive-authserver-secrets
+          key: hmac
+      signingKeySecretRefs:
+        - name: toolhive-authserver-secrets
+          key: signing
+      upstreamProviders:
+        - name: gitlab
+          type: oidc
+          oidcConfig:
+            issuerUrl: https://mcp.from-the-lamp.work/dex
+            clientId: vmcp-mcp-tools
+            clientSecretRef:
+              name: toolhive-vmcp-client-secret
+              key: VMCP_CLIENT_SECRET
+            redirectUri: https://mcp.from-the-lamp.work/oauth/callback
+            scopes:
+              - openid
+              - email
+              - groups
+    podTemplateSpec:
+      metadata:
+        annotations:
+          reloader.stakater.com/auto: "true"
+      spec:
+        nodeSelector:
+          role: worker
+        containers:
+          - name: vmcp
+            resources:
+              requests:
+                cpu: 5m
+                memory: 128Mi
+              limits:
+                cpu: 500m
+                memory: 512Mi
+
+tailscaleExpose:
+  enabled: false
+  hostname: mcp-tools
+  tags:
+    - tag:exit
+
+externalSecrets:
+  kind: ClusterSecretStore
+  name: oracle
+  refreshInterval: 1h
+  creationPolicy: Orphan

@@ -18,6 +18,11 @@ authJson:
     key: litellm
     property: auth_json
 
+codexAuthPersistence:
+  pvcName: litellm-codex-auth-persistent
+  size: 64Mi
+  storageClass: local-path
+
 # Unrelated to the "litellm" vault secret above - shared GitLab registry
 # token reused by many charts, stays its own Vault entry.
 imagePullSecret:
@@ -71,6 +76,9 @@ litellm-helm:
 
   replicaCount: 1
 
+  strategy:
+    type: Recreate
+
   deploymentAnnotations:
     reloader.stakater.com/auto: "true"
 
@@ -89,18 +97,24 @@ litellm-helm:
     port: 4000
 
   envVars:
-    CODEX_AUTH_FILE: /etc/litellm/auth.json
+    CODEX_AUTH_FILE: /var/lib/litellm/codex-auth/auth.json
+    CODEX_AUTH_BOOTSTRAP_FILE: /etc/litellm/auth.json.bootstrap
     OPENAI_API_KEY: sk-litellm-codex-placeholder
 
   volumes:
-    - name: codex-auth
+    - name: codex-auth-bootstrap
       secret:
         secretName: litellm-codex-auth
+    - name: codex-auth-persistent
+      persistentVolumeClaim:
+        claimName: litellm-codex-auth-persistent
   volumeMounts:
-    - name: codex-auth
-      mountPath: /etc/litellm/auth.json
+    - name: codex-auth-bootstrap
+      mountPath: /etc/litellm/auth.json.bootstrap
       subPath: auth.json
       readOnly: true
+    - name: codex-auth-persistent
+      mountPath: /var/lib/litellm/codex-auth
 
   resources:
     requests:

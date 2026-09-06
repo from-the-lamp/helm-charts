@@ -1,0 +1,51 @@
+{{- range .Values.virtualMcpServers }}
+---
+apiVersion: toolhive.stacklok.dev/v1beta1
+kind: VirtualMCPServer
+metadata:
+  name: {{ .name }}
+spec:
+  groupRef:
+    name: {{ .groupRef }}
+  {{- with .authServerConfig }}
+  authServerConfig:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  incomingAuth:
+    type: {{ .incomingAuth.type | default "oidc" }}
+    {{- with .incomingAuth.oidcConfigRef }}
+    oidcConfigRef:
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
+    {{- with .incomingAuth.authzConfigRef }}
+    authzConfigRef:
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
+    {{- with .incomingAuth.authzConfig }}
+    authzConfig:
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
+  {{- with .outgoingAuth }}
+  outgoingAuth:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- with .podTemplateSpec }}
+  podTemplateSpec:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- with .sessionStorage }}
+  sessionStorage:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- with .config }}
+  config:
+    {{- with .audit }}
+    audit:
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
+    {{- with .aggregation }}
+    aggregation:
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
+  {{- end }}
+{{- end }}

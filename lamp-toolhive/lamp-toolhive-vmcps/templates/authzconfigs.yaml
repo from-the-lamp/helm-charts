@@ -1,0 +1,34 @@
+{{- range .Values.authzConfigs }}
+---
+apiVersion: toolhive.stacklok.dev/v1beta1
+kind: MCPAuthzConfig
+metadata:
+  name: {{ .name }}
+spec:
+  type: cedarv1
+  config:
+    group_claim_name: {{ .groupClaimName | default "groups" | quote }}
+    policies:
+      {{- range .groups }}
+      {{- $group := .name }}
+      {{- range .allowedServers }}
+      - |
+        permit(
+          principal in THVGroup::{{ $group | quote }},
+          action,
+          resource
+        )
+        when {
+          resource.name like {{ printf "%s_*" . | quote }}
+        };
+      {{- end }}
+      {{- end }}
+      {{- range .allowedGroups }}
+      - |
+        permit(
+          principal in THVGroup::{{ . | quote }},
+          action,
+          resource
+        );
+      {{- end }}
+{{- end }}

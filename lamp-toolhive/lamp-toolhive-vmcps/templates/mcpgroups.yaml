@@ -1,0 +1,9 @@
+{{- range .Values.mcpGroups }}
+---
+apiVersion: toolhive.stacklok.dev/v1beta1
+kind: MCPGroup
+metadata:
+  name: {{ .name }}
+spec:
+  description: {{ .description | default .name | quote }}
+{{- end }}

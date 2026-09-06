@@ -1,0 +1,14 @@
+apiVersion: v2
+name: lamp-toolhive-vmcps
+version: 0.0.1
+
+dependencies:
+  - name: dex
+    version: 0.24.1
+    repository: https://charts.dexidp.io
+    condition: dex.enabled
+
+  - name: redis
+    version: 28.0.12
+    repository: oci://registry-1.docker.io/bitnamicharts
+    condition: redis.enabled

@@ -1,0 +1,68 @@
+{{- if .Values.mcp.kubernetes.enabled }}
+{{- range $item := .Values.mcp.kubernetes.mcps }}
+{{- if $item.connectGateway }}
+{{- $sa := $item.connectGateway.serviceAccount }}
+{{- $projectId := $item.connectGateway.projectId }}
+{{- $access := $item.connectGateway.access }}
+{{- if not (has $access (list "viewer" "admin")) }}
+{{- fail (printf "mcp.kubernetes.mcps[%s].connectGateway.access must be \"viewer\" or \"admin\"" $item.name) }}
+{{- end }}
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ $sa }}
+  annotations:
+    iam.gke.io/gcp-service-account: {{ $sa }}@{{ $projectId }}.iam.gserviceaccount.com
+---
+apiVersion: iam.cnrm.cloud.google.com/v1beta1
+kind: IAMServiceAccount
+metadata:
+  name: {{ $sa }}
+  annotations:
+    cnrm.cloud.google.com/project-id: {{ $projectId | quote }}
+spec:
+  displayName: "GCP SA bound to K8S SA {{ $projectId }}[{{ $.Release.Namespace }}/{{ $sa }}]"
+---
+apiVersion: iam.cnrm.cloud.google.com/v1beta1
+kind: IAMPolicyMember
+metadata:
+  name: {{ $sa }}-workload
+  annotations:
+    cnrm.cloud.google.com/project-id: {{ $projectId | quote }}
+spec:
+  member: "serviceAccount:{{ $projectId }}.svc.id.goog[{{ $.Release.Namespace }}/{{ $sa }}]"
+  role: "roles/iam.workloadIdentityUser"
+  resourceRef:
+    apiVersion: iam.cnrm.cloud.google.com/v1beta1
+    kind: IAMServiceAccount
+    name: {{ $sa }}
+---
+apiVersion: iam.cnrm.cloud.google.com/v1beta1
+kind: IAMPolicyMember
+metadata:
+  name: {{ $sa }}-gkehub-viewer
+  annotations:
+    cnrm.cloud.google.com/project-id: {{ $projectId | quote }}
+spec:
+  member: "serviceAccount:{{ $sa }}@{{ $projectId }}.iam.gserviceaccount.com"
+  role: "roles/gkehub.viewer"
+  resourceRef:
+    kind: Project
+    external: {{ $projectId | quote }}
+---
+apiVersion: iam.cnrm.cloud.google.com/v1beta1
+kind: IAMPolicyMember
+metadata:
+  name: {{ $sa }}-gkehub-gateway-{{ if eq $access "admin" }}admin{{ else }}reader{{ end }}
+  annotations:
+    cnrm.cloud.google.com/project-id: {{ $projectId | quote }}
+spec:
+  member: "serviceAccount:{{ $sa }}@{{ $projectId }}.iam.gserviceaccount.com"
+  role: "roles/gkehub.gateway{{ if eq $access "admin" }}Admin{{ else }}Reader{{ end }}"
+  resourceRef:
+    kind: Project
+    external: {{ $projectId | quote }}
+{{- end }}
+{{- end }}
+{{- end }}

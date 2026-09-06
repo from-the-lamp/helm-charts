@@ -1,0 +1,195 @@
+mcp:
+  defaults:
+    groupRef: mcp-tools
+    permissionProfile: network
+
+  grafana:
+    enabled: false
+    image: grafana/mcp-grafana:1.2.0
+    mcps: []
+
+  github:
+    enabled: false
+    image: ghcr.io/github/github-mcp-server:v1.11.0
+    mcps: []
+
+  gitlab:
+    enabled: true
+    image: zereight050/gitlab-mcp:2.1.51
+    mcps:
+      - name: gitlab
+        apiUrl: https://gitlab.com/api/v4
+        permissionMode: full
+        token:
+          key: gitlab-mcp
+          property: personal-access-token
+
+  kubernetes:
+    enabled: true
+    image: quay.io/containers/kubernetes_mcp_server:v0.0.66
+    mcps:
+      - name: kubernetes
+        serviceAccount: kubernetes-mcp
+      - name: infra-admin
+        kubeconfig:
+          key: toolhive
+          property: kubeconfig-infra
+      - name: prod-0-admin
+        kubeconfig:
+          key: toolhive
+          property: kubeconfig-prod-0
+
+  slack:
+    enabled: true
+    image: ghcr.io/korotovsky/slack-mcp-server:v1.3.0
+    mcps:
+      - name: slack-cas
+        token:
+          key: slack-mcp-cas
+          property: xoxp-token
+      - name: slack-xdata
+        token:
+          key: slack-mcp-xdata
+          property: xoxp-token
+
+  jira:
+    enabled: false
+    image: ghcr.io/sooperset/mcp-atlassian:0.23.1
+    mcps: []
+
+  atlassian:
+    enabled: true
+    image: xuanxdev/atlassian-mcp:latest
+    mcps:
+      - name: jira-cas
+        domain: jirasolutions.atlassian.net
+        email: artem.zverev@v-soft.dev
+        token:
+          key: jira-mcp-cas
+          property: api-token
+      - name: jira-xdata
+        domain: xdatagroup.atlassian.net
+        email: artem.zverev@xdatagroup.io
+        token:
+          key: jira-mcp-xdata
+          property: api-token
+
+  victoriametrics:
+    enabled: false
+    image: ghcr.io/victoriametrics/mcp-victoriametrics:v1.20.2
+    mcps: []
+
+  clickhouse:
+    enabled: false
+    image: us-central1-docker.pkg.dev/database-toolbox/toolbox/toolbox:1.9.0
+    mcps: []
+
+  postgres:
+    enabled: false
+    image: us-central1-docker.pkg.dev/database-toolbox/toolbox/toolbox:1.9.0
+    mcps: []
+
+  redis:
+    enabled: false
+    image: us-central1-docker.pkg.dev/database-toolbox/toolbox/toolbox:1.9.0
+    mcps: []
+
+  kafka:
+    enabled: false
+    image: ghcr.io/tuannvm/kafka-mcp-server:2.0.2
+    mcps: []
+
+  argocd:
+    enabled: false
+    # No official container image for the argocd-mcp package (it's npx-only:
+    # `npx argocd-mcp@latest stdio`) — build/point at your own image before enabling.
+    image: ""
+    mcps: []
+
+  sheets:
+    enabled: true
+    # Self-built from docker-images/lamp-google-sheets (xing5/mcp-google-sheets from PyPI).
+    image: registry.gitlab.com/from-the-lamp/infra/docker-images/lamp-google-sheets:latest
+    mcps:
+      - name: sheets
+        credentials:
+          key: sheets-mcp
+          property: service-account-json
+
+  oracle:
+    enabled: true
+    # Self-built from docker-images/lamp-oracle-mcp (generic OCI SDK wrapper).
+    image: registry.gitlab.com/from-the-lamp/infra/docker-images/lamp-oracle-mcp:latest
+    mcps:
+      - name: oracle-infra
+        profile: lamp-infra
+        config:
+          key: oracle-mcp
+          property: config
+        keyFiles:
+          - name: lamp-infra.pem
+            property: lamp-infra-pem
+          - name: lamp-prod-0.pem
+            property: lamp-prod-0-pem
+          - name: lamp-prod-1.pem
+            property: lamp-prod-1-pem
+      - name: oracle-prod-0
+        profile: lamp-prod-0
+        config:
+          key: oracle-mcp
+          property: config
+        keyFiles:
+          - name: lamp-infra.pem
+            property: lamp-infra-pem
+          - name: lamp-prod-0.pem
+            property: lamp-prod-0-pem
+          - name: lamp-prod-1.pem
+            property: lamp-prod-1-pem
+      - name: oracle-prod-1
+        profile: lamp-prod-1
+        config:
+          key: oracle-mcp
+          property: config
+        keyFiles:
+          - name: lamp-infra.pem
+            property: lamp-infra-pem
+          - name: lamp-prod-0.pem
+            property: lamp-prod-0-pem
+          - name: lamp-prod-1.pem
+            property: lamp-prod-1-pem
+
+  etherscan:
+    enabled: true
+    # Self-built from docker-images/lamp-etherscan-mcp (npm package mcp-etherscan-server, no official image).
+    image: registry.gitlab.com/from-the-lamp/infra/docker-images/lamp-etherscan-mcp:latest
+    mcps:
+      - name: etherscan
+        token:
+          key: etherscan-mcp
+          property: api-key
+
+  alchemy:
+    enabled: true
+    # Self-built from docker-images/lamp-alchemy-mcp (official npm package @alchemy/mcp-server, no official image).
+    image: registry.gitlab.com/from-the-lamp/infra/docker-images/lamp-alchemy-mcp:latest
+    mcps:
+      - name: alchemy
+        token:
+          key: alchemy-mcp
+          property: api-key
+
+  thegraph:
+    enabled: true
+    # Self-built from docker-images/lamp-thegraph-mcp (vendored from kukapay/thegraph-mcp, no packaged release).
+    image: registry.gitlab.com/from-the-lamp/infra/docker-images/lamp-thegraph-mcp:latest
+    mcps:
+      - name: thegraph
+        token:
+          key: thegraph-mcp
+          property: api-key
+
+externalSecrets:
+  kind: ClusterSecretStore
+  name: oracle
+  refreshInterval: 1h
+  creationPolicy: Orphan

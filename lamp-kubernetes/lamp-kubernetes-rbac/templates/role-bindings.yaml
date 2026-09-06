@@ -1,0 +1,22 @@
+{{- range .Values.roleBindings }}
+{{- $namespace := default $.Release.Namespace .namespace }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ .name }}
+  namespace: {{ $namespace }}
+  {{- with .labels }}
+  labels:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- with .annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: {{ default "Role" .roleRef.kind }}
+  name: {{ .roleRef.name }}
+{{ include "xdata-kubernetes-rbac.subjects" (dict "subjects" .subjects "namespace" $namespace) }}
+{{- end }}

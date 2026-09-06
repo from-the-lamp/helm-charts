@@ -1,0 +1,132 @@
+{{- if .Values.mcp.redis.enabled }}
+{{- range $item := .Values.mcp.redis.mcps }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ $item.name }}-tools
+data:
+  tools.yaml: |
+    sources:
+    {{- range $e := $item.envs }}
+      {{ $e.env }}:
+        kind: redis
+        address:
+          - {{ $e.host }}:{{ $item.port | default 6379 }}
+        password: ${{ "{" }}{{ $e.env | upper }}_PASSWORD{{ "}" }}
+    {{- end }}
+    tools:
+    {{- range $e := $item.envs }}
+      {{ $e.env }}_get:
+        kind: redis
+        source: {{ $e.env }}
+        description: "Get the value of a key in redis in {{ $e.env }}"
+        commands:
+          - ["GET", "$key"]
+        parameters:
+          - name: key
+            type: string
+            description: "The key to get"
+      {{ $e.env }}_type:
+        kind: redis
+        source: {{ $e.env }}
+        description: "Get the type of a key in redis in {{ $e.env }}"
+        commands:
+          - ["TYPE", "$key"]
+        parameters:
+          - name: key
+            type: string
+            description: "The key to inspect"
+      {{ $e.env }}_ttl:
+        kind: redis
+        source: {{ $e.env }}
+        description: "Get the remaining TTL (in seconds) of a key in redis in {{ $e.env }}"
+        commands:
+          - ["TTL", "$key"]
+        parameters:
+          - name: key
+            type: string
+            description: "The key to inspect"
+      {{ $e.env }}_keys:
+        kind: redis
+        source: {{ $e.env }}
+        description: "List keys matching a glob pattern in redis in {{ $e.env }}"
+        commands:
+          - ["KEYS", "$pattern"]
+        parameters:
+          - name: pattern
+            type: string
+            description: "Glob pattern to match keys against, e.g. session:*"
+      {{ $e.env }}_hgetall:
+        kind: redis
+        source: {{ $e.env }}
+        description: "Get all fields and values of a hash in redis in {{ $e.env }}"
+        commands:
+          - ["HGETALL", "$key"]
+        parameters:
+          - name: key
+            type: string
+            description: "The hash key to inspect"
+      {{ $e.env }}_dbsize:
+        kind: redis
+        source: {{ $e.env }}
+        description: "Get the number of keys in redis in {{ $e.env }}"
+        commands:
+          - ["DBSIZE"]
+      {{- if not $item.readOnly }}
+      {{ $e.env }}_set:
+        kind: redis
+        source: {{ $e.env }}
+        description: "Set the value of a key in redis in {{ $e.env }}"
+        commands:
+          - ["SET", "$key", "$value"]
+        parameters:
+          - name: key
+            type: string
+            description: "The key to set"
+          - name: value
+            type: string
+            description: "The value to set"
+      {{ $e.env }}_del:
+        kind: redis
+        source: {{ $e.env }}
+        description: "Delete a key in redis in {{ $e.env }}"
+        commands:
+          - ["DEL", "$key"]
+        parameters:
+          - name: key
+            type: string
+            description: "The key to delete"
+      {{ $e.env }}_expire:
+        kind: redis
+        source: {{ $e.env }}
+        description: "Set a TTL (in seconds) on a key in redis in {{ $e.env }}"
+        commands:
+          - ["EXPIRE", "$key", "$seconds"]
+        parameters:
+          - name: key
+            type: string
+            description: "The key to set a TTL on"
+          - name: seconds
+            type: integer
+            description: "TTL in seconds"
+      {{ $e.env }}_hset:
+        kind: redis
+        source: {{ $e.env }}
+        description: "Set a field in a hash in redis in {{ $e.env }}"
+        commands:
+          - ["HSET", "$key", "$field", "$value"]
+        parameters:
+          - name: key
+            type: string
+            description: "The hash key"
+          - name: field
+            type: string
+            description: "The field to set"
+          - name: value
+            type: string
+            description: "The value to set"
+      {{- end }}
+    {{- end }}
+{{- end }}
+{{- end }}

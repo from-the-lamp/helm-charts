@@ -1,0 +1,36 @@
+{{- if .Values.mcp.postgres.enabled }}
+{{- range $item := .Values.mcp.postgres.mcps }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ $item.name }}-tools
+data:
+  tools.yaml: |
+    sources:
+    {{- range $e := $item.envs }}
+    {{- range $db := $e.databases }}
+      {{ $e.env }}_{{ $db.name }}:
+        kind: postgres
+        host: {{ $e.host }}
+        port: {{ $item.port | default 5432 }}
+        database: {{ $db.database }}
+        user: {{ $item.role }}
+        password: ${{ "{" }}{{ $e.env | upper }}_PASSWORD{{ "}" }}
+    {{- end }}
+    {{- end }}
+    tools:
+    {{- range $e := $item.envs }}
+    {{- range $db := $e.databases }}
+      {{ $e.env }}_{{ $db.name }}_execute_sql:
+        kind: postgres-execute-sql
+        source: {{ $e.env }}_{{ $db.name }}
+        description: "Execute a SQL statement against the {{ $db.name }} database in {{ $e.env }}"
+      {{ $e.env }}_{{ $db.name }}_list_tables:
+        kind: postgres-list-tables
+        source: {{ $e.env }}_{{ $db.name }}
+        description: "List tables in the {{ $db.name }} database in {{ $e.env }}"
+    {{- end }}
+    {{- end }}
+{{- end }}
+{{- end }}
