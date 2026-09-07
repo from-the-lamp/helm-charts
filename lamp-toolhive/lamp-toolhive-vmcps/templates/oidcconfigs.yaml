@@ -5,7 +5,18 @@ kind: MCPOIDCConfig
 metadata:
   name: {{ .name }}
 spec:
-  type: inline
+  type: {{ .type | default "inline" }}
+  {{- if eq (.type | default "inline") "kubernetesServiceAccount" }}
+  kubernetesServiceAccount:
+    {{- toYaml .kubernetesServiceAccount | nindent 4 }}
+  {{- else }}
   inline:
     issuer: {{ .issuer }}
+    {{- with .jwksUrl }}
+    jwksUrl: {{ . }}
+    {{- end }}
+    {{- if .insecureAllowHTTP }}
+    insecureAllowHTTP: true
+    {{- end }}
+  {{- end }}
 {{- end }}

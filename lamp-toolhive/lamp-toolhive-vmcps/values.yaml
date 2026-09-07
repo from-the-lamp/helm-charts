@@ -56,12 +56,39 @@ dex:
       http: 0.0.0.0:5556
     oauth2:
       skipApprovalScreen: true
+      # local/static-password ROPC login for hermes, which can't complete an
+      # interactive browser OAuth flow (it's a headless gateway pod, not a
+      # human with a browser) - see mcp-tools-hermes-oidc below.
+      passwordConnector: local
+      grantTypes:
+        - authorization_code
+        - refresh_token
+        - password
+    # id token lifetime long-lived to match the hermes-side "mint once, never
+    # rotate" design already used for its (unreachable) k8s SA token attempt;
+    # signingKeys must stay >= idTokens or token validation breaks once keys
+    # rotate out from under a still-valid token. This also affects the human
+    # GitLab-login id tokens issued by this same Dex, since expiry is global.
+    expiry:
+      idTokens: "87600h"
+      signingKeys: "87600h"
+    enablePasswordDB: true
+    staticPasswords:
+      # bcrypt hash of a generated password, minted once for a single ROPC
+      # token exchange - see lamp-hermes secrets.TOOLHIVE_BEARER_TOKEN.
+      - email: hermes@toolhive.internal
+        hash: "$2b$10$esnPdcA5wShhdRp/jbD8iOnHKDkL2WH.1WHU6pUwVFtKiyRGnWx4K"
+        username: hermes
+        userID: hermes-static-user
     staticClients:
       - id: vmcp-mcp-tools
         name: "ToolHive vMCP"
         redirectURIs:
           - https://mcp.from-the-lamp.work/oauth/callback
         secretEnv: VMCP_CLIENT_SECRET
+      - id: hermes-toolhive
+        name: "Hermes (headless ROPC)"
+        secretEnv: HERMES_CLIENT_SECRET
 
   configSecret:
     create: false
@@ -78,6 +105,8 @@ dex:
         name: dex-sso-secrets
     - secretRef:
         name: toolhive-vmcp-client-secret
+    - secretRef:
+        name: toolhive-hermes-client-secret
 
   # volumes:
   #   - name: google-sa
@@ -118,6 +147,19 @@ redis:
 oidcConfigs:
   - name: mcp-tools-oidc
     issuer: https://mcp.from-the-lamp.work
+  # Hermes runs in a different physical cluster (prod-0/product) and can't do
+  # an interactive browser OAuth login (it's a headless gateway, no browser
+  # to complete the loopback callback) or present a token from its own
+  # cluster's k8s SA issuer (tried; that cluster's apiserver has anonymous
+  # discovery/JWKS access disabled entirely - a control-plane flag, not
+  # something fixable via RBAC). Instead it authenticates directly to this
+  # Dex instance via the OAuth2 Resource Owner Password (ROPC) grant against
+  # the static "hermes" user below - fully scriptable, no browser needed.
+  # The resulting id token is minted once (long expiry, see dex.config.expiry
+  # above) and stored as a static secret (hermes/toolhive_bearer_token in
+  # Vault) that hermes picks up like any other credential.
+  - name: mcp-tools-hermes-oidc
+    issuer: https://mcp.from-the-lamp.work/dex
 
 authzConfigs:
   - name: mcp-tools-authz
@@ -183,9 +225,51 @@ virtualMcpServers:
                 cpu: 500m
                 memory: 512Mi
 
+  # Same aggregated tool group as mcp-tools, exposed only in-cluster (no
+  # ingress/route) for hermes to reach using a Dex-issued ROPC token instead
+  # of a human GitLab login. Audience matches the hermes-toolhive Dex client
+  # id, since Dex sets a token's aud claim to the requesting client_id.
+  # No authzConfigRef: any token that validates against mcp-tools-hermes-oidc
+  # already proves it came from that client, so it gets the full mcp-tools
+  # toolset.
+  - name: mcp-tools-hermes
+    groupRef: mcp-tools
+    incomingAuth:
+      type: oidc
+      oidcConfigRef:
+        name: mcp-tools-hermes-oidc
+        audience: hermes-toolhive
+    podTemplateSpec:
+      metadata:
+        annotations:
+          reloader.stakater.com/auto: "true"
+      spec:
+        nodeSelector:
+          role: worker
+        containers:
+          - name: vmcp
+            resources:
+              requests:
+                cpu: 5m
+                memory: 128Mi
+              limits:
+                cpu: 500m
+                memory: 512Mi
+
 tailscaleExpose:
   enabled: false
   hostname: mcp-tools
+  tags:
+    - tag:exit
+
+# hermes runs in the prod-0 cluster, which can't reach this cluster's
+# ClusterIP service DNS - expose mcp-tools-hermes on the shared tailnet
+# instead. prod-0's own lamp-tailscale-services deployment (argo-apps
+# prod-0/platform/tailscale-services) proxies an ExternalName service back
+# to this tailnet hostname, so hermes reaches it via ordinary in-cluster DNS.
+hermesTailscaleExpose:
+  enabled: true
+  hostname: mcp-tools-hermes
   tags:
     - tag:exit
 

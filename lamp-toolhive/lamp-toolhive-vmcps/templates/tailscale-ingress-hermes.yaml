@@ -1,0 +1,30 @@
+{{- if .Values.hermesTailscaleExpose.enabled }}
+# Tailscale Ingress (L7) always terminates TLS with a cert bound to the full
+# MagicDNS name and rejects any other SNI with TLSV1_ALERT_INTERNAL_ERROR -
+# hermes's in-cluster DNS name for the egress ExternalName service can never
+# match that. A Tailscale LoadBalancer Service (L3) instead passes traffic
+# through as plain TCP with no TLS termination, so there's no SNI to mismatch.
+apiVersion: v1
+kind: Service
+metadata:
+  name: mcp-tools-hermes-tailscale
+  annotations:
+    tailscale.com/hostname: {{ .Values.hermesTailscaleExpose.hostname }}
+    {{- with .Values.hermesTailscaleExpose.tags }}
+    tailscale.com/tags: {{ join "," . | quote }}
+    {{- end }}
+spec:
+  type: LoadBalancer
+  loadBalancerClass: tailscale
+  selector:
+    app: virtualmcpserver
+    app.kubernetes.io/instance: mcp-tools-hermes
+    app.kubernetes.io/name: virtualmcpserver
+    toolhive: "true"
+    toolhive-name: mcp-tools-hermes
+  ports:
+    - name: http
+      port: 4483
+      targetPort: 4483
+      protocol: TCP
+{{- end }}

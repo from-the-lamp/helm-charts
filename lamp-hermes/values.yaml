@@ -29,8 +29,7 @@ seedDotenv:
 # rebranded xdatagroup -> djinn) onto the persistent skills/ dir on every pod start.
 # Hermes discovers skills via a recursive SKILL.md scan (rglob), so the marketplace's
 # nested plugins/<plugin>/skills/<skill>/SKILL.md layout works as-is - no flattening
-# needed. Re-uses the gitlab-from-the-lamp secretFile token, already mounted for the
-# gitlab-from-the-lamp MCP server, instead of a separate Vault property.
+# needed.
 skillsSync:
   enabled: true
   repo: https://gitlab.com/djinn-home/skills.git
@@ -65,124 +64,29 @@ config:
       wrap_response: false
       mirror_delivery: true
     mcp_servers:
-      google-sheets:
-        command: mcp-google-sheets
-        env:
-          SERVICE_ACCOUNT_PATH: /etc/hermes/google-sa.json
-          MISE_DATA_DIR: /opt/tools/mise
-      atlassian-cas:
-        command: bash
-        env:
-          MISE_DATA_DIR: /opt/tools/mise
-        args:
-          - "-c"
-          - "set -a && export READ_ONLY_MODE=\"${READ_ONLY_MODE:-true}\" && . /etc/hermes/creds/atlassian/cas.env && exec mcp-atlassian"
-      atlassian-xdata:
-        command: bash
-        env:
-          MISE_DATA_DIR: /opt/tools/mise
-        args:
-          - "-c"
-          - "set -a && export READ_ONLY_MODE=\"${READ_ONLY_MODE:-true}\" && . /etc/hermes/creds/atlassian/xdata.env && exec mcp-atlassian"
-      gitlab-cas-dev:
-        command: bash
-        env:
-          MISE_DATA_DIR: /opt/tools/mise
-        args:
-          - "-c"
-          - "set -a && export GITLAB_READ_ONLY_MODE=\"${GITLAB_READ_ONLY_MODE:-true}\" && . /etc/hermes/creds/gitlab/cas-dev.env && exec mcp-gitlab"
-      gitlab-cas-gitops:
-        command: bash
-        env:
-          MISE_DATA_DIR: /opt/tools/mise
-        args:
-          - "-c"
-          - "set -a && export GITLAB_READ_ONLY_MODE=\"${GITLAB_READ_ONLY_MODE:-true}\" && . /etc/hermes/creds/gitlab/cas-gitops.env && exec mcp-gitlab"
-      gitlab-from-the-lamp:
-        command: bash
-        env:
-          MISE_DATA_DIR: /opt/tools/mise
-        args:
-          - "-c"
-          - "set -a && export GITLAB_READ_ONLY_MODE=\"${GITLAB_READ_ONLY_MODE:-true}\" && . /etc/hermes/creds/gitlab/from-the-lamp.env && exec mcp-gitlab"
-      github-xdata:
-        command: bash
-        env:
-          MISE_DATA_DIR: /opt/tools/mise
-        args:
-          - "-c"
-          - "set -a && . /etc/hermes/creds/github/xdata.env && export GITHUB_PERSONAL_ACCESS_TOKEN=\"${GITHUB_PERSONAL_ACCESS_TOKEN:-$GH_TOKEN}\" && export GITHUB_TOOLSETS=\"${GITHUB_TOOLSETS:-all}\" && export GITHUB_READ_ONLY=\"${GITHUB_READ_ONLY:-1}\" && exec github-mcp-server stdio"
-      grafana-cas-dev:
-        command: bash
-        env:
-          MISE_DATA_DIR: /opt/tools/mise
-        args:
-          - "-c"
-          - "set -a && export GRAFANA_DISABLE_WRITE=\"${GRAFANA_DISABLE_WRITE:-true}\" && . /etc/hermes/creds/grafana/cas-dev.env && exec mcp-grafana -t stdio -tls-skip-verify"
-      grafana-cas-gke-infra:
-        command: bash
-        env:
-          MISE_DATA_DIR: /opt/tools/mise
-        args:
-          - "-c"
-          - "set -a && export GRAFANA_DISABLE_WRITE=\"${GRAFANA_DISABLE_WRITE:-true}\" && . /etc/hermes/creds/grafana/cas-gke-infra.env && exec mcp-grafana -t stdio -tls-skip-verify"
-      grafana-cas-sg:
-        command: bash
-        env:
-          MISE_DATA_DIR: /opt/tools/mise
-        args:
-          - "-c"
-          - "set -a && export GRAFANA_DISABLE_WRITE=\"${GRAFANA_DISABLE_WRITE:-true}\" && . /etc/hermes/creds/grafana/cas-sg.env && exec mcp-grafana -t stdio -tls-skip-verify"
-      grafana-xdata-common:
-        command: bash
-        env:
-          MISE_DATA_DIR: /opt/tools/mise
-        args:
-          - "-c"
-          - "set -a && export GRAFANA_DISABLE_WRITE=\"${GRAFANA_DISABLE_WRITE:-true}\" && . /etc/hermes/creds/grafana/xdata-common.env && exec mcp-grafana -t stdio -tls-skip-verify"
-      grafana-xdata-complycontrol:
-        command: bash
-        env:
-          MISE_DATA_DIR: /opt/tools/mise
-        args:
-          - "-c"
-          - "set -a && export GRAFANA_DISABLE_WRITE=\"${GRAFANA_DISABLE_WRITE:-true}\" && . /etc/hermes/creds/grafana/xdata-complycontrol.env && exec mcp-grafana -t stdio -tls-skip-verify"
-      slack-cas:
-        command: bash
-        env:
-          MISE_DATA_DIR: /opt/tools/mise
-        args:
-          - "-c"
-          - "set -a && export SLACK_MCP_USERS_CACHE=\"${SLACK_MCP_USERS_CACHE:-/opt/data/slack-cas-users.json}\" SLACK_MCP_CHANNELS_CACHE=\"${SLACK_MCP_CHANNELS_CACHE:-/opt/data/slack-cas-channels.json}\" && . /etc/hermes/creds/slack/cas.env && exec slack-mcp-server --transport stdio"
-      slack-xdata:
-        command: bash
-        env:
-          MISE_DATA_DIR: /opt/tools/mise
-        args:
-          - "-c"
-          - "set -a && export SLACK_MCP_USERS_CACHE=\"${SLACK_MCP_USERS_CACHE:-/opt/data/slack-xdata-users.json}\" SLACK_MCP_CHANNELS_CACHE=\"${SLACK_MCP_CHANNELS_CACHE:-/opt/data/slack-xdata-channels.json}\" && . /etc/hermes/creds/slack/xdata.env && exec slack-mcp-server --transport stdio"
-      # ai-agent-viewer-xdata SA: viewer on GCP resources + K8s viewer RBAC on
-      # common-dev/common-infra. Static service-account auth, mirrors the same
-      # wrapper cbox's mcp-config generator uses, instead of an interactive
-      # human gcloud session.
-      gcloud:
-        command: bash
-        env:
-          MISE_DATA_DIR: /opt/tools/mise
-        args:
-          - "-c"
-          - "export GOOGLE_APPLICATION_CREDENTIALS=/etc/hermes/gcp/ai-agent-viewer-xdata.json && gcloud auth activate-service-account --key-file=\"$GOOGLE_APPLICATION_CREDENTIALS\" --quiet >/dev/null 2>&1; exec gcloud-mcp"
-      # Static kubeconfigs (secretFiles below) with public GKE control-plane
-      # endpoints - exec.env already pins GOOGLE_APPLICATION_CREDENTIALS to
-      # the mounted SA key, so this is self-contained regardless of this
-      # subprocess's own env. No live `gcloud get-credentials` at pod start.
-      kubernetes:
-        command: bash
-        env:
-          MISE_DATA_DIR: /opt/tools/mise
-        args:
-          - "-c"
-          - "export KUBECONFIG=/etc/hermes/kube/common-dev.yaml:/etc/hermes/kube/common-infra.yaml && exec kubernetes-mcp-server --read-only --list-output table"
+      # Single entry point: everything else (gitlab, jira/atlassian, slack,
+      # grafana, github, sheets, k8s, alchemy/etherscan/thegraph, oracle)
+      # comes from the toolhive vMCP aggregator, not from per-service
+      # subprocesses configured here. TOOLHIVE_BEARER_TOKEN is a long-lived
+      # Kubernetes ServiceAccount token (TokenRequest, minted once for the
+      # hermes-client SA in the infra cluster's toolhive namespace - see
+      # lamp-toolhive-vmcps values.yaml mcp-tools-hermes-oidc/mcp-tools-hermes)
+      # rather than a human GitLab login, since hermes and toolhive run in
+      # different physical clusters and can't share a live SA-token issuer.
+      toolhive:
+        # Reaches the infra cluster's vMCP over the shared tailnet: this
+        # in-cluster name resolves to an ExternalName service (argo-apps
+        # prod-0/platform/tailscale-services) that tailscale-operator proxies
+        # to the mcp-tools-hermes.<tailnet> Tailscale LoadBalancer Service
+        # (lamp-toolhive-vmcps hermesTailscaleExpose). Plain HTTP - Tailscale
+        # Ingress (L7, HTTPS-only) always terminates TLS with a cert bound to
+        # the full MagicDNS name and rejects any other SNI, which this local
+        # DNS name can never match; the L3 Service passes traffic through as
+        # plain TCP, already encrypted end-to-end by the tailnet's own
+        # WireGuard transport, so no TLS layer is needed on top.
+        url: "http://mcp-tools-hermes.tailscale-services.svc.cluster.local:4483/mcp"
+        headers:
+          Authorization: "Bearer ${env:TOOLHIVE_BEARER_TOKEN}"
     terminal:
       backend: "local"
       cwd: "."
@@ -317,6 +221,12 @@ secrets:
   TRAVELPAYOUTS_TOKEN:
     key: hermes
     property: travelpayouts_token
+  # Long-lived Kubernetes bound ServiceAccount token for the toolhive vMCP
+  # (see mcp_servers.toolhive below) - minted once via TokenRequest against
+  # the infra cluster, not rotated by any in-cluster automation.
+  TOOLHIVE_BEARER_TOKEN:
+    key: hermes
+    property: toolhive_bearer_token
   # defi plugin (djinn-home/skills marketplace) on-chain scripts read these
   # as plain process env vars - not MCP servers, so no secretFiles wrapper.
   ETHERSCAN_API_KEY:
@@ -373,80 +283,13 @@ secretFiles:
     property: oci_key_lamp_prod_1
     mountPath: /etc/hermes/.oci/lamp-prod-1.pem
 
-  # Multi-instance MCP creds (Jira, GitLab, GitHub, Grafana, Slack) - each
-  # server's mcp_servers entry above sources its own file directly rather
-  # than relying on inherited process env, matching cbox's wrapper pattern.
-  atlassian-cas.env:
-    key: hermes
-    property: atlassian_cas_env
-    mountPath: /etc/hermes/creds/atlassian/cas.env
-  atlassian-xdata.env:
-    key: hermes
-    property: atlassian_xdata_env
-    mountPath: /etc/hermes/creds/atlassian/xdata.env
-  gitlab-cas-dev.env:
-    key: hermes
-    property: gitlab_cas_dev_env
-    mountPath: /etc/hermes/creds/gitlab/cas-dev.env
-  gitlab-cas-gitops.env:
-    key: hermes
-    property: gitlab_cas_gitops_env
-    mountPath: /etc/hermes/creds/gitlab/cas-gitops.env
+  # gitlab-from-the-lamp.env is not an MCP credential - the sync-skills init
+  # container uses it as a git credential helper for the djinn-home/skills
+  # marketplace clone (see skillsSync above).
   gitlab-from-the-lamp.env:
     key: hermes
     property: gitlab_from_the_lamp_env
     mountPath: /etc/hermes/creds/gitlab/from-the-lamp.env
-  github-xdata.env:
-    key: hermes
-    property: github_xdata_env
-    mountPath: /etc/hermes/creds/github/xdata.env
-  grafana-cas-dev.env:
-    key: hermes
-    property: grafana_cas_dev_env
-    mountPath: /etc/hermes/creds/grafana/cas-dev.env
-  grafana-cas-gke-infra.env:
-    key: hermes
-    property: grafana_cas_gke_infra_env
-    mountPath: /etc/hermes/creds/grafana/cas-gke-infra.env
-  grafana-cas-sg.env:
-    key: hermes
-    property: grafana_cas_sg_env
-    mountPath: /etc/hermes/creds/grafana/cas-sg.env
-  grafana-xdata-common.env:
-    key: hermes
-    property: grafana_xdata_common_env
-    mountPath: /etc/hermes/creds/grafana/xdata-common.env
-  grafana-xdata-complycontrol.env:
-    key: hermes
-    property: grafana_xdata_complycontrol_env
-    mountPath: /etc/hermes/creds/grafana/xdata-complycontrol.env
-  slack-cas.env:
-    key: hermes
-    property: slack_cas_env
-    mountPath: /etc/hermes/creds/slack/cas.env
-  slack-xdata.env:
-    key: hermes
-    property: slack_xdata_env
-    mountPath: /etc/hermes/creds/slack/xdata.env
-
-  # Separate Vault secret: the "hermes" secret is already near OCI Vault's
-  # 25600-char content ceiling, and this key is unrelated to the rest anyway
-  # (same pattern as litellm-image-pull staying its own entry in lamp-litellm).
-  ai-agent-viewer-xdata.json:
-    key: hermes-gcp
-    property: gcp_viewer_xdata_json
-    mountPath: /etc/hermes/gcp/ai-agent-viewer-xdata.json
-
-  # Static kubeconfigs, public GKE control-plane endpoints. exec.env already
-  # pins GOOGLE_APPLICATION_CREDENTIALS at the mounted SA key above.
-  kube-common-dev.yaml:
-    key: hermes-gcp
-    property: kube_common_dev_yaml
-    mountPath: /etc/hermes/kube/common-dev.yaml
-  kube-common-infra.yaml:
-    key: hermes-gcp
-    property: kube_common_infra_yaml
-    mountPath: /etc/hermes/kube/common-infra.yaml
 
 extraEnv:
   TELEGRAM_ALLOWED_USERS: "306361331"
