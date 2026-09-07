@@ -9,9 +9,13 @@ mcp:
     mcps: []
 
   github:
-    enabled: false
+    enabled: true
     image: ghcr.io/github/github-mcp-server:v1.11.0
-    mcps: []
+    mcps:
+      - name: github-xdata
+        token:
+          key: github-mcp-xdata
+          property: personal-access-token
 
   gitlab:
     enabled: true
@@ -22,6 +26,18 @@ mcp:
         permissionMode: full
         token:
           key: gitlab-mcp
+          property: personal-access-token
+      - name: gitlab-cas-dev
+        apiUrl: https://gitlab.v-soft.dev/api/v4
+        permissionMode: full
+        token:
+          key: gitlab-mcp-cas-dev
+          property: personal-access-token
+      - name: gitlab-cas-gitops
+        apiUrl: https://gitlab.v-gitops.cc/api/v4
+        permissionMode: full
+        token:
+          key: gitlab-mcp-cas-gitops
           property: personal-access-token
 
   kubernetes:
