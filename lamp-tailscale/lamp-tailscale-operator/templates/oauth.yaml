@@ -13,12 +13,8 @@ spec:
     creationPolicy: "{{ .Values.externalSecrets.creationPolicy }}"
     template:
       data:
-        client_id: "{{`{{ .client_id }}`}}"
-        client_secret: "{{`{{ .client_secret }}`}}"
-  data:
-  - secretKey: client_id
-    remoteRef:
-      key: "{{ .Values.remoteSecretKeys.clientId }}"
-  - secretKey: client_secret
-    remoteRef:
-      key: "{{ .Values.remoteSecretKeys.clientSecret }}"
+        client_id: "{{`{{ .oauth_client_id }}`}}"
+        client_secret: "{{`{{ .oauth_client_secret }}`}}"
+  dataFrom:
+  - extract:
+      key: "{{ .Values.remoteSecretKeys.tailscale }}"

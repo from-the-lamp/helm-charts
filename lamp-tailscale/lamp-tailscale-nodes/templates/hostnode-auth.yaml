@@ -14,9 +14,8 @@ spec:
     creationPolicy: "{{ $.Values.externalSecrets.creationPolicy }}"
     template:
       data:
-        TS_AUTHKEY: "{{`{{ .client_secret }}`}}?ephemeral=false&preauthorized=true"
-  data:
-    - secretKey: client_secret
-      remoteRef:
-        key: "{{ $.Values.remoteSecretKeys.clientSecret }}"
+        TS_AUTHKEY: "{{`{{ .oauth_client_secret }}`}}?ephemeral=false&preauthorized=true"
+  dataFrom:
+    - extract:
+        key: "{{ $.Values.remoteSecretKeys.tailscale }}"
 {{- end }}

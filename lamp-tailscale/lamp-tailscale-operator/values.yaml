@@ -1,6 +1,5 @@
 remoteSecretKeys:
-  clientId: tailscale-client-id
-  clientSecret: tailscale-client-secret
+  tailscale: tailscale
 
 tailscale-operator:
   operatorConfig:

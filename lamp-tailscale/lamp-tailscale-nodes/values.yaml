@@ -9,7 +9,13 @@ externalSecrets:
   creationPolicy: Orphan
 
 remoteSecretKeys:
-  clientSecret: tailscale-client-secret
+  tailscale: tailscale
+
+connectors:
+  - name: k3s-infra-subnet-router
+    hostname: k3s-infra-subnet-router
+    advertiseRoutes:
+      - 10.43.0.0/16
 
 hostNodes:
   - name: exit
