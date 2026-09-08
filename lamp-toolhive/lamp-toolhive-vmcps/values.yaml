@@ -36,7 +36,7 @@ dex:
     gitlab:
       enabled: true
       baseURL: https://gitlab.com
-      redirectURI: https://mcp.from-the-lamp.work/dex/callback
+      redirectURI: https://mcp.internal.from-the-lamp.work/dex/callback
       groups:
         - from-the-lamp
       clientId:
@@ -47,7 +47,7 @@ dex:
         property: oauth-client-secret
 
   config:
-    issuer: https://mcp.from-the-lamp.work/dex
+    issuer: https://mcp.internal.from-the-lamp.work/dex
     storage:
       type: kubernetes
       config:
@@ -77,14 +77,14 @@ dex:
       # bcrypt hash of a generated password, minted once for a single ROPC
       # token exchange - see lamp-hermes secrets.TOOLHIVE_BEARER_TOKEN.
       - email: hermes@toolhive.internal
-        hash: "$2b$10$esnPdcA5wShhdRp/jbD8iOnHKDkL2WH.1WHU6pUwVFtKiyRGnWx4K"
+        hash: "$2b$10$MUoCGGtqh/8dPxPY0g9u6.7voKfSGv79I/fAs.LCh4or1BiXoTF2O"
         username: hermes
         userID: hermes-static-user
     staticClients:
       - id: vmcp-mcp-tools
         name: "ToolHive vMCP"
         redirectURIs:
-          - https://mcp.from-the-lamp.work/oauth/callback
+          - https://mcp.internal.from-the-lamp.work/oauth/callback
         secretEnv: VMCP_CLIENT_SECRET
       - id: hermes-toolhive
         name: "Hermes (headless ROPC)"
@@ -146,7 +146,7 @@ redis:
 
 oidcConfigs:
   - name: mcp-tools-oidc
-    issuer: https://mcp.from-the-lamp.work
+    issuer: https://mcp.internal.from-the-lamp.work
   # Hermes runs in a different physical cluster (prod-0/product) and can't do
   # an interactive browser OAuth login (it's a headless gateway, no browser
   # to complete the loopback callback) or present a token from its own
@@ -159,7 +159,7 @@ oidcConfigs:
   # above) and stored as a static secret (hermes/toolhive_bearer_token in
   # Vault) that hermes picks up like any other credential.
   - name: mcp-tools-hermes-oidc
-    issuer: https://mcp.from-the-lamp.work/dex
+    issuer: https://mcp.internal.from-the-lamp.work/dex
 
 authzConfigs:
   - name: mcp-tools-authz
@@ -176,15 +176,15 @@ virtualMcpServers:
       type: oidc
       oidcConfigRef:
         name: mcp-tools-oidc
-        audience: https://mcp.from-the-lamp.work/mcp
-        resourceUrl: https://mcp.from-the-lamp.work/mcp
+        audience: https://mcp.internal.from-the-lamp.work/mcp
+        resourceUrl: https://mcp.internal.from-the-lamp.work/mcp
         scopes:
           - openid
           - offline_access
       authzConfigRef:
         name: mcp-tools-authz
     authServerConfig:
-      issuer: https://mcp.from-the-lamp.work
+      issuer: https://mcp.internal.from-the-lamp.work
       baselineClientScopes:
         - openid
         - offline_access
@@ -198,12 +198,12 @@ virtualMcpServers:
         - name: gitlab
           type: oidc
           oidcConfig:
-            issuerUrl: https://mcp.from-the-lamp.work/dex
+            issuerUrl: https://mcp.internal.from-the-lamp.work/dex
             clientId: vmcp-mcp-tools
             clientSecretRef:
               name: toolhive-vmcp-client-secret
               key: VMCP_CLIENT_SECRET
-            redirectUri: https://mcp.from-the-lamp.work/oauth/callback
+            redirectUri: https://mcp.internal.from-the-lamp.work/oauth/callback
             scopes:
               - openid
               - email
