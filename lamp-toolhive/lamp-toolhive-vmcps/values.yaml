@@ -147,6 +147,7 @@ redis:
 oidcConfigs:
   - name: mcp-tools-oidc
     issuer: https://mcp.internal.from-the-lamp.work
+    jwksAllowPrivateIP: true
   # Hermes runs in a different physical cluster (prod-0/product) and can't do
   # an interactive browser OAuth login (it's a headless gateway, no browser
   # to complete the loopback callback) or present a token from its own
@@ -160,6 +161,7 @@ oidcConfigs:
   # Vault) that hermes picks up like any other credential.
   - name: mcp-tools-hermes-oidc
     issuer: https://mcp.internal.from-the-lamp.work/dex
+    jwksAllowPrivateIP: true
 
 authzConfigs:
   - name: mcp-tools-authz
@@ -199,6 +201,7 @@ virtualMcpServers:
           type: oidc
           oidcConfig:
             issuerUrl: https://mcp.internal.from-the-lamp.work/dex
+            allowPrivateIPs: true
             clientId: vmcp-mcp-tools
             clientSecretRef:
               name: toolhive-vmcp-client-secret

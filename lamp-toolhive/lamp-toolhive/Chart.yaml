@@ -4,9 +4,9 @@ version: 0.0.1
 
 dependencies:
   - name: toolhive-operator-crds
-    version: 0.46.0
+    version: 0.47.1
     repository: oci://ghcr.io/stacklok/toolhive
 
   - name: toolhive-operator
-    version: 0.46.0
+    version: 0.47.1
     repository: oci://ghcr.io/stacklok/toolhive

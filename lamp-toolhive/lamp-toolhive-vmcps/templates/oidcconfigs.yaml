@@ -18,5 +18,8 @@ spec:
     {{- if .insecureAllowHTTP }}
     insecureAllowHTTP: true
     {{- end }}
+    {{- if .jwksAllowPrivateIP }}
+    jwksAllowPrivateIP: true
+    {{- end }}
   {{- end }}
 {{- end }}
