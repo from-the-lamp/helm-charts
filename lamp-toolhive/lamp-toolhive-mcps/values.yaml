@@ -204,6 +204,27 @@ mcp:
           key: thegraph-mcp
           property: api-key
 
+  letsfg:
+    enabled: true
+    # Self-built from docker-images/lamp-letsfg-mcp (npm package letsfg-mcp, no official image).
+    # letsfg-mcp only accepts a static LETSFG_BEARER_TOKEN env var (no refresh logic of its
+    # own, no config file it writes to), and the OAuth refresh_token rotates on every use.
+    # supervisor.py reads the current refresh_token from Vault (via the mounted lamp-infra
+    # OCI profile, reusing the oracle-infra MCP's secret), exchanges it for a fresh access
+    # token once at container start, writes the rotated refresh_token back, then execs
+    # letsfg-mcp. It deliberately does NOT refresh on a timer - letsfg's fraud detection
+    # revokes token pairs refreshed continuously without real usage. Instead, healthcheck.py
+    # runs as a livenessProbe: it makes one real, cheap search every 10 minutes (locations
+    # lookups aren't auth-gated and prove nothing) and only fails the probe on a genuine
+    # 401/403, so Kubernetes restarts the pod - and supervisor.py re-refreshes - exactly
+    # when the token has actually stopped working, not on a blind schedule.
+    image: registry.gitlab.com/from-the-lamp/infra/docker-images/lamp-letsfg-mcp:latest
+    mcps:
+      - name: letsfg
+        ociProfile: lamp-infra
+        ociSecretName: oracle-infra-mcp-secret
+        vaultSecretId: ocid1.vaultsecret.oc1.eu-frankfurt-1.amaaaaaap56pctia3kx6u2sw3qqt5gkav6rp4pst77gu2lu54qmeram4jcfa
+
 externalSecrets:
   kind: ClusterSecretStore
   name: oracle

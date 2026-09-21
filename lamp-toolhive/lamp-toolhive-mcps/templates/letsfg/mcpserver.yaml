@@ -1,0 +1,43 @@
+{{- if .Values.mcp.letsfg.enabled }}
+{{- range $item := .Values.mcp.letsfg.mcps }}
+---
+apiVersion: toolhive.stacklok.dev/v1beta1
+kind: MCPServer
+metadata:
+  name: {{ $item.name }}
+spec:
+  image: {{ $.Values.mcp.letsfg.image }}
+  transport: stdio
+  groupRef:
+    name: {{ $item.groupRef | default $.Values.mcp.defaults.groupRef }}
+  permissionProfile:
+    type: builtin
+    name: {{ $.Values.mcp.defaults.permissionProfile }}
+  audit:
+    enabled: true
+  env:
+    - name: OCI_CONFIG_PROFILE
+      value: {{ $item.ociProfile | default "lamp-infra" }}
+    - name: LETSFG_VAULT_SECRET_ID
+      value: {{ $item.vaultSecretId | quote }}
+  podTemplateSpec:
+    spec:
+      containers:
+        - name: mcp
+          livenessProbe:
+            exec:
+              command: ["python3", "/app/healthcheck.py"]
+            initialDelaySeconds: 30
+            periodSeconds: 600
+            timeoutSeconds: 15
+            failureThreshold: 1
+          volumeMounts:
+            - name: ociconfig
+              mountPath: /home/mcp/.oci
+              readOnly: true
+      volumes:
+        - name: ociconfig
+          secret:
+            secretName: {{ $item.ociSecretName }}
+{{- end }}
+{{- end }}
