@@ -1,0 +1,35 @@
+{{- if .Values.mcp.bitbucket.enabled }}
+{{- range $item := .Values.mcp.bitbucket.mcps }}
+---
+apiVersion: toolhive.stacklok.dev/v1beta1
+kind: MCPServer
+metadata:
+  name: {{ $item.name }}
+spec:
+  image: {{ $.Values.mcp.bitbucket.image }}
+  transport: stdio
+  groupRef:
+    name: {{ $item.groupRef | default $.Values.mcp.defaults.groupRef }}
+  permissionProfile:
+    type: builtin
+    name: {{ $.Values.mcp.defaults.permissionProfile }}
+  audit:
+    enabled: true
+  env:
+    - name: BITBUCKET_URL
+      value: https://bitbucket.org
+    - name: BITBUCKET_USERNAME
+      value: {{ $item.username }}
+    - name: BITBUCKET_WORKSPACE
+      value: {{ $item.workspace }}
+    - name: TOOLSETS
+      value: {{ $item.toolsets | default "bitbucket_repositories,bitbucket_pull_requests,bitbucket_branches,bitbucket_commits,bitbucket_source" }}
+    {{- with $item.env }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  secrets:
+    - name: {{ $item.name }}-mcp-secret
+      key: api-token
+      targetEnvName: BITBUCKET_API_TOKEN
+{{- end }}
+{{- end }}

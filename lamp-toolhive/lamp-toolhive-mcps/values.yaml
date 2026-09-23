@@ -81,14 +81,35 @@ mcp:
         domain: jirasolutions.atlassian.net
         email: artem.zverev@v-soft.dev
         token:
-          key: jira-mcp-cas
-          property: api-token
+          key: toolhive
+          property: atlassian_token_cas
       - name: jira-xdata
         domain: xdatagroup.atlassian.net
         email: artem.zverev@xdatagroup.io
         token:
-          key: jira-mcp-xdata
-          property: api-token
+          key: toolhive
+          property: atlassian_token_xdata
+      - name: jira-currency
+        domain: cx-labs-io.atlassian.net
+        email: a.zverev@cx-labs.io
+        token:
+          key: toolhive
+          property: atlassian_token_currency
+
+  bitbucket:
+    enabled: true
+    # Self-built from docker-images/lamp-bitbucket-mcp (ulikoenig/mcp-atlassian-with-bitbucket,
+    # a sooperset/mcp-atlassian fork with Bitbucket Cloud support - ghcr.io/ibrahimogod/bitbucket-mcp
+    # was tried first but its generic tools declare an untyped `body: serde_json::Value` field that
+    # schemars renders as a typeless {} schema, which broke tools/list for the whole vMCP gateway).
+    image: registry.gitlab.com/from-the-lamp/infra/docker-images/lamp-bitbucket-mcp:latest
+    mcps:
+      - name: bitbucket
+        username: a.zverev@cx-labs.io
+        workspace: currencycom
+        token:
+          key: toolhive
+          property: atlassian_token_currency
 
   victoriametrics:
     enabled: false
