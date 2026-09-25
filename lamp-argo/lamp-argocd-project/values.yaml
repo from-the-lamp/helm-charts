@@ -1,5 +1,5 @@
 project:
-  enabled: true
+  enabled: false
   name: example
   nameGenerator: "{{ .Values.project.type }}-{{ .Values.project.environment }}-{{ .Values.project.name }}"
   namespace: argocd
@@ -8,32 +8,52 @@ project:
   environment: dev
   roles:
     developer: []
+      # - example-developers@example.com
+  # Globals
+  region: europe-west4
+  projectName: common
+  projectId: common-dev-347a
+  networkName: common-dev-eu-w4-main-0
+  clusterName: common-dev-eu-w4-main-0
 
 git:
-  repo: https://gitlab.com/from-the-lamp/infra/argo-apps.git
+  repo: https://github.com/example-project.git
   revision: HEAD
   path: "{{`{{ .path.path }}`}}"
   valueFiles:
     - ../values.yaml
     - values.yaml
     - .kargo.values.yaml
+  parameters:
+    - name: global.environment
+      value: "{{ .Values.project.environment }}"
+    - name: global.projectName
+      value: "{{ .Values.project.projectName }}"
+    - name: global.projectId
+      value: "{{ .Values.project.projectId }}"
+    - name: global.region
+      value: "{{ .Values.project.region }}"
+    - name: global.networkName
+      value: "{{ .Values.project.networkName }}"
+    - name: global.clusterName
+      value: "{{ .Values.project.clusterName }}"
 
 appset:
   name: example
   nameGenerator: "{{ .Values.project.type }}-{{ .Values.project.environment }}-{{ .Values.project.name }}"
   generators:
     - git:
-        files:
-          - path: "{{ .Values.project.environment }}/{{ .Values.project.type }}/*/appConfig.yaml"
+        directories:
+          - path: "envs/{{ .Values.project.environment }}/{{ .Values.project.type }}/*"
         repoURL: "{{ .Values.git.repo }}"
         revision: "{{ .Values.git.revision }}"
   app:
     nameGenerator: "{{ .Values.project.type }}-{{ .Values.project.environment }}-{{`{{ .path.basename }}`}}"
-    annotations:
-      kargo.akuity.io/authorized-stage: "kargo-project-{{`{{ .path.basename }}`}}:{{ .Values.project.environment }}-{{`{{ .path.basename }}`}}"
-      
+    annotations: {}
+      # kargo.akuity.io/authorized-stage: "kargo-project-{{`{{ .path.basename }}`}}:{{ .Values.project.environment }}-{{`{{ .path.basename }}`}}"
+
 destination:
-  name: "{{ .Values.project.environment }}"
+  name: "gke-{{ .Values.project.projectId }}-{{ .Values.project.clusterName }}"
   namespace: "{{`{{ .path.basename }}`}}"
   releaseName: "{{`{{ .path.basename }}`}}"
 
@@ -43,6 +63,9 @@ sync:
   createNamespace: true
   changeSyncPolicy: true
   preserveResourcesOnDeletion: true
+  # labels/annotations, проставляемые ArgoCD на управляемый namespace (требует CreateNamespace=true)
+  namespaceLabels: {}
+  namespaceAnnotations: {}
 
 ignoreDifferences:
   - group: apps
@@ -66,16 +89,7 @@ ignoreDifferences:
       - /webhooks/0/failurePolicy
     kind: ValidatingWebhookConfiguration
     name: istiod-default-validator
-  - group: ""
-    kind: Service
-    jsonPointers:
-      - /spec/externalName
-  - group: apiextensions.k8s.io
-    kind: CustomResourceDefinition
-    jsonPointers:
-      - /spec/preserveUnknownFields
-  - group: postgresql.cnpg.io
-    kind: Cluster
+  - group: apps
+    kind: Deployment
     jqPathExpressions:
-      - .spec.managed.roles[].passwordSecret.remoteSecretKey
-      - .spec.managed.roles[].passwordSecret.remoteSecretProperty
+      - '.spec.template.spec.containers[].env[]? | select(.valueFrom.resourceFieldRef != null) | .valueFrom.resourceFieldRef.divisor'

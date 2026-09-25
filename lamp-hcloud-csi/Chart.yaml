@@ -1,0 +1,11 @@
+apiVersion: v2
+name: lamp-hcloud-csi
+version: 0.1.0
+
+dependencies:
+  - name: hcloud-csi
+    version: 2.23.0
+    repository: https://charts.hetzner.cloud
+
+annotations:
+  notes: "Initial version and basic configuration."

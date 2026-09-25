@@ -1,0 +1,11 @@
+apiVersion: v2
+name: lamp-cilium
+version: 0.1.0
+
+dependencies:
+  - name: cilium
+    version: 1.20.2
+    repository: https://helm.cilium.io/
+
+annotations:
+  notes: "Initial version and basic configuration."

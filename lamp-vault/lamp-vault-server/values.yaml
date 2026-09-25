@@ -1,0 +1,187 @@
+serviceAccount:
+  create: true
+  name: vault
+
+rbac:
+  authDelegator: true
+
+# ====================================================================
+# Vault server (operator CR-level settings)
+# ====================================================================
+vault:
+  name: vault
+  size: 1
+  image: hashicorp/vault:1.21.4
+  bankVaultsImage: ghcr.io/bank-vaults/bank-vaults:v1.31.1
+  apiAddress: http://vault.vault:8200
+
+  serviceRegistrationEnabled: true
+  statsdDisabled: true
+
+  storage:
+    storageClass: standard-rwo
+    size: 10Gi
+
+  unsealConfig:
+    secretShares: 1
+    secretThreshold: 1
+    storeRootToken: true
+    preFlightChecks: true
+
+  resources: {}
+  podSpec: {}            # → vaultPodSpec (affinity/tolerations/securityContext)
+  configurerPodSpec: {}  # → vaultConfigurerPodSpec
+
+policies: []
+  # - name: deny
+  #   rules: |
+  #     path "*" {
+  #       capabilities = ["deny"]
+  #     }
+  # - name: admin
+  #   rules: |
+  #     path "*" {
+  #       capabilities = ["create", "read", "update", "delete", "list", "sudo"]
+  #     }
+  # - name: developer
+  #   rules: |
+  #     path "services" {
+  #       capabilities = ["create", "read", "update", "delete", "list"]
+  #     }
+  # - name: support
+  #   rules: |
+  #     path "services" {
+  #       capabilities = ["read", "list"]
+  #     }
+
+kubernetesAuth:
+  enabled: false
+  roles: []
+    # - name: argocd
+    #   serviceAccounts: [argocd-repo-server]
+    #   namespaces: [argocd]
+    #   policies: [admin]
+    #   ttl: 1h
+    # - name: developer
+    #   serviceAccounts: [fixme]
+    #   namespaces: [""]
+    #   policies: [developer]
+    #   ttl: 1h
+    # - name: external-secrets
+    #   serviceAccounts: [external-secrets]
+    #   namespaces: [external-secrets]
+    #   policies: [admin]
+    #   ttl: 1h
+
+oidc:
+  enabled: false
+  path: oidc
+  # Show this auth method on the Vault UI login screen (sys/auth/<path>/tune).
+  # "unauth" makes it selectable in the "Method" dropdown by its mount path,
+  # so a non-default path (e.g. zitadel) works without "Advanced settings".
+  # Set to "" or "hidden" to keep it off the login listing.
+  listingVisibility: unauth
+  discoveryUrl: https://v-id.cc
+  boundIssuer: https://v-id.cc
+  defaultRole: zitadel
+  role:
+    name: zitadel
+    userClaim: sub
+    groupsClaim: groups
+    oidcScopes: [openid, profile, email, groups]
+    allowedRedirectUris:
+      - https://vault.v-soft.space/ui/vault/auth/zitadel/oidc/callback
+  remoteSecretKeys:
+    clientId:
+      key: vault
+      property: zitadel-client-id
+    clientSecret:
+      key: vault
+      property: zitadel-client-secret
+  identityGroups:
+    - name: vault_devops
+      policies: [admin]
+    - name: vault_developer
+      policies: [developer]
+    - name: vault_support
+      policies: [support]
+
+kvMounts:
+  - name: products
+    description: Product-level secrets
+
+audit: []
+
+# ====================================================================
+# PKI mounts (root or intermediate). Roles are written as-is to
+# {mount}/roles/{name}, so any vault role param key is accepted.
+# Example for ROOT vault (in infra):
+#   - path: pki_root
+#     maxLeaseTtl: "315360000s"   # 10y
+#     urls:
+#       issuingCertificates: ["https://vault.hyperon.cloud/v1/pki_root/ca"]
+#     roles:
+#       - name: prod-eu-c2-main-0
+#         allowed_domains: ["prod-eu-c2-main-0.internal"]
+#         allow_subdomains: true
+#         max_ttl: "157680000s"
+# Example for INTERMEDIATE vault (in prod):
+#   - path: pki_int
+#     maxLeaseTtl: "157680000s"   # 5y
+#     roles:
+#       - name: kafka
+#         allowed_domains: ["kafka.svc.cluster.local"]
+#         allow_subdomains: true
+#         max_ttl: "720h"
+# ====================================================================
+pkiMounts: []
+
+# ====================================================================
+# JWT auth method. Used here for cross-cluster auth via Google OIDC:
+# child Vault's bootstrap Job presents a GKE metadata-server JWT
+# (audience = vault/<role>); bound by `email` claim to a specific GCP SA.
+# ====================================================================
+jwtAuth:
+  enabled: false
+  path: jwt-gcp
+  discoveryUrl: https://accounts.google.com
+  boundIssuer: https://accounts.google.com
+  defaultRole: ""
+  roles: []
+  # - name: prod-eu-c2-main-0-signer
+  #   userClaim: email
+  #   boundAudiences: ["vault/prod-eu-c2-main-0-signer"]
+  #   boundClaims:
+  #     email: ["vault-pki-bootstrap@prod-907c.iam.gserviceaccount.com"]
+  #   policies: ["sign-intermediate-prod-eu-c2-main-0"]
+  #   ttl: "5m"
+  #   maxTtl: "5m"
+
+externalSecrets:
+  kind: ClusterSecretStore
+  name: gcp-platform-infra
+  refreshInterval: 1h
+  creationPolicy: Orphan
+
+# ====================================================================
+# Native Vault auto-unseal via Google Cloud KMS (gcpckms seal).
+# When enabled, this chart also provisions (via Config Connector,
+# sync-wave -1) a KMSKeyRing, KMSCryptoKey, IAMServiceAccount and the
+# Workload Identity binding for the Vault pod's KSA.
+#
+# All GCP resources are created with deletion-policy: abandon — if the
+# CryptoKey were deleted, the Vault keyring would be permanently
+# unrecoverable.
+#
+# After init, Vault returns recovery keys (not unseal keys) into the
+# kubernetes secret backend; those are only needed for rekey / generate-root.
+# ====================================================================
+gcpUnseal:
+  enabled: false
+  keyRing: vault-server
+  cryptoKey: vault-server
+  gsaName: vault-server                # GCP IAM SA ID must be 6-30 chars; plain "vault" is rejected
+  rotationPeriod: 7776000s            # 90d  — auto key rotation
+  destroyScheduledDuration: 2592000s  # 30d  — undo window for key destroy
+  # projectId and KMS location come from .Values.global.projectId / .Values.global.region
+  # which the platform ApplicationSet injects into every chart.

@@ -1,0 +1,245 @@
+apiVersion: vault.banzaicloud.com/v1alpha1
+kind: Vault
+metadata:
+  name: {{ .Values.vault.name }}
+  namespace: {{ .Release.Namespace }}
+spec:
+  size: {{ .Values.vault.size }}
+  image: {{ .Values.vault.image }}
+  bankVaultsImage: {{ .Values.vault.bankVaultsImage }}
+
+  serviceAccount: {{ .Values.serviceAccount.name }}
+  serviceType: ClusterIP
+
+  serviceRegistrationEnabled: {{ .Values.vault.serviceRegistrationEnabled }}
+  statsdDisabled: {{ .Values.vault.statsdDisabled }}
+
+  unsealConfig:
+    options:
+      preFlightChecks: {{ .Values.vault.unsealConfig.preFlightChecks }}
+      storeRootToken: {{ .Values.vault.unsealConfig.storeRootToken }}
+      secretShares: {{ .Values.vault.unsealConfig.secretShares }}
+      secretThreshold: {{ .Values.vault.unsealConfig.secretThreshold }}
+    kubernetes:
+      secretNamespace: {{ .Release.Namespace }}
+
+  config:
+    disable_mlock: true
+    storage:
+      raft:
+        path: /vault/file
+    listener:
+      tcp:
+        address: 0.0.0.0:8200
+        tls_disable: true
+    api_addr: {{ .Values.vault.apiAddress | quote }}
+    cluster_addr: "http://${.Env.POD_NAME}:8201"
+    ui: true
+    {{- if .Values.gcpUnseal.enabled }}
+    seal:
+      gcpckms:
+        project: {{ .Values.global.projectId | quote }}
+        region: {{ .Values.global.region | quote }}
+        key_ring: {{ .Values.gcpUnseal.keyRing | quote }}
+        crypto_key: {{ .Values.gcpUnseal.cryptoKey | quote }}
+    {{- end }}
+
+  {{- if .Values.oidc.enabled }}
+  envsConfig:
+    - name: VAULT_OIDC_CLIENT_ID
+      valueFrom:
+        secretKeyRef:
+          name: vault-oidc
+          key: client_id
+    - name: VAULT_OIDC_CLIENT_SECRET
+      valueFrom:
+        secretKeyRef:
+          name: vault-oidc
+          key: client_secret
+  {{- end }}
+
+  externalConfig:
+    {{- with .Values.policies }}
+    policies:
+      {{- range . }}
+      - name: {{ .name }}
+        rules: |
+          {{- .rules | nindent 10 }}
+      {{- end }}
+    {{- end }}
+
+    {{- with .Values.audit }}
+    audit:
+      {{- range . }}
+      - type: {{ .type }}
+        path: {{ .path | default .type }}
+        {{- with .description }}
+        description: {{ . | quote }}
+        {{- end }}
+        options:
+          {{- toYaml .options | nindent 10 }}
+      {{- end }}
+    {{- end }}
+
+    {{- if or .Values.kubernetesAuth.enabled .Values.oidc.enabled .Values.jwtAuth.enabled }}
+    auth:
+      {{- if .Values.kubernetesAuth.enabled }}
+      - type: kubernetes
+        roles:
+          {{- range .Values.kubernetesAuth.roles }}
+          - name: {{ .name }}
+            bound_service_account_names: {{ toJson .serviceAccounts }}
+            bound_service_account_namespaces: {{ toJson .namespaces }}
+            policies: {{ toJson .policies }}
+            ttl: {{ .ttl | quote }}
+          {{- end }}
+      {{- end }}
+      {{- if .Values.oidc.enabled }}
+      - type: oidc
+        path: {{ .Values.oidc.path }}
+        {{- with .Values.oidc.listingVisibility }}
+        options:
+          listing_visibility: {{ . | quote }}
+        {{- end }}
+        config:
+          oidc_discovery_url: {{ .Values.oidc.discoveryUrl | quote }}
+          # bank-vaults externalConfig templating: ${ env `VAR` } (custom delimiters ${ },
+          # backtick-quoted arg). NOT "$env:VAR" — that is passed through literally and
+          # ends up as the client_id, causing Zitadel "Errors.App.NotFound".
+          oidc_client_id: '${ env `VAULT_OIDC_CLIENT_ID` }'
+          oidc_client_secret: '${ env `VAULT_OIDC_CLIENT_SECRET` }'
+          bound_issuer: {{ .Values.oidc.boundIssuer | quote }}
+          default_role: {{ .Values.oidc.defaultRole | quote }}
+        roles:
+          - name: {{ .Values.oidc.role.name }}
+            bound_audiences:
+              - '${ env `VAULT_OIDC_CLIENT_ID` }'
+            allowed_redirect_uris: {{ toJson .Values.oidc.role.allowedRedirectUris }}
+            user_claim: {{ .Values.oidc.role.userClaim | quote }}
+            groups_claim: {{ .Values.oidc.role.groupsClaim | quote }}
+            oidc_scopes: {{ toJson .Values.oidc.role.oidcScopes }}
+      {{- end }}
+      {{- if .Values.jwtAuth.enabled }}
+      - type: jwt
+        path: {{ .Values.jwtAuth.path }}
+        {{- with .Values.jwtAuth.listingVisibility }}
+        options:
+          listing_visibility: {{ . | quote }}
+        {{- end }}
+        config:
+          oidc_discovery_url: {{ .Values.jwtAuth.discoveryUrl | quote }}
+          {{- with .Values.jwtAuth.boundIssuer }}
+          bound_issuer: {{ . | quote }}
+          {{- end }}
+          default_role: {{ .Values.jwtAuth.defaultRole | quote }}
+        roles:
+          {{- range .Values.jwtAuth.roles }}
+          - name: {{ .name }}
+            role_type: jwt
+            user_claim: {{ .userClaim | default "email" | quote }}
+            bound_audiences: {{ toJson .boundAudiences }}
+            {{- with .boundClaims }}
+            bound_claims:
+              {{- range $k, $v := . }}
+              {{ $k }}: {{ toJson $v }}
+              {{- end }}
+            {{- end }}
+            {{- with .boundClaimsType }}
+            bound_claims_type: {{ . | quote }}
+            {{- end }}
+            policies: {{ toJson .policies }}
+            ttl: {{ .ttl | default "5m" | quote }}
+            max_ttl: {{ .maxTtl | default "5m" | quote }}
+          {{- end }}
+      {{- end }}
+    {{- end }}
+
+    {{- if or .Values.kvMounts .Values.pkiMounts }}
+    secrets:
+      {{- range .Values.kvMounts }}
+      - type: kv
+        path: {{ .name }}
+        description: {{ .description | quote }}
+        options:
+          version: "2"
+      {{- end }}
+      {{- range .Values.pkiMounts }}
+      - type: pki
+        path: {{ .path }}
+        description: {{ .description | default "" | quote }}
+        config:
+          max_lease_ttl: {{ .maxLeaseTtl | quote }}
+        {{- if or .urls .roles .allowedDomainsCommon }}
+        configuration:
+          {{- if .urls }}
+          config:
+            - name: urls
+              {{- with .urls.issuingCertificates }}
+              issuing_certificates: {{ toJson . }}
+              {{- end }}
+              {{- with .urls.crlDistributionPoints }}
+              crl_distribution_points: {{ toJson . }}
+              {{- end }}
+              {{- with .urls.ocspServers }}
+              ocsp_servers: {{ toJson . }}
+              {{- end }}
+          {{- end }}
+          {{- with .roles }}
+          roles:
+            {{- range . }}
+            - name: {{ .name }}
+              {{- range $k, $v := omit . "name" }}
+              {{ $k }}: {{ toJson $v }}
+              {{- end }}
+            {{- end }}
+          {{- end }}
+        {{- end }}
+      {{- end }}
+    {{- end }}
+
+    {{- if and .Values.oidc.enabled .Values.oidc.identityGroups }}
+    groups:
+      {{- range .Values.oidc.identityGroups }}
+      - name: {{ .name }}
+        type: external
+        policies: {{ toJson .policies }}
+      {{- end }}
+
+    group-aliases:
+      {{- range .Values.oidc.identityGroups }}
+      - name: {{ .name }}
+        mountpath: {{ printf "%s/" $.Values.oidc.path }}
+        group: {{ .name }}
+      {{- end }}
+    {{- end }}
+
+  volumeClaimTemplates:
+    - metadata:
+        name: vault-raft
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        storageClassName: {{ .Values.vault.storage.storageClass }}
+        resources:
+          requests:
+            storage: {{ .Values.vault.storage.size }}
+
+  volumeMounts:
+    - name: vault-raft
+      mountPath: /vault/file
+
+  {{- with .Values.vault.resources }}
+  resources:
+    vault:
+      {{- toYaml . | nindent 6 }}
+  {{- end }}
+
+  {{- with .Values.vault.podSpec }}
+  vaultPodSpec:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+
+  {{- with .Values.vault.configurerPodSpec }}
+  vaultConfigurerPodSpec:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}

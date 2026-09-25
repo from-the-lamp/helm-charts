@@ -1,0 +1,3 @@
+hcloud-cloud-controller-manager:
+  networking:
+    enabled: false

@@ -8,15 +8,17 @@ spec:
 {{ include "tplValue" (dict "value" .Values.appset.generators "context" $) | trim | indent 4 }}
   {{- if .Values.sync.changeSyncPolicy }}
   ignoreApplicationDifferences:
+    # игнорируем только ручное вкл/выкл авто-синка, но даём апсету
+    # доставлять managedNamespaceMetadata / syncOptions в дочерние Application
     - jsonPointers:
-        - /spec/syncPolicy
+        - /spec/syncPolicy/automated
   {{- end }}
   syncPolicy:
     preserveResourcesOnDeletion: {{ .Values.sync.preserveResourcesOnDeletion }}
   goTemplate: true
   template:
     metadata:
-      name: {{ include "tplValue" (dict "value" .Values.appset.app.nameGenerator "context" $) | trim }}
+      name: "{{ include "tplValue" (dict "value" .Values.appset.app.nameGenerator "context" $) | trim }}"
       annotations:
 {{ include "tplValue" (dict "value" .Values.appset.app.annotations "context" $) | trim | indent 8 }}
     spec:
@@ -33,6 +35,10 @@ spec:
           valueFiles:
             {{- toYaml . | nindent 12 }}
           {{- end }}
+          {{- with .Values.git.parameters }}
+          parameters:
+            {{- include "tplValue" (dict "value" . "context" $) | trim | nindent 12 }}
+          {{- end }}
         path: "{{ include "tplValue" (dict "value" .Values.git.path "context" $) | trim }}"
         repoURL: {{ .Values.git.repo }}
         targetRevision: {{ .Values.git.revision }}
@@ -46,3 +52,14 @@ spec:
           selfHeal: {{ .Values.sync.selfHeal }}
         syncOptions:
           - CreateNamespace={{ .Values.sync.createNamespace }}
+        {{- if or .Values.sync.namespaceLabels .Values.sync.namespaceAnnotations }}
+        managedNamespaceMetadata:
+          {{- with .Values.sync.namespaceLabels }}
+          labels:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.sync.namespaceAnnotations }}
+          annotations:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+        {{- end }}

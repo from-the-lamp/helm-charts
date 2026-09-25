@@ -1,0 +1,68 @@
+global:
+  projectId: ""
+  region: ""
+
+backup:
+  enabled: true
+  schedule: "0 2 * * *"
+  keep: 7
+  provider: gcs
+  vault:
+    image:
+      name: hashicorp/vault
+      tag: 1.21.4
+    address: http://vault.vault.svc.cluster.local:8200
+    token:
+      source: existingSecret
+      existingSecret:
+        name: vault-unseal-keys
+        key: vault-root
+      externalSecret:
+        path: platform/vault
+        key: backup_token
+    resources:
+      requests:
+        cpu: 10m
+        memory: 128Mi
+      limits:
+        memory: 256Mi
+  rclone:
+    image:
+      name: rclone/rclone
+      tag: "1.69"
+    resources:
+      requests:
+        cpu: 50m
+        memory: 128Mi
+      limits:
+        memory: 512Mi
+  gcs:
+    auth: workloadIdentity
+    path: vault
+    bucket:
+      create: true
+      name: ""
+      location: ""
+      storageClass: STANDARD
+    serviceAccount:
+      create: true
+      name: vault-backup
+    credentialsJson:
+      path: platform/vault
+      key: backup_credentials_json
+  s3:
+    region: eu-central-1
+    bucket: backup.vault.stage
+    path: vault
+    accessKey:
+      path: platform/vault
+      key: backup_access_key
+    secretKey:
+      path: platform/vault
+      key: backup_secret_key
+
+externalSecrets:
+  kind: ClusterSecretStore
+  name: vault
+  refreshInterval: 1h
+  creationPolicy: Orphan

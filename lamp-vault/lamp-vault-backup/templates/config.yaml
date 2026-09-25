@@ -1,0 +1,25 @@
+{{- if .Values.backup.enabled }}
+{{- $provider := include "vsoft-vault-backup.provider" . }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: vault-backup
+data:
+  VAULT_ADDR: "{{ .Values.backup.vault.address }}"
+  BACKUP_BUCKET: "{{ include "vsoft-vault-backup.bucket" . }}"
+  BACKUP_PATH: "{{ include "vsoft-vault-backup.path" . }}"
+  BACKUP_KEEP: "{{ .Values.backup.keep }}"
+  {{- if eq $provider "s3" }}
+  RCLONE_CONFIG_DEFAULT_TYPE: s3
+  RCLONE_S3_PROVIDER: AWS
+  RCLONE_S3_NO_CHECK_BUCKET: "true"
+  RCLONE_S3_REGION: "{{ .Values.backup.s3.region }}"
+  {{- else }}
+  RCLONE_CONFIG_DEFAULT_TYPE: "google cloud storage"
+  RCLONE_GCS_NO_CHECK_BUCKET: "true"
+  RCLONE_GCS_BUCKET_POLICY_ONLY: "true"
+  {{- if eq (include "vsoft-vault-backup.gcsAuth" .) "workloadIdentity" }}
+  RCLONE_GCS_ENV_AUTH: "true"
+  {{- end }}
+  {{- end }}
+{{- end }}

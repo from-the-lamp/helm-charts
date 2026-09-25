@@ -1,0 +1,24 @@
+{{- if .Values.oidc.enabled }}
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: vault-oidc
+  namespace: {{ .Release.Namespace }}
+spec:
+  refreshInterval: {{ .Values.externalSecrets.refreshInterval | quote }}
+  secretStoreRef:
+    kind: {{ .Values.externalSecrets.kind | quote }}
+    name: {{ .Values.externalSecrets.name | quote }}
+  target:
+    name: vault-oidc
+    creationPolicy: {{ .Values.externalSecrets.creationPolicy | quote }}
+  data:
+    - secretKey: client_id
+      remoteRef:
+        key: {{ .Values.oidc.remoteSecretKeys.clientId.key | quote }}
+        property: {{ .Values.oidc.remoteSecretKeys.clientId.property | quote }}
+    - secretKey: client_secret
+      remoteRef:
+        key: {{ .Values.oidc.remoteSecretKeys.clientSecret.key | quote }}
+        property: {{ .Values.oidc.remoteSecretKeys.clientSecret.property | quote }}
+{{- end }}

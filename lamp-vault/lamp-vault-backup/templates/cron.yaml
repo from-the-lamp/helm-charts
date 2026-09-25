@@ -1,0 +1,84 @@
+{{- if .Values.backup.enabled }}
+{{- $ksa := include "vsoft-vault-backup.workloadIdentitySA" . }}
+{{- $credentials := include "vsoft-vault-backup.needsCredentials" . }}
+{{- $tokenSource := include "vsoft-vault-backup.tokenSource" . }}
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: vault-backup
+  annotations:
+    k8s.cronitor.io/include: "true"
+spec:
+  schedule: "{{ .Values.backup.schedule }}"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      ttlSecondsAfterFinished: 86400
+      template:
+        spec:
+          restartPolicy: Never
+          {{- if $ksa }}
+          serviceAccountName: {{ $ksa }}
+          {{- end }}
+          containers:
+            - name: upload
+              image: "{{ .Values.backup.rclone.image.name }}:{{ .Values.backup.rclone.image.tag }}"
+              command: ['/bin/sh', '-eu', '-c']
+              args:
+                - |
+                  DEST="default:${BACKUP_BUCKET}/${BACKUP_PATH}"
+                  SNAPSHOT="vault-$(date -u +%Y%m%dT%H%M%SZ).snap"
+                  rclone copyto /backup/vault.snap "${DEST}/${SNAPSHOT}" --progress
+                  if [ "${BACKUP_KEEP}" -gt 0 ]; then
+                    STALE=$(rclone lsf "${DEST}" --include "vault-*.snap" | sort -r | tail -n +$((BACKUP_KEEP + 1)))
+                    for snapshot in ${STALE}; do
+                      echo "pruning ${snapshot}"
+                      rclone deletefile "${DEST}/${snapshot}"
+                    done
+                  fi
+              imagePullPolicy: IfNotPresent
+              envFrom:
+                - configMapRef:
+                    name: vault-backup
+                {{- if $credentials }}
+                - secretRef:
+                    name: vault-backup-credentials
+                {{- end }}
+              resources:
+                {{- toYaml .Values.backup.rclone.resources | nindent 16 }}
+              volumeMounts:
+                - name: backup
+                  mountPath: /backup
+          initContainers:
+            - name: backup
+              image: "{{ .Values.backup.vault.image.name }}:{{ .Values.backup.vault.image.tag }}"
+              command: ['/bin/sh', '-eu', '-c']
+              args:
+                - vault operator raft snapshot save /backup/vault.snap
+              imagePullPolicy: IfNotPresent
+              envFrom:
+                - configMapRef:
+                    name: vault-backup
+                {{- if $credentials }}
+                - secretRef:
+                    name: vault-backup-credentials
+                {{- end }}
+              {{- if eq $tokenSource "existingSecret" }}
+              env:
+                - name: VAULT_TOKEN
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ .Values.backup.vault.token.existingSecret.name }}
+                      key: {{ .Values.backup.vault.token.existingSecret.key }}
+              {{- end }}
+              resources:
+                {{- toYaml .Values.backup.vault.resources | nindent 16 }}
+              volumeMounts:
+                - name: backup
+                  mountPath: /backup
+          volumes:
+            - name: backup
+              emptyDir: {}
+{{- end }}
