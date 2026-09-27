@@ -21,6 +21,12 @@ spec:
   - secretKey: client_id
     remoteRef:
       key: {{ .Values.remoteSecretKeys.oauthClientID }}
+      {{- with .Values.remoteSecretKeys.oauthClientIDProperty }}
+      property: {{ . }}
+      {{- end }}
   - secretKey: client_secret
     remoteRef:
       key: {{ .Values.remoteSecretKeys.oauthClientSecret }}
+      {{- with .Values.remoteSecretKeys.oauthClientSecretProperty }}
+      property: {{ . }}
+      {{- end }}

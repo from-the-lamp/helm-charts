@@ -1,60 +1,71 @@
 oauth:
   name: gitlab
-  display_name: GitLab
+  display_name: SSO
   scope: "openid email profile"
-  token_url: https://gitlab.com/oauth/token
-  auth_url: https://gitlab.com/oauth/authorize
-  api_url: https://gitlab.com/oauth
-  userinfo_url: https://gitlab.com/oauth/userinfo
-  metadata_url: https://gitlab.com/.well-known/openid-configuration
+  token_url:
+  auth_url:
+  api_url:
+  userinfo_url:
+  metadata_url:
   icon: fa-gitlab
-  button_color: "#FC6D26"
+  button_color: "#E24329"
   remoteSecretKeys:
-    client_id: pgadmin-client-id
-    client_secret: pgadmin-client-secret
+    client_id:
+      path: example/path
+      key: client_id
+    client_secret:
+      path: example/path
+      key: client_secret
 
-server:
-  auth:
-    name: Default
-    group: Servers
-    host: postgres-rw
-    port: 5432
-    user: postgres
-    maintenanceDB: postgres
-    remoteSecretKeys:
-      pass: postgres-superuser-password
+externalSecrets:
+  kind: ClusterSecretStore
+  name: vault
+  refreshInterval: 1h
+  creationPolicy: Orphan
+
+# Пароли серверов (servers.json пароли не хранит). Создаётся секрет pgadmin-pgservice
+# в формате libpq pg_service.conf (секция на сервер с password); init-контейнер кладёт его
+# в /var/lib/pgadmin/pg_service.conf, а коннект идёт через Service-имя в servers.json.
+#
+# ВАЖНО (server-mode + OAuth): pgAdmin для shared-серверов создаёт per-user копию
+# (sharedserver) и ВЫРЕЗАЕТ из неё passfile/sslcert/passexec_cmd (SENSITIVE_CONN_KEYS).
+# Единственный credential-механизм, переживающий копию — `service` (libpq pg_service.conf,
+# читается через PGSERVICEFILE мимо storage-ремапа pgAdmin). Поэтому именно он, а не pgpass.
+#
+# Ключ ДОЛЖЕН совпадать с ключом в pgadmin4.serverDefinitions.servers (= имя секции/Service).
+# Каждый -> откуда взять пароль в Vault (path + property).
+serverPasswords: {}
+#  product:
+#    path: example/path
+#    property: postgres.product.password
+#    # Необязательно: имя пользователя тоже берётся из Vault. Тогда servers.json
+#    # создаётся этим чартом как ExternalSecret (Username нельзя подставить из
+#    # ConfigMap), а serverDefinitions.resourceType переключается на Secret.
+#    userProperty: postgres.product.username
 
 pgadmin4:
   fullnameOverride: pgadmin
+  # Нативные декларативные определения серверов (servers.json), задаются в values.
+  # Пароль — через Service-имя (секция в pg_service.conf). Service ДОЛЖЕН совпадать с ключом
+  # сервера (= имя секции в pgadmin-pgservice). Это единственное, что переживает sharedserver.
   serverDefinitions:
     enabled: true
-    resourceType: Secret
-    existingSecret: pgadmin-server-definitions
-
-  ingress:
-    enabled: false
-
-  extraVolumes:
-    - name: pgpassfile
-      secret:
-        secretName: pgadmin-pgpassfile
+    resourceType: ConfigMap
+    servers: {}
+    #  product:
+    #    Name: product
+    #    Group: Servers
+    #    Host: postgres.product.example.internal
+    #    Port: 5432
+    #    Username: pgadmin
+    #    MaintenanceDB: postgres
+    #    SSLMode: prefer
+    #    Shared: true
+    #    SharedUsername: pgadmin
+    #    Service: "product"
 
   VolumePermissions:
     enabled: true
-
-  extraInitContainers: |
-    - name: prepare-pgpass-file
-      image: busybox:stable
-      command: ['sh', '-c', "cp /var/pgpassfile /var/lib/pgadmin/pgpassfile && chown 5050:5050 /var/lib/pgadmin/pgpassfile && chmod 600 /var/lib/pgadmin/pgpassfile"]
-      volumeMounts:
-        - name: pgpassfile
-          mountPath: /var/pgpassfile
-          subPath: pgpassfile
-          readOnly: true
-        - name: pgadmin-data
-          mountPath: /var/lib/pgadmin
-      securityContext:
-        runAsUser: 0
 
   livenessProbe:
     initialDelaySeconds: 10
@@ -70,12 +81,52 @@ pgadmin4:
     successThreshold: 1
     failureThreshold: 3
 
+  # emptyDir => полная инициализация при каждом старте; даём запас и не режем по таймауту.
+  startupProbe:
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 60   # до ~10 мин на первый boot, чтобы не убивало пробой
+
   envVarsFromSecrets:
     - pgadmin-oauth
 
-  env:
-    pgpassfile: /var/lib/pgadmin/pgpassfile
-    
+  env: {}
+
+  envVarsExtra:
+    # Postfix не нужен при OAuth, а его старт виснет на DNS/hostname → отключаем.
+    - name: PGADMIN_DISABLE_POSTFIX
+      value: "true"
+    # libpq читает pg_service.conf по этому пути напрямую (мимо storage-ремапа pgAdmin).
+    # Сервер ссылается на секцию через Service-имя; пароль берётся из секции.
+    - name: PGSERVICEFILE
+      value: /var/lib/pgadmin/pg_service.conf
+
+  # Секрет pgadmin-pgservice (формат pg_service.conf) монтируется сюда; init-контейнер копирует
+  # его в /var/lib/pgadmin/pg_service.conf с нужными правами (mount нельзя chmod 600 напрямую).
+  extraSecretMounts:
+    - name: pgadmin-pgservice
+      secret: pgadmin-pgservice
+      mountPath: /var/lib/pgadmin-pgservice
+      readOnly: true
+      defaultMode: 288   # 0440 — читается группой fsGroup=5050
+
+  # Кладём pg_service.conf в /var/lib/pgadmin/pg_service.conf (том pgadmin-data, общий для всех).
+  # libpq требует 0600 и владельца pgadmin (5050) — mounted-секрет это не обеспечивает,
+  # поэтому копируем root-контейнером. Запускается после init-chmod-data (VolumePermissions).
+  extraInitContainers: |
+    - name: prepare-pgservice-file
+      image: {{ include "pgadmin.image" . | quote }}
+      imagePullPolicy: {{ .Values.image.pullPolicy }}
+      command: ['sh', '-c', 'cp /var/lib/pgadmin-pgservice/pg_service.conf /var/lib/pgadmin/pg_service.conf && chown 5050:5050 /var/lib/pgadmin/pg_service.conf && chmod 600 /var/lib/pgadmin/pg_service.conf']
+      volumeMounts:
+        - name: pgadmin-pgservice
+          mountPath: /var/lib/pgadmin-pgservice
+          readOnly: true
+        - name: pgadmin-data
+          mountPath: /var/lib/pgadmin
+      securityContext:
+        runAsUser: 0
+
   extraConfigmapMounts:
     - name: config-local
       configMap: pgadmin-config
@@ -89,8 +140,5 @@ pgadmin4:
   annotations:
     reloader.stakater.com/auto: "true"
 
-externalSecrets:
-  kind: ClusterSecretStore
-  name: oracle
-  refreshInterval: 1h
-  creationPolicy: Orphan
+  ingress:
+    enabled: false

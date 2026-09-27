@@ -3,7 +3,7 @@
 apiVersion: postgresql.cnpg.io/v1
 kind: Database
 metadata:
-  name: postgres-database-{{ .name }}
+  name: postgres-database-{{ .name | replace "_" "-" }}
 spec:
   name: {{ .name }}
   owner: {{ .owner }}

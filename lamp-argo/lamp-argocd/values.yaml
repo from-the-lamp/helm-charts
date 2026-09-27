@@ -9,7 +9,9 @@ env:
 
 remoteSecretKeys:
   oauthClientID: argocd-oauth-client-id
+  oauthClientIDProperty: ""
   oauthClientSecret: argocd-oauth-client-secret
+  oauthClientSecretProperty: ""
 
 argo-cd:
   server:

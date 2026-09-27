@@ -8,3 +8,4 @@ Chart.lock
 .output
 .task
 auth.json
+.tmp/

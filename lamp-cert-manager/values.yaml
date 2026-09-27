@@ -20,6 +20,7 @@ issuers:
     cloudflare:
       enabled: true
       remoteSecretKey: cloudflare-dns-solver-token
+      remoteSecretProperty: ""
   zerossl:
     enabled: false
     keyID: #from zerossl web site
@@ -29,6 +30,7 @@ issuers:
   originCAIssuer:
     enabled: true
     tokenRemoteSecretKey: cloudflare-dns-solver-token
+    tokenRemoteSecretProperty: ""
 
 origin-ca-issuer:
   controller:

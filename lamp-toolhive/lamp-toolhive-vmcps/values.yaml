@@ -94,9 +94,6 @@ dex:
     create: false
     name: toolhive-dex-config
 
-  nodeSelector:
-    role: worker
-
   podAnnotations:
     reloader.stakater.com/auto: "true"
 
@@ -117,11 +114,23 @@ dex:
   #     mountPath: /etc/dex/google
   #     readOnly: true
 
+# HMAC/signing secret for the vMCP's embedded OAuth auth server (spec.authServerConfig).
+authServerSecret:
+  # vault: pull hmac/signing from the ClusterSecretStore below (key "toolhive",
+  #        properties authserver-hmac/authserver-signing) via ExternalSecret.
+  # selfGenerated: generate random values on first install and preserve them across
+  #        upgrades via `lookup` - no external secret store required.
+  # Forced to selfGenerated: the vault-sourced signing key was corrupted ("invalid
+  # CRT coefficient" on PKCS#8 parse), crash-looping the vmcp pod and taking down
+  # the whole mcp-tools group (chicken-and-egg - no cluster/Vault access to fix the
+  # vault secret while the only access path goes through the crashed vmcp itself).
+  strategy: selfGenerated
+
 redis:
-  enabled: false
-  # passwordSecret:
-  #   key: example-secret
-  #   property: redis-password
+  enabled: true
+  passwordSecret:
+    key: toolhive
+    property: redis-password
   architecture: standalone
   fullnameOverride: toolhive-redis
   image:
@@ -136,8 +145,8 @@ redis:
       size: 1Gi
     resources:
       requests:
-        cpu: 50m
-        memory: 64Mi
+        cpu: 10m
+        memory: 12Mi
       limits:
         cpu: 100m
         memory: 128Mi
@@ -211,13 +220,39 @@ virtualMcpServers:
               - openid
               - email
               - groups
+      # Persists the embedded auth server's own state (DCR client registry, auth
+      # codes, etc.) in Redis instead of pod memory, so a vmcp restart (deploy, OOM,
+      # node failure) no longer wipes already-registered OAuth clients and breaks
+      # connected MCP clients. Distinct from spec.sessionStorage below, which is for
+      # the vmcp proxy's own MCP-session continuity under horizontal scaling, not
+      # the auth server - that field alone does not persist the DCR client registry.
+      # No usernameSecretRef: our Redis has no custom ACL users, so this uses plain
+      # legacy password-only AUTH against the same secret Redis itself is configured
+      # to require.
+      storage:
+        type: redis
+        redis:
+          addr: toolhive-redis-master.toolhive.svc.cluster.local:6379
+          aclUserConfig:
+            passwordSecretRef:
+              name: toolhive-redis-password
+              key: password
+    # TODO: re-enable once toolhive-operator 0.49.0's sessionStorage.passwordRef wiring
+    # is confirmed working - it currently fails with "NOAUTH Authentication required"
+    # even though the referenced secret's password matches Redis's own auth secret,
+    # which took down the whole mcp-tools group twice. Redis itself (redis.enabled
+    # above) is left running so this can be retried without re-fighting scheduling.
+    # sessionStorage:
+    #   provider: redis
+    #   address: toolhive-redis-master.toolhive.svc.cluster.local:6379
+    #   passwordRef:
+    #     name: toolhive-redis-password
+    #     key: password
     podTemplateSpec:
       metadata:
         annotations:
           reloader.stakater.com/auto: "true"
       spec:
-        nodeSelector:
-          role: worker
         containers:
           - name: vmcp
             resources:
@@ -242,13 +277,12 @@ virtualMcpServers:
       oidcConfigRef:
         name: mcp-tools-hermes-oidc
         audience: hermes-toolhive
+    # sessionStorage: see TODO on mcp-tools above - same passwordRef issue.
     podTemplateSpec:
       metadata:
         annotations:
           reloader.stakater.com/auto: "true"
       spec:
-        nodeSelector:
-          role: worker
         containers:
           - name: vmcp
             resources:
@@ -278,6 +312,6 @@ hermesTailscaleExpose:
 
 externalSecrets:
   kind: ClusterSecretStore
-  name: oracle
+  name: vault
   refreshInterval: 1h
   creationPolicy: Orphan

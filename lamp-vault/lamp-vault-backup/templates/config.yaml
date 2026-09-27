@@ -11,9 +11,12 @@ data:
   BACKUP_KEEP: "{{ .Values.backup.keep }}"
   {{- if eq $provider "s3" }}
   RCLONE_CONFIG_DEFAULT_TYPE: s3
-  RCLONE_S3_PROVIDER: AWS
+  RCLONE_S3_PROVIDER: {{ if .Values.backup.s3.endpoint }}Other{{ else }}AWS{{ end }}
   RCLONE_S3_NO_CHECK_BUCKET: "true"
   RCLONE_S3_REGION: "{{ .Values.backup.s3.region }}"
+  {{- with .Values.backup.s3.endpoint }}
+  RCLONE_S3_ENDPOINT: "{{ . }}"
+  {{- end }}
   {{- else }}
   RCLONE_CONFIG_DEFAULT_TYPE: "google cloud storage"
   RCLONE_GCS_NO_CHECK_BUCKET: "true"

@@ -14,8 +14,8 @@ mcp:
     mcps:
       - name: github-xdata
         token:
-          key: github-mcp-xdata
-          property: personal-access-token
+          key: toolhive
+          property: github_xdata_token
 
   gitlab:
     enabled: true
@@ -25,20 +25,20 @@ mcp:
         apiUrl: https://gitlab.com/api/v4
         permissionMode: full
         token:
-          key: gitlab-mcp
-          property: personal-access-token
+          key: toolhive
+          property: gitlab_token_from_the_lamp
       - name: gitlab-cas-dev
         apiUrl: https://gitlab.v-soft.dev/api/v4
         permissionMode: full
         token:
-          key: gitlab-mcp-cas-dev
-          property: personal-access-token
+          key: toolhive
+          property: gitlab_token_cas_dev
       - name: gitlab-cas-gitops
         apiUrl: https://gitlab.v-gitops.cc/api/v4
         permissionMode: full
         token:
-          key: gitlab-mcp-cas-gitops
-          property: personal-access-token
+          key: toolhive
+          property: gitlab_token_cas_gitops
 
   kubernetes:
     enabled: true
@@ -61,12 +61,12 @@ mcp:
     mcps:
       - name: slack-cas
         token:
-          key: slack-mcp-cas
-          property: xoxp-token
+          key: toolhive
+          property: slack_token_cas
       - name: slack-xdata
         token:
-          key: slack-mcp-xdata
-          property: xoxp-token
+          key: toolhive
+          property: slack_token_xdata
 
   jira:
     enabled: false
@@ -150,8 +150,8 @@ mcp:
     mcps:
       - name: sheets
         credentials:
-          key: sheets-mcp
-          property: service-account-json
+          key: toolhive
+          property: sheets-mcp
 
   oracle:
     enabled: true
@@ -161,39 +161,39 @@ mcp:
       - name: oracle-infra
         profile: lamp-infra
         config:
-          key: oracle-mcp
-          property: config
+          key: toolhive
+          property: oracle_config
         keyFiles:
           - name: lamp-infra.pem
-            property: lamp-infra-pem
+            property: oracle_key_lamp_infra
           - name: lamp-prod-0.pem
-            property: lamp-prod-0-pem
+            property: oracle_key_lamp_prod_0
           - name: lamp-prod-1.pem
-            property: lamp-prod-1-pem
+            property: oracle_key_lamp_prod_1
       - name: oracle-prod-0
         profile: lamp-prod-0
         config:
-          key: oracle-mcp
-          property: config
+          key: toolhive
+          property: oracle_config
         keyFiles:
           - name: lamp-infra.pem
-            property: lamp-infra-pem
+            property: oracle_key_lamp_infra
           - name: lamp-prod-0.pem
-            property: lamp-prod-0-pem
+            property: oracle_key_lamp_prod_0
           - name: lamp-prod-1.pem
-            property: lamp-prod-1-pem
+            property: oracle_key_lamp_prod_1
       - name: oracle-prod-1
         profile: lamp-prod-1
         config:
-          key: oracle-mcp
-          property: config
+          key: toolhive
+          property: oracle_config
         keyFiles:
           - name: lamp-infra.pem
-            property: lamp-infra-pem
+            property: oracle_key_lamp_infra
           - name: lamp-prod-0.pem
-            property: lamp-prod-0-pem
+            property: oracle_key_lamp_prod_0
           - name: lamp-prod-1.pem
-            property: lamp-prod-1-pem
+            property: oracle_key_lamp_prod_1
 
   etherscan:
     enabled: true
@@ -202,8 +202,8 @@ mcp:
     mcps:
       - name: etherscan
         token:
-          key: etherscan-mcp
-          property: api-key
+          key: toolhive
+          property: etherscan_api_key
 
   alchemy:
     enabled: true
@@ -212,8 +212,8 @@ mcp:
     mcps:
       - name: alchemy
         token:
-          key: alchemy-mcp
-          property: api-key
+          key: toolhive
+          property: alchemy_api_key
 
   thegraph:
     enabled: true
@@ -222,8 +222,8 @@ mcp:
     mcps:
       - name: thegraph
         token:
-          key: thegraph-mcp
-          property: api-key
+          key: toolhive
+          property: thegraph_api_key
 
   letsfg:
     enabled: true
@@ -248,6 +248,6 @@ mcp:
 
 externalSecrets:
   kind: ClusterSecretStore
-  name: oracle
+  name: vault
   refreshInterval: 1h
   creationPolicy: Orphan

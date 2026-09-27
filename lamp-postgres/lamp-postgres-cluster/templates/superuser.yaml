@@ -18,5 +18,6 @@ spec:
   data:
   - secretKey: superuser_password
     remoteRef:
-      key: "{{ .Values.cluster.cluster.superuser.remoteSecretKeys.password }}"
+      key: "{{ .Values.cluster.cluster.superuser.password.key }}"
+      property: "{{ .Values.cluster.cluster.superuser.password.property }}"
 {{- end }}

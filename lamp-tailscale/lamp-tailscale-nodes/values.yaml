@@ -4,7 +4,7 @@ image:
 
 externalSecrets:
   kind: ClusterSecretStore
-  name: oracle
+  name: vault
   refreshInterval: 1h
   creationPolicy: Orphan
 

@@ -9,8 +9,10 @@ kargo:
     oidc:
       enabled: true
       remoteSecretKeys:
-        client_id: kargo-oauth-client-id
-        client_secret: kargo-oauth-client-secret
+        client_id: kargo
+        client_idProperty: client_id
+        client_secret: kargo
+        client_secretProperty: client_secret
       dex:
         enabled: true
         connectors:
@@ -44,6 +46,6 @@ kargo:
 
 externalSecrets:
   kind: ClusterSecretStore
-  name: oracle
+  name: vault
   refreshInterval: 1h
   creationPolicy: Orphan

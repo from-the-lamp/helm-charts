@@ -1,4 +1,5 @@
 {{- range .Values.clusterStores }}
+{{- if or (eq .type "oracle") (not .type) }}
 ---
 apiVersion: external-secrets.io/v1
 kind: ClusterSecretStore
@@ -22,4 +23,5 @@ spec:
             namespace: {{ $.Release.Namespace }}
             name: {{ .name }}
             key: fingerprint
+{{- end }}
 {{- end }}

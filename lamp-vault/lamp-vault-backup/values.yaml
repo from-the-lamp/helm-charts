@@ -52,6 +52,7 @@ backup:
       key: backup_credentials_json
   s3:
     region: eu-central-1
+    endpoint: ""
     bucket: backup.vault.stage
     path: vault
     accessKey:

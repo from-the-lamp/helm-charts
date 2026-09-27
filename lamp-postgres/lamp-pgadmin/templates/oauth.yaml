@@ -20,7 +20,9 @@ spec:
   data:
   - secretKey: client_id
     remoteRef:
-      key: "{{ .Values.oauth.remoteSecretKeys.client_id }}"
+      key: "{{ .Values.oauth.remoteSecretKeys.client_id.path }}"
+      property: "{{ .Values.oauth.remoteSecretKeys.client_id.key }}"
   - secretKey: client_secret
     remoteRef:
-      key: "{{ .Values.oauth.remoteSecretKeys.client_secret }}"
+      key: "{{ .Values.oauth.remoteSecretKeys.client_secret.path }}"
+      property: "{{ .Values.oauth.remoteSecretKeys.client_secret.key }}"

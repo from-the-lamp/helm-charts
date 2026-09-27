@@ -13,6 +13,8 @@ cluster:
         pg_stat_statements.max: '10000'
         pg_stat_statements.track: all
         auto_explain.log_min_duration: '10s'
+      pg_hba: []
+        # - "host all all 10.244.0.0/16 md5"
     storage:
       size: 10Gi
       storageClass: local-path
@@ -31,23 +33,29 @@ cluster:
     superuserSecret: postgres-superuser
     superuser:
       username: postgres
-      remoteSecretKeys:
-        password: postgres-superuser-password
+      password:
+        key: postgres-superuser-password
+        property: pass
 
     databases: []
-      # - name: remnawave
-      #   owner: remnawave
+      # - name: example
+      #   owner: example
+      #   publication:
+      #     enabled: true
+      #     allTables: true
 
     roles: []
-      # - name: remnawave
+      # - name: example
       #   ensure: present
       #   login: true
       #   superuser: false
       #   connectionLimit: -1
       #   inherit: true
       #   passwordSecret:
-      #     name: postgres-remnawave-password
-      #     remoteSecretKey: postgres-remnawave-password
+      #     name: postgres-example-password
+      #     remoteSecret:
+      #       key: postgres-example-password
+      #       property: password
 
   poolers:
     - name: rw
@@ -65,6 +73,6 @@ cluster:
 
 externalSecrets:
   kind: ClusterSecretStore
-  name: oracle
+  name: "" #
   refreshInterval: 1h
   creationPolicy: Orphan

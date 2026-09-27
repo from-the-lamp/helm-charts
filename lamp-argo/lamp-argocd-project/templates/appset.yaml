@@ -8,8 +8,6 @@ spec:
 {{ include "tplValue" (dict "value" .Values.appset.generators "context" $) | trim | indent 4 }}
   {{- if .Values.sync.changeSyncPolicy }}
   ignoreApplicationDifferences:
-    # игнорируем только ручное вкл/выкл авто-синка, но даём апсету
-    # доставлять managedNamespaceMetadata / syncOptions в дочерние Application
     - jsonPointers:
         - /spec/syncPolicy/automated
   {{- end }}
@@ -52,14 +50,9 @@ spec:
           selfHeal: {{ .Values.sync.selfHeal }}
         syncOptions:
           - CreateNamespace={{ .Values.sync.createNamespace }}
-        {{- if or .Values.sync.namespaceLabels .Values.sync.namespaceAnnotations }}
-        managedNamespaceMetadata:
-          {{- with .Values.sync.namespaceLabels }}
-          labels:
-            {{- toYaml . | nindent 12 }}
-          {{- end }}
-          {{- with .Values.sync.namespaceAnnotations }}
-          annotations:
-            {{- toYaml . | nindent 12 }}
-          {{- end }}
-        {{- end }}
+  templatePatch: |
+    {{`{{- with .patch }}`}}
+    {{`{{ toYaml . }}`}}
+    {{`{{- else }}`}}
+    {}
+    {{`{{- end }}`}}
