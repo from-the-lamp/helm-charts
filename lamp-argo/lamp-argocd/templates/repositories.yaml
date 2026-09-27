@@ -1,0 +1,35 @@
+{{- range .Values.repositories }}
+---
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: "argocd-repo-{{ .name }}"
+spec:
+  refreshInterval: "{{ $.Values.externalSecrets.refreshInterval }}"
+  secretStoreRef:
+    kind: "{{ $.Values.externalSecrets.kind }}"
+    name: "{{ include "argocd.secretStoreName" $ }}"
+  target:
+    name: "argocd-repo-{{ .name }}"
+    creationPolicy: "{{ $.Values.externalSecrets.creationPolicy }}"
+    template:
+      metadata:
+        labels:
+          argocd.argoproj.io/secret-type: {{ .secretType | default "repository" }}
+      data:
+        name: {{ .name }}
+        type: {{ .type | default "git" }}
+        {{- if .oci }}
+        enableOCI: "true"
+        {{- end }}
+        url: {{ .url }}
+        username: {{ .username | default "token" }}
+        password: "{{ `{{ .token }}` }}"
+  data:
+  - secretKey: token
+    remoteRef:
+      key: {{ .remoteRef.key }}
+      {{- with .remoteRef.property }}
+      property: {{ . }}
+      {{- end }}
+{{- end }}

@@ -1,7 +1,8 @@
+{{- if .Values.defaultClusterName }}
 apiVersion: v1
 kind: Secret
 metadata:
-  name: "argocd-default-cluster"
+  name: argocd-default-cluster
   labels:
     argocd.argoproj.io/secret-type: cluster
 stringData:
@@ -13,3 +14,4 @@ stringData:
         "insecure": false
       }
     }
+{{- end }}

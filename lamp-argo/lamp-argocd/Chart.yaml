@@ -1,11 +1,8 @@
 apiVersion: v2
 name: lamp-argocd
-version: 0.4.0
+version: 0.0.1
 
 dependencies:
   - name: argo-cd
-    version: 9.5.2
-    repository: https://argoproj.github.io/argo-helm
-
-annotations:
-  notes: "Argo CD core update to v3.2.5."
+    version: 10.9.1
+    repository: oci://ghcr.io/argoproj/argo-helm

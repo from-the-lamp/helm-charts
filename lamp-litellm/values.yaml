@@ -1,6 +1,6 @@
 externalSecrets:
   kind: ClusterSecretStore
-  name: oracle
+  name: vault
   refreshInterval: 1h
   creationPolicy: Orphan
 
@@ -21,7 +21,7 @@ authJson:
 codexAuthPersistence:
   pvcName: litellm-codex-auth-persistent
   size: 64Mi
-  storageClass: local-path
+  storageClass: hcloud-volumes
 
 # Unrelated to the "litellm" vault secret above - shared GitLab registry
 # token reused by many charts, stays its own Vault entry.
@@ -29,7 +29,8 @@ imagePullSecret:
   secretName: litellm-image-pull
   registry: registry.gitlab.com/from-the-lamp
   username: token
-  remoteKey: gitlab-token
+  remoteKey: gitlab
+  remoteProperty: image_pull_secret
 
 # Models served through the ChatGPT/Codex OAuth handler. Shared by the main
 # proxy config and every account worker's config.

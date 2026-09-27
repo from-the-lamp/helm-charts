@@ -300,12 +300,15 @@ tailscaleExpose:
     - tag:exit
 
 # hermes runs in the prod-0 cluster, which can't reach this cluster's
-# ClusterIP service DNS - expose mcp-tools-hermes on the shared tailnet
-# instead. prod-0's own lamp-tailscale-services deployment (argo-apps
-# prod-0/platform/tailscale-services) proxies an ExternalName service back
-# to this tailnet hostname, so hermes reaches it via ordinary in-cluster DNS.
+# ClusterIP service DNS - was exposing mcp-tools-hermes on the shared
+# tailnet for that. Disabled along with prod-0's consuming
+# lamp-tailscale-services deployment: Tailscale rejects an OAuth-client
+# authkey request unless the requested tags exactly match the client's
+# whole configured tag set (not a subset), which no shared operator client
+# can satisfy alongside its own tag - simplifying down to just the
+# operators (plus the old infra cluster's exit-node) sidesteps that.
 hermesTailscaleExpose:
-  enabled: true
+  enabled: false
   hostname: mcp-tools-hermes
   tags:
     - tag:exit

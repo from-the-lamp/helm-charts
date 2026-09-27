@@ -1,0 +1,33 @@
+{{- range .Values.githubApps }}
+---
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: "github-app-{{ .name }}"
+spec:
+  refreshInterval: "{{ $.Values.externalSecrets.refreshInterval }}"
+  secretStoreRef:
+    kind: "{{ $.Values.externalSecrets.kind }}"
+    name: "{{ include "argocd.secretStoreName" $ }}"
+  target:
+    name: "github-app-{{ .name }}"
+    creationPolicy: "{{ $.Values.externalSecrets.creationPolicy }}"
+    template:
+      metadata:
+        labels:
+          argocd.argoproj.io/secret-type: repo-creds
+      data:
+        name: {{ .name }}
+        type: {{ .type | default "git" }}
+        url: {{ .url }}
+        githubAppID: "{{ .appId | int64 }}"
+        githubAppInstallationID: "{{ .installationId | int64 }}"
+        githubAppPrivateKey: "{{ `{{ .githubAppPrivateKey }}` }}"
+  data:
+  - secretKey: githubAppPrivateKey
+    remoteRef:
+      key: {{ .remoteSecret.key }}
+      {{- with .remoteSecret.property }}
+      property: {{ . }}
+      {{- end }}
+{{- end }}

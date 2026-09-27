@@ -1,14 +1,15 @@
+{{- if .Values.sso.enabled }}
 apiVersion: external-secrets.io/v1
 kind: ExternalSecret
 metadata:
-  name: argocd-sso-secrets
+  name: {{ .Values.sso.secretName }}
 spec:
   refreshInterval: "{{ .Values.externalSecrets.refreshInterval }}"
   secretStoreRef:
     kind: "{{ .Values.externalSecrets.kind }}"
-    name: "{{ .Values.externalSecrets.name }}"
+    name: "{{ include "argocd.secretStoreName" . }}"
   target:
-    name: argocd-sso-secrets
+    name: {{ .Values.sso.secretName }}
     creationPolicy: "{{ .Values.externalSecrets.creationPolicy }}"
     template:
       metadata:
@@ -20,13 +21,40 @@ spec:
   data:
   - secretKey: client_id
     remoteRef:
-      key: {{ .Values.remoteSecretKeys.oauthClientID }}
-      {{- with .Values.remoteSecretKeys.oauthClientIDProperty }}
+      key: {{ .Values.sso.oauthClientID.key }}
+      {{- with .Values.sso.oauthClientID.property }}
       property: {{ . }}
       {{- end }}
   - secretKey: client_secret
     remoteRef:
-      key: {{ .Values.remoteSecretKeys.oauthClientSecret }}
-      {{- with .Values.remoteSecretKeys.oauthClientSecretProperty }}
+      key: {{ .Values.sso.oauthClientSecret.key }}
+      {{- with .Values.sso.oauthClientSecret.property }}
       property: {{ . }}
       {{- end }}
+{{- if .Values.sso.googleServiceAccountKey.enabled }}
+{{- if not .Values.global.projectId }}
+{{- fail "sso.googleServiceAccountKey.enabled requires global.projectId" }}
+{{- end }}
+---
+apiVersion: iam.cnrm.cloud.google.com/v1beta1
+kind: IAMServiceAccount
+metadata:
+  name: {{ .Values.sso.googleServiceAccountKey.name }}
+  annotations:
+    cnrm.cloud.google.com/project-id: "{{ .Values.global.projectId }}"
+spec:
+  displayName: "ArgoCD SSO"
+---
+apiVersion: iam.cnrm.cloud.google.com/v1beta1
+kind: IAMServiceAccountKey
+metadata:
+  name: {{ .Values.sso.googleServiceAccountKey.name }}
+  annotations:
+    cnrm.cloud.google.com/project-id: "{{ .Values.global.projectId }}"
+spec:
+  privateKeyType: "TYPE_GOOGLE_CREDENTIALS_FILE"
+  publicKeyType: "TYPE_X509_PEM_FILE"
+  serviceAccountRef:
+    name: {{ .Values.sso.googleServiceAccountKey.name }}
+{{- end }}
+{{- end }}

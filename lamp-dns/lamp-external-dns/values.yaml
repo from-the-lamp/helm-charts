@@ -1,16 +1,24 @@
 cloudflare:
-  remoteSecretKey: cloudflare-dns-solver-token
+  remoteSecretKey: cert-manager
+  remoteSecretProperty: cloudflare-dns-solver-token
 
 external-dns:
   # domainFilters:
   #   - from-the-lamp.work
   extraArgs:
     - --cloudflare-proxied
+  # istio-gateway-public's Service already carries explicit
+  # external-dns.alpha.kubernetes.io/hostname+target annotations (a single
+  # wildcard record covering every public subdomain) - "service" alone picks
+  # that up. Deliberately NOT adding "gateway-httproute": it would also match
+  # HTTPRoutes on the internal gateway (ClusterIP, no target annotation),
+  # leaking *.internal.from-the-lamp.work hostnames into public DNS with a
+  # target that can never resolve.
   sources:
     - service
   policy: sync
   logLevel: debug
-  provider: 
+  provider:
     name: cloudflare
   env:
     - name: CF_API_TOKEN
@@ -21,6 +29,6 @@ external-dns:
 
 externalSecrets:
   kind: ClusterSecretStore
-  name: oracle
+  name: vault
   refreshInterval: 1h
   creationPolicy: Orphan

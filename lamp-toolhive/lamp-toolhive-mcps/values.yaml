@@ -46,10 +46,10 @@ mcp:
     mcps:
       - name: kubernetes
         serviceAccount: kubernetes-mcp
-      - name: infra-admin
+      - name: prod-1-admin
         kubeconfig:
           key: toolhive
-          property: kubeconfig-infra
+          property: kubeconfig-prod-1
       - name: prod-0-admin
         kubeconfig:
           key: toolhive
@@ -158,26 +158,12 @@ mcp:
     # Self-built from docker-images/lamp-oracle-mcp (generic OCI SDK wrapper).
     image: registry.gitlab.com/from-the-lamp/infra/docker-images/lamp-oracle-mcp:latest
     mcps:
-      - name: oracle-infra
-        profile: lamp-infra
-        config:
-          key: toolhive
-          property: oracle_config
-        keyFiles:
-          - name: lamp-infra.pem
-            property: oracle_key_lamp_infra
-          - name: lamp-prod-0.pem
-            property: oracle_key_lamp_prod_0
-          - name: lamp-prod-1.pem
-            property: oracle_key_lamp_prod_1
       - name: oracle-prod-0
         profile: lamp-prod-0
         config:
           key: toolhive
           property: oracle_config
         keyFiles:
-          - name: lamp-infra.pem
-            property: oracle_key_lamp_infra
           - name: lamp-prod-0.pem
             property: oracle_key_lamp_prod_0
           - name: lamp-prod-1.pem
@@ -188,8 +174,6 @@ mcp:
           key: toolhive
           property: oracle_config
         keyFiles:
-          - name: lamp-infra.pem
-            property: oracle_key_lamp_infra
           - name: lamp-prod-0.pem
             property: oracle_key_lamp_prod_0
           - name: lamp-prod-1.pem
@@ -230,8 +214,8 @@ mcp:
     # Self-built from docker-images/lamp-letsfg-mcp (npm package letsfg-mcp, no official image).
     # letsfg-mcp only accepts a static LETSFG_BEARER_TOKEN env var (no refresh logic of its
     # own, no config file it writes to), and the OAuth refresh_token rotates on every use.
-    # supervisor.py reads the current refresh_token from Vault (via the mounted lamp-infra
-    # OCI profile, reusing the oracle-infra MCP's secret), exchanges it for a fresh access
+    # supervisor.py reads the current refresh_token from Vault (via the mounted lamp-prod-1
+    # OCI profile, reusing the oracle-prod-1 MCP's secret), exchanges it for a fresh access
     # token once at container start, writes the rotated refresh_token back, then execs
     # letsfg-mcp. It deliberately does NOT refresh on a timer - letsfg's fraud detection
     # revokes token pairs refreshed continuously without real usage. Instead, healthcheck.py
@@ -242,8 +226,8 @@ mcp:
     image: registry.gitlab.com/from-the-lamp/infra/docker-images/lamp-letsfg-mcp:latest
     mcps:
       - name: letsfg
-        ociProfile: lamp-infra
-        ociSecretName: oracle-infra-mcp-secret
+        ociProfile: lamp-prod-1
+        ociSecretName: oracle-prod-1-mcp-secret
         vaultSecretId: ocid1.vaultsecret.oc1.eu-frankfurt-1.amaaaaaap56pctia3kx6u2sw3qqt5gkav6rp4pst77gu2lu54qmeram4jcfa
 
 externalSecrets:

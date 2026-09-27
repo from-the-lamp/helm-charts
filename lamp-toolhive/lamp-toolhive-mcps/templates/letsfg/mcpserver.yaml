@@ -17,7 +17,7 @@ spec:
     enabled: true
   env:
     - name: OCI_CONFIG_PROFILE
-      value: {{ $item.ociProfile | default "lamp-infra" }}
+      value: {{ $item.ociProfile | default "lamp-prod-1" }}
     - name: LETSFG_VAULT_SECRET_ID
       value: {{ $item.vaultSecretId | quote }}
   podTemplateSpec:

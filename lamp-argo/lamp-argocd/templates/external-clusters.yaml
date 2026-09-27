@@ -1,0 +1,47 @@
+{{- range .Values.externalClusters }}
+---
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: cluster-{{ .name }}
+spec:
+  refreshInterval: "{{ $.Values.externalSecrets.refreshInterval }}"
+  secretStoreRef:
+    kind: "{{ $.Values.externalSecrets.kind }}"
+    name: "{{ include "argocd.secretStoreName" $ }}"
+  target:
+    name: {{ .secretName | default (printf "cluster-%s" .name) }}
+    creationPolicy: "{{ $.Values.externalSecrets.creationPolicy }}"
+    template:
+      metadata:
+        labels:
+          argocd.argoproj.io/secret-type: cluster
+      data:
+        name: "{{ .name }}"
+        # The remote value is a whole kubeconfig (not pre-split fields) -
+        # parsed here so either auth style it contains (a long-lived SA
+        # bearer token, or a client cert/key pair) round-trips into
+        # ArgoCD's cluster secret format without needing a second copy of
+        # the credential under different field names.
+        server: "{{`{{ (index (fromYaml .kubeconfig).clusters 0).cluster.server }}`}}"
+        config: |
+          {{`{{- $c := (index (fromYaml .kubeconfig).clusters 0).cluster -}}`}}
+          {{`{{- $u := (index (fromYaml .kubeconfig).users 0).user -}}`}}
+          {
+            "tlsClientConfig": {
+              "caData": "{{`{{ index $c "certificate-authority-data" }}`}}"
+              {{`{{- if index $u "client-certificate-data" }}`}},
+              "certData": "{{`{{ index $u "client-certificate-data" }}`}}",
+              "keyData": "{{`{{ index $u "client-key-data" }}`}}"
+              {{`{{- end }}`}}
+            }
+            {{`{{- if index $u "token" }}`}},
+            "bearerToken": "{{`{{ index $u "token" }}`}}"
+            {{`{{- end }}`}}
+          }
+  data:
+  - secretKey: kubeconfig
+    remoteRef:
+      key: {{ .remoteKey }}
+      property: {{ .remoteProperty }}
+{{- end }}

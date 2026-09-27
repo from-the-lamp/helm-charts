@@ -263,25 +263,21 @@ secretFiles:
     property: google_sa_json
     mountPath: /etc/hermes/google-sa.json
 
-  # OCI CLI access for all 3 accounts (infra vault owner + prod-0 + prod-1
-  # clusters), same credentials/permissions as the human operator's - so
-  # the agent can inspect/manage infra with `oci --profile <name> ...`.
+  # OCI CLI access for both accounts (prod-0 + prod-1 clusters), same
+  # credentials/permissions as the human operator's - so the agent can
+  # inspect/manage infra with `oci --profile <name> ...`.
   oci-config:
     key: hermes
     property: oci_config
     mountPath: /etc/hermes/.oci/config
-  oci-key-lamp-infra.pem:
-    key: hermes
-    property: oci_key_lamp_infra
-    mountPath: /etc/hermes/.oci/lamp-infra.pem
-  oci-key-lamp-prod-0.pem:
-    key: hermes
-    property: oci_key_lamp_prod_0
-    mountPath: /etc/hermes/.oci/lamp-prod-0.pem
   oci-key-lamp-prod-1.pem:
     key: hermes
     property: oci_key_lamp_prod_1
     mountPath: /etc/hermes/.oci/lamp-prod-1.pem
+  oci-key-lamp-prod-0.pem:
+    key: hermes
+    property: oci_key_lamp_prod_0
+    mountPath: /etc/hermes/.oci/lamp-prod-0.pem
 
   # gitlab-from-the-lamp.env is not an MCP credential - the sync-skills init
   # container uses it as a git credential helper for the djinn-home/skills
