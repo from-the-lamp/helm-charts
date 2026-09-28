@@ -248,6 +248,10 @@ virtualMcpServers:
     #   passwordRef:
     #     name: toolhive-redis-password
     #     key: password
+    operational:
+      failureHandling:
+        circuitBreaker:
+          enabled: false
     podTemplateSpec:
       metadata:
         annotations:
@@ -278,6 +282,10 @@ virtualMcpServers:
         name: mcp-tools-hermes-oidc
         audience: hermes-toolhive
     # sessionStorage: see TODO on mcp-tools above - same passwordRef issue.
+    operational:
+      failureHandling:
+        circuitBreaker:
+          enabled: false
     podTemplateSpec:
       metadata:
         annotations:
