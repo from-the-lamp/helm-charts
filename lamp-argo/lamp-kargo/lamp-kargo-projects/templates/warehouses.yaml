@@ -19,7 +19,7 @@ spec:
       allowTags: {{ $warehouses.allowTags | quote }}
       {{- end }}
       {{- if eq $warehouses.imageSelectionStrategy "Digest" }}
-      semverConstraint: {{ $warehouses.constraint | quote }}
+      constraint: {{ $warehouses.constraint | quote }}
       {{- end }}
   {{- end }}
 {{- end }}
