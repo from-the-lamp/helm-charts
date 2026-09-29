@@ -67,6 +67,10 @@ mcp:
         token:
           key: toolhive
           property: slack_token_xdata
+      - name: slack-currency
+        token:
+          key: toolhive
+          property: slack_token_currency
 
   jira:
     enabled: false
