@@ -1,27 +1,32 @@
-apiVersion: v1
-kind: ConfigMap
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
 metadata:
   name: renovate-config
-data:
-  config.json: |
-    {
-      "platform": "${RENOVATE_PLATFORM}",
-      "endpoint": "${RENOVATE_ENDPOINT}",
-      "token": "${RENOVATE_TOKEN}",
-      "autodiscover": {{ .Values.config.autodiscover }},
-      "printConfig": {{ .Values.config.printConfig }},
-      "repositories": {{ toJson .Values.config.repositories }},
-      "recreateWhen": "{{ .Values.config.recreateWhen }}",
-      "enabledManagers": ["helmv3"],
-      "helmv3": {},
-      "includePaths": {{ toJson .Values.config.includePaths }},
-      "ignorePaths": {{ toJson .Values.config.ignorePaths }},
-      {{- if .Values.config.bumpVersion }}
-      "bumpVersion": "patch",
-      "packageRules": [
-        { "matchManagers": ["helmv3"], "matchUpdateTypes": ["major"], "bumpVersion": "major" },
-        { "matchManagers": ["helmv3"], "matchUpdateTypes": ["minor"], "bumpVersion": "minor" },
-        { "matchManagers": ["helmv3"], "matchUpdateTypes": ["patch"], "bumpVersion": "patch" }
-      ]
-      {{- end }}
-    }
+spec:
+  refreshInterval: "{{ $.Values.externalSecrets.refreshInterval }}"
+  secretStoreRef:
+    kind: "{{ $.Values.externalSecrets.kind }}"
+    name: "{{ $.Values.externalSecrets.name }}"
+  target:
+    name: renovate-config
+    creationPolicy: "{{ .Values.externalSecrets.creationPolicy }}"
+    template:
+      data:
+        config.json: |
+          {
+            "gitAuthor": "{{ .Values.config.gitAuthor }}",
+            "platform": "{{ .Values.config.platform }}",
+            "endpoint":  "{{ .Values.config.endpoint }}",
+            "token": "{{`{{ .token }}`}}",
+            "autodiscover": {{ .Values.config.autodiscover }},
+            "printConfig": {{ .Values.config.printConfig }},
+            "repositories": {{ toJson .Values.config.repositories }},
+            "allowedCommands": {{ toJson .Values.config.allowedCommands }}
+          }
+  data:
+    - secretKey: token
+      remoteRef:
+        key: {{ .Values.config.token.key }}
+        {{- with .Values.config.token.property }}
+        property: {{ . }}
+        {{- end }}
