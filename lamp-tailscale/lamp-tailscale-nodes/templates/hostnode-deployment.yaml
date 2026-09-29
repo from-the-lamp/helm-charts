@@ -1,6 +1,6 @@
 {{- range .Values.hostNodes }}
 {{- $args := list }}
-{{- if .exitNode }}{{ $args = append $args "--advertise-exit-node" }}{{ end }}
+{{- if .exitNode }}{{ $args = append $args "--advertise-exit-node" }}{{ else }}{{ $args = append $args "--advertise-exit-node=false" }}{{ end }}
 {{- with .advertiseRoutes }}{{ $args = append $args (printf "--advertise-routes=%s" (join "," .)) }}{{ end }}
 {{- with .tags }}{{ $args = append $args (printf "--advertise-tags=%s" (join "," .)) }}{{ end }}
 ---
