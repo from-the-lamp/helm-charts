@@ -2,7 +2,6 @@
 {{- $args := list }}
 {{- if .exitNode }}{{ $args = append $args "--advertise-exit-node" }}{{ else }}{{ $args = append $args "--advertise-exit-node=false" }}{{ end }}
 {{- with .advertiseRoutes }}{{ $args = append $args (printf "--advertise-routes=%s" (join "," .)) }}{{ end }}
-{{- with .tags }}{{ $args = append $args (printf "--advertise-tags=%s" (join "," .)) }}{{ end }}
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -67,6 +66,10 @@ spec:
               value: "{{ .stateSecret | default (printf "tailscale-%s-state" .name) }}"
             - name: TS_HOSTNAME
               value: "{{ .hostname }}"
+            {{- with .tags }}
+            - name: TS_TAGS
+              value: "{{ join "," . }}"
+            {{- end }}
             - name: TS_EXTRA_ARGS
               value: "{{ join " " $args }}"
             - name: TS_AUTHKEY
