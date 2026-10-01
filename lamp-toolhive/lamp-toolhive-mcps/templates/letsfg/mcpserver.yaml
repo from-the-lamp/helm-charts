@@ -31,5 +31,11 @@ spec:
             periodSeconds: 600
             timeoutSeconds: 15
             failureThreshold: 1
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: tmp
+          emptyDir: {}
 {{- end }}
 {{- end }}
