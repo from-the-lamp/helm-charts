@@ -216,7 +216,7 @@ mcp:
   alphavantage:
     enabled: true
     # Self-built from docker-images/lamp-alphavantage-mcp (official pip package marketdata-mcp-server).
-    image: registry.gitlab.com/from-the-lamp/infra/docker-images/lamp-alphavantage-mcp:1.0.1
+    image: registry.gitlab.com/from-the-lamp/infra/docker-images/lamp-alphavantage-mcp:1.0.2
     mcps:
       - name: alphavantage
         token:
