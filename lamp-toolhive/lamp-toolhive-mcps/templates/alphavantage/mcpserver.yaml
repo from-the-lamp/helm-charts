@@ -20,8 +20,8 @@ spec:
       key: api-key
       targetEnvName: ALPHAVANTAGE_API_KEY
   env:
-    - name: UV_CACHE_DIR
-      value: /tmp/uv-cache
+    - name: HOME
+      value: /tmp
   podTemplateSpec:
     spec:
       containers:
