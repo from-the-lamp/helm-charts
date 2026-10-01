@@ -16,10 +16,10 @@ spec:
   audit:
     enabled: true
   env:
-    - name: OCI_CONFIG_PROFILE
-      value: {{ $item.ociProfile | default "lamp-prod-1" }}
-    - name: LETSFG_VAULT_SECRET_ID
-      value: {{ $item.vaultSecretId | quote }}
+    - name: VAULT_ADDR
+      value: {{ $item.vaultAddr | default "http://vault.vault:8200" }}
+    - name: VAULT_K8S_ROLE
+      value: {{ $item.vaultK8sRole | default "letsfg" }}
   podTemplateSpec:
     spec:
       containers:
@@ -31,13 +31,5 @@ spec:
             periodSeconds: 600
             timeoutSeconds: 15
             failureThreshold: 1
-          volumeMounts:
-            - name: ociconfig
-              mountPath: /home/mcp/.oci
-              readOnly: true
-      volumes:
-        - name: ociconfig
-          secret:
-            secretName: {{ $item.ociSecretName }}
 {{- end }}
 {{- end }}
