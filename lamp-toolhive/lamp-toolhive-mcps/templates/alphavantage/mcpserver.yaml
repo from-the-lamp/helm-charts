@@ -19,5 +19,18 @@ spec:
     - name: {{ $item.name }}-mcp-secret
       key: api-key
       targetEnvName: ALPHAVANTAGE_API_KEY
+  env:
+    - name: UV_CACHE_DIR
+      value: /tmp/uv-cache
+  podTemplateSpec:
+    spec:
+      containers:
+        - name: mcp
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: tmp
+          emptyDir: {}
 {{- end }}
 {{- end }}
