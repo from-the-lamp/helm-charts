@@ -1,0 +1,20 @@
+{{- if .Values.mcp.googlemaps.enabled }}
+{{- range $item := .Values.mcp.googlemaps.mcps }}
+---
+apiVersion: toolhive.stacklok.dev/v1beta1
+kind: MCPRemoteProxy
+metadata:
+  name: {{ $item.name }}
+spec:
+  remoteUrl: {{ $.Values.mcp.googlemaps.remoteUrl }}
+  groupRef:
+    name: {{ $item.groupRef | default $.Values.mcp.defaults.groupRef }}
+  proxyPort: 8080
+  headerForward:
+    addHeadersFromSecret:
+      - headerName: X-Goog-Api-Key
+        valueSecretRef:
+          name: {{ $item.name }}-mcp-secret
+          key: api-key
+{{- end }}
+{{- end }}

@@ -1,0 +1,26 @@
+{{- if .Values.mcp.coingecko.enabled }}
+{{- range $item := .Values.mcp.coingecko.mcps }}
+---
+apiVersion: toolhive.stacklok.dev/v1beta1
+kind: MCPServer
+metadata:
+  name: {{ $item.name }}
+spec:
+  image: {{ $.Values.mcp.coingecko.image }}
+  transport: stdio
+  groupRef:
+    name: {{ $item.groupRef | default $.Values.mcp.defaults.groupRef }}
+  permissionProfile:
+    type: builtin
+    name: {{ $.Values.mcp.defaults.permissionProfile }}
+  audit:
+    enabled: true
+  secrets:
+    - name: {{ $item.name }}-mcp-secret
+      key: api-key
+      targetEnvName: COINGECKO_DEMO_API_KEY
+  env:
+    - name: COINGECKO_ENVIRONMENT
+      value: demo
+{{- end }}
+{{- end }}

@@ -203,6 +203,38 @@ mcp:
           key: toolhive
           property: alchemy_api_key
 
+  coingecko:
+    enabled: true
+    # Self-built from docker-images/lamp-coingecko-mcp (official npm package @coingecko/coingecko-mcp).
+    image: registry.gitlab.com/from-the-lamp/infra/docker-images/lamp-coingecko-mcp:latest
+    mcps:
+      - name: coingecko
+        token:
+          key: toolhive
+          property: coingecko_demo_api_key
+
+  alphavantage:
+    enabled: true
+    # Self-built from docker-images/lamp-alphavantage-mcp (official pip package marketdata-mcp-server).
+    image: registry.gitlab.com/from-the-lamp/infra/docker-images/lamp-alphavantage-mcp:latest
+    mcps:
+      - name: alphavantage
+        token:
+          key: toolhive
+          property: alphavantage_api_key
+
+  googlemaps:
+    enabled: true
+    # No self-built image: Google only offers Maps Grounding Lite as a
+    # managed remote MCP endpoint (no open-source server to self-host),
+    # proxied via toolhive's MCPRemoteProxy instead of MCPServer.
+    remoteUrl: https://mapstools.googleapis.com/mcp
+    mcps:
+      - name: googlemaps-grounding
+        token:
+          key: toolhive
+          property: googlemaps_grounding_lite_api_key
+
   thegraph:
     enabled: true
     # Self-built from docker-images/lamp-thegraph-mcp (vendored from kukapay/thegraph-mcp, no packaged release).
