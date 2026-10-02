@@ -206,7 +206,7 @@ mcp:
   coingecko:
     enabled: true
     # Self-built from docker-images/lamp-coingecko-mcp (official npm package @coingecko/coingecko-mcp).
-    image: registry.gitlab.com/from-the-lamp/infra/docker-images/lamp-coingecko-mcp:1.0.0
+    image: registry.gitlab.com/from-the-lamp/infra/docker-images/lamp-coingecko-mcp:1.0.1
     mcps:
       - name: coingecko
         token:
