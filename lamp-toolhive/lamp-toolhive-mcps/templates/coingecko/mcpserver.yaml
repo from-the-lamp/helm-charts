@@ -22,5 +22,15 @@ spec:
   env:
     - name: COINGECKO_ENVIRONMENT
       value: demo
+  podTemplateSpec:
+    spec:
+      containers:
+        - name: mcp
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: tmp
+          emptyDir: {}
 {{- end }}
 {{- end }}
