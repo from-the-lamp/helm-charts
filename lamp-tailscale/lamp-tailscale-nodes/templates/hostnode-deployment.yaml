@@ -2,6 +2,7 @@
 {{- $args := list }}
 {{- if .exitNode }}{{ $args = append $args "--advertise-exit-node" }}{{ else }}{{ $args = append $args "--advertise-exit-node=false" }}{{ end }}
 {{- with .advertiseRoutes }}{{ $args = append $args (printf "--advertise-routes=%s" (join "," .)) }}{{ end }}
+{{- with .tags }}{{ $args = append $args (printf "--advertise-tags=%s" (join "," .)) }}{{ end }}
 ---
 apiVersion: apps/v1
 kind: Deployment
