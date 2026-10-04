@@ -75,8 +75,25 @@ immich:
                   key: password
 
 # This chart's own resources (not part of the upstream immich chart) - see
-# templates/pvc.yaml. "immich-library" is a fixed convention this chart
-# relies on; keep in sync if changed here.
+# templates/. "immich-library" is a fixed convention this chart relies on;
+# keep in sync if changed here.
 library:
   storageClass: hcloud-volumes
   size: 100Gi
+
+# Mirrors the Vault property the shared postgres cluster's own role entry
+# points at (apps/platform/postgres's values.yaml) - both need to agree on
+# the one value in Vault. See templates/db-password.yaml for why this
+# chart needs its own copy of that Secret rather than referencing the
+# postgres app's one directly (Secrets are namespace-scoped).
+database:
+  passwordSecret:
+    name: postgres-immich-password
+    remoteSecretKey: postgres
+    remoteSecretProperty: users.immich.password
+
+externalSecrets:
+  kind: ClusterSecretStore
+  name: vault
+  refreshInterval: 1h
+  creationPolicy: Orphan
