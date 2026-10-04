@@ -64,8 +64,9 @@ immich:
             # "immich" role/database created on the shared cluster by
             # apps/platform/postgres's values.yaml (databases/roles lists).
             # postgres-rw is that cluster's pgbouncer (transaction-mode)
-            # service - fine for Immich's connection pattern.
-            DB_HOSTNAME: postgres-rw
+            # service, in the "postgres" namespace - cross-namespace, so
+            # needs the FQDN (bare short names only resolve same-namespace).
+            DB_HOSTNAME: postgres-rw.postgres.svc.cluster.local
             DB_USERNAME: immich
             DB_DATABASE_NAME: immich
             DB_PASSWORD:
