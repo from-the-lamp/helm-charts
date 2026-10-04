@@ -1,0 +1,82 @@
+# Immich (https://immich.app) - wraps the official immich-app/immich-charts
+# chart with this org's conventions: connects to the shared "postgres" CNPG
+# cluster (apps/platform/postgres - its "immich" role/database, and its
+# image carries the vectorchord extension Immich's ML embeddings need), a
+# pre-created library PVC (the upstream chart requires bringing your own
+# claim, it won't provision one), and the Redis/valkey wiring pre-set.
+#
+# Deployment-specific bits (hostnames, HTTPRoutes) are NOT here - set those
+# in the consuming app's own values.yaml via a separate lamp-istio-routes
+# dependency, same as every other app in this org.
+immich:
+  valkey:
+    enabled: true
+
+  server:
+    controllers:
+      main:
+        containers:
+          main:
+            resources:
+              requests:
+                cpu: 20m
+                memory: 256Mi
+              limits:
+                memory: 1Gi
+
+  machine-learning:
+    # Face/object recognition and smart search - CPU-only unless the
+    # cluster has a GPU node pool, so noticeably slower than a GPU box. Set
+    # "enabled: false" under immich.machine-learning if the memory cost
+    # isn't worth it.
+    controllers:
+      main:
+        containers:
+          main:
+            resources:
+              requests:
+                cpu: 100m
+                memory: 512Mi
+              limits:
+                cpu: "1"
+                memory: 2Gi
+    persistence:
+      cache:
+        # Keeps downloaded ML models across restarts instead of re-fetching
+        # them (multiple hundred MB) every time the pod reschedules.
+        enabled: true
+        type: persistentVolumeClaim
+        size: 10Gi
+        accessMode: ReadWriteOnce
+        storageClass: hcloud-volumes
+
+  immich:
+    persistence:
+      library:
+        # Created by this chart's templates/pvc.yaml.
+        existingClaim: immich-library
+
+  controllers:
+    main:
+      containers:
+        main:
+          env:
+            # "immich" role/database created on the shared cluster by
+            # apps/platform/postgres's values.yaml (databases/roles lists).
+            # postgres-rw is that cluster's pgbouncer (transaction-mode)
+            # service - fine for Immich's connection pattern.
+            DB_HOSTNAME: postgres-rw
+            DB_USERNAME: immich
+            DB_DATABASE_NAME: immich
+            DB_PASSWORD:
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-immich-password
+                  key: password
+
+# This chart's own resources (not part of the upstream immich chart) - see
+# templates/pvc.yaml. "immich-library" is a fixed convention this chart
+# relies on; keep in sync if changed here.
+library:
+  storageClass: hcloud-volumes
+  size: 100Gi

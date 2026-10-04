@@ -1,0 +1,8 @@
+apiVersion: v2
+name: lamp-immich
+version: 0.0.1
+
+dependencies:
+  - name: immich
+    version: 0.13.2
+    repository: oci://ghcr.io/immich-app/immich-charts
