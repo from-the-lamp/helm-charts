@@ -151,3 +151,21 @@ adminBootstrap:
   emailProperty: admin-email
   passwordProperty: admin-password
   nameProperty: admin-name
+
+backup:
+  enabled: false
+  bucket: ""
+  path: immich
+  keep: 28
+  schedule: "0 */6 * * *"
+  deploymentName: immich-server
+  podSelector: "app.kubernetes.io/instance=immich,app.kubernetes.io/name=server"
+  pvcClaimName: immich-library
+  rclone:
+    provider: Other
+    region: ""
+    endpoint: ""
+  vault:
+    remoteSecretKey: s3
+    accessKeyProperty: ""
+    secretKeyProperty: ""

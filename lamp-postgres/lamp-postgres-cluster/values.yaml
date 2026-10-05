@@ -71,6 +71,34 @@ cluster:
           enabled: true
       template: {}
 
+  backups:
+    enabled: false
+    method: plugin
+    pluginConfiguration:
+      name: barman-cloud.cloudnative-pg.io
+    provider: s3
+    endpointURL: ""
+    s3:
+      region: ""
+      bucket: ""
+      path: "/"
+    secret:
+      create: false
+      name: ""
+    retentionPolicy: 30d
+    scheduledBackups:
+      - name: daily-backup
+        schedule: "0 0 0 * * *"
+        backupOwnerReference: self
+        method: plugin
+        pluginConfiguration:
+          name: barman-cloud.cloudnative-pg.io
+
+backupCredentials:
+  remoteSecretKey: s3
+  accessKeyProperty: backblaze.from-the-lamp.id
+  secretKeyProperty: backblaze.from-the-lamp.secret
+
 externalSecrets:
   kind: ClusterSecretStore
   name: "" #

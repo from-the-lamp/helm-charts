@@ -1,0 +1,77 @@
+{{- if .Values.backup.enabled }}
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: immich-backup
+spec:
+  schedule: {{ .Values.backup.schedule | quote }}
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      activeDeadlineSeconds: 1800
+      ttlSecondsAfterFinished: 86400
+      template:
+        spec:
+          restartPolicy: Never
+          serviceAccountName: immich-backup
+          initContainers:
+            - name: snapshot
+              image: alpine:3.22
+              envFrom:
+                - configMapRef:
+                    name: immich-backup
+              command: ["/bin/sh", "-eu", "-c"]
+              args:
+                - |
+                  apk add --no-cache curl >/dev/null
+                  curl -fsSLo /usr/local/bin/kubectl "https://dl.k8s.io/release/v1.31.4/bin/linux/$(uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/')/kubectl"
+                  chmod +x /usr/local/bin/kubectl
+                  POD=$(kubectl -n "${IMMICH_NAMESPACE}" get pod -l "${POD_SELECTOR}" -o jsonpath='{.items[0].metadata.name}')
+                  kubectl -n "${IMMICH_NAMESPACE}" exec -c main "${POD}" -- tar czf /tmp/immich-backup.tar.gz -C /data library upload profile
+                  kubectl -n "${IMMICH_NAMESPACE}" cp -c main "${POD}:/tmp/immich-backup.tar.gz" /backup/immich-backup.tar.gz
+                  kubectl -n "${IMMICH_NAMESPACE}" exec -c main "${POD}" -- rm -f /tmp/immich-backup.tar.gz
+              resources:
+                requests:
+                  cpu: 50m
+                  memory: 128Mi
+                limits:
+                  memory: 256Mi
+              volumeMounts:
+                - name: backup
+                  mountPath: /backup
+          containers:
+            - name: upload
+              image: rclone/rclone:1.69
+              envFrom:
+                - configMapRef:
+                    name: immich-backup
+                - secretRef:
+                    name: immich-backup-credentials
+              command: ["/bin/sh", "-eu", "-c"]
+              args:
+                - |
+                  DEST="default:${BACKUP_BUCKET}/${BACKUP_PATH}"
+                  SNAPSHOT="immich-$(date -u +%Y%m%dT%H%M%SZ).tar.gz"
+                  rclone copyto /backup/immich-backup.tar.gz "${DEST}/${SNAPSHOT}" --progress
+                  if [ "${BACKUP_KEEP}" -gt 0 ]; then
+                    STALE=$(rclone lsf "${DEST}" --include "immich-*.tar.gz" | sort -r | tail -n +$((BACKUP_KEEP + 1)))
+                    for snapshot in ${STALE}; do
+                      echo "pruning ${snapshot}"
+                      rclone deletefile "${DEST}/${snapshot}"
+                    done
+                  fi
+              resources:
+                requests:
+                  cpu: 50m
+                  memory: 128Mi
+                limits:
+                  memory: 512Mi
+              volumeMounts:
+                - name: backup
+                  mountPath: /backup
+          volumes:
+            - name: backup
+              emptyDir: {}
+{{- end }}
