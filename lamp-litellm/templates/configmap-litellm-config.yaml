@@ -25,6 +25,14 @@ data:
           model: deepseek/{{ $model }}
           api_key: os.environ/DEEPSEEK_API_KEY
       {{- end }}
+      {{- range $model := .Values.whisperModels }}
+      - model_name: {{ $model }}
+        litellm_params:
+          model: groq/{{ $model }}
+          api_key: os.environ/GROQ_API_KEY
+        model_info:
+          mode: audio_transcription
+      {{- end }}
     router_settings:
       routing_strategy: simple-shuffle
     {{- include "lamp-litellm.codexHandlerSettings" . | nindent 4 }}
