@@ -1,0 +1,10 @@
+apiVersion: v2
+name: lamp-kelos
+description: Kelos controller and CRDs
+type: application
+version: 0.0.1
+dependencies:
+  - name: kelos-crds
+    alias: crds
+    version: 0.1.0
+    condition: crds.install
