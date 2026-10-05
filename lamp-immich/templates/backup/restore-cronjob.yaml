@@ -1,0 +1,96 @@
+{{- if .Values.backup.enabled }}
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: immich-restore
+spec:
+  suspend: true
+  schedule: "0 0 1 1 *"
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      activeDeadlineSeconds: 1800
+      ttlSecondsAfterFinished: 86400
+      template:
+        spec:
+          restartPolicy: Never
+          serviceAccountName: immich-restore
+          containers:
+            - name: restore
+              image: alpine:3.22
+              envFrom:
+                - configMapRef:
+                    name: immich-backup
+              env:
+                - name: SNAPSHOT
+                  value: "latest"
+              command: ["/bin/sh", "-eu", "-c"]
+              args:
+                - |
+                  apk add --no-cache curl bash ca-certificates >/dev/null
+                  curl -fsSLo /usr/local/bin/kubectl "https://dl.k8s.io/release/v1.31.4/bin/linux/$(uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/')/kubectl"
+                  chmod +x /usr/local/bin/kubectl
+
+                  echo "scaling ${DEPLOYMENT_NAME} to 0 replicas"
+                  kubectl -n "${IMMICH_NAMESPACE}" scale deployment "${DEPLOYMENT_NAME}" --replicas=0
+                  until [ "$(kubectl -n "${IMMICH_NAMESPACE}" get pod -l "${POD_SELECTOR}" -o jsonpath='{.items}')" = "[]" ]; do
+                    echo "waiting for ${DEPLOYMENT_NAME} to terminate..."
+                    sleep 3
+                  done
+
+                  kubectl -n "${IMMICH_NAMESPACE}" delete pod immich-restore-data --ignore-not-found --wait=true
+                  cat <<PODEOF | kubectl -n "${IMMICH_NAMESPACE}" apply -f -
+                  apiVersion: v1
+                  kind: Pod
+                  metadata:
+                    name: immich-restore-data
+                  spec:
+                    restartPolicy: Never
+                    containers:
+                      - name: restore
+                        image: rclone/rclone:1.69
+                        envFrom:
+                          - configMapRef:
+                              name: immich-backup
+                          - secretRef:
+                              name: immich-backup-credentials
+                        env:
+                          - name: SNAPSHOT
+                            value: "${SNAPSHOT}"
+                        command: ["/bin/sh", "-eu", "-c"]
+                        args:
+                          - |
+                            DEST="default:\${BACKUP_BUCKET}/\${BACKUP_PATH}"
+                            if [ "\${SNAPSHOT}" = "latest" ]; then
+                              SNAPSHOT=\$(rclone lsf "\${DEST}" --include "immich-*.tar.gz" | sort -r | head -n1)
+                            fi
+                            echo "restoring snapshot: \${SNAPSHOT}"
+                            rclone copyto "\${DEST}/\${SNAPSHOT}" /tmp/restore.tar.gz --progress
+                            tar xzf /tmp/restore.tar.gz -C /data
+                        volumeMounts:
+                          - name: data
+                            mountPath: /data
+                    volumes:
+                      - name: data
+                        persistentVolumeClaim:
+                          claimName: {{ .Values.backup.pvcClaimName }}
+                  PODEOF
+
+                  echo "waiting for immich-restore-data to finish..."
+                  phase=""
+                  for i in $(seq 1 180); do
+                    phase=$(kubectl -n "${IMMICH_NAMESPACE}" get pod immich-restore-data -o jsonpath='{.status.phase}' 2>/dev/null || true)
+                    if [ "$phase" = "Succeeded" ] || [ "$phase" = "Failed" ]; then break; fi
+                    sleep 5
+                  done
+                  kubectl -n "${IMMICH_NAMESPACE}" logs pod/immich-restore-data || true
+                  kubectl -n "${IMMICH_NAMESPACE}" delete pod immich-restore-data --ignore-not-found
+
+                  echo "scaling ${DEPLOYMENT_NAME} back to 1 replica"
+                  kubectl -n "${IMMICH_NAMESPACE}" scale deployment "${DEPLOYMENT_NAME}" --replicas=1
+
+                  if [ "$phase" != "Succeeded" ]; then
+                    echo "restore pod did not succeed (phase=${phase})"
+                    exit 1
+                  fi
+{{- end }}
