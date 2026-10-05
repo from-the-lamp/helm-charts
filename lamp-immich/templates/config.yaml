@@ -15,7 +15,7 @@ spec:
       data:
         immich-config.yaml: |
           {{- with .Values.configuration }}
-          {{ toYaml . }}
+          {{- toYaml . | nindent 10 }}
           {{- end }}
           oauth:
             enabled: true
@@ -42,7 +42,7 @@ metadata:
 stringData:
   immich-config.yaml: |
     {{- with .Values.configuration }}
-    {{ toYaml . }}
+    {{- toYaml . | nindent 4 }}
     {{- end }}
     oauth:
       enabled: false
