@@ -1,0 +1,14 @@
+{{- if .Values.mcp.aave.enabled }}
+{{- range $item := .Values.mcp.aave.mcps }}
+---
+apiVersion: toolhive.stacklok.dev/v1beta1
+kind: MCPRemoteProxy
+metadata:
+  name: {{ $item.name }}
+spec:
+  remoteUrl: {{ $.Values.mcp.aave.remoteUrl }}
+  groupRef:
+    name: {{ $item.groupRef | default $.Values.mcp.defaults.groupRef }}
+  proxyPort: 8080
+{{- end }}
+{{- end }}

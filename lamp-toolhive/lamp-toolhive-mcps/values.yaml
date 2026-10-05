@@ -245,6 +245,12 @@ mcp:
           key: toolhive
           property: thegraph_api_key
 
+  aave:
+    enabled: true
+    remoteUrl: https://mcp.aave.com
+    mcps:
+      - name: aave
+
   letsfg:
     enabled: true
     # Self-built from docker-images/lamp-letsfg-mcp (npm package letsfg-mcp, no official image).
