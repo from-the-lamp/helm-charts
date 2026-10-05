@@ -75,9 +75,12 @@ proxyConfigMap:
   key: config.yaml
 
 litellm-helm:
+  # litellm-groq intentionally left out until a real Groq API key exists in
+  # Vault (litellm.groq_api_key) - its ExternalSecret can't resolve yet, and
+  # a missing Secret here takes down the whole deployment
+  # (CreateContainerConfigError), not just Whisper.
   environmentSecrets:
     - litellm-deepseek
-    - litellm-groq
 
   image:
     repository: registry.gitlab.com/from-the-lamp/infra/docker-images/lamp-litellm
