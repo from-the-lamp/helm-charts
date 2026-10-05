@@ -97,8 +97,12 @@ dex:
         name: "Windmill (headless ROPC)"
         secretEnv: WINDMILL_CLIENT_SECRET
 
+  # Was false, leaving an orphaned/stale Secret (not re-rendered by Helm at
+  # all) that predated the current hermes password hash and never had a
+  # windmill entry - fixed by letting the chart actually render this from
+  # dex.config below.
   configSecret:
-    create: false
+    create: true
     name: toolhive-dex-config
 
   podAnnotations:
