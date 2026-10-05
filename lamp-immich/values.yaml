@@ -116,8 +116,11 @@ configuration: {}
 # OAuth login - disabled by default since it needs a GitLab OAuth
 # Application created out-of-band first (same pattern as pgadmin/argocd/
 # vault's own GitLab OAuth Apps). When enabling: create the Application,
-# set its redirect URI to https://<host>/api/oauth/callback, write its
-# client id/secret into Vault under remoteSecretKey/{clientIdProperty,
+# set its redirect URI to the web app's own https://<host>/auth/login (NOT
+# /api/oauth/callback - that's not what Immich's web client actually
+# sends), make sure openid/email/profile are checked in the Application's
+# own scope checkboxes (GitLab 400s with "invalid scope" otherwise), write
+# the client id/secret into Vault under remoteSecretKey/{clientIdProperty,
 # clientSecretProperty}, then set oauth.enabled: true.
 oauth:
   enabled: false
@@ -128,6 +131,14 @@ oauth:
   remoteSecretKey: immich
   clientIdProperty: oauth-client-id
   clientSecretProperty: oauth-client-secret
+  # The mobile app's native redirect is the "app.immich:///oauth-callback"
+  # custom scheme, which most OAuth providers (GitLab included) won't
+  # accept as a registered redirect URI. Set this to
+  # https://<host>/api/oauth/mobile-redirect (Immich's own forwarder route
+  # that bounces to the native scheme) and register THAT https URL as a
+  # second redirect URI on the Application, alongside /auth/login. Leave
+  # empty to skip mobile OAuth entirely (web login still works either way).
+  mobileRedirectUri: ""
 
 # First-admin bootstrap - calls POST /api/auth/admin-sign-up once Immich is
 # reachable. Disabled by default; when enabling, write the three Vault

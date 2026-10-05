@@ -25,6 +25,10 @@ spec:
             autoRegister: {{ .Values.oauth.autoRegister }}
             clientId: {{ printf "{{ .oauth_client_id }}" | quote }}
             clientSecret: {{ printf "{{ .oauth_client_secret }}" | quote }}
+            {{- with .Values.oauth.mobileRedirectUri }}
+            mobileOverrideEnabled: true
+            mobileRedirectUri: {{ . | quote }}
+            {{- end }}
   data:
     - secretKey: oauth_client_id
       remoteRef:
