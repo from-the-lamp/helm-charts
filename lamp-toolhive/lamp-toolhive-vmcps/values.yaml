@@ -80,6 +80,10 @@ dex:
         hash: "$2b$10$MUoCGGtqh/8dPxPY0g9u6.7voKfSGv79I/fAs.LCh4or1BiXoTF2O"
         username: hermes
         userID: hermes-static-user
+      - email: windmill@toolhive.internal
+        hash: "$2b$10$qk2RUjkyMB2EOEcjLxBYOudANldvAuu4wnxjRiMhWojUYk65T1BsK"
+        username: windmill
+        userID: windmill-static-user
     staticClients:
       - id: vmcp-mcp-tools
         name: "ToolHive vMCP"
@@ -89,6 +93,9 @@ dex:
       - id: hermes-toolhive
         name: "Hermes (headless ROPC)"
         secretEnv: HERMES_CLIENT_SECRET
+      - id: windmill-toolhive
+        name: "Windmill (headless ROPC)"
+        secretEnv: WINDMILL_CLIENT_SECRET
 
   configSecret:
     create: false
@@ -104,6 +111,8 @@ dex:
         name: toolhive-vmcp-client-secret
     - secretRef:
         name: toolhive-hermes-client-secret
+    - secretRef:
+        name: toolhive-windmill-client-secret
 
   # volumes:
   #   - name: google-sa
@@ -169,6 +178,9 @@ oidcConfigs:
   # above) and stored as a static secret (hermes/toolhive_bearer_token in
   # Vault) that hermes picks up like any other credential.
   - name: mcp-tools-hermes-oidc
+    issuer: https://mcp.internal.from-the-lamp.work/dex
+    jwksAllowPrivateIP: true
+  - name: mcp-tools-windmill-oidc
     issuer: https://mcp.internal.from-the-lamp.work/dex
     jwksAllowPrivateIP: true
 
@@ -278,6 +290,28 @@ virtualMcpServers:
         name: mcp-tools-hermes-oidc
         audience: hermes-toolhive
     # sessionStorage: see TODO on mcp-tools above - same passwordRef issue.
+    podTemplateSpec:
+      metadata:
+        annotations:
+          reloader.stakater.com/auto: "true"
+      spec:
+        containers:
+          - name: vmcp
+            resources:
+              requests:
+                cpu: 5m
+                memory: 128Mi
+              limits:
+                cpu: 500m
+                memory: 512Mi
+
+  - name: mcp-tools-windmill
+    groupRef: mcp-tools
+    incomingAuth:
+      type: oidc
+      oidcConfigRef:
+        name: mcp-tools-windmill-oidc
+        audience: windmill-toolhive
     podTemplateSpec:
       metadata:
         annotations:
