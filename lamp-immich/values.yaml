@@ -55,6 +55,12 @@ immich:
       library:
         # Created by this chart's templates/pvc.yaml.
         existingClaim: immich-library
+    # Always points at our own Secret (templates/config.yaml), which exists
+    # regardless of oauth.enabled - keeps this wiring unconditional so
+    # toggling oauth never leaves existingConfiguration dangling at a
+    # missing name.
+    existingConfiguration: immich-config
+    configurationKind: Secret
 
   controllers:
     main:
@@ -98,3 +104,39 @@ externalSecrets:
   name: vault
   refreshInterval: 1h
   creationPolicy: Orphan
+
+# Any other Immich config-file sections (storage template, trash, SMTP,
+# etc. - see https://immich.app/docs/install/config-file) that don't need
+# secret values. Merged alongside the oauth section below into one
+# immich-config.yaml by templates/config.yaml. Do NOT set "oauth" here -
+# use the dedicated oauth.* values instead, since that section needs
+# secret values templated in from Vault.
+configuration: {}
+
+# OAuth login - disabled by default since it needs a GitLab OAuth
+# Application created out-of-band first (same pattern as pgadmin/argocd/
+# vault's own GitLab OAuth Apps). When enabling: create the Application,
+# set its redirect URI to https://<host>/api/oauth/callback, write its
+# client id/secret into Vault under remoteSecretKey/{clientIdProperty,
+# clientSecretProperty}, then set oauth.enabled: true.
+oauth:
+  enabled: false
+  issuerUrl: https://gitlab.com
+  scope: "openid email profile"
+  buttonText: "Login with GitLab"
+  autoRegister: true
+  remoteSecretKey: immich
+  clientIdProperty: oauth-client-id
+  clientSecretProperty: oauth-client-secret
+
+# First-admin bootstrap - calls POST /api/auth/admin-sign-up once Immich is
+# reachable. Disabled by default; when enabling, write the three Vault
+# properties below first. Safe to leave enabled permanently: the endpoint
+# 400s once an admin already exists, and the Job's script treats that as
+# success, not failure.
+adminBootstrap:
+  enabled: false
+  remoteSecretKey: immich
+  emailProperty: admin-email
+  passwordProperty: admin-password
+  nameProperty: admin-name

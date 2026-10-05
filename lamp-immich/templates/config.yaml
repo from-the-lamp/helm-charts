@@ -1,0 +1,49 @@
+{{- if .Values.oauth.enabled }}
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: immich-config
+spec:
+  refreshInterval: "{{ .Values.externalSecrets.refreshInterval }}"
+  secretStoreRef:
+    kind: "{{ .Values.externalSecrets.kind }}"
+    name: "{{ .Values.externalSecrets.name }}"
+  target:
+    name: immich-config
+    creationPolicy: "{{ .Values.externalSecrets.creationPolicy }}"
+    template:
+      data:
+        immich-config.yaml: |
+          {{- with .Values.configuration }}
+          {{ toYaml . }}
+          {{- end }}
+          oauth:
+            enabled: true
+            issuerUrl: {{ .Values.oauth.issuerUrl | quote }}
+            scope: {{ .Values.oauth.scope | quote }}
+            buttonText: {{ .Values.oauth.buttonText | quote }}
+            autoRegister: {{ .Values.oauth.autoRegister }}
+            clientId: {{ printf "{{ .oauth_client_id }}" | quote }}
+            clientSecret: {{ printf "{{ .oauth_client_secret }}" | quote }}
+  data:
+    - secretKey: oauth_client_id
+      remoteRef:
+        key: {{ .Values.oauth.remoteSecretKey }}
+        property: {{ .Values.oauth.clientIdProperty }}
+    - secretKey: oauth_client_secret
+      remoteRef:
+        key: {{ .Values.oauth.remoteSecretKey }}
+        property: {{ .Values.oauth.clientSecretProperty }}
+{{- else }}
+apiVersion: v1
+kind: Secret
+metadata:
+  name: immich-config
+stringData:
+  immich-config.yaml: |
+    {{- with .Values.configuration }}
+    {{ toYaml . }}
+    {{- end }}
+    oauth:
+      enabled: false
+{{- end }}

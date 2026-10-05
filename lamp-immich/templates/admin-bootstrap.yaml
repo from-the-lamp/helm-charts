@@ -1,0 +1,73 @@
+{{- if .Values.adminBootstrap.enabled }}
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: immich-admin-bootstrap
+spec:
+  refreshInterval: "{{ .Values.externalSecrets.refreshInterval }}"
+  secretStoreRef:
+    kind: "{{ .Values.externalSecrets.kind }}"
+    name: "{{ .Values.externalSecrets.name }}"
+  target:
+    name: immich-admin-bootstrap
+    creationPolicy: "{{ .Values.externalSecrets.creationPolicy }}"
+  data:
+    - secretKey: email
+      remoteRef:
+        key: {{ .Values.adminBootstrap.remoteSecretKey }}
+        property: {{ .Values.adminBootstrap.emailProperty }}
+    - secretKey: password
+      remoteRef:
+        key: {{ .Values.adminBootstrap.remoteSecretKey }}
+        property: {{ .Values.adminBootstrap.passwordProperty }}
+    - secretKey: name
+      remoteRef:
+        key: {{ .Values.adminBootstrap.remoteSecretKey }}
+        property: {{ .Values.adminBootstrap.nameProperty }}
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: immich-admin-bootstrap
+  annotations:
+    # Jobs are immutable once created - ArgoCD won't touch an existing one
+    # even when its spec changes. Replace=true makes every sync delete and
+    # recreate it instead, which is what lets this stay enabled forever
+    # (re-running against an already-bootstrapped instance is a no-op).
+    argocd.argoproj.io/sync-options: Replace=true
+spec:
+  backoffLimit: 3
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: admin-sign-up
+          image: curlimages/curl:8.11.0
+          envFrom:
+            - secretRef:
+                name: immich-admin-bootstrap
+          command: ["/bin/sh", "-euc"]
+          args:
+            - |
+              for i in $(seq 1 60); do
+                curl -sf http://{{ .Release.Name }}-server:2283/api/server/ping >/dev/null 2>&1 && break
+                echo "waiting for immich-server..."
+                sleep 5
+              done
+              code=$(curl -s -o /tmp/resp.json -w '%{http_code}' -X POST \
+                "http://{{ .Release.Name }}-server:2283/api/auth/admin-sign-up" \
+                -H 'Content-Type: application/json' \
+                -d "{\"email\":\"${email}\",\"password\":\"${password}\",\"name\":\"${name}\"}")
+              cat /tmp/resp.json
+              echo
+              if [ "$code" = "201" ]; then
+                echo "admin created"
+                exit 0
+              fi
+              if [ "$code" = "400" ]; then
+                echo "admin-sign-up returned 400 (already set up), treating as success"
+                exit 0
+              fi
+              echo "unexpected response code: $code"
+              exit 1
+{{- end }}
