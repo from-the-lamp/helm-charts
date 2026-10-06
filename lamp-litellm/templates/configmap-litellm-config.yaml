@@ -10,6 +10,11 @@ data:
         litellm_params:
           model: codex/codex-{{ $model }}
       {{- end }}
+      {{- range $model := .Values.codexModels }}
+      - model_name: openai/{{ $model }}
+        litellm_params:
+          model: codex/codex-{{ $model }}
+      {{- end }}
       {{- range $account := .Values.codexAccounts }}
       {{- range $model := $.Values.codexModels }}
       - model_name: {{ $model }}
