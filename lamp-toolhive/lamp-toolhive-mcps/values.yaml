@@ -251,6 +251,15 @@ mcp:
     mcps:
       - name: aave
 
+  # Windmill's own built-in MCP gateway (CRUD on Resources/Variables/Schedules/
+  # Jobs) - no separate server to run, every instance serves it at
+  # /api/mcp/w/<workspace>/mcp. Auth is SUPERADMIN_SECRET (see
+  # apps/hetzner-infra/platform/windmill/values.yaml), forwarded as a Bearer
+  # header - not a token=... query param, to avoid it ending up in access logs.
+  windmill:
+    enabled: true
+    remoteUrl: https://windmill.internal.from-the-lamp.work/api/mcp/w/djinn/mcp
+
   letsfg:
     enabled: true
     # Self-built from docker-images/lamp-letsfg-mcp (npm package letsfg-mcp, no official image).

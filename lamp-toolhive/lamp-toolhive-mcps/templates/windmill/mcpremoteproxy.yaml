@@ -1,0 +1,17 @@
+{{- if .Values.mcp.windmill.enabled }}
+apiVersion: toolhive.stacklok.dev/v1beta1
+kind: MCPRemoteProxy
+metadata:
+  name: windmill
+spec:
+  remoteUrl: {{ .Values.mcp.windmill.remoteUrl }}
+  groupRef:
+    name: {{ .Values.mcp.windmill.groupRef | default .Values.mcp.defaults.groupRef }}
+  proxyPort: 8080
+  headerForward:
+    addHeadersFromSecret:
+      - headerName: Authorization
+        valueSecretRef:
+          name: windmill-mcp-auth-header
+          key: authHeader
+{{- end }}
