@@ -8,6 +8,17 @@ spec:
   groupRef:
     name: {{ .Values.mcp.windmill.groupRef | default .Values.mcp.defaults.groupRef }}
   proxyPort: 8080
+  # windmill-mcp-auth-header is NOT ExternalSecret/Vault-sourced like the rest
+  # of this repo's secrets - Windmill's MCP gateway checks a token's `scopes`
+  # column for an "mcp:" prefix (backend/windmill-mcp/src/server/backend.rs,
+  # has_mcp_scope), and SUPERADMIN_SECRET-authenticated requests always carry
+  # scopes: None (hardcoded, no admin bypass) - so SUPERADMIN_SECRET itself
+  # can authenticate but can never pass the MCP scope check. Bootstrapped
+  # once instead via SUPERADMIN_SECRET calling POST /api/users/tokens/create
+  # with scopes: ["mcp:all"], and that resulting token stored directly as
+  # this plain Secret's "authHeader" key ("Bearer <token>"). Regenerate the
+  # same way if it's ever lost/rotated - there's nothing in Vault to restore
+  # it from.
   headerForward:
     addHeadersFromSecret:
       - headerName: Authorization
