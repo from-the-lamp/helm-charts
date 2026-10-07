@@ -253,12 +253,22 @@ mcp:
 
   # Windmill's own built-in MCP gateway (CRUD on Resources/Variables/Schedules/
   # Jobs) - no separate server to run, every instance serves it at
-  # /api/mcp/w/<workspace>/mcp. Auth is SUPERADMIN_SECRET (see
-  # apps/hetzner-infra/platform/windmill/values.yaml), forwarded as a Bearer
-  # header - not a token=... query param, to avoid it ending up in access logs.
+  # /api/mcp/w/<workspace>/mcp. Forwarded as a Bearer header (not a
+  # token=... query param) to avoid it ending up in access logs. The token
+  # itself is minted by the bootstrap Job below (see
+  # templates/windmill/bootstrap-job.yaml for why SUPERADMIN_SECRET can't be
+  # used directly), not stored in Vault.
   windmill:
     enabled: true
     remoteUrl: https://windmill.internal.from-the-lamp.work/api/mcp/w/djinn/mcp
+    bootstrap:
+      windmillBaseUrl: https://windmill.internal.from-the-lamp.work
+      workspaceId: djinn
+      serviceUserEmail: toolhive-mcp@windmill.internal
+      superadminSecret:
+        name: windmill-superadmin-secret
+        namespace: windmill
+        key: secret
 
   letsfg:
     enabled: true

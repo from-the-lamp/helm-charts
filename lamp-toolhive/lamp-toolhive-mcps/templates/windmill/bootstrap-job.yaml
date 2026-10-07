@@ -1,0 +1,79 @@
+{{- if .Values.mcp.windmill.enabled }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: windmill-mcp-bootstrap
+  annotations:
+    # Jobs are immutable once created - ArgoCD won't touch an existing one
+    # even when its spec changes. Replace=true makes every sync delete and
+    # recreate it instead (each run mints a fresh mcp:all token - cheap and
+    # harmless to repeat, old tokens just go unused rather than revoked).
+    argocd.argoproj.io/sync-options: Replace=true
+    argocd.argoproj.io/sync-wave: "-1"
+spec:
+  backoffLimit: 3
+  template:
+    spec:
+      restartPolicy: Never
+      serviceAccountName: windmill-mcp-bootstrap
+      containers:
+        - name: bootstrap
+          image: alpine:3.22
+          env:
+            - name: WINDMILL_BASE_URL
+              value: {{ .Values.mcp.windmill.bootstrap.windmillBaseUrl }}
+            - name: WINDMILL_WORKSPACE
+              value: {{ .Values.mcp.windmill.bootstrap.workspaceId }}
+            - name: SERVICE_USER_EMAIL
+              value: {{ .Values.mcp.windmill.bootstrap.serviceUserEmail }}
+            - name: SUPERADMIN_SECRET_NAME
+              value: {{ .Values.mcp.windmill.bootstrap.superadminSecret.name }}
+            - name: SUPERADMIN_SECRET_NAMESPACE
+              value: {{ .Values.mcp.windmill.bootstrap.superadminSecret.namespace }}
+            - name: SUPERADMIN_SECRET_KEY
+              value: {{ .Values.mcp.windmill.bootstrap.superadminSecret.key }}
+          command: ["/bin/sh", "-euc"]
+          args:
+            - |
+              apk add --no-cache curl ca-certificates >/dev/null
+              curl -fsSLo /usr/local/bin/kubectl "https://dl.k8s.io/release/v1.31.4/bin/linux/$(uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/')/kubectl"
+              chmod +x /usr/local/bin/kubectl
+
+              SUPERADMIN_SECRET=$(kubectl get secret "${SUPERADMIN_SECRET_NAME}" -n "${SUPERADMIN_SECRET_NAMESPACE}" -o "jsonpath={.data.${SUPERADMIN_SECRET_KEY}}" | base64 -d)
+
+              # Dedicated automation user - idempotent: Windmill rejects a
+              # duplicate email, which is treated as already-done, not a
+              # failure.
+              code=$(curl -s -o /tmp/resp -w '%{http_code}' -X POST "${WINDMILL_BASE_URL}/api/users/create" \
+                -H "Authorization: Bearer ${SUPERADMIN_SECRET}" -H "Content-Type: application/json" \
+                -d "{\"email\":\"${SERVICE_USER_EMAIL}\",\"password\":\"$(cat /proc/sys/kernel/random/uuid)\",\"super_admin\":false,\"name\":\"ToolHive MCP Gateway\",\"skip_email\":true,\"login_type\":\"password\"}")
+              if [ "$code" != "201" ] && ! grep -qi "already" /tmp/resp; then
+                echo "user create failed ($code): $(cat /tmp/resp)"
+                exit 1
+              fi
+
+              code=$(curl -s -o /tmp/resp -w '%{http_code}' -X POST "${WINDMILL_BASE_URL}/api/w/${WINDMILL_WORKSPACE}/workspaces/add_user" \
+                -H "Authorization: Bearer ${SUPERADMIN_SECRET}" -H "Content-Type: application/json" \
+                -d "{\"email\":\"${SERVICE_USER_EMAIL}\",\"is_admin\":false,\"operator\":false}")
+              if [ "$code" != "200" ] && ! grep -qi "already" /tmp/resp; then
+                echo "add_user failed ($code): $(cat /tmp/resp)"
+                exit 1
+              fi
+
+              # SUPERADMIN_SECRET authenticates but its ApiAuthed always has
+              # scopes: None (no admin bypass in Windmill's has_mcp_scope) -
+              # a token "created by" it fails the MCP gateway's scope check
+              # regardless of what scopes are requested. Impersonating the
+              # dedicated user above and having THAT identity create its own
+              # token is the only way to get a token the MCP gateway accepts.
+              IMPERSONATE_TOKEN=$(curl -sf -X POST "${WINDMILL_BASE_URL}/api/users/tokens/impersonate" \
+                -H "Authorization: Bearer ${SUPERADMIN_SECRET}" -H "Content-Type: application/json" \
+                -d "{\"label\":\"bootstrap-impersonate\",\"impersonate_email\":\"${SERVICE_USER_EMAIL}\"}")
+
+              MCP_TOKEN=$(curl -sf -X POST "${WINDMILL_BASE_URL}/api/users/tokens/create" \
+                -H "Authorization: Bearer ${IMPERSONATE_TOKEN}" -H "Content-Type: application/json" \
+                -d "{\"label\":\"toolhive-mcp-gateway\",\"scopes\":[\"mcp:all\"],\"workspace_id\":\"${WINDMILL_WORKSPACE}\"}")
+
+              kubectl patch secret windmill-mcp-auth-header -n {{ .Release.Namespace }} \
+                --type=merge -p "{\"stringData\":{\"authHeader\":\"Bearer ${MCP_TOKEN}\"}}"
+{{- end }}
