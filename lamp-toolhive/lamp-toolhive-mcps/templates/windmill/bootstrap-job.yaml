@@ -55,7 +55,7 @@ spec:
               code=$(curl -s -o /tmp/resp -w '%{http_code}' -X POST "${WINDMILL_BASE_URL}/api/w/${WINDMILL_WORKSPACE}/workspaces/add_user" \
                 -H "Authorization: Bearer ${SUPERADMIN_SECRET}" -H "Content-Type: application/json" \
                 -d "{\"email\":\"${SERVICE_USER_EMAIL}\",\"is_admin\":false,\"operator\":false}")
-              if [ "$code" != "200" ] && ! grep -qi "already" /tmp/resp; then
+              if [ "$code" != "200" ] && [ "$code" != "201" ] && ! grep -qi "already" /tmp/resp; then
                 echo "add_user failed ($code): $(cat /tmp/resp)"
                 exit 1
               fi
