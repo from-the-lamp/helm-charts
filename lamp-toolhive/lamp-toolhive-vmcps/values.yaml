@@ -250,9 +250,7 @@ virtualMcpServers:
               expectedAudience: windmill-toolhive
               allowedDelegateClients:
                 - windmill-delegate
-              actorClaim: sub
-              allowedActors:
-                - system:serviceaccount:toolhive:windmill-mcp-bootstrap
+              actorMatcher: 'claims.sub == "system:serviceaccount:toolhive:windmill-mcp-bootstrap"'
           delegateClients:
             - clientId: windmill-delegate
               clientSecretRef:
