@@ -277,6 +277,9 @@ virtualMcpServers:
             passwordSecretRef:
               name: toolhive-redis-password
               key: password
+    config:
+      operational:
+        logLevel: debug
     # TODO: re-enable once toolhive-operator 0.49.0's sessionStorage.passwordRef wiring
     # is confirmed working - it currently fails with "NOAUTH Authentication required"
     # even though the referenced secret's password matches Redis's own auth secret,
