@@ -250,7 +250,7 @@ virtualMcpServers:
               expectedAudience: https://mcp.internal.from-the-lamp.work/mcp
               allowedDelegateClients:
                 - windmill-delegate
-              actorMatcher: 'claims.sub == "system:serviceaccount:windmill:windmill-bootstrap-variables"'
+              actorMatcher: 'claims.sub == "system:serviceaccount:windmill:windmill"'
           delegateClients:
             - clientId: windmill-delegate
               clientSecretRef:
