@@ -31,4 +31,15 @@ spec:
           resource
         );
       {{- end }}
+      {{- range .allowedClientIds }}
+      - |
+        permit(
+          principal,
+          action,
+          resource
+        )
+        when {
+          principal.claim_client_id == {{ . | quote }}
+        };
+      {{- end }}
 {{- end }}

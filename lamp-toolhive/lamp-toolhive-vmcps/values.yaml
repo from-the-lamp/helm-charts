@@ -196,6 +196,8 @@ authzConfigs:
   - name: mcp-tools-authz
     allowedGroups:
       - from-the-lamp
+    allowedClientIds:
+      - windmill-delegate
 
 mcpGroups:
   - name: mcp-tools
