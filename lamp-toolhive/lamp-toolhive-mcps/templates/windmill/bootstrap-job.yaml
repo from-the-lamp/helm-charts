@@ -5,11 +5,16 @@ metadata:
   name: windmill-mcp-bootstrap
   annotations:
     # Jobs are immutable once created - ArgoCD won't touch an existing one
-    # even when its spec changes. Replace=true makes every sync delete and
-    # recreate it instead (each run mints a fresh mcp:all token - cheap and
-    # harmless to repeat, old tokens just go unused rather than revoked).
-    argocd.argoproj.io/sync-options: Replace=true
-    argocd.argoproj.io/sync-wave: "-1"
+    # even when its spec changes. Replace=true hits a Kubernetes Job quirk
+    # (spec.selector is required on replace/PUT but is itself server-generated,
+    # so it's never in the git manifest - replace always fails with
+    # "spec.selector: Required value"). A PreSync hook with
+    # BeforeHookCreation does a real delete-then-create instead, avoiding
+    # replace semantics entirely (each run mints a fresh mcp:all token -
+    # cheap and harmless to repeat, old tokens just go unused rather than
+    # revoked).
+    argocd.argoproj.io/hook: PreSync
+    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
 spec:
   backoffLimit: 3
   template:
