@@ -81,7 +81,7 @@ litellm-helm:
 
   image:
     repository: registry.gitlab.com/from-the-lamp/infra/docker-images/lamp-litellm
-    tag: "1.0.5-debug"
+    tag: "1.0.6-debug"
     pullPolicy: Always
 
   imagePullSecrets:
