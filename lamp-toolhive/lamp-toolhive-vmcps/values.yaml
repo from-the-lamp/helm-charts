@@ -221,6 +221,28 @@ virtualMcpServers:
       signingKeySecretRefs:
         - name: toolhive-authserver-secrets
           key: signing
+      trustedIssuers:
+        - name: dex
+          issuerUrl: https://mcp.internal.from-the-lamp.work/dex
+          jwksUrl: https://mcp.internal.from-the-lamp.work/dex/keys
+          allowPrivateIPs: true
+      inboundGrants:
+        tokenExchange:
+          issuerPolicies:
+            - issuerRef: dex
+              expectedAudience: windmill-toolhive
+              allowedDelegateClients:
+                - windmill-delegate
+          delegateClients:
+            - clientId: windmill-delegate
+              clientSecretRef:
+                name: toolhive-windmill-delegate-secret
+                key: WINDMILL_DELEGATE_CLIENT_SECRET
+              audiences:
+                - https://mcp.internal.from-the-lamp.work/mcp
+              scopes:
+                - openid
+                - offline_access
       upstreamProviders:
         - name: gitlab
           type: oidc
