@@ -109,6 +109,9 @@ dex:
   podAnnotations:
     reloader.stakater.com/auto: "true"
 
+  env:
+    DEX_CLIENT_CREDENTIAL_GRANT_ENABLED_BY_DEFAULT: "true"
+
   envFrom:
     - secretRef:
         name: dex-sso-secrets
