@@ -3,7 +3,7 @@ dependencies:
 - condition: dex.enabled
   name: dex
   repository: https://charts.dexidp.io
-  version: 0.24.1
+  version: 0.26.0
 - condition: redis.enabled
   name: redis
   repository: oci://registry-1.docker.io/bitnamicharts
