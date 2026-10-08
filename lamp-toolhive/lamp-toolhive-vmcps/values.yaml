@@ -81,7 +81,7 @@ dex:
         username: hermes
         userID: hermes-static-user
       - email: windmill@toolhive.internal
-        hash: "$2b$10$A6msW89DAm4JbIqskk6MwO7p97WRlHsFYmQGXYHNk65gIV.IxTwVa"
+        hash: "$2b$10$V0SsvM6kR1ZiIFSyv4eTHejcLjiGeZ6FnUHVYy6cegNz0EqTfr1/u"
         username: windmill
         userID: windmill-static-user
     staticClients:
