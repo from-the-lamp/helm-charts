@@ -64,6 +64,7 @@ dex:
         - authorization_code
         - refresh_token
         - password
+        - client_credentials
     # id token lifetime long-lived to match the hermes-side "mint once, never
     # rotate" design already used for its (unreachable) k8s SA token attempt;
     # signingKeys must stay >= idTokens or token validation breaks once keys
