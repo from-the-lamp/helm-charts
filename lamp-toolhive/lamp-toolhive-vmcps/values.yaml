@@ -250,7 +250,7 @@ virtualMcpServers:
               expectedAudience: https://mcp.internal.from-the-lamp.work/mcp
               allowedDelegateClients:
                 - windmill-delegate
-              actorMatcher: 'claims.sub == "system:serviceaccount:toolhive:windmill-mcp-bootstrap"'
+              actorMatcher: 'claims.sub == "system:serviceaccount:windmill:windmill-bootstrap-variables"'
           delegateClients:
             - clientId: windmill-delegate
               clientSecretRef:
@@ -293,9 +293,6 @@ virtualMcpServers:
             passwordSecretRef:
               name: toolhive-redis-password
               key: password
-    config:
-      operational:
-        logLevel: debug
     # TODO: re-enable once toolhive-operator 0.49.0's sessionStorage.passwordRef wiring
     # is confirmed working - it currently fails with "NOAUTH Authentication required"
     # even though the referenced secret's password matches Redis's own auth secret,
