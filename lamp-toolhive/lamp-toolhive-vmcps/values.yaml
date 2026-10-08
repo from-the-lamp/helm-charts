@@ -247,7 +247,7 @@ virtualMcpServers:
               allowedActors:
                 - windmill-delegate
             - issuerRef: k8s-apiserver
-              expectedAudience: windmill-toolhive
+              expectedAudience: https://mcp.internal.from-the-lamp.work/mcp
               allowedDelegateClients:
                 - windmill-delegate
               actorMatcher: 'claims.sub == "system:serviceaccount:toolhive:windmill-mcp-bootstrap"'
