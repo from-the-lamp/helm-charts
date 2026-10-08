@@ -233,6 +233,8 @@ virtualMcpServers:
               expectedAudience: windmill-toolhive
               allowedDelegateClients:
                 - windmill-delegate
+              allowedActors:
+                - windmill-delegate
           delegateClients:
             - clientId: windmill-delegate
               clientSecretRef:
