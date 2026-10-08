@@ -230,6 +230,13 @@ virtualMcpServers:
           issuerUrl: https://mcp.internal.from-the-lamp.work/dex
           jwksUrl: https://mcp.internal.from-the-lamp.work/dex/keys
           allowPrivateIPs: true
+        - name: k8s-apiserver
+          issuerUrl: https://91.98.221.117:6443
+          jwksUrl: https://91.98.221.117:6443/openid/v1/jwks
+          caBundleRef:
+            configMapRef:
+              name: kube-root-ca.crt
+              key: ca.crt
       inboundGrants:
         tokenExchange:
           issuerPolicies:
@@ -239,6 +246,13 @@ virtualMcpServers:
                 - windmill-delegate
               allowedActors:
                 - windmill-delegate
+            - issuerRef: k8s-apiserver
+              expectedAudience: windmill-toolhive
+              allowedDelegateClients:
+                - windmill-delegate
+              actorClaim: sub
+              allowedActors:
+                - system:serviceaccount:toolhive:windmill-mcp-bootstrap
           delegateClients:
             - clientId: windmill-delegate
               clientSecretRef:
