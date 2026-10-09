@@ -63,7 +63,7 @@ spec:
             - name: TS_USERSPACE
               value: "false"
             - name: TS_AUTH_ONCE
-              value: {{ (.authOnce | default true) | quote }}
+              value: {{ if hasKey . "authOnce" }}{{ .authOnce | quote }}{{ else }}"true"{{ end }}
             - name: TS_KUBE_SECRET
               value: "{{ .stateSecret | default (printf "tailscale-%s-state" .name) }}"
             - name: TS_HOSTNAME
