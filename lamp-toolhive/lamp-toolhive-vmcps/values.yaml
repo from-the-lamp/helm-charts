@@ -196,8 +196,18 @@ authzConfigs:
   - name: mcp-tools-authz
     allowedGroups:
       - from-the-lamp
+    # windmill-delegate's only real consumer today is
+    # f/context/collect_jira_context.flow's read-only Jira tool set (see
+    # that flow's include_tools) - scoped to exactly that, not a blanket
+    # permit over the whole mcp-tools group (which also contains
+    # prod-admin Kubernetes, Oracle Cloud, and crypto-signing tools).
+    # Add a prefix here only once a real flow actually calls it.
     allowedClientIds:
-      - windmill-delegate
+      - clientId: windmill-delegate
+        allowedServers:
+          - jira-xdata
+          - jira-cas
+          - jira-currency
 
 mcpGroups:
   - name: mcp-tools
