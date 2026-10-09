@@ -197,6 +197,20 @@ authzConfigs:
           - jira-cas
           - jira-currency
 
+  # mcp-tools-hermes's own entry point - every token that reaches it is
+  # already proven to be Hermes by mcp-tools-hermes-oidc, so these policies
+  # need no principal match, only a resource (tool-name) restriction. Full
+  # access to everything else stays as-is; only the windmill_* backend (it
+  # proxies Windmill's *native* MCP API - every script/flow in the
+  # workspace, not just the intended intake flows) is cut down to an
+  # explicit allow-list. rawPolicies is a passthrough for exact-match Cedar
+  # policies the allowedServers/allowedGroups/allowedClientIds shapes above
+  # can't express (they only generate "<prefix>_*" wildcard permits).
+  - name: mcp-tools-hermes-authz
+    rawPolicies:
+      - 'permit(principal, action, resource) when { !(resource.name like "windmill_*") };'
+      - 'permit(principal, action, resource) when { resource.name == "windmill_f-f_tasks_poll__assigned__jira" || resource.name == "windmill_f-f_kelos_trigger__kcl__task" };'
+
 mcpGroups:
   - name: mcp-tools
 
@@ -313,9 +327,10 @@ virtualMcpServers:
   # ingress/route) for hermes to reach using a Dex-issued ROPC token instead
   # of a human GitLab login. Audience matches the hermes-toolhive Dex client
   # id, since Dex sets a token's aud claim to the requesting client_id.
-  # No authzConfigRef: any token that validates against mcp-tools-hermes-oidc
-  # already proves it came from that client, so it gets the full mcp-tools
-  # toolset.
+  # authzConfigRef (mcp-tools-hermes-authz above) leaves every non-windmill
+  # tool as-is but cuts windmill_* down to an explicit allow-list - that
+  # backend is Windmill's own native MCP API, which otherwise exposes every
+  # script/flow in the workspace, not just the intended task-intake ones.
   - name: mcp-tools-hermes
     groupRef: mcp-tools
     incomingAuth:
@@ -323,6 +338,8 @@ virtualMcpServers:
       oidcConfigRef:
         name: mcp-tools-hermes-oidc
         audience: hermes-toolhive
+      authzConfigRef:
+        name: mcp-tools-hermes-authz
     # sessionStorage: see TODO on mcp-tools above - same passwordRef issue.
     podTemplateSpec:
       metadata:

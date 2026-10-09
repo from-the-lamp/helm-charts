@@ -47,4 +47,7 @@ spec:
         };
       {{- end }}
       {{- end }}
+      {{- range .rawPolicies }}
+      - {{ . | quote }}
+      {{- end }}
 {{- end }}
