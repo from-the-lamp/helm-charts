@@ -39,7 +39,7 @@ spec:
           resource
         )
         when {
-          principal.claim_client_id == {{ . | quote }}
+          principal has claim_client_id && principal.claim_client_id == {{ . | quote }}
         };
       {{- end }}
 {{- end }}
