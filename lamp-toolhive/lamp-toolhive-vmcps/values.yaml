@@ -81,10 +81,6 @@ dex:
         hash: "$2b$10$MUoCGGtqh/8dPxPY0g9u6.7voKfSGv79I/fAs.LCh4or1BiXoTF2O"
         username: hermes
         userID: hermes-static-user
-      - email: windmill@toolhive.internal
-        hash: "$2b$10$V0SsvM6kR1ZiIFSyv4eTHejcLjiGeZ6FnUHVYy6cegNz0EqTfr1/u"
-        username: windmill
-        userID: windmill-static-user
     staticClients:
       - id: vmcp-mcp-tools
         name: "ToolHive vMCP"
@@ -94,9 +90,6 @@ dex:
       - id: hermes-toolhive
         name: "Hermes (headless ROPC)"
         secretEnv: HERMES_CLIENT_SECRET
-      - id: windmill-toolhive
-        name: "Windmill (headless ROPC)"
-        secretEnv: WINDMILL_CLIENT_SECRET
 
   # Was false, leaving an orphaned/stale Secret (not re-rendered by Helm at
   # all) that predated the current hermes password hash and never had a
@@ -119,8 +112,6 @@ dex:
         name: toolhive-vmcp-client-secret
     - secretRef:
         name: toolhive-hermes-client-secret
-    - secretRef:
-        name: toolhive-windmill-client-secret
 
   # volumes:
   #   - name: google-sa
@@ -188,9 +179,6 @@ oidcConfigs:
   - name: mcp-tools-hermes-oidc
     issuer: https://mcp.internal.from-the-lamp.work/dex
     jwksAllowPrivateIP: true
-  - name: mcp-tools-windmill-oidc
-    issuer: https://mcp.internal.from-the-lamp.work/dex
-    jwksAllowPrivateIP: true
 
 authzConfigs:
   - name: mcp-tools-authz
@@ -252,12 +240,6 @@ virtualMcpServers:
       inboundGrants:
         tokenExchange:
           issuerPolicies:
-            - issuerRef: dex
-              expectedAudience: windmill-toolhive
-              allowedDelegateClients:
-                - windmill-delegate
-              allowedActors:
-                - windmill-delegate
             - issuerRef: k8s-apiserver
               expectedAudience: https://mcp.internal.from-the-lamp.work/mcp
               allowedDelegateClients:
@@ -361,27 +343,6 @@ virtualMcpServers:
                 cpu: 500m
                 memory: 512Mi
 
-  - name: mcp-tools-windmill
-    groupRef: mcp-tools
-    incomingAuth:
-      type: oidc
-      oidcConfigRef:
-        name: mcp-tools-windmill-oidc
-        audience: windmill-toolhive
-    podTemplateSpec:
-      metadata:
-        annotations:
-          reloader.stakater.com/auto: "true"
-      spec:
-        containers:
-          - name: vmcp
-            resources:
-              requests:
-                cpu: 5m
-                memory: 128Mi
-              limits:
-                cpu: 500m
-                memory: 512Mi
 
 tailscaleExpose:
   enabled: false
