@@ -226,10 +226,6 @@ virtualMcpServers:
         - name: toolhive-authserver-secrets
           key: signing
       trustedIssuers:
-        - name: dex
-          issuerUrl: https://mcp.internal.from-the-lamp.work/dex
-          jwksUrl: https://mcp.internal.from-the-lamp.work/dex/keys
-          allowPrivateIPs: true
         - name: k8s-apiserver
           issuerUrl: https://91.98.221.117:6443
           jwksUrl: https://91.98.221.117:6443/openid/v1/jwks
