@@ -3,6 +3,18 @@ cilium:
     exclusive: false
   ipam:
     mode: kubernetes
+  # Default maxUnavailable (2) would restart 2 of this cluster's 3
+  # (all-control-plane, no spare worker) nodes' agents at once on every
+  # Helm upgrade - lowered so each change only ever touches one node's
+  # dataplane at a time during the kube-proxy-replacement migration (see
+  # ADR/plan in that session).
+  updateStrategy:
+    rollingUpdate:
+      maxUnavailable: 1
+  envoy:
+    updateStrategy:
+      rollingUpdate:
+        maxUnavailable: 1
   cgroup:
     autoMount:
       enabled: false
