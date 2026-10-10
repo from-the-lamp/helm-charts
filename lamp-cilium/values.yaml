@@ -3,15 +3,14 @@ cilium:
     exclusive: false
   ipam:
     mode: kubernetes
-  # Phase 3 of the kube-proxy-replacement migration: gives Cilium a path to
-  # the API server that doesn't depend on kube-proxy, via Talos's KubePrism
-  # (listens on every node's own loopback at :7445, default-on since Talos
-  # 1.6 - verified reachable on all 3 nodes before this change). Prep only -
-  # kubeProxyReplacement is still false everywhere at this point, so this
-  # doesn't change current behavior, only adds an additional API path the
-  # agent can use once kube-proxy-replacement is flipped per-node.
-  k8sServiceHost: "127.0.0.1"
-  k8sServicePort: 7445
+  # Phase 3 of the kube-proxy-replacement migration attempted
+  # k8sServiceHost/k8sServicePort (Talos KubePrism) here - reverted:
+  # immediately after that rollout, kubelet's syncLoop started failing
+  # health checks identically on all 3 nodes (new pod sandboxes stuck on
+  # FailedCreatePodSandBox/DeadlineExceeded, existing pods unaffected),
+  # correlated with Cilium's own CiliumEndpoint reconciliation loop
+  # churning on unrelated concurrent ArgoCD pod churn. Rolled back to
+  # restore stability; re-attempt only after confirming root cause.
   # Default maxUnavailable (2) would restart 2 of this cluster's 3
   # (all-control-plane, no spare worker) nodes' agents at once on every
   # Helm upgrade - lowered so each change only ever touches one node's
