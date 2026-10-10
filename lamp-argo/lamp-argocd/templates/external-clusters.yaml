@@ -1,4 +1,26 @@
 {{- range .Values.externalClusters }}
+{{- if .tailscaleProxy }}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ .secretName | default (printf "cluster-%s" .name) }}
+  labels:
+    argocd.argoproj.io/secret-type: cluster
+type: Opaque
+stringData:
+  name: "{{ .name }}"
+  server: "{{ .server }}"
+  # No tlsClientConfig cert/token: this cluster's Tailscale API server proxy
+  # (apiServerProxyConfig.mode, allowImpersonation) authenticates the caller
+  # by its Tailscale device identity/tags and impersonates the Kubernetes
+  # user/group the tailnet ACL grants it - there's no Kubernetes-level
+  # credential to carry here. insecure:true because the proxy's TLS cert is
+  # for its *.ts.net tailnet hostname, not a trust boundary this path relies
+  # on - the actual authentication is the Tailscale network layer itself.
+  config: |
+    {"tlsClientConfig": {"insecure": true}}
+{{- else }}
 ---
 apiVersion: external-secrets.io/v1
 kind: ExternalSecret
@@ -44,4 +66,5 @@ spec:
     remoteRef:
       key: {{ .remoteKey }}
       property: {{ .remoteProperty }}
+{{- end }}
 {{- end }}
