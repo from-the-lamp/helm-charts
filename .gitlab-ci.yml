@@ -25,6 +25,9 @@ Build:Helm:
   image: $CI_REGISTRY_IMAGE:latest
   stage: Build
   allow_failure: true
+  needs:
+    - job: Build:Docker
+      optional: true
   rules:
     - changes:
         - lamp-*/**/*
