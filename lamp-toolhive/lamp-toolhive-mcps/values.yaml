@@ -99,6 +99,12 @@ mcp:
         token:
           key: toolhive
           property: atlassian_token_currency
+      - name: jira-from-the-lamp
+        domain: artyomzverev.atlassian.net
+        email: artyom.zverev@protonmail.com
+        token:
+          key: toolhive
+          property: jira_token_from_the_lamp
 
   bitbucket:
     enabled: true
