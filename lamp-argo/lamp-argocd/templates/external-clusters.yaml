@@ -18,8 +18,12 @@ stringData:
   # credential to carry here. insecure:true because the proxy's TLS cert is
   # for its *.ts.net tailnet hostname, not a trust boundary this path relies
   # on - the actual authentication is the Tailscale network layer itself.
+  # serverName must be the proxy's real tailnet hostname (not the
+  # Kubernetes-internal `server` address above) - the proxy's TLS listener
+  # validates SNI against its own tailnet FQDN and 500s with "invalid
+  # domain" otherwise (confirmed live against prod-0/prod-1's proxy logs).
   config: |
-    {"tlsClientConfig": {"insecure": true}}
+    {"tlsClientConfig": {"insecure": true, "serverName": "{{ .tailnetFqdn }}"}}
 {{- else }}
 ---
 apiVersion: external-secrets.io/v1
