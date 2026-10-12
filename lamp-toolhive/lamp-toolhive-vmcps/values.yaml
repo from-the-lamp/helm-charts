@@ -196,6 +196,7 @@ authzConfigs:
           - jira-xdata
           - jira-cas
           - jira-currency
+          - jira-from-the-lamp
 
   # mcp-tools-hermes's own entry point - every token that reaches it is
   # already proven to be Hermes by mcp-tools-hermes-oidc, so these policies
