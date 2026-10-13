@@ -287,7 +287,7 @@ authzConfigs:
   - name: mcp-tools-hermes-authz
     rawPolicies:
       - 'permit(principal, action, resource) when { !(resource.name like "windmill_*") };'
-      - 'permit(principal, action, resource) when { resource.name == "windmill_f-f_tasks_poll__assigned__jira" || resource.name == "windmill_f-f_kelos_trigger__task" };'
+      - 'permit(principal, action, resource) when { resource.name == "windmill_f-f_tasks_poll__assigned__jira" || resource.name == "windmill_f-f_kelos_trigger__task" || resource.name == "windmill_s-f_tasks_list__my__assigned__jira__issues" };'
       - 'forbid(principal, action, resource) when { resource.name like "prod-0-admin_*" || resource.name like "prod-1-admin_*" };'
 
 mcpGroups:
