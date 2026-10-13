@@ -276,10 +276,19 @@ authzConfigs:
   # explicit allow-list. rawPolicies is a passthrough for exact-match Cedar
   # policies the allowedServers/allowedGroups/allowedClientIds shapes above
   # can't express (they only generate "<prefix>_*" wildcard permits).
+  #
+  # prod-0-admin/prod-1-admin (raw kubectl against both prod clusters -
+  # pods_exec/pods_delete/resources_delete included) are explicitly forbidden
+  # rather than left to the blanket permit above - confirmed with the user
+  # this isn't something Hermes is actually used for day to day, unlike
+  # Oracle/crypto-signing/Jira/Slack/etc, which stay as-is. Cedar evaluates
+  # forbid over permit regardless of policy order, so this wins even though
+  # it's listed after the broad allow.
   - name: mcp-tools-hermes-authz
     rawPolicies:
       - 'permit(principal, action, resource) when { !(resource.name like "windmill_*") };'
       - 'permit(principal, action, resource) when { resource.name == "windmill_f-f_tasks_poll__assigned__jira" || resource.name == "windmill_f-f_kelos_trigger__task" };'
+      - 'forbid(principal, action, resource) when { resource.name like "prod-0-admin_*" || resource.name like "prod-1-admin_*" };'
 
 mcpGroups:
   - name: mcp-tools
