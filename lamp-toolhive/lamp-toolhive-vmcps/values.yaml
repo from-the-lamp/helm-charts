@@ -194,9 +194,9 @@ authzConfigs:
     # rawPolicies replace that wildcard with an explicit allowlist instead,
     # so a new write call anywhere in this pipeline has to be a deliberate
     # policy change here, not something that already worked by accident.
-    # Extend the write permit (currently cas-only, matching
-    # transition_merged_cas_kcl_tickets's current scope) if that script is
-    # ever generalized to other tenants.
+    # Write permit now covers every tenant's jira_transition_issue, matching
+    # f/tasks/transition_merged_kelos_tickets's generalization across all
+    # SCM providers (GitLab/GitHub/Bitbucket) - see docs/adr/015.
     rawPolicies:
       - |
         permit(
@@ -209,6 +209,7 @@ authzConfigs:
           principal.claim_client_id == "windmill-delegate" &&
           (resource.name == "jira-xdata_jira_get_issue" ||
            resource.name == "jira-xdata_jira_search_issues" ||
+           resource.name == "jira-xdata_jira_transition_issue" ||
            resource.name == "jira-xdata_jira_get_transitions" ||
            resource.name == "jira-xdata_jira_get_issue_link_types" ||
            resource.name == "jira-xdata_jira_get_project_issues" ||
@@ -242,6 +243,7 @@ authzConfigs:
           principal.claim_client_id == "windmill-delegate" &&
           (resource.name == "jira-currency_jira_get_issue" ||
            resource.name == "jira-currency_jira_search_issues" ||
+           resource.name == "jira-currency_jira_transition_issue" ||
            resource.name == "jira-currency_jira_get_transitions" ||
            resource.name == "jira-currency_jira_get_issue_link_types" ||
            resource.name == "jira-currency_jira_get_project_issues" ||
@@ -258,6 +260,7 @@ authzConfigs:
           principal.claim_client_id == "windmill-delegate" &&
           (resource.name == "jira-from-the-lamp_jira_get_issue" ||
            resource.name == "jira-from-the-lamp_jira_search_issues" ||
+           resource.name == "jira-from-the-lamp_jira_transition_issue" ||
            resource.name == "jira-from-the-lamp_jira_get_transitions" ||
            resource.name == "jira-from-the-lamp_jira_get_issue_link_types" ||
            resource.name == "jira-from-the-lamp_jira_get_project_issues" ||
