@@ -29,5 +29,8 @@ spec:
   - secretKey: githubAppPrivateKey
     remoteRef:
       key: {{ $githubApp.remoteSecretKey }}
+      {{- with $githubApp.remoteSecretProperty }}
+      property: "{{ . }}"
+      {{- end }}
 {{- end }}
 {{- end }}
