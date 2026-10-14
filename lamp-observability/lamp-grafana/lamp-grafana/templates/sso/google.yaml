@@ -19,7 +19,13 @@ spec:
   - secretKey: client_id
     remoteRef:
       key: "{{ .Values.auth.google.remoteSecretKeys.clientId }}"
+      {{- with .Values.auth.google.remoteSecretKeys.clientIdProperty }}
+      property: "{{ . }}"
+      {{- end }}
   - secretKey: client_secret
     remoteRef:
       key: "{{ .Values.auth.google.remoteSecretKeys.clientSecret }}"
+      {{- with .Values.auth.google.remoteSecretKeys.clientSecretProperty }}
+      property: "{{ . }}"
+      {{- end }}
 {{- end }}
