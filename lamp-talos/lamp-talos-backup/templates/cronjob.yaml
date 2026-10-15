@@ -43,6 +43,16 @@ spec:
                   value: "{{ .Values.s3Prefix }}"
                 - name: AGE_RECIPIENT_PUBLIC_KEY
                   value: "{{ .Values.ageRecipientPublicKey }}"
+                # Upstream quirk (v0.1.0-beta.3): GetServiceConfig() always
+                # does strings.Split(os.Getenv("AGE_X25519_PUBLIC_KEY"), ",")
+                # and appends the result to the recipient list regardless of
+                # whether that var is set - an unset var becomes [""], a
+                # spurious empty-string recipient that then fails to parse
+                # ("malformed recipient \"\""), even though
+                # AGE_RECIPIENT_PUBLIC_KEY itself was set correctly. Setting
+                # this to the same key avoids the empty-string entry.
+                - name: AGE_X25519_PUBLIC_KEY
+                  value: "{{ .Values.ageRecipientPublicKey }}"
                 - name: ENABLE_COMPRESSION
                   value: "{{ .Values.enableCompression }}"
               securityContext:
