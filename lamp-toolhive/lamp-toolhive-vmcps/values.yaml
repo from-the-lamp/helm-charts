@@ -197,7 +197,16 @@ authzConfigs:
     # Write permit now covers every tenant's jira_transition_issue, matching
     # f/tasks/transition_merged_kelos_tickets's generalization across all
     # SCM providers (GitLab/GitHub/Bitbucket) - see docs/adr/015.
+    #
+    # prod-0-admin/prod-1-admin (raw kubectl against both prod clusters -
+    # pods_exec/pods_delete/resources_delete included) are explicitly
+    # forbidden too, mirroring mcp-tools-hermes-authz below - a human who
+    # completes GitLab OAuth login through this group permit has no
+    # legitimate reason to have MORE production access through this gateway
+    # than the bot was deliberately restricted from. Cedar evaluates forbid
+    # over permit regardless of policy order/position in this list.
     rawPolicies:
+      - 'forbid(principal, action, resource) when { resource.name like "prod-0-admin_*" || resource.name like "prod-1-admin_*" };'
       - |
         permit(
           principal,
