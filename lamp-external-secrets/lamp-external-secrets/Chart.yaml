@@ -1,11 +1,11 @@
 apiVersion: v2
 name: lamp-external-secrets
-version: 1.3.0
+version: 1.4.0
 
 dependencies:
   - name: external-secrets
-    version: 2.5.0
+    version: 2.12.0
     repository: https://charts.external-secrets.io
 
 annotations:
-  notes: "Sequential version-catchup hop 2/9 (2.4.0 -> 2.5.0) toward 2.12.0."
+  notes: "Direct jump 2.5.0 -> 2.12.0 (skipped remaining sequential hops per explicit user decision)."
