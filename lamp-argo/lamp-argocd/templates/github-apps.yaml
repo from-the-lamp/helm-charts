@@ -26,8 +26,8 @@ spec:
   data:
   - secretKey: githubAppPrivateKey
     remoteRef:
-      key: {{ .remoteSecret.key }}
-      {{- with .remoteSecret.property }}
+      key: {{ .remoteRef.key }}
+      {{- with .remoteRef.property }}
       property: {{ . }}
       {{- end }}
 {{- end }}

@@ -68,7 +68,9 @@ spec:
   data:
   - secretKey: kubeconfig
     remoteRef:
-      key: {{ .remoteKey }}
-      property: {{ .remoteProperty }}
+      key: {{ .remoteRef.key }}
+      {{- with .remoteRef.property }}
+      property: {{ . }}
+      {{- end }}
 {{- end }}
 {{- end }}
