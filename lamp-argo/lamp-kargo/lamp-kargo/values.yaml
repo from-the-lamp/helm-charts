@@ -1,6 +1,6 @@
 kargo:
   api:
-    host: kargo.internal.from-the-lamp.work
+    host: kargo.CHANGE-ME.invalid
     adminAccount:
       enabled: false
     tls:
@@ -23,7 +23,7 @@ kargo:
               baseURL: https://gitlab.com
               clientID: $OAUTH_CLIENT_ID
               clientSecret: $OAUTH_CLIENT_SECRET
-              redirectURI: https://kargo.internal.from-the-lamp.work/dex/callback
+              redirectURI: https://kargo.CHANGE-ME.invalid/dex/callback
         envFrom:
           - secretRef:
               name: kargo-sso-secrets

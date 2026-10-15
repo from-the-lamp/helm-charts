@@ -46,6 +46,10 @@ spec:
                 - secretRef:
                     name: vault-backup-credentials
                 {{- end }}
+              securityContext:
+                allowPrivilegeEscalation: false
+                capabilities:
+                  drop: ["ALL"]
               resources:
                 {{- toYaml .Values.backup.rclone.resources | nindent 16 }}
               volumeMounts:
@@ -73,6 +77,10 @@ spec:
                       name: {{ .Values.backup.vault.token.existingSecret.name }}
                       key: {{ .Values.backup.vault.token.existingSecret.key }}
               {{- end }}
+              securityContext:
+                allowPrivilegeEscalation: false
+                capabilities:
+                  drop: ["ALL"]
               resources:
                 {{- toYaml .Values.backup.vault.resources | nindent 16 }}
               volumeMounts:

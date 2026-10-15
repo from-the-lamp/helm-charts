@@ -32,6 +32,10 @@ spec:
                   kubectl -n "${IMMICH_NAMESPACE}" exec -c main "${POD}" -- tar czf /tmp/immich-backup.tar.gz -C /data library upload profile
                   kubectl -n "${IMMICH_NAMESPACE}" cp -c main "${POD}:/tmp/immich-backup.tar.gz" /backup/immich-backup.tar.gz
                   kubectl -n "${IMMICH_NAMESPACE}" exec -c main "${POD}" -- rm -f /tmp/immich-backup.tar.gz
+              securityContext:
+                allowPrivilegeEscalation: false
+                capabilities:
+                  drop: ["ALL"]
               resources:
                 requests:
                   cpu: 50m
@@ -62,6 +66,10 @@ spec:
                       rclone deletefile "${DEST}/${snapshot}"
                     done
                   fi
+              securityContext:
+                allowPrivilegeEscalation: false
+                capabilities:
+                  drop: ["ALL"]
               resources:
                 requests:
                   cpu: 50m

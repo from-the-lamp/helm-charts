@@ -43,6 +43,10 @@ spec:
       containers:
         - name: admin-sign-up
           image: curlimages/curl:8.11.0
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
           envFrom:
             - secretRef:
                 name: immich-admin-bootstrap

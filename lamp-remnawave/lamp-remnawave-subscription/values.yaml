@@ -10,7 +10,7 @@ deployment:
 
 existingSecret: ""
 env:
-  REMNAWAVE_PANEL_URL: https://remnawave.from-the-lamp.work
+  REMNAWAVE_PANEL_URL: https://remnawave.CHANGE-ME.invalid
   META_TITLE: "Subscription Page Title"
   META_DESCRIPTION: "Subscription Page Description"
 

@@ -266,9 +266,14 @@ mcp:
   # used directly), not stored in Vault.
   windmill:
     enabled: true
-    remoteUrl: https://windmill.internal.from-the-lamp.work/api/mcp/w/djinn/mcp
+    # No sane cross-environment default - every consumer must override this
+    # to its own Windmill URL. Previously defaulted to Hetzner's own
+    # windmill.internal.from-the-lamp.work, which a new environment would
+    # silently inherit if the override were ever missed; remoteUrl now
+    # fails loudly via required() instead.
+    remoteUrl: ""
     bootstrap:
-      windmillBaseUrl: https://windmill.internal.from-the-lamp.work
+      windmillBaseUrl: ""
       workspaceId: djinn
       serviceUserEmail: toolhive-mcp@windmill.internal
       superadminSecret:

@@ -4,7 +4,7 @@ kind: MCPRemoteProxy
 metadata:
   name: windmill
 spec:
-  remoteUrl: {{ .Values.mcp.windmill.remoteUrl }}
+  remoteUrl: {{ required "mcp.windmill.remoteUrl must be set to this environment's own Windmill URL" .Values.mcp.windmill.remoteUrl }}
   groupRef:
     name: {{ .Values.mcp.windmill.groupRef | default .Values.mcp.defaults.groupRef }}
   proxyPort: 8080

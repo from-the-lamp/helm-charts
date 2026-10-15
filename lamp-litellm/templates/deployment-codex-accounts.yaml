@@ -24,6 +24,10 @@ spec:
         - name: litellm
           image: "{{ (index $.Values "litellm-helm").image.repository }}:{{ (index $.Values "litellm-helm").image.tag }}"
           imagePullPolicy: {{ (index $.Values "litellm-helm").image.pullPolicy }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
           args:
             - --config
             - /etc/litellm/config.yaml
