@@ -20,12 +20,18 @@ spec:
   - secretKey: zerossl
     remoteRef:
       key: "{{ .Values.issuers.zerossl.remoteSecretKeys.zerossl }}"
+      {{- with .Values.issuers.zerossl.remoteSecretKeys.zerosslProperty }}
+      property: {{ . }}
+      {{- end }}
       conversionStrategy: Default
       decodingStrategy: None
       metadataPolicy: None
   - secretKey: cloudflare
     remoteRef:
       key: "{{ .Values.issuers.zerossl.remoteSecretKeys.cloudflare }}"
+      {{- with .Values.issuers.zerossl.remoteSecretKeys.cloudflareProperty }}
+      property: {{ . }}
+      {{- end }}
       conversionStrategy: Default
       decodingStrategy: None
       metadataPolicy: None

@@ -17,4 +17,7 @@ spec:
   data:
   - secretKey: auth_profiles
     remoteRef:
-      key: openclaw-auth-profiles-json
+      key: {{ .Values.remoteSecretKeys.authProfiles }}
+      {{- with .Values.remoteSecretKeys.authProfilesProperty }}
+      property: {{ . }}
+      {{- end }}
