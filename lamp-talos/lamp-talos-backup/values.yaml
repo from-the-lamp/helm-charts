@@ -37,6 +37,8 @@ externalSecrets:
 resources:
   requests:
     cpu: 10m
-    memory: 64Mi
+    memory: 128Mi
   limits:
-    memory: 256Mi
+    # 256Mi OOMKilled on a real run - the etcd snapshot gets buffered in
+    # memory for compression+encryption before upload, not streamed.
+    memory: 768Mi
