@@ -63,6 +63,9 @@ argo-cd:
       enabled: true
       serviceMonitor:
         enabled: true
+        relabelings:
+          - targetLabel: job
+            replacement: argocd-repo-server
 
   applicationSet:
     metrics:
