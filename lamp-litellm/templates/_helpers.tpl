@@ -6,6 +6,7 @@ litellm_settings:
       custom_handler: codex_handler.codex_auth_provider
   {{- if .Values.metrics.enabled }}
   callbacks: ["prometheus"]
+  require_auth_for_metrics_endpoint: false
   {{- end }}
 general_settings:
   master_key: os.environ/PROXY_MASTER_KEY
