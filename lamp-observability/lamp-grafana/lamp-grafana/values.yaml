@@ -139,6 +139,18 @@ dashboards:
     enabled: false
   vault:
     enabled: false
+  coredns:
+    enabled: false
+  external_secrets:
+    enabled: false
+  grafana:
+    enabled: false
+  cilium:
+    enabled: false
+    agent: true
+    operator: true
+  litellm:
+    enabled: false
 
 externalSecrets:
   kind: ClusterSecretStore

@@ -1,0 +1,19 @@
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaFolder
+metadata:
+  name: platform
+spec:
+  instanceSelector:
+    matchLabels:
+      dashboards: "grafana"
+  title: Platform
+---
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaFolder
+metadata:
+  name: product
+spec:
+  instanceSelector:
+    matchLabels:
+      dashboards: "grafana"
+  title: Product

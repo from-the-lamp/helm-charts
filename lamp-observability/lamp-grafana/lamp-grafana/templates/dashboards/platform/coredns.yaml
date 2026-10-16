@@ -1,0 +1,23 @@
+{{- if .Values.dashboards.coredns.enabled }}
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaFolder
+metadata:
+  name: coredns
+spec:
+  instanceSelector:
+    matchLabels:
+      dashboards: "grafana"
+  parentFolderRef: platform
+  title: CoreDNS
+---
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDashboard
+metadata:
+  name: coredns
+spec:
+  folderRef: coredns
+  instanceSelector:
+    matchLabels:
+      dashboards: "grafana"
+  url: "https://raw.githubusercontent.com/dotdc/grafana-dashboards-kubernetes/master/dashboards/k8s-system-coredns.json"
+{{- end }}

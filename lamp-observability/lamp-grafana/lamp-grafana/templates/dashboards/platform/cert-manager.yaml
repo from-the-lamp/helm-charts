@@ -1,10 +1,21 @@
 {{- if .Values.dashboards.cert_manager.enabled }}
 apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaFolder
+metadata:
+  name: cert-manager
+spec:
+  instanceSelector:
+    matchLabels:
+      dashboards: "grafana"
+  parentFolderRef: platform
+  title: Cert Manager
+---
+apiVersion: grafana.integreatly.org/v1beta1
 kind: GrafanaDashboard
 metadata:
   name: cert-manager
 spec:
-  folder: General
+  folderRef: cert-manager
   instanceSelector:
     matchLabels:
       dashboards: "grafana"

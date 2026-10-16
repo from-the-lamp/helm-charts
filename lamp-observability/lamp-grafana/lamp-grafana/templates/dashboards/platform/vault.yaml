@@ -1,27 +1,25 @@
-{{- if .Values.dashboards.hazelcast.enabled }}
+{{- if .Values.dashboards.vault.enabled }}
 apiVersion: grafana.integreatly.org/v1beta1
 kind: GrafanaFolder
 metadata:
-  name: hazelcast
+  name: vault
 spec:
   instanceSelector:
     matchLabels:
       dashboards: "grafana"
-  title: Hazelcast
+  parentFolderRef: platform
+  title: Vault
 ---
 apiVersion: grafana.integreatly.org/v1beta1
 kind: GrafanaDashboard
 metadata:
-  name: hazelcast-map-overview
+  name: vault
 spec:
-  folder: Hazelcast
+  folderRef: vault
   instanceSelector:
     matchLabels:
       dashboards: "grafana"
-  datasources:
-    - inputName: DS_PROMETHEUS
-      datasourceName: VictoriaMetrics
   grafanaCom:
-    id: 20647
-    revision: 1
+    id: 12904
+    revision: 2
 {{- end }}

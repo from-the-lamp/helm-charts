@@ -1,0 +1,25 @@
+{{- if .Values.dashboards.litellm.enabled }}
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaFolder
+metadata:
+  name: litellm
+spec:
+  instanceSelector:
+    matchLabels:
+      dashboards: "grafana"
+  parentFolderRef: platform
+  title: LiteLLM
+---
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDashboard
+metadata:
+  name: litellm
+spec:
+  folderRef: litellm
+  instanceSelector:
+    matchLabels:
+      dashboards: "grafana"
+  grafanaCom:
+    id: 25541
+    revision: 1
+{{- end }}
