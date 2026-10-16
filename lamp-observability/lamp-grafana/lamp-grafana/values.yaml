@@ -133,6 +133,12 @@ dashboards:
     overview: true
   hazelcast:
     enabled: false
+  node_exporter:
+    enabled: false
+  argo_rollouts:
+    enabled: false
+  vault:
+    enabled: false
 
 externalSecrets:
   kind: ClusterSecretStore

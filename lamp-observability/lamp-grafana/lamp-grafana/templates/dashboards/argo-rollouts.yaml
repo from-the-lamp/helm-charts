@@ -1,0 +1,14 @@
+{{- if .Values.dashboards.argo_rollouts.enabled }}
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDashboard
+metadata:
+  name: argo-rollouts
+spec:
+  folder: General
+  instanceSelector:
+    matchLabels:
+      dashboards: "grafana"
+  grafanaCom:
+    id: 15386
+    revision: 5
+{{- end }}
