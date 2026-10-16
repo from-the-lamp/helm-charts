@@ -1,5 +1,7 @@
 name: istio-gateway
 gatewayClassName: istio
+monitoring:
+  enabled: false
 addresses: []
   # - type: IPAddress
   #   value: 10.1.1.5
