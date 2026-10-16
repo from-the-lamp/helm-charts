@@ -32,6 +32,15 @@ spec:
       tcp:
         address: 0.0.0.0:8200
         tls_disable: true
+        {{- if .Values.monitoring.enabled }}
+        telemetry:
+          unauthenticated_metrics_access: true
+        {{- end }}
+    {{- if .Values.monitoring.enabled }}
+    telemetry:
+      prometheus_retention_time: "24h"
+      disable_hostname: true
+    {{- end }}
     api_addr: {{ .Values.vault.apiAddress | quote }}
     cluster_addr: "http://${.Env.POD_NAME}:8201"
     ui: true
