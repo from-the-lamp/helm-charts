@@ -7,6 +7,7 @@ spec:
   instanceSelector:
     matchLabels:
       dashboards: "grafana"
+  parentFolderRef: platform
   title: Istio
 ---
 {{- if index .Values "dashboards" "istio" "mesh" }}
@@ -15,7 +16,7 @@ kind: GrafanaDashboard
 metadata:
   name: istio-mesh
 spec:
-  folder: Istio
+  folderRef: istio
   instanceSelector:
     matchLabels:
       dashboards: "grafana"
@@ -33,7 +34,7 @@ kind: GrafanaDashboard
 metadata:
   name: istio-service
 spec:
-  folder: Istio
+  folderRef: istio
   instanceSelector:
     matchLabels:
       dashboards: "grafana"
@@ -51,7 +52,7 @@ kind: GrafanaDashboard
 metadata:
   name: istio-workload
 spec:
-  folder: Istio
+  folderRef: istio
   instanceSelector:
     matchLabels:
       dashboards: "grafana"
@@ -69,7 +70,7 @@ kind: GrafanaDashboard
 metadata:
   name: istio-performance
 spec:
-  folder: Istio
+  folderRef: istio
   instanceSelector:
     matchLabels:
       dashboards: "grafana"
@@ -87,7 +88,7 @@ kind: GrafanaDashboard
 metadata:
   name: istio-control-plane
 spec:
-  folder: Istio
+  folderRef: istio
   instanceSelector:
     matchLabels:
       dashboards: "grafana"
@@ -105,7 +106,7 @@ kind: GrafanaDashboard
 metadata:
   name: istio-wasm
 spec:
-  folder: Istio
+  folderRef: istio
   instanceSelector:
     matchLabels:
       dashboards: "grafana"

@@ -1,10 +1,21 @@
 {{- if .Values.dashboards.argo_rollouts.enabled }}
 apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaFolder
+metadata:
+  name: argo-rollouts
+spec:
+  instanceSelector:
+    matchLabels:
+      dashboards: "grafana"
+  parentFolderRef: platform
+  title: Argo Rollouts
+---
+apiVersion: grafana.integreatly.org/v1beta1
 kind: GrafanaDashboard
 metadata:
   name: argo-rollouts
 spec:
-  folder: General
+  folderRef: argo-rollouts
   instanceSelector:
     matchLabels:
       dashboards: "grafana"

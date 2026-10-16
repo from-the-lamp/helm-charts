@@ -8,6 +8,7 @@ spec:
   instanceSelector:
     matchLabels:
       dashboards: "grafana"
+  parentFolderRef: platform
   title: PostgreSQL
 {{- if .Values.dashboards.postgresql.cnpg }}
 ---
@@ -16,7 +17,7 @@ kind: GrafanaDashboard
 metadata:
   name: postgresql-cnpg
 spec:
-  folder: PostgreSQL
+  folderRef: postgresql
   instanceSelector:
     matchLabels:
       dashboards: "grafana"
@@ -31,7 +32,7 @@ kind: GrafanaDashboard
 metadata:
   name: postgresql-mixin
 spec:
-  folder: PostgreSQL
+  folderRef: postgresql
   instanceSelector:
     matchLabels:
       dashboards: "grafana"

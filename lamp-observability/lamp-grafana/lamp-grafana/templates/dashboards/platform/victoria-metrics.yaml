@@ -7,6 +7,7 @@ spec:
   instanceSelector:
     matchLabels:
       dashboards: "grafana"
+  parentFolderRef: platform
   title: VictoriaMetrics
 ---
 apiVersion: grafana.integreatly.org/v1beta1
@@ -14,7 +15,7 @@ kind: GrafanaDashboard
 metadata:
   name: victoria-metrics-operator
 spec:
-  folder: VictoriaMetrics
+  folderRef: victoria-metrics
   instanceSelector:
     matchLabels:
       dashboards: "grafana"
@@ -27,7 +28,7 @@ kind: GrafanaDashboard
 metadata:
   name: victoria-metrics-cluster
 spec:
-  folder: VictoriaMetrics
+  folderRef: victoria-metrics
   instanceSelector:
     matchLabels:
       dashboards: "grafana"
@@ -40,7 +41,7 @@ kind: GrafanaDashboard
 metadata:
   name: victoria-metrics-vmagent
 spec:
-  folder: VictoriaMetrics
+  folderRef: victoria-metrics
   instanceSelector:
     matchLabels:
       dashboards: "grafana"
@@ -53,7 +54,7 @@ kind: GrafanaDashboard
 metadata:
   name: victoria-metrics-vmalert
 spec:
-  folder: VictoriaMetrics
+  folderRef: victoria-metrics
   instanceSelector:
     matchLabels:
       dashboards: "grafana"

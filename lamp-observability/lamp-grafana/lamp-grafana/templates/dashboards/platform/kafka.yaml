@@ -7,6 +7,7 @@ spec:
   instanceSelector:
     matchLabels:
       dashboards: "grafana"
+  parentFolderRef: platform
   title: Kafka
 ---
 {{- if index .Values "dashboards" "kafka" "strimzi-cruise-control" }}
@@ -15,7 +16,7 @@ kind: GrafanaDashboard
 metadata:
   name: kafka-strimzi-cruise-control
 spec:
-  folder: Kafka
+  folderRef: kafka
   instanceSelector:
     matchLabels:
       dashboards: "grafana"
@@ -28,7 +29,7 @@ kind: GrafanaDashboard
 metadata:
   name: kafka-strimzi-bridge
 spec:
-  folder: Kafka
+  folderRef: kafka
   instanceSelector:
     matchLabels:
       dashboards: "grafana"
@@ -41,7 +42,7 @@ kind: GrafanaDashboard
 metadata:
   name: kafka-strimzi-connect
 spec:
-  folder: Kafka
+  folderRef: kafka
   instanceSelector:
     matchLabels:
       dashboards: "grafana"
@@ -54,7 +55,7 @@ kind: GrafanaDashboard
 metadata:
   name: kafka-strimzi-exporter
 spec:
-  folder: Kafka
+  folderRef: kafka
   instanceSelector:
     matchLabels:
       dashboards: "grafana"
@@ -67,7 +68,7 @@ kind: GrafanaDashboard
 metadata:
   name: kafka-strimzi-mirror-maker
 spec:
-  folder: Kafka
+  folderRef: kafka
   instanceSelector:
     matchLabels:
       dashboards: "grafana"
@@ -80,7 +81,7 @@ kind: GrafanaDashboard
 metadata:
   name: kafka-strimzi-oauth
 spec:
-  folder: Kafka
+  folderRef: kafka
   instanceSelector:
     matchLabels:
       dashboards: "grafana"
@@ -93,7 +94,7 @@ kind: GrafanaDashboard
 metadata:
   name: kafka-strimzi
 spec:
-  folder: Kafka
+  folderRef: kafka
   instanceSelector:
     matchLabels:
       dashboards: "grafana"
@@ -106,7 +107,7 @@ kind: GrafanaDashboard
 metadata:
   name: kafka-strimzi-kraft
 spec:
-  folder: Kafka
+  folderRef: kafka
   instanceSelector:
     matchLabels:
       dashboards: "grafana"
@@ -119,7 +120,7 @@ kind: GrafanaDashboard
 metadata:
   name: kafka-strimzi-operators
 spec:
-  folder: Kafka
+  folderRef: kafka
   instanceSelector:
     matchLabels:
       dashboards: "grafana"

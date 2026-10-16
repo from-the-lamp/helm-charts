@@ -1,10 +1,21 @@
 {{- if .Values.dashboards.node_exporter.enabled }}
 apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaFolder
+metadata:
+  name: node-exporter
+spec:
+  instanceSelector:
+    matchLabels:
+      dashboards: "grafana"
+  parentFolderRef: platform
+  title: Node Exporter
+---
+apiVersion: grafana.integreatly.org/v1beta1
 kind: GrafanaDashboard
 metadata:
   name: node-exporter-full
 spec:
-  folder: General
+  folderRef: node-exporter
   instanceSelector:
     matchLabels:
       dashboards: "grafana"

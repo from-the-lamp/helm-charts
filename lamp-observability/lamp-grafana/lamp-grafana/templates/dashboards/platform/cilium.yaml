@@ -1,61 +1,62 @@
-{{- if .Values.dashboards.nginx.enabled }}
+{{- if .Values.dashboards.cilium.enabled }}
 apiVersion: grafana.integreatly.org/v1beta1
 kind: GrafanaFolder
 metadata:
-  name: nginx
+  name: cilium
 spec:
   instanceSelector:
     matchLabels:
       dashboards: "grafana"
-  title: Nginx
+  parentFolderRef: platform
+  title: Cilium
 ---
-{{- if index .Values "dashboards" "nginx" "ingress" }}
+{{- if .Values.dashboards.cilium.agent }}
 apiVersion: grafana.integreatly.org/v1beta1
 kind: GrafanaDashboard
 metadata:
-  name: nginx-ingress
+  name: cilium-agent
 spec:
-  folder: Nginx
+  folderRef: cilium
   instanceSelector:
     matchLabels:
       dashboards: "grafana"
   configMapRef:
-    name: dashboard-nginx-ingress
+    name: dashboard-cilium-agent
     key: json
 ---
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: dashboard-nginx-ingress
+  name: dashboard-cilium-agent
   annotations:
     argocd.argoproj.io/sync-options: ServerSideApply=true
 data:
   json: >
-    {{- .Files.Get "files/nginx/ingress.json" | nindent 4 }}
+    {{- .Files.Get "files/cilium/cilium-agent.json" | nindent 4 }}
 {{- end }}
 ---
-{{- if index .Values "dashboards" "nginx" "loki" }}
+{{- if .Values.dashboards.cilium.operator }}
 apiVersion: grafana.integreatly.org/v1beta1
 kind: GrafanaDashboard
 metadata:
-  name: nginx-loki
+  name: cilium-operator
 spec:
-  folder: Nginx
+  folderRef: cilium
   instanceSelector:
     matchLabels:
       dashboards: "grafana"
   configMapRef:
-    name: dashboard-nginx-loki
+    name: dashboard-cilium-operator
     key: json
 ---
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: dashboard-nginx-loki
+  name: dashboard-cilium-operator
   annotations:
     argocd.argoproj.io/sync-options: ServerSideApply=true
 data:
   json: >
-    {{- .Files.Get "files/nginx/loki.json" | nindent 4 }}
+    {{- .Files.Get "files/cilium/cilium-operator.json" | nindent 4 }}
 {{- end }}
 {{- end }}

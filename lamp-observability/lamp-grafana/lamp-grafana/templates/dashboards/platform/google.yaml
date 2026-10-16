@@ -7,6 +7,7 @@ spec:
   instanceSelector:
     matchLabels:
       dashboards: "grafana"
+  parentFolderRef: platform
   title: Google
 ---
 {{- if index .Values "dashboards" "google" "cloud-storage-monitoring" }}
@@ -15,7 +16,7 @@ kind: GrafanaDashboard
 metadata:
   name: google-cloud-storage-monitoring
 spec:
-  folder: Google
+  folderRef: google
   instanceSelector:
     matchLabels:
       dashboards: "grafana"
@@ -40,7 +41,7 @@ kind: GrafanaDashboard
 metadata:
   name: google-cloudfunctions-monitoring
 spec:
-  folder: Google
+  folderRef: google
   instanceSelector:
     matchLabels:
       dashboards: "grafana"
@@ -65,7 +66,7 @@ kind: GrafanaDashboard
 metadata:
   name: google-cloudsql-monitoring
 spec:
-  folder: Google
+  folderRef: google
   instanceSelector:
     matchLabels:
       dashboards: "grafana"
@@ -90,7 +91,7 @@ kind: GrafanaDashboard
 metadata:
   name: google-cloudsql-mysql-monitoring
 spec:
-  folder: Google
+  folderRef: google
   instanceSelector:
     matchLabels:
       dashboards: "grafana"
@@ -115,7 +116,7 @@ kind: GrafanaDashboard
 metadata:
   name: google-cloudsql-postgre-monitoring
 spec:
-  folder: Google
+  folderRef: google
   instanceSelector:
     matchLabels:
       dashboards: "grafana"
@@ -140,7 +141,7 @@ kind: GrafanaDashboard
 metadata:
   name: google-cloudtasks-monitoring
 spec:
-  folder: Google
+  folderRef: google
   instanceSelector:
     matchLabels:
       dashboards: "grafana"
@@ -165,7 +166,7 @@ kind: GrafanaDashboard
 metadata:
   name: google-dataprocessing-monitoring
 spec:
-  folder: Google
+  folderRef: google
   instanceSelector:
     matchLabels:
       dashboards: "grafana"
@@ -190,7 +191,7 @@ kind: GrafanaDashboard
 metadata:
   name: google-firewall-insight-monitoring
 spec:
-  folder: Google
+  folderRef: google
   instanceSelector:
     matchLabels:
       dashboards: "grafana"
@@ -215,7 +216,7 @@ kind: GrafanaDashboard
 metadata:
   name: google-gce-network-monitoring
 spec:
-  folder: Google
+  folderRef: google
   instanceSelector:
     matchLabels:
       dashboards: "grafana"
@@ -240,7 +241,7 @@ kind: GrafanaDashboard
 metadata:
   name: google-gce-vm-instance-monitoring
 spec:
-  folder: Google
+  folderRef: google
   instanceSelector:
     matchLabels:
       dashboards: "grafana"
@@ -265,7 +266,7 @@ kind: GrafanaDashboard
 metadata:
   name: google-gke-prometheus-pod-node-monitoring
 spec:
-  folder: Google
+  folderRef: google
   instanceSelector:
     matchLabels:
       dashboards: "grafana"
@@ -290,7 +291,7 @@ kind: GrafanaDashboard
 metadata:
   name: google-https-lb-backend-services-monitoring
 spec:
-  folder: Google
+  folderRef: google
   instanceSelector:
     matchLabels:
       dashboards: "grafana"
@@ -315,7 +316,7 @@ kind: GrafanaDashboard
 metadata:
   name: google-https-loadbalancer-monitoring
 spec:
-  folder: Google
+  folderRef: google
   instanceSelector:
     matchLabels:
       dashboards: "grafana"
@@ -340,7 +341,7 @@ kind: GrafanaDashboard
 metadata:
   name: google-micro-service-monitoring
 spec:
-  folder: Google
+  folderRef: google
   instanceSelector:
     matchLabels:
       dashboards: "grafana"
@@ -365,7 +366,7 @@ kind: GrafanaDashboard
 metadata:
   name: google-network-tcp-loadbalancer-monitoring
 spec:
-  folder: Google
+  folderRef: google
   instanceSelector:
     matchLabels:
       dashboards: "grafana"
