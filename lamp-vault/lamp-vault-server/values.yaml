@@ -5,6 +5,12 @@ serviceAccount:
 rbac:
   authDelegator: true
 
+# bank-vaults' sidecar always exposes a "metrics" port (9091) regardless
+# of this toggle - this just controls whether a PodMonitor gets created
+# to have vmagent/Prometheus actually scrape it.
+monitoring:
+  enabled: false
+
 # ====================================================================
 # Vault server (operator CR-level settings)
 # ====================================================================
