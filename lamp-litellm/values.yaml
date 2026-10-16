@@ -4,6 +4,9 @@ externalSecrets:
   refreshInterval: 1h
   creationPolicy: Orphan
 
+metrics:
+  enabled: false
+
 # All litellm secrets live as properties of a single Oracle Vault secret
 # (remoteRef.key below) - one JSON object with a field per property.
 masterKey:
