@@ -33,10 +33,14 @@ spec:
           volumeMounts:
             - name: session
               mountPath: /home/pwuser/.linkedin-mcp
+            - name: tmp
+              mountPath: /tmp
       volumes:
         - name: session
           persistentVolumeClaim:
             claimName: {{ $item.name }}-mcp-session
+        - name: tmp
+          emptyDir: {}
   {{- with $item.env }}
   env:
     {{- toYaml . | nindent 4 }}
