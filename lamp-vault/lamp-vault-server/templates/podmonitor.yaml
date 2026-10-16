@@ -9,4 +9,9 @@ spec:
       app.kubernetes.io/name: {{ .Values.vault.name }}
   podMetricsEndpoints:
     - port: metrics
+    - port: api-port
+      path: /v1/sys/metrics
+      params:
+        format:
+          - prometheus
 {{- end }}
