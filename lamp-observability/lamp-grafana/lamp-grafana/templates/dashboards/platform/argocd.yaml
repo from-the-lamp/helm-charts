@@ -1,21 +1,10 @@
 {{- if .Values.dashboards.argocd.enabled }}
 apiVersion: grafana.integreatly.org/v1beta1
-kind: GrafanaFolder
-metadata:
-  name: argocd
-spec:
-  instanceSelector:
-    matchLabels:
-      dashboards: "grafana"
-  parentFolderRef: platform
-  title: ArgoCD
----
-apiVersion: grafana.integreatly.org/v1beta1
 kind: GrafanaDashboard
 metadata:
   name: argocd
 spec:
-  folderRef: argocd
+  folderRef: platform
   instanceSelector:
     matchLabels:
       dashboards: "grafana"
