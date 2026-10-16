@@ -301,6 +301,13 @@ mcp:
     mcps:
       - name: letsfg
 
+  linkedin:
+    enabled: false
+    image: stickerdaniel/linkedin-mcp-server:latest
+    mcps:
+      - name: linkedin
+        sessionHostPath: /var/lib/toolhive/linkedin-mcp
+
 externalSecrets:
   kind: ClusterSecretStore
   name: vault
