@@ -1,6 +1,17 @@
 {{- if .Values.mcp.linkedin.enabled }}
 {{- range $item := .Values.mcp.linkedin.mcps }}
 ---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ $item.name }}-mcp-session
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ $item.sessionClaimSize }}
+---
 apiVersion: toolhive.stacklok.dev/v1beta1
 kind: MCPServer
 metadata:
@@ -15,10 +26,17 @@ spec:
     name: {{ $.Values.mcp.defaults.permissionProfile }}
   audit:
     enabled: true
-  volumes:
-    - name: session
-      hostPath: {{ $item.sessionHostPath }}
-      mountPath: /home/pwuser/.linkedin-mcp
+  podTemplateSpec:
+    spec:
+      containers:
+        - name: mcp
+          volumeMounts:
+            - name: session
+              mountPath: /home/pwuser/.linkedin-mcp
+      volumes:
+        - name: session
+          persistentVolumeClaim:
+            claimName: {{ $item.name }}-mcp-session
   {{- with $item.env }}
   env:
     {{- toYaml . | nindent 4 }}
