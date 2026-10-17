@@ -1,5 +1,7 @@
 remoteSecretKeys:
   tailscale: tailscale
+  tailscaleClientIdProperty: oauth_client_id
+  tailscaleClientSecretProperty: oauth_client_secret
 
 tailscale-operator:
   operatorConfig:
