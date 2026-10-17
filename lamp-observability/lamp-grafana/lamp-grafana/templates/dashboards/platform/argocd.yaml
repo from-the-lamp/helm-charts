@@ -4,7 +4,7 @@ kind: GrafanaDashboard
 metadata:
   name: argocd
 spec:
-  folderRef: platform
+  folderRef: argo
   instanceSelector:
     matchLabels:
       dashboards: "grafana"
