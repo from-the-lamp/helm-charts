@@ -19,6 +19,8 @@ metadata:
 spec:
   image: {{ $.Values.mcp.linkedin.image }}
   transport: stdio
+  args:
+    - --claim-profile-root
   groupRef:
     name: {{ $item.groupRef | default $.Values.mcp.defaults.groupRef }}
   permissionProfile:
