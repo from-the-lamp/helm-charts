@@ -19,6 +19,9 @@ spec:
   instanceSelector:
     matchLabels:
       dashboards: "grafana"
+  datasources:
+    - inputName: DS_PROD-1-PROMETHEUS
+      datasourceName: VictoriaMetrics
   grafanaCom:
     id: 15386
     revision: 5

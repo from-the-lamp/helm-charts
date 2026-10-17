@@ -19,6 +19,9 @@ spec:
   instanceSelector:
     matchLabels:
       dashboards: "grafana"
+  datasources:
+    - inputName: DS_MIMIR-FEDERATED
+      datasourceName: VictoriaMetrics
   grafanaCom:
     id: 25541
     revision: 1
