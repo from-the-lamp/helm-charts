@@ -16,7 +16,7 @@ s3:
   endpoint: https://s3.eu-central-003.backblazeb2.com
 
 # Public key only - safe to template directly, not a secret. The matching
-# private key lives in platform/talos-backup.age_private_key (Vault),
+# private key lives in platform/talos.age_private_key (Vault),
 # needed only for `age -d` at restore time, never read by this CronJob.
 ageRecipientPublicKey: age1hllmpt38qq45zmurfu9j2tr3c5j8vdglj6v9z7u29w4zm38kv9hqr5cvcy
 
