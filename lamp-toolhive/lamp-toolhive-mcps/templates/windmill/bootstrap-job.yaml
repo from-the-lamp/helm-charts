@@ -23,9 +23,13 @@ spec:
       serviceAccountName: windmill-mcp-bootstrap
       containers:
         - name: bootstrap
-          image: alpine:3.22
-          # Not runAsNonRoot - apk add (installing curl/kubectl at runtime)
-          # needs root to write /etc/apk, /var/cache/apk, /lib/apk.
+          # curl+kubectl pre-baked at image build time (docker-images/
+          # lamp-windmill-mcp-bootstrap) - this namespace's egress can't
+          # reach dl.k8s.io (confirmed: curl exit 22, immediate failure),
+          # which silently blocked every ArgoCD sync of this entire
+          # Application for hours, since a failing PreSync hook blocks the
+          # rest of the sync.
+          image: registry.gitlab.com/from-the-lamp/infra/docker-images/lamp-windmill-mcp-bootstrap:1.0.0
           securityContext:
             allowPrivilegeEscalation: false
             capabilities:
@@ -46,10 +50,6 @@ spec:
           command: ["/bin/sh", "-euc"]
           args:
             - |
-              apk add --no-cache curl ca-certificates >/dev/null
-              curl -fsSLo /usr/local/bin/kubectl "https://dl.k8s.io/release/v1.31.4/bin/linux/$(uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/')/kubectl"
-              chmod +x /usr/local/bin/kubectl
-
               SUPERADMIN_SECRET=$(kubectl get secret "${SUPERADMIN_SECRET_NAME}" -n "${SUPERADMIN_SECRET_NAMESPACE}" -o "jsonpath={.data.${SUPERADMIN_SECRET_KEY}}" | base64 -d)
 
               # Dedicated automation user - idempotent: Windmill rejects a
