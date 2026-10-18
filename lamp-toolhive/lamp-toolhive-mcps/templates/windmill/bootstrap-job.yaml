@@ -13,7 +13,14 @@ metadata:
     # replace semantics entirely (each run mints a fresh mcp:all token -
     # cheap and harmless to repeat, old tokens just go unused rather than
     # revoked).
-    argocd.argoproj.io/hook: PreSync
+    # PostSync, not PreSync: a failing hook blocks the rest of that sync
+    # phase from ever applying - confirmed live, a transient Windmill-side
+    # 401 on token minting (unrelated to this cluster/RBAC/network) held
+    # every other resource in this Application hostage for hours. This is
+    # a last-mile credential patch for the windmill MCPRemoteProxy, not a
+    # prerequisite anything else here needs to exist first, so it can
+    # safely run after the main sync instead of gating it.
+    argocd.argoproj.io/hook: PostSync
     argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
 spec:
   backoffLimit: 3
