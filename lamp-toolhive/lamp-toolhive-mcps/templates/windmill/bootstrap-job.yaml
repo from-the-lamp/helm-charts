@@ -77,13 +77,23 @@ spec:
               # regardless of what scopes are requested. Impersonating the
               # dedicated user above and having THAT identity create its own
               # token is the only way to get a token the MCP gateway accepts.
-              IMPERSONATE_TOKEN=$(curl -sf -X POST "${WINDMILL_BASE_URL}/api/users/tokens/impersonate" \
+              code=$(curl -s -o /tmp/resp -w '%{http_code}' -X POST "${WINDMILL_BASE_URL}/api/users/tokens/impersonate" \
                 -H "Authorization: Bearer ${SUPERADMIN_SECRET}" -H "Content-Type: application/json" \
                 -d "{\"label\":\"bootstrap-impersonate\",\"impersonate_email\":\"${SERVICE_USER_EMAIL}\"}")
+              if [ "$code" != "200" ] && [ "$code" != "201" ]; then
+                echo "impersonate failed ($code): $(cat /tmp/resp)"
+                exit 1
+              fi
+              IMPERSONATE_TOKEN=$(cat /tmp/resp)
 
-              MCP_TOKEN=$(curl -sf -X POST "${WINDMILL_BASE_URL}/api/users/tokens/create" \
+              code=$(curl -s -o /tmp/resp -w '%{http_code}' -X POST "${WINDMILL_BASE_URL}/api/users/tokens/create" \
                 -H "Authorization: Bearer ${IMPERSONATE_TOKEN}" -H "Content-Type: application/json" \
                 -d "{\"label\":\"toolhive-mcp-gateway\",\"scopes\":[\"mcp:all\"],\"workspace_id\":\"${WINDMILL_WORKSPACE}\"}")
+              if [ "$code" != "200" ] && [ "$code" != "201" ]; then
+                echo "token create failed ($code): $(cat /tmp/resp)"
+                exit 1
+              fi
+              MCP_TOKEN=$(cat /tmp/resp)
 
               kubectl patch secret windmill-mcp-auth-header -n {{ .Release.Namespace }} \
                 --type=merge -p "{\"stringData\":{\"authHeader\":\"Bearer ${MCP_TOKEN}\"}}"
