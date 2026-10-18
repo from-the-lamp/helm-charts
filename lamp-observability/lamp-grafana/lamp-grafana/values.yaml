@@ -135,6 +135,10 @@ dashboards:
     enabled: false
   node_exporter:
     enabled: false
+  etcd:
+    enabled: false
+  smartctl_exporter:
+    enabled: false
   argo_rollouts:
     enabled: false
   vault:

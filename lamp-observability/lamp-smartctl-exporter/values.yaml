@@ -1,0 +1,5 @@
+prometheus-smartctl-exporter:
+  serviceMonitor:
+    enabled: true
+  prometheusRules:
+    enabled: true
