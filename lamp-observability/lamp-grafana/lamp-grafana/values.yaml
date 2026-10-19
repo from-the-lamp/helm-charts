@@ -153,6 +153,7 @@ dashboards:
     enabled: false
     agent: true
     operator: true
+    hubble: true
   litellm:
     enabled: false
 

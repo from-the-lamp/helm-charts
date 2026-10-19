@@ -59,4 +59,32 @@ data:
   json: >
     {{- .Files.Get "files/cilium/cilium-operator.json" | nindent 4 }}
 {{- end }}
+---
+{{- if .Values.dashboards.cilium.hubble }}
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDashboard
+metadata:
+  name: hubble
+spec:
+  folderRef: cilium
+  instanceSelector:
+    matchLabels:
+      dashboards: "grafana"
+  datasources:
+    - inputName: "DS_PROMETHEUS"
+      datasourceName: "VictoriaMetrics"
+  configMapRef:
+    name: dashboard-hubble
+    key: json
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dashboard-hubble
+  annotations:
+    argocd.argoproj.io/sync-options: ServerSideApply=true
+data:
+  json: >
+    {{- .Files.Get "files/cilium/hubble.json" | nindent 4 }}
+{{- end }}
 {{- end }}
