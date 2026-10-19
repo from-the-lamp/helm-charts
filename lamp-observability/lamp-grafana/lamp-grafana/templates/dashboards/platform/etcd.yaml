@@ -1,21 +1,10 @@
 {{- if .Values.dashboards.etcd.enabled }}
 apiVersion: grafana.integreatly.org/v1beta1
-kind: GrafanaFolder
-metadata:
-  name: etcd
-spec:
-  instanceSelector:
-    matchLabels:
-      dashboards: "grafana"
-  parentFolderRef: platform
-  title: etcd
----
-apiVersion: grafana.integreatly.org/v1beta1
 kind: GrafanaDashboard
 metadata:
   name: etcd
 spec:
-  folderRef: etcd
+  folderRef: kubernetes
   instanceSelector:
     matchLabels:
       dashboards: "grafana"
