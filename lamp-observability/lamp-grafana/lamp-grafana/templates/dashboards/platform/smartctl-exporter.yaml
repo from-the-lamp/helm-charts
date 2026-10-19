@@ -8,6 +8,9 @@ spec:
   instanceSelector:
     matchLabels:
       dashboards: "grafana"
+  datasources:
+    - inputName: "DS_PROMETHEUS"
+      datasourceName: "VictoriaMetrics"
   grafanaCom:
     id: 22604
     revision: 4
