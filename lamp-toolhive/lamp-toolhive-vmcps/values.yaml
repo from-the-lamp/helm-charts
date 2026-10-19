@@ -91,12 +91,18 @@ dex:
         name: "Hermes (headless ROPC)"
         secretEnv: HERMES_CLIENT_SECRET
 
-  # Was false, leaving an orphaned/stale Secret (not re-rendered by Helm at
-  # all) that predated the current hermes password hash and never had a
-  # windmill entry - fixed by letting the chart actually render this from
-  # dex.config below.
+  # templates/dex/configsecret.yaml (this wrapper chart's own template) is
+  # the only renderer of this Secret now - it's the one that actually knows
+  # how to build the connectors list (dex.sso.*.enabled above), which a
+  # plain pass-through of dex.config here cannot express. The upstream dex
+  # chart's own configSecret.create was briefly true to fix an unrelated,
+  # earlier bug (a stale secret from before this wrapper template existed,
+  # never re-rendered by Helm at all) - with the wrapper template now
+  # handling the full render, letting upstream ALSO create a same-named
+  # Secret just duplicates it (ArgoCD RepeatedResourceWarning) with a
+  # version that's missing connectors entirely.
   configSecret:
-    create: true
+    create: false
     name: toolhive-dex-config
 
   podAnnotations:
