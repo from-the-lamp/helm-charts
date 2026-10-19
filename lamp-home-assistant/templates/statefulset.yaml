@@ -69,11 +69,6 @@ spec:
           - name: lovelace-yaml
             mountPath: /config/ui-lovelace.yaml
             subPath: lovelace
-          {{- if .Values.disableOnboarding }}
-          - name: onboarding
-            mountPath: /config/.storage/onboarding
-            subPath: onboarding
-          {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
@@ -93,11 +88,6 @@ spec:
       - name: lovelace-yaml
         configMap:
           name: {{ .Release.Name }}-lovelace
-      {{- if .Values.disableOnboarding }}
-      - name: onboarding
-        configMap:
-          name: {{ .Release.Name }}-onboarding
-      {{- end }}
   volumeClaimTemplates:
   - metadata:
       name: {{ include "home-assistant.fullname" . }}

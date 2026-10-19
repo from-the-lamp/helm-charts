@@ -37,33 +37,6 @@ service:
   port: 8080
   annotations: {}
 
-gateway:
-  enabled: false
-  external: true
-  istioSelector: ingressgateway-alb
-  hosts:
-  - app.example.com
-  tls:
-    enabled: true
-    issuerRef:
-      name: origin-ca-issuer
-      kind: ClusterOriginIssuer
-      group: cert-manager.k8s.cloudflare.com
-    cert:
-      duration: 1440h
-      renewBefore: 120h
-  auth: 
-    enabled: false
-    provider: oauth2-proxy
-  virtualService:
-    enabled: true
-    basicAuth:
-      enabled: false
-      credentials: #base64
-    destination:
-      host: home-assistant
-      port: 8080
-      
 resources: {}
 nodeSelector: {}
 tolerations: []
@@ -71,7 +44,20 @@ affinity: {}
 additionalPorts: []
 additionalServices: []
 
-disableOnboarding: false
+externalSecrets:
+  kind: ClusterSecretStore
+  name: vault
+  refreshInterval: 1h
+  creationPolicy: Orphan
+
+adminBootstrap:
+  enabled: false
+  remoteSecretKey: home-assistant
+  nameProperty: admin-name
+  usernameProperty: admin-username
+  passwordProperty: admin-password
+  language: en
+
 lovelace:
   title: Home
   views:
@@ -128,7 +114,6 @@ configuration:
         hours: 48
 
 persistence:
-  enabled: false
   accessMode: ReadWriteOnce
   size: 5Gi
   storageClass: ""

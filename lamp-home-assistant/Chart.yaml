@@ -1,7 +1,7 @@
 apiVersion: v2
 name: lamp-home-assistant
-description: Home Assistant deployment chart with Istio integration
-version: 0.0.1
+description: Home Assistant deployment chart
+version: 0.1.0
 
 annotations:
-  notes: "Initial version and basic configuration."
+  notes: "Declarative admin bootstrap via Vault-backed ExternalSecret + onboarding API Job; drop the unused gateway/disableOnboarding fields."
