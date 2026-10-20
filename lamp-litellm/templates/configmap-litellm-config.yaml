@@ -40,4 +40,15 @@ data:
       {{- end }}
     router_settings:
       routing_strategy: simple-shuffle
+      num_retries: 2
+      timeout: 120
+      fallbacks:
+        {{- range $model := .Values.codexModels }}
+        - {{ $model }}:
+            {{- range $other := $.Values.codexModels }}
+            {{- if ne $other $model }}
+            - {{ $other }}
+            {{- end }}
+            {{- end }}
+        {{- end }}
     {{- include "lamp-litellm.codexHandlerSettings" . | nindent 4 }}
