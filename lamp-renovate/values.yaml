@@ -1,7 +1,7 @@
 config:
   autodiscover: false
   printConfig: false
-  repositories: ["from-the-lamp/infra/helm-charts"]
+  repositories: ["from-the-lamp/infra/helm-charts", "from-the-lamp/infra/argo-apps"]
   platform: gitlab
   endpoint: https://gitlab.com/api/v4
   token:
