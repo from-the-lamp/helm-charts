@@ -1,6 +1,6 @@
 apiVersion: v2
 name: lamp-renovate
-version: 1.4.0
+version: 1.4.1
 
 dependencies:
   - name: renovate
@@ -8,4 +8,4 @@ dependencies:
     repository: oci://ghcr.io/renovatebot/charts
 
 annotations:
-  notes: "Dependency update and Renovate stability improvements."
+  notes: "Watch from-the-lamp/infra/argo-apps alongside helm-charts."
