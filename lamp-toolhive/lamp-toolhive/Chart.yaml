@@ -8,5 +8,5 @@ dependencies:
     repository: oci://ghcr.io/stacklok/toolhive
 
   - name: toolhive-operator
-    version: 0.51.4
+    version: 0.56.0
     repository: oci://ghcr.io/stacklok/toolhive
