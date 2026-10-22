@@ -1,4 +1,4 @@
-FROM alpine:3.23.3
+FROM alpine:3.24.3
 
 RUN apk add --no-cache curl git jq bash
 RUN curl -fsSL https://mise.run | sh
