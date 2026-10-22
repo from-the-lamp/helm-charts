@@ -4,9 +4,9 @@ stages:
 
 Build:Docker:
   stage: Build
-  image: docker:27-cli
+  image: docker:29-cli
   services:
-    - docker:27-dind
+    - docker:29-dind
   variables:
     DOCKER_HOST: tcp://docker:2376
     DOCKER_TLS_CERTDIR: "/certs"
