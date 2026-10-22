@@ -284,13 +284,14 @@ mcp:
   # Self-built from docker-images/lamp-defilama-yields-mcp (PyPI package
   # defi-yields-mcp by kukapay, run via uvx). Same free api.llama.fi, no key -
   # kept as its own server since yield-pool tools are a distinct surface from
-  # defilamaFreeApi above. v0.1.1 wrapper tag (not the pip package's own
-  # version, which stays 0.1.0) fixes uv's cache dir defaulting under
-  # readOnlyRootFilesystem - UV_CACHE_DIR now points at the writable /tmp
-  # mount.
+  # defilamaFreeApi above. v0.1.2 wrapper tag (not the pip package's own
+  # version, which stays 0.1.0) - the container runs readOnlyRootFilesystem,
+  # and uv writes both its cache AND tool-install dirs under $HOME by
+  # default, so the entrypoint sets HOME=/tmp (the one writable mount) to
+  # cover all of uv's XDG paths at once.
   defilamaYields:
     enabled: true
-    image: registry.gitlab.com/from-the-lamp/infra/docker-images/lamp-defilama-yields-mcp:0.1.1
+    image: registry.gitlab.com/from-the-lamp/infra/docker-images/lamp-defilama-yields-mcp:0.1.2
     mcps:
       - name: defilama-yields
 
