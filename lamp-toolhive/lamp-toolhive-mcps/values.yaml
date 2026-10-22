@@ -123,7 +123,7 @@ mcp:
 
   victoriametrics:
     enabled: false
-    image: ghcr.io/victoriametrics/mcp-victoriametrics:v1.20.2
+    image: ghcr.io/victoriametrics/mcp-victoriametrics:v1.120.1
     mcps: []
 
   clickhouse:
