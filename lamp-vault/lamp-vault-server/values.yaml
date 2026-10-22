@@ -17,7 +17,7 @@ monitoring:
 vault:
   name: vault
   size: 1
-  image: hashicorp/vault:1.21.4
+  image: hashicorp/vault:2.2.0
   bankVaultsImage: ghcr.io/bank-vaults/bank-vaults:v1.33.2
   apiAddress: http://vault.vault:8200
 
