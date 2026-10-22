@@ -8,7 +8,7 @@ dependencies:
     repository: https://charts.jetstack.io
 
   - name: origin-ca-issuer
-    version: 0.6.2
+    version: 0.6.11
     repository: oci://ghcr.io/cloudflare/origin-ca-issuer-charts
     condition: issuers.originCAIssuer.enabled
 
