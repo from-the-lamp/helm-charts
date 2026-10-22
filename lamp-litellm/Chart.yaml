@@ -1,8 +1,11 @@
 apiVersion: v2
 name: lamp-litellm
-version: 0.1.3
+version: 0.2.0
 
 dependencies:
   - name: litellm-helm
     version: 1.82.3-stable.patch.2
     repository: oci://ghcr.io/berriai
+
+annotations:
+  notes: "Switch ChatGPT Plus/Pro model access to litellm's native chatgpt/ provider, drop the custom Codex OAuth bridge (jslorrma/litellm-codex-oauth-provider) entirely - it had a hand-rolled SSE parser that misdetected larger responses as non-streaming, causing empty completions. The existing OAuth session migrates automatically via an init container; no re-login needed."
