@@ -5,24 +5,10 @@ metadata:
 data:
   {{ .Values.proxyConfigMap.key }}: |
     model_list:
-      {{- range $model := .Values.codexModels }}
+      {{- range $model := .Values.chatgptModels }}
       - model_name: {{ $model }}
         litellm_params:
-          model: codex/codex-{{ $model }}
-      {{- end }}
-      {{- range $model := .Values.codexModels }}
-      - model_name: openai/{{ $model }}
-        litellm_params:
-          model: codex/codex-{{ $model }}
-      {{- end }}
-      {{- range $account := .Values.codexAccounts }}
-      {{- range $model := $.Values.codexModels }}
-      - model_name: {{ $model }}
-        litellm_params:
-          model: openai/{{ $model }}
-          api_base: http://litellm-codex-{{ $account.name }}:4000
-          api_key: os.environ/PROXY_MASTER_KEY
-      {{- end }}
+          model: chatgpt/{{ $model }}
       {{- end }}
       {{- range $model := .Values.deepseekModels }}
       - model_name: {{ $model }}
@@ -43,12 +29,19 @@ data:
       num_retries: 2
       timeout: 120
       fallbacks:
-        {{- range $model := .Values.codexModels }}
+        {{- range $model := .Values.chatgptModels }}
         - {{ $model }}:
-            {{- range $other := $.Values.codexModels }}
+            {{- range $other := $.Values.chatgptModels }}
             {{- if ne $other $model }}
             - {{ $other }}
             {{- end }}
             {{- end }}
         {{- end }}
-    {{- include "lamp-litellm.codexHandlerSettings" . | nindent 4 }}
+    litellm_settings:
+      drop_params: true
+      {{- if .Values.metrics.enabled }}
+      callbacks: ["prometheus"]
+      require_auth_for_metrics_endpoint: false
+      {{- end }}
+    general_settings:
+      master_key: os.environ/PROXY_MASTER_KEY

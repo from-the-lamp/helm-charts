@@ -15,13 +15,12 @@ masterKey:
     key: litellm
     property: master_key
 
-authJson:
-  secretName: litellm-codex-auth
-  remoteRef:
-    key: litellm
-    property: auth_json
-
-codexAuthPersistence:
+# Backs litellm's native chatgpt/ provider (litellm/llms/chatgpt, in-tree
+# since v1.105.0 - no custom provider code needed). The PVC name is kept
+# identical to the previous custom-bridge setup's PVC on purpose: the
+# already-authenticated ChatGPT OAuth session living on that volume carries
+# forward, so switching providers doesn't require a fresh device-code login.
+chatgptAuthPersistence:
   pvcName: litellm-codex-auth-persistent
   size: 64Mi
   storageClass: hcloud-volumes
@@ -35,20 +34,11 @@ imagePullSecret:
   remoteKey: gitlab
   remoteProperty: image_pull_secret
 
-# Models served through the ChatGPT/Codex OAuth handler. Shared by the main
-# proxy config and every account worker's config.
-codexModels:
+# Models served through litellm's native ChatGPT Plus/Pro OAuth provider.
+chatgptModels:
   - gpt-5.6-sol
   - gpt-5.6-terra
   - gpt-5.6-luna
-
-# Additional ChatGPT accounts. The account already wired into the main proxy
-# (authJson above) always stays; each entry here spins up its own isolated
-# worker deployment + secret and is added to the main proxy's model_list as
-# an extra load-balanced/failover deployment. To add an account: add its
-# auth.json under a new property in the "litellm" Vault secret, then add one
-# entry here.
-codexAccounts: []
 
 # Cheap delegation/worker models served directly off the DeepSeek API. To
 # enable: point deepseekApiKey.remoteRef at wherever the key lives in Vault
@@ -84,7 +74,7 @@ litellm-helm:
 
   image:
     repository: registry.gitlab.com/from-the-lamp/infra/docker-images/lamp-litellm
-    tag: "1.0.7"
+    tag: "1.0.10"
     pullPolicy: Always
 
   imagePullSecrets:
@@ -113,24 +103,57 @@ litellm-helm:
     port: 4000
 
   envVars:
-    CODEX_AUTH_FILE: /var/lib/litellm/codex-auth/auth.json
-    CODEX_AUTH_BOOTSTRAP_FILE: /etc/litellm/auth.json.bootstrap
-    OPENAI_API_KEY: sk-litellm-codex-placeholder
+    CHATGPT_TOKEN_DIR: /var/lib/litellm/chatgpt-auth
+    CHATGPT_AUTH_FILE: chatgpt-auth.json
+
+  # One-time, idempotent migration of the already-authenticated OAuth
+  # session from the previous custom bridge's nested auth.json shape
+  # ({"tokens": {...}}) to the flat shape litellm's native chatgpt provider
+  # expects. Runs on every pod start; no-ops once chatgpt-auth.json exists.
+  extraInitContainers:
+    - name: migrate-chatgpt-auth
+      image: ghcr.io/berriai/litellm:v1.105.0
+      command:
+        - python3
+        - -c
+        - |
+          import json, os
+
+          token_dir = "/var/lib/litellm/chatgpt-auth"
+          old_file = os.path.join(token_dir, "auth.json")
+          new_file = os.path.join(token_dir, "chatgpt-auth.json")
+
+          if os.path.exists(new_file):
+              print("chatgpt-auth.json already present, nothing to migrate")
+          elif os.path.exists(old_file):
+              with open(old_file) as f:
+                  nested = json.load(f)
+              tokens = nested.get("tokens", {})
+              flat = {
+                  "access_token": tokens.get("access_token"),
+                  "refresh_token": tokens.get("refresh_token"),
+                  "id_token": tokens.get("id_token"),
+              }
+              if flat["access_token"] and flat["refresh_token"]:
+                  with open(new_file, "w") as f:
+                      json.dump(flat, f)
+                  os.chmod(new_file, 0o600)
+                  print("migrated nested auth.json -> flat chatgpt-auth.json")
+              else:
+                  print("old auth.json missing required fields, skipping migration")
+          else:
+              print("no existing session found, native provider will require a device-code login")
+      volumeMounts:
+        - name: chatgpt-auth-persistent
+          mountPath: /var/lib/litellm/chatgpt-auth
 
   volumes:
-    - name: codex-auth-bootstrap
-      secret:
-        secretName: litellm-codex-auth
-    - name: codex-auth-persistent
+    - name: chatgpt-auth-persistent
       persistentVolumeClaim:
         claimName: litellm-codex-auth-persistent
   volumeMounts:
-    - name: codex-auth-bootstrap
-      mountPath: /etc/litellm/auth.json.bootstrap
-      subPath: auth.json
-      readOnly: true
-    - name: codex-auth-persistent
-      mountPath: /var/lib/litellm/codex-auth
+    - name: chatgpt-auth-persistent
+      mountPath: /var/lib/litellm/chatgpt-auth
 
   resources:
     requests:
