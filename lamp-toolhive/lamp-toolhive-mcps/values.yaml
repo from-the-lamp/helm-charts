@@ -259,14 +259,34 @@ mcp:
 
   # Same shape as aave above, but mcp.defillama.com actually requires a paid
   # DefiLlama API plan ($250/mo) + OAuth sign-in - confirmed by a 401 loop in
-  # the proxy logs when enabled with no auth wired up. Left disabled until
-  # that cost/access question is resolved (or a free self-hosted community
-  # wrapper around DefiLlama's public API is used instead).
+  # the proxy logs when enabled with no auth wired up. Left disabled - see
+  # defilamaFreeApi/defilamaYields below for the self-hosted, free-API
+  # replacement that's actually enabled.
   defillama:
     enabled: false
     remoteUrl: https://mcp.defillama.com/mcp
     mcps:
       - name: defillama
+
+  # Self-built from docker-images/lamp-defilama-free-api-mcp (npm package
+  # @mcp-dockmaster/mcp-server-defillama, no official image). Hits the free,
+  # unauthenticated api.llama.fi REST API directly - no secret/API key needed,
+  # unlike the paid defillama remote proxy above.
+  defilamaFreeApi:
+    enabled: true
+    image: registry.gitlab.com/from-the-lamp/infra/docker-images/lamp-defilama-free-api-mcp:1.0.0
+    mcps:
+      - name: defilama-free-api
+
+  # Self-built from docker-images/lamp-defilama-yields-mcp (PyPI package
+  # defi-yields-mcp by kukapay, run via uvx). Same free api.llama.fi, no key -
+  # kept as its own server since yield-pool tools are a distinct surface from
+  # defilamaFreeApi above.
+  defilamaYields:
+    enabled: true
+    image: registry.gitlab.com/from-the-lamp/infra/docker-images/lamp-defilama-yields-mcp:0.1.0
+    mcps:
+      - name: defilama-yields
 
   # Windmill's own built-in MCP gateway (CRUD on Resources/Variables/Schedules/
   # Jobs) - no separate server to run, every instance serves it at
