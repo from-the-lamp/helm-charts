@@ -269,12 +269,15 @@ mcp:
       - name: defillama
 
   # Self-built from docker-images/lamp-defilama-free-api-mcp (npm package
-  # @mcp-dockmaster/mcp-server-defillama, no official image). Hits the free,
-  # unauthenticated api.llama.fi REST API directly - no secret/API key needed,
-  # unlike the paid defillama remote proxy above.
+  # @nic0xflamel/defillama-mcp-server, no official image - dcSpark's
+  # @mcp-dockmaster/mcp-server-defillama was tried first but 404s on the npm
+  # registry despite its own README claiming npx usage). Dynamically exposes
+  # DefiLlama's full public OpenAPI surface (TVL, prices, stablecoins, etc.)
+  # against the free, unauthenticated api.llama.fi - no secret/API key
+  # needed, unlike the paid defillama remote proxy above.
   defilamaFreeApi:
     enabled: true
-    image: registry.gitlab.com/from-the-lamp/infra/docker-images/lamp-defilama-free-api-mcp:1.0.0
+    image: registry.gitlab.com/from-the-lamp/infra/docker-images/lamp-defilama-free-api-mcp:0.1.0
     mcps:
       - name: defilama-free-api
 
