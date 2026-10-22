@@ -257,6 +257,16 @@ mcp:
     mcps:
       - name: aave
 
+  # Official remote MCP endpoint, same shape as aave above - no self-hosted
+  # image, no secret. Requires a DefiLlama API plan + browser OAuth sign-in
+  # on first use (handled by the vmcp gateway's own auth flow, not a static
+  # token here).
+  defillama:
+    enabled: true
+    remoteUrl: https://mcp.defillama.com/mcp
+    mcps:
+      - name: defillama
+
   # Windmill's own built-in MCP gateway (CRUD on Resources/Variables/Schedules/
   # Jobs) - no separate server to run, every instance serves it at
   # /api/mcp/w/<workspace>/mcp. Forwarded as a Bearer header (not a
