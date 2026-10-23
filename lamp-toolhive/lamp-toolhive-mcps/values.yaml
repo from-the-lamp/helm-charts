@@ -287,14 +287,15 @@ mcp:
   # ghcr.io/drolosoft/immich-photo-manager - unlike every stdio category
   # above, this image already speaks MCP natively over streamable-http
   # (port 8626) - see templates/immich/mcpserver.yaml for the transport/
-  # mcpPort difference that implies. No Vault token here: the api-key
-  # secret is minted at sync time by templates/immich/bootstrap-job.yaml
-  # (same PostSync-Job pattern as windmill above), using the admin
-  # credentials Immich's own admin-sign-up Job already relies on - every
-  # consumer deploying this alongside its own Immich instance needs that
-  # same immich-admin-bootstrap Secret to exist (it already does wherever
-  # apps/homelab/platform/immich's adminBootstrap is enabled). baseUrl is
-  # the in-cluster Immich Service URL - override to match your own.
+  # mcpPort difference that implies. API key comes from Vault like every
+  # other category (NOT self-minted): Immich's passwordLogin is commonly
+  # disabled once GitLab OAuth is confirmed working (GitLab-only login
+  # for humans), which also blocks any in-cluster Job from authenticating
+  # via POST /api/auth/login to mint its own key headlessly - confirmed
+  # live (401 "Password login has been disabled"). Create the key once by
+  # hand via the web UI (Settings > API Keys) and write it to Vault.
+  # baseUrl is the in-cluster Immich Service URL - override to match your
+  # own.
   immich:
     enabled: true
     image: ghcr.io/drolosoft/immich-photo-manager:latest
@@ -302,6 +303,9 @@ mcp:
     baseUrl: http://immich-server.immich.svc.cluster.local:2283
     mcps:
       - name: immich
+        token:
+          key: toolhive
+          property: immich_api_key
 
 externalSecrets:
   kind: ClusterSecretStore
