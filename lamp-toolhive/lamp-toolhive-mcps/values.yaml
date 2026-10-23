@@ -346,6 +346,24 @@ mcp:
       - name: linkedin
         sessionClaimSize: 2Gi
 
+  # ghcr.io/drolosoft/immich-photo-manager - unlike every category above,
+  # this image already speaks MCP natively over streamable-http (port
+  # 8626) instead of being a stdio process toolhive spawns and wraps
+  # itself - see templates/immich/mcpserver.yaml for the transport/
+  # mcpPort difference that implies. baseUrl is a plain (non-secret) env,
+  # the in-cluster Immich Service URL - every consumer deploying this
+  # alongside its own Immich instance should override it to match.
+  immich:
+    enabled: true
+    image: ghcr.io/drolosoft/immich-photo-manager:latest
+    mcpPort: 8626
+    baseUrl: http://immich-server.immich.svc.cluster.local:2283
+    mcps:
+      - name: immich
+        token:
+          key: toolhive
+          property: immich_api_key
+
 externalSecrets:
   kind: ClusterSecretStore
   name: vault
