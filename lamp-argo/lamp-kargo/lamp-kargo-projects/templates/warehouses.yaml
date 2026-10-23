@@ -9,17 +9,20 @@ metadata:
   namespace: {{ $project.prefix }}-{{ $app.name }}
 spec:
   subscriptions:
-  {{- if $warehouses.subscriptions }}
+  {{- if $app.subscriptions }}
+    {{- toYaml $app.subscriptions | nindent 4 }}
+  {{- else if $warehouses.subscriptions }}
     {{- toYaml $warehouses.subscriptions | nindent 4 }}
   {{- else }}
+  {{- $strategy := default $warehouses.imageSelectionStrategy $app.imageSelectionStrategy }}
   - image:
       repoURL: {{ $app.image }}
-      imageSelectionStrategy: {{ $warehouses.imageSelectionStrategy }}
-      {{- if eq $warehouses.imageSelectionStrategy "NewestBuild" }}
-      allowTags: {{ $warehouses.allowTags | quote }}
+      imageSelectionStrategy: {{ $strategy }}
+      {{- if eq $strategy "NewestBuild" }}
+      allowTags: {{ default $warehouses.allowTags $app.allowTags | quote }}
       {{- end }}
-      {{- if eq $warehouses.imageSelectionStrategy "Digest" }}
-      constraint: {{ $warehouses.constraint | quote }}
+      {{- if eq $strategy "Digest" }}
+      constraint: {{ default $warehouses.constraint $app.constraint | quote }}
       {{- end }}
   {{- end }}
 {{- end }}
