@@ -1,0 +1,67 @@
+{{- if .Values.mcp.immich.enabled }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: immich-mcp-bootstrap
+  annotations:
+    # Same PostSync/BeforeHookCreation reasoning as windmill's own
+    # bootstrap Job (see templates/windmill/bootstrap-job.yaml) - Jobs are
+    # immutable so a plain re-apply fails, and PostSync (not PreSync)
+    # keeps a transient failure here (e.g. Immich mid-restart) from
+    # blocking the rest of this Application's sync.
+    argocd.argoproj.io/hook: PostSync
+    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
+spec:
+  backoffLimit: 3
+  template:
+    spec:
+      restartPolicy: Never
+      serviceAccountName: immich-mcp-bootstrap
+      containers:
+        - name: bootstrap
+          # Reused from the windmill bootstrap Job - it's just curl+kubectl
+          # pre-baked (this namespace's egress can't reach dl.k8s.io to
+          # install kubectl on the fly at runtime, the same issue that
+          # Job's own comment documents), nothing windmill-specific is
+          # baked into the image itself.
+          image: registry.gitlab.com/from-the-lamp/infra/docker-images/lamp-windmill-mcp-bootstrap:1.0.0
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+          env:
+            - name: IMMICH_BASE_URL
+              value: {{ $.Values.mcp.immich.baseUrl }}
+          command: ["/bin/sh", "-euc"]
+          args:
+            - |
+              ADMIN_EMAIL=$(kubectl get secret immich-admin-bootstrap -n immich -o jsonpath='{.data.email}' | base64 -d)
+              ADMIN_PASSWORD=$(kubectl get secret immich-admin-bootstrap -n immich -o jsonpath='{.data.password}' | base64 -d)
+
+              code=$(curl -s -o /tmp/resp -w '%{http_code}' -X POST "${IMMICH_BASE_URL}/api/auth/login" \
+                -H 'Content-Type: application/json' \
+                -d "{\"email\":\"${ADMIN_EMAIL}\",\"password\":\"${ADMIN_PASSWORD}\"}")
+              if [ "$code" != "200" ] && [ "$code" != "201" ]; then
+                echo "login failed ($code): $(cat /tmp/resp)"
+                exit 1
+              fi
+              ACCESS_TOKEN=$(sed -n 's/.*"accessToken":"\([^"]*\)".*/\1/p' /tmp/resp)
+
+              # Always mints a fresh key - same "cheap and harmless to
+              # repeat" stance as windmill's own bootstrap Job (see that
+              # file's own comment); old keys are just left behind unused
+              # rather than looked up and revoked, since /api/api-keys
+              # returns a JSON array and this image has no jq to parse it
+              # safely.
+              code=$(curl -s -o /tmp/create_resp -w '%{http_code}' -X POST "${IMMICH_BASE_URL}/api/api-keys" \
+                -H "Authorization: Bearer ${ACCESS_TOKEN}" -H 'Content-Type: application/json' \
+                -d '{"name":"toolhive-mcp-gateway","permissions":["all"]}')
+              if [ "$code" != "200" ] && [ "$code" != "201" ]; then
+                echo "api key create failed ($code): $(cat /tmp/create_resp)"
+                exit 1
+              fi
+              API_KEY=$(sed -n 's/.*"secret":"\([^"]*\)".*/\1/p' /tmp/create_resp)
+
+              kubectl patch secret immich-mcp-secret -n {{ $.Release.Namespace }} \
+                --type=merge -p "{\"stringData\":{\"api-key\":\"${API_KEY}\"}}"
+{{- end }}

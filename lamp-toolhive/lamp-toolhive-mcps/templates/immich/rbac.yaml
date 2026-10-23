@@ -1,0 +1,61 @@
+{{- if .Values.mcp.immich.enabled }}
+# Cross-namespace read of the admin-bootstrap credentials Immich's own
+# admin-sign-up Job already uses (apps/homelab/platform/immich) - same
+# pattern as grafana's cross-namespace SecretStore in this chart
+# (resourceNames-pinned, not a broad "list secrets" grant).
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: immich-mcp-bootstrap
+  namespace: immich
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+rules:
+  - apiGroups: [""]
+    resources: ["secrets"]
+    resourceNames: ["immich-admin-bootstrap"]
+    verbs: ["get"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: immich-mcp-bootstrap
+  namespace: immich
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+subjects:
+  - kind: ServiceAccount
+    name: immich-mcp-bootstrap
+    namespace: {{ $.Release.Namespace }}
+roleRef:
+  kind: Role
+  name: immich-mcp-bootstrap
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: immich-mcp-bootstrap
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+rules:
+  - apiGroups: [""]
+    resources: ["secrets"]
+    resourceNames: ["immich-mcp-secret"]
+    verbs: ["get", "patch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: immich-mcp-bootstrap
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+subjects:
+  - kind: ServiceAccount
+    name: immich-mcp-bootstrap
+roleRef:
+  kind: Role
+  name: immich-mcp-bootstrap
+  apiGroup: rbac.authorization.k8s.io
+{{- end }}

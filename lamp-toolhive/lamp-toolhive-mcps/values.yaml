@@ -108,10 +108,6 @@ mcp:
 
   bitbucket:
     enabled: true
-    # Self-built from docker-images/lamp-bitbucket-mcp (ulikoenig/mcp-atlassian-with-bitbucket,
-    # a sooperset/mcp-atlassian fork with Bitbucket Cloud support - ghcr.io/ibrahimogod/bitbucket-mcp
-    # was tried first but its generic tools declare an untyped `body: serde_json::Value` field that
-    # schemars renders as a typeless {} schema, which broke tools/list for the whole vMCP gateway).
     image: registry.gitlab.com/from-the-lamp/infra/docker-images/lamp-bitbucket-mcp:latest
     mcps:
       - name: bitbucket
@@ -148,14 +144,11 @@ mcp:
 
   argocd:
     enabled: false
-    # No official container image for the argocd-mcp package (it's npx-only:
-    # `npx argocd-mcp@latest stdio`) — build/point at your own image before enabling.
     image: ""
     mcps: []
 
   sheets:
     enabled: true
-    # Self-built from docker-images/lamp-google-sheets (xing5/mcp-google-sheets from PyPI).
     image: registry.gitlab.com/from-the-lamp/infra/docker-images/lamp-google-sheets:latest
     mcps:
       - name: sheets
@@ -165,7 +158,6 @@ mcp:
 
   oracle:
     enabled: true
-    # Self-built from docker-images/lamp-oracle-mcp (generic OCI SDK wrapper).
     image: registry.gitlab.com/from-the-lamp/infra/docker-images/lamp-oracle-mcp:latest
     mcps:
       - name: oracle-prod-0
@@ -191,7 +183,6 @@ mcp:
 
   etherscan:
     enabled: true
-    # Self-built from docker-images/lamp-etherscan-mcp (npm package mcp-etherscan-server, no official image).
     image: registry.gitlab.com/from-the-lamp/infra/docker-images/lamp-etherscan-mcp:latest
     mcps:
       - name: etherscan
@@ -201,7 +192,6 @@ mcp:
 
   alchemy:
     enabled: true
-    # Self-built from docker-images/lamp-alchemy-mcp (official npm package @alchemy/mcp-server, no official image).
     image: registry.gitlab.com/from-the-lamp/infra/docker-images/lamp-alchemy-mcp:latest
     mcps:
       - name: alchemy
@@ -211,7 +201,6 @@ mcp:
 
   coingecko:
     enabled: true
-    # Self-built from docker-images/lamp-coingecko-mcp (official npm package @coingecko/coingecko-mcp).
     image: registry.gitlab.com/from-the-lamp/infra/docker-images/lamp-coingecko-mcp:1.0.2
     mcps:
       - name: coingecko
@@ -221,7 +210,6 @@ mcp:
 
   alphavantage:
     enabled: true
-    # Self-built from docker-images/lamp-alphavantage-mcp (official pip package marketdata-mcp-server).
     image: registry.gitlab.com/from-the-lamp/infra/docker-images/lamp-alphavantage-mcp:1.0.3
     mcps:
       - name: alphavantage
@@ -231,9 +219,6 @@ mcp:
 
   googlemaps:
     enabled: true
-    # No self-built image: Google only offers Maps Grounding Lite as a
-    # managed remote MCP endpoint (no open-source server to self-host),
-    # proxied via toolhive's MCPRemoteProxy instead of MCPServer.
     remoteUrl: https://mapstools.googleapis.com/mcp
     mcps:
       - name: googlemaps-grounding
@@ -243,7 +228,6 @@ mcp:
 
   thegraph:
     enabled: true
-    # Self-built from docker-images/lamp-thegraph-mcp (vendored from kukapay/thegraph-mcp, no packaged release).
     image: registry.gitlab.com/from-the-lamp/infra/docker-images/lamp-thegraph-mcp:latest
     mcps:
       - name: thegraph
@@ -257,58 +241,26 @@ mcp:
     mcps:
       - name: aave
 
-  # Same shape as aave above, but mcp.defillama.com actually requires a paid
-  # DefiLlama API plan ($250/mo) + OAuth sign-in - confirmed by a 401 loop in
-  # the proxy logs when enabled with no auth wired up. Left disabled - see
-  # defilamaFreeApi/defilamaYields below for the self-hosted, free-API
-  # replacement that's actually enabled.
   defillama:
     enabled: false
     remoteUrl: https://mcp.defillama.com/mcp
     mcps:
       - name: defillama
 
-  # Self-built from docker-images/lamp-defilama-free-api-mcp (npm package
-  # @nic0xflamel/defillama-mcp-server, no official image - dcSpark's
-  # @mcp-dockmaster/mcp-server-defillama was tried first but 404s on the npm
-  # registry despite its own README claiming npx usage). Dynamically exposes
-  # DefiLlama's full public OpenAPI surface (TVL, prices, stablecoins, etc.)
-  # against the free, unauthenticated api.llama.fi - no secret/API key
-  # needed, unlike the paid defillama remote proxy above.
   defilamaFreeApi:
     enabled: true
     image: registry.gitlab.com/from-the-lamp/infra/docker-images/lamp-defilama-free-api-mcp:0.1.0
     mcps:
       - name: defilama-free-api
 
-  # Self-built from docker-images/lamp-defilama-yields-mcp (PyPI package
-  # defi-yields-mcp by kukapay, run via uvx). Same free api.llama.fi, no key -
-  # kept as its own server since yield-pool tools are a distinct surface from
-  # defilamaFreeApi above. v0.1.3 wrapper tag (not the pip package's own
-  # version, which stays 0.1.0): HOME=/tmp works around uv writing its cache
-  # and tool-install dirs under a read-only $HOME, and `--with "mcp<2"` pins
-  # the mcp SDK - the package's own code imports FastMCP, which mcp 2.x
-  # renamed/removed.
   defilamaYields:
     enabled: true
     image: registry.gitlab.com/from-the-lamp/infra/docker-images/lamp-defilama-yields-mcp:0.1.3
     mcps:
       - name: defilama-yields
 
-  # Windmill's own built-in MCP gateway (CRUD on Resources/Variables/Schedules/
-  # Jobs) - no separate server to run, every instance serves it at
-  # /api/mcp/w/<workspace>/mcp. Forwarded as a Bearer header (not a
-  # token=... query param) to avoid it ending up in access logs. The token
-  # itself is minted by the bootstrap Job below (see
-  # templates/windmill/bootstrap-job.yaml for why SUPERADMIN_SECRET can't be
-  # used directly), not stored in Vault.
   windmill:
     enabled: true
-    # No sane cross-environment default - every consumer must override this
-    # to its own Windmill URL. Previously defaulted to Hetzner's own
-    # windmill.internal.from-the-lamp.work, which a new environment would
-    # silently inherit if the override were ever missed; remoteUrl now
-    # fails loudly via required() instead.
     remoteUrl: ""
     bootstrap:
       windmillBaseUrl: ""
@@ -321,20 +273,6 @@ mcp:
 
   letsfg:
     enabled: true
-    # Self-built from docker-images/lamp-letsfg-mcp (npm package letsfg-mcp, no official image).
-    # letsfg-mcp only accepts a static LETSFG_BEARER_TOKEN env var (no refresh logic of its
-    # own, no config file it writes to), and the OAuth refresh_token rotates on every use.
-    # supervisor.py authenticates to HashiCorp Vault via its own ServiceAccount (Kubernetes
-    # auth role "letsfg", see terraform/the vault-root setup), reads
-    # letsfg_refresh_token/letsfg_client_id from platform/toolhive, exchanges the refresh
-    # token for a fresh access token once at container start, writes the rotated
-    # refresh_token back, then execs letsfg-mcp. It deliberately does NOT refresh on a timer
-    # - letsfg's fraud detection revokes token pairs refreshed continuously without real
-    # usage. Instead, healthcheck.py runs as a livenessProbe: it makes one real, cheap search
-    # every 10 minutes (locations lookups aren't auth-gated and prove nothing) and only fails
-    # the probe on a genuine 401/403, so Kubernetes restarts the pod - and supervisor.py
-    # re-refreshes - exactly when the token has actually stopped working, not on a blind
-    # schedule.
     image: registry.gitlab.com/from-the-lamp/infra/docker-images/lamp-letsfg-mcp:1.0.0
     mcps:
       - name: letsfg
@@ -346,13 +284,17 @@ mcp:
       - name: linkedin
         sessionClaimSize: 2Gi
 
-  # ghcr.io/drolosoft/immich-photo-manager - unlike every category above,
-  # this image already speaks MCP natively over streamable-http (port
-  # 8626) instead of being a stdio process toolhive spawns and wraps
-  # itself - see templates/immich/mcpserver.yaml for the transport/
-  # mcpPort difference that implies. baseUrl is a plain (non-secret) env,
-  # the in-cluster Immich Service URL - every consumer deploying this
-  # alongside its own Immich instance should override it to match.
+  # ghcr.io/drolosoft/immich-photo-manager - unlike every stdio category
+  # above, this image already speaks MCP natively over streamable-http
+  # (port 8626) - see templates/immich/mcpserver.yaml for the transport/
+  # mcpPort difference that implies. No Vault token here: the api-key
+  # secret is minted at sync time by templates/immich/bootstrap-job.yaml
+  # (same PostSync-Job pattern as windmill above), using the admin
+  # credentials Immich's own admin-sign-up Job already relies on - every
+  # consumer deploying this alongside its own Immich instance needs that
+  # same immich-admin-bootstrap Secret to exist (it already does wherever
+  # apps/homelab/platform/immich's adminBootstrap is enabled). baseUrl is
+  # the in-cluster Immich Service URL - override to match your own.
   immich:
     enabled: true
     image: ghcr.io/drolosoft/immich-photo-manager:latest
@@ -360,9 +302,6 @@ mcp:
     baseUrl: http://immich-server.immich.svc.cluster.local:2283
     mcps:
       - name: immich
-        token:
-          key: toolhive
-          property: immich_api_key
 
 externalSecrets:
   kind: ClusterSecretStore
