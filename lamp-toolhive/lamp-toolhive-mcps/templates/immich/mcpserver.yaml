@@ -28,24 +28,26 @@ spec:
   env:
     - name: IMMICH_BASE_URL
       value: {{ $item.baseUrl | default $.Values.mcp.immich.baseUrl }}
+    - name: MCP_ALLOWED_HOSTS
+      value: mcp-{{ $item.name }}
     {{- with $item.env }}
     {{- toYaml . | nindent 4 }}
     {{- end }}
   {{- with $item.toolConfig }}
----
-apiVersion: toolhive.stacklok.dev/v1beta1
-kind: MCPToolConfig
-metadata:
-  name: {{ $item.name }}-tool-config
-spec:
-  {{- with .toolsFilter }}
-  toolsFilter:
-    {{- toYaml . | nindent 4 }}
-  {{- end }}
-  {{- with .toolsOverride }}
-  toolsOverride:
-    {{- toYaml . | nindent 4 }}
-  {{- end }}
+  ---
+  apiVersion: toolhive.stacklok.dev/v1beta1
+  kind: MCPToolConfig
+  metadata:
+    name: {{ $item.name }}-tool-config
+  spec:
+    {{- with .toolsFilter }}
+    toolsFilter:
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
+    {{- with .toolsOverride }}
+    toolsOverride:
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
   {{- end }}
 {{- end }}
 {{- end }}
