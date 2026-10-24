@@ -4,5 +4,5 @@ version: 0.0.1
 
 dependencies:
   - name: windmill
-    version: 4.0.291
+    version: 4.0.295
     repository: https://windmill-labs.github.io/windmill-helm-charts/
