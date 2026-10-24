@@ -15,6 +15,8 @@ spec:
   - name: gitImageDigestPath
   steps:
   - uses: git-clone
+    retry:
+      timeout: 2m
     config:
       repoURL: ${{`{{ vars.gitRepoURL }}`}}
       checkout:
@@ -37,9 +39,14 @@ spec:
       path: ./out
       message: ${{`{{ task.outputs['update-image'].commitMessage }}`}} [skip ci]
   - uses: git-push
+    retry:
+      timeout: 5m
+      errorThreshold: 3
     config:
       path: ./out
   - uses: argocd-update
+    retry:
+      timeout: 3m
     config:
       apps:
       - name: ${{`{{ vars.argocdApp }}`}}
