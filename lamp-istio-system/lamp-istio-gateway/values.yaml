@@ -23,6 +23,11 @@ affinity:
           values:
           - "true"
 
+tolerations: []
+  # - key: node-role.kubernetes.io/control-plane
+  #   operator: Exists
+  #   effect: NoSchedule
+
 listeners:
   - name: http
     protocol: HTTP
