@@ -46,11 +46,11 @@ mcp:
     mcps:
       - name: kubernetes
         serviceAccount: kubernetes-mcp
-      - name: prod-1-admin
+      - name: oracle-1
         kubeconfig:
           key: toolhive
           property: kubeconfig-prod-1
-      - name: prod-0-admin
+      - name: oracle-0
         kubeconfig:
           key: toolhive
           property: kubeconfig-prod-0
