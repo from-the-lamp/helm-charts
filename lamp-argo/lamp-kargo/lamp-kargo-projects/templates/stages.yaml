@@ -49,6 +49,6 @@ spec:
         - name: gitImageTagPath
           value: {{ default $project.git.imageTagPath $app.gitImageTagPath }}
         - name: gitImageDigestPath
-          value: {{ default $project.git.imageTagPath $app.gitImageDigestPath }}
+          value: {{ default $project.git.imageDigestPath $app.gitImageDigestPath }}
 {{- end }}
 {{- end }}
