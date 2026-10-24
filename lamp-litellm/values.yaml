@@ -112,7 +112,7 @@ litellm-helm:
   # expects. Runs on every pod start; no-ops once chatgpt-auth.json exists.
   extraInitContainers:
     - name: migrate-chatgpt-auth
-      image: ghcr.io/berriai/litellm:v1.105.0
+      image: ghcr.io/berriai/litellm:v1.106.3
       command:
         - python3
         - -c
