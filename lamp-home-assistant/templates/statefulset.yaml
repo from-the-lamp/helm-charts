@@ -27,6 +27,50 @@ spec:
     {{- end }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      {{- if .Values.configuration.http.trusted_proxies }}
+      initContainers:
+        - name: http-storage-seed
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          env:
+            - name: TRUSTED_PROXIES_JSON
+              value: {{ .Values.configuration.http.trusted_proxies | toJson | quote }}
+            - name: USE_X_FORWARDED_FOR
+              value: {{ .Values.configuration.http.use_x_forwarded_for | toString | quote }}
+          command: ["python3", "-c"]
+          args:
+            - |
+              import json, os, sys
+
+              path = "/config/.storage/http"
+
+              try:
+                  if not os.path.exists(path):
+                      print("no .storage/http yet - first boot will migrate HTTP config from YAML")
+                      sys.exit(0)
+
+                  with open(path) as f:
+                      doc = json.load(f)
+
+                  stable = doc["data"]["stable"]
+                  stable["trusted_proxies"] = json.loads(os.environ["TRUSTED_PROXIES_JSON"])
+                  stable["use_x_forwarded_for"] = os.environ["USE_X_FORWARDED_FOR"] == "true"
+                  doc["data"]["pending"] = None
+                  doc["data"]["yaml_migration_done"] = True
+
+                  tmp = path + ".tmp"
+                  with open(tmp, "w") as f:
+                      json.dump(doc, f)
+                  os.replace(tmp, path)
+                  print("patched .storage/http stable http config")
+              except Exception as exc:
+                  print(f"could not patch .storage/http, leaving it untouched: {exc}")
+          volumeMounts:
+          - mountPath: /config
+            name: {{ include "home-assistant.fullname" . }}
+      {{- end }}
       containers:
         - name: {{ .Chart.Name }}
           securityContext:
