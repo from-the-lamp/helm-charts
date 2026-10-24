@@ -4,4 +4,4 @@ dependencies:
   repository: oci://ghcr.io/akuity/kargo-charts
   version: 1.12.4
 name: lamp-kargo
-version: 0.3.1
+version: 0.3.2
