@@ -124,17 +124,17 @@ mcp:
 
   clickhouse:
     enabled: false
-    image: us-central1-docker.pkg.dev/database-toolbox/toolbox/toolbox:1.14.0
+    image: us-central1-docker.pkg.dev/database-toolbox/toolbox/toolbox:1.15.0
     mcps: []
 
   postgres:
     enabled: false
-    image: us-central1-docker.pkg.dev/database-toolbox/toolbox/toolbox:1.14.0
+    image: us-central1-docker.pkg.dev/database-toolbox/toolbox/toolbox:1.15.0
     mcps: []
 
   redis:
     enabled: false
-    image: us-central1-docker.pkg.dev/database-toolbox/toolbox/toolbox:1.14.0
+    image: us-central1-docker.pkg.dev/database-toolbox/toolbox/toolbox:1.15.0
     mcps: []
 
   kafka:
