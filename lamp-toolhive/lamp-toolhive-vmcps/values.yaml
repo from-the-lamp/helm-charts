@@ -119,6 +119,20 @@ dex:
     - secretRef:
         name: toolhive-hermes-client-secret
 
+  # One ExternalSecret + env var per Dex static client that needs its secret
+  # pulled from Vault (templates/dex/clientsecrets.yaml ranges over this) -
+  # generalized from a single hardcoded "hermes" entry so a deployment can
+  # give each headless ROPC bot its own static client/secret instead of
+  # sharing one. Default below reproduces the original single-entry
+  # behavior exactly; a consumer adding more bot identities overrides this
+  # list (and dex.envFrom above, and dex.config.staticClients/staticPasswords)
+  # with one block per identity.
+  clientSecrets:
+    - secretName: toolhive-hermes-client-secret
+      envName: HERMES_CLIENT_SECRET
+      vaultKey: toolhive
+      vaultProperty: hermes-client-secret
+
   # volumes:
   #   - name: google-sa
   #     secret:
