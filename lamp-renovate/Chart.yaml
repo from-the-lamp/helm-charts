@@ -4,7 +4,7 @@ version: 1.4.1
 
 dependencies:
   - name: renovate
-    version: 46.378.1
+    version: 46.381.1
     repository: oci://ghcr.io/renovatebot/charts
 
 annotations:
