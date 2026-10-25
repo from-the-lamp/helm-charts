@@ -93,6 +93,7 @@ config:
       timeout: 180
       lifetime_seconds: 300
     browser:
+      backend: "off"
       inactivity_timeout: 120
     compression:
       enabled: true

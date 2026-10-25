@@ -122,6 +122,25 @@ mcp:
     image: ghcr.io/victoriametrics/mcp-victoriametrics:v1.120.1
     mcps: []
 
+  # The upstream server only knows how to send a VAULT_TOKEN, so it talks to a
+  # Vault Proxy sidecar instead of to Vault: the proxy logs in with the pod's
+  # ServiceAccount (kubernetes auth) and rewrites the token on every request
+  # (use_auto_auth_token = "force"), which keeps a static token out of the
+  # cluster entirely and renews on its own. Each entry gets its own
+  # ServiceAccount named after it, bound to a Vault role of its choosing - that
+  # role's policy is what decides the reach. Pair every entry with
+  # toolConfig.toolsFilter so the write/delete/read tools the image also ships
+  # are never exposed to a client.
+  vault:
+    enabled: false
+    image: hashicorp/vault-mcp-server:0.2.0
+    address: http://vault.vault:8200
+    authMount: kubernetes
+    proxy:
+      image: hashicorp/vault:1.21.1
+      port: 8100
+    mcps: []
+
   clickhouse:
     enabled: false
     image: us-central1-docker.pkg.dev/database-toolbox/toolbox/toolbox:1.14.0
@@ -283,6 +302,12 @@ mcp:
     mcps:
       - name: linkedin
         sessionClaimSize: 2Gi
+
+  playwright:
+    enabled: false
+    image: mcr.microsoft.com/playwright/mcp:v0.0.83
+    mcpPort: 8931
+    mcps: []
 
   # ghcr.io/drolosoft/immich-photo-manager - unlike every stdio category
   # above, this image already speaks MCP natively over streamable-http

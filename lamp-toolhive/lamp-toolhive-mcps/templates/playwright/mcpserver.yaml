@@ -1,0 +1,77 @@
+{{- if .Values.mcp.playwright.enabled }}
+{{- range $item := .Values.mcp.playwright.mcps }}
+---
+apiVersion: toolhive.stacklok.dev/v1beta1
+kind: MCPServer
+metadata:
+  name: {{ $item.name }}
+spec:
+  image: {{ $.Values.mcp.playwright.image }}
+  transport: streamable-http
+  mcpPort: {{ $.Values.mcp.playwright.mcpPort }}
+  proxyPort: 8080
+  groupRef:
+    name: {{ $item.groupRef | default $.Values.mcp.defaults.groupRef }}
+  permissionProfile:
+    type: builtin
+    name: {{ $.Values.mcp.defaults.permissionProfile }}
+  audit:
+    enabled: true
+  args:
+    - --port
+    - {{ $.Values.mcp.playwright.mcpPort | quote }}
+    - --host
+    - 0.0.0.0
+    - --isolated
+    - --allowed-hosts
+    - mcp-{{ $item.name }},mcp-{{ $item.name }}.{{ $.Release.Namespace }},mcp-{{ $item.name }}.{{ $.Release.Namespace }}.svc.cluster.local
+    {{- with $item.allowedOrigins }}
+    - --allowed-origins
+    - {{ . | quote }}
+    {{- end }}
+    {{- with $item.blockedOrigins }}
+    - --blocked-origins
+    - {{ . | quote }}
+    {{- end }}
+    {{- if $item.storageState }}
+    - --storage-state
+    - /etc/toolhive/playwright/state.json
+    {{- end }}
+    {{- with $item.extraArgs }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- with $item.resources }}
+  resources:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  podTemplateSpec:
+    spec:
+      containers:
+        - name: mcp
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+            - name: dshm
+              mountPath: /dev/shm
+            {{- if $item.storageState }}
+            - name: storage-state
+              mountPath: /etc/toolhive/playwright
+              readOnly: true
+            {{- end }}
+      volumes:
+        - name: tmp
+          emptyDir: {}
+        - name: dshm
+          emptyDir:
+            medium: Memory
+            sizeLimit: {{ $item.shmSize | default "1Gi" }}
+        {{- if $item.storageState }}
+        - name: storage-state
+          secret:
+            secretName: {{ $item.name }}-mcp-secret
+            items:
+              - key: state
+                path: state.json
+        {{- end }}
+{{- end }}
+{{- end }}

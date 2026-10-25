@@ -1,0 +1,77 @@
+{{- if .Values.mcp.vault.enabled }}
+{{- range $item := .Values.mcp.vault.mcps }}
+---
+apiVersion: toolhive.stacklok.dev/v1beta1
+kind: MCPServer
+metadata:
+  name: {{ $item.name }}
+spec:
+  image: {{ $.Values.mcp.vault.image }}
+  transport: stdio
+  serviceAccount: {{ $item.name }}
+  groupRef:
+    name: {{ $item.groupRef | default $.Values.mcp.defaults.groupRef }}
+  permissionProfile:
+    type: builtin
+    name: {{ $.Values.mcp.defaults.permissionProfile }}
+  audit:
+    enabled: true
+  {{- with $item.toolConfig }}
+  toolConfigRef:
+    name: {{ $item.name }}-tool-config
+  {{- end }}
+  env:
+    # The sidecar's listener, not Vault itself. Vault Proxy authenticates with
+    # this pod's ServiceAccount and rewrites the token on every request
+    # (use_auto_auth_token = "force"), so the value below is a placeholder the
+    # upstream image insists on having and never the credential.
+    - name: VAULT_ADDR
+      value: http://127.0.0.1:{{ $.Values.mcp.vault.proxy.port }}
+    - name: VAULT_TOKEN
+      value: supplied-by-vault-proxy
+    {{- with $item.namespace }}
+    - name: VAULT_NAMESPACE
+      value: {{ . }}
+    {{- end }}
+    {{- with $item.env }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  podTemplateSpec:
+    spec:
+      containers:
+        - name: vault-proxy
+          image: {{ $.Values.mcp.vault.proxy.image }}
+          args:
+            - proxy
+            - -config=/etc/vault-proxy/proxy.hcl
+          volumeMounts:
+            - name: vault-proxy-config
+              mountPath: /etc/vault-proxy
+              readOnly: true
+            - name: vault-proxy-run
+              mountPath: /run/vault-proxy
+      volumes:
+        - name: vault-proxy-config
+          configMap:
+            name: {{ $item.name }}-vault-proxy
+        - name: vault-proxy-run
+          emptyDir:
+            medium: Memory
+  {{- with $item.toolConfig }}
+---
+apiVersion: toolhive.stacklok.dev/v1beta1
+kind: MCPToolConfig
+metadata:
+  name: {{ $item.name }}-tool-config
+spec:
+  {{- with .toolsFilter }}
+  toolsFilter:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- with .toolsOverride }}
+  toolsOverride:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- end }}
+{{- end }}
+{{- end }}

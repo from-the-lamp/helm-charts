@@ -1,0 +1,39 @@
+{{- if .Values.mcp.vault.enabled }}
+{{- range $item := .Values.mcp.vault.mcps }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ $item.name }}-vault-proxy
+data:
+  proxy.hcl: |
+    vault {
+      address = "{{ $item.address | default $.Values.mcp.vault.address }}"
+    }
+
+    auto_auth {
+      method {
+        type = "kubernetes"
+        mount_path = "auth/{{ $item.authMount | default $.Values.mcp.vault.authMount }}"
+        config = {
+          role = "{{ $item.vaultRole }}"
+        }
+      }
+      sink {
+        type = "file"
+        config = {
+          path = "/run/vault-proxy/token"
+        }
+      }
+    }
+
+    api_proxy {
+      use_auto_auth_token = "force"
+    }
+
+    listener "tcp" {
+      address     = "127.0.0.1:{{ $.Values.mcp.vault.proxy.port }}"
+      tls_disable = true
+    }
+{{- end }}
+{{- end }}
