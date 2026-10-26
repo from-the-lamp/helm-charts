@@ -137,7 +137,7 @@ mcp:
     address: http://vault.vault:8200
     authMount: kubernetes
     proxy:
-      image: hashicorp/vault:1.21.1
+      image: hashicorp/vault:2.2.1
       port: 8100
     mcps: []
 
