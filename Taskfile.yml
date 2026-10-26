@@ -93,4 +93,5 @@ tasks:
   auth:
     desc: Auth in Helm registry
     cmds:
-      - echo "${OCI_REPO_PASS}" | helm registry login -u "${OCI_REPO_USER}" --password-stdin "${OCI_REPO}"
+      - echo -e "\033[36m==>\033[0m logging in to ${OCI_REPO%%/*} - helm 4 registry login takes the registry host, not the repository path"
+      - echo "${OCI_REPO_PASS}" | helm registry login -u "${OCI_REPO_USER}" --password-stdin "${OCI_REPO%%/*}"
