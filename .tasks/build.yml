@@ -6,7 +6,13 @@ tasks:
     internal: true
     dir: '{{.DIR}}'
     cmds:
+      - echo -e "\033[36m==>\033[0m {{.DIR}} - removing .output so the push stage only sees this build's package"
+      - rm -rf .output
+      - echo -e "\033[36m==>\033[0m {{.DIR}} - resolving chart dependencies"
       - helm dependency update
+      - echo -e "\033[36m==>\033[0m {{.DIR}} - linting with dependencies in place"
+      - helm lint .
+      - echo -e "\033[36m==>\033[0m {{.DIR}} - packaging into {{.DIR}}/.output"
       - helm package . -d .output
 
   build:push:*:
@@ -52,20 +58,19 @@ tasks:
           DIR: '{{.ITEM}}'
 
   build:changed:
-    desc: Build changed Charts
-    deps:
+    desc: Build changed Charts (dependency update, lint, package) - Chart.yaml changed since DIFF_BASE, or the dirs in TARGETS
+    cmds:
+      - echo -e "\033[36m==>\033[0m diff base {{.DIFF_BASE}} - charts to build -> {{if .CHANGED_CHART_DIRS}}{{.CHANGED_CHART_DIRS}}{{else}}none{{end}}"
       - for: { var: CHANGED_CHART_DIRS }
         task: .build
         vars:
           DIR: '{{.ITEM}}'
-    preconditions:
-      - sh: '[ -n "{{.CHANGED_CHART_DIRS}}" ]'
-        msg: "No changed chart directories found."
-        
+
   .push:
     internal: true
     dir: '{{.DIR}}'
     cmds:
+      - echo -e "\033[36m==>\033[0m {{.DIR}} - pushing the package from .output to oci://{{.OCI_REPO}}"
       - helm push $(find .output -type f -name "*.tgz") oci://{{.OCI_REPO}}
 
   push:*:
@@ -83,12 +88,10 @@ tasks:
           DIR: '{{.ITEM}}'
 
   push:changed:
-    desc: Push changed Charts
-    deps:
+    desc: Push changed Charts - the packages build:changed left in each chart's .output
+    cmds:
+      - echo -e "\033[36m==>\033[0m diff base {{.DIFF_BASE}} - charts to push -> {{if .CHANGED_CHART_DIRS}}{{.CHANGED_CHART_DIRS}}{{else}}none{{end}}"
       - for: { var: CHANGED_CHART_DIRS }
         task: .push
         vars:
           DIR: '{{.ITEM}}'
-    preconditions:
-      - sh: '[ -n "{{.CHANGED_CHART_DIRS}}" ]'
-        msg: "No changed chart directories found."

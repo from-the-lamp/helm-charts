@@ -43,7 +43,7 @@ tasks:
       - mkdir -p .output
       - |
         find . -name Chart.yaml -not -path './.git/*' | while read f; do
-          yq . "$f" | jq --arg p "$f" '. + {path: $p}'
+          yq -o=json . "$f" | jq --arg p "$f" '. + {path: $p}'
         done | jq -s '.' > .output/charts.json
       - gomplate -d charts=.output/charts.json -f .tasks/README.md.gotmpl -o README.md
     sources:

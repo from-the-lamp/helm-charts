@@ -24,6 +24,9 @@ mcp:
       - name: gitlab
         apiUrl: https://gitlab.com/api/v4
         permissionMode: full
+        env:
+          - name: GITLAB_TOOLSETS
+            value: core,merge_requests,pipelines,ci,repositories
         token:
           key: toolhive
           property: gitlab_token_from_the_lamp
