@@ -23,7 +23,7 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: vmcp-mcp-tools
+                name: vmcp-vmcp-mcp-tools
                 port:
                   number: 4483
   tls:

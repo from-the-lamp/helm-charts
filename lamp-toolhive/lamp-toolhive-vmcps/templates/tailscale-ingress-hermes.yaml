@@ -18,10 +18,10 @@ spec:
   loadBalancerClass: tailscale
   selector:
     app: virtualmcpserver
-    app.kubernetes.io/instance: mcp-tools-hermes
+    app.kubernetes.io/instance: vmcp-mcp-tools-hermes
     app.kubernetes.io/name: virtualmcpserver
     toolhive: "true"
-    toolhive-name: mcp-tools-hermes
+    toolhive-name: vmcp-mcp-tools-hermes
   ports:
     - name: http
       port: 4483

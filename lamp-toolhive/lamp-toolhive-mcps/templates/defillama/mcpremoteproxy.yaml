@@ -4,7 +4,7 @@
 apiVersion: toolhive.stacklok.dev/v1beta1
 kind: MCPRemoteProxy
 metadata:
-  name: {{ $item.name }}
+  name: mcp-proxy-{{ $item.name }}
 spec:
   remoteUrl: {{ $.Values.mcp.defillama.remoteUrl }}
   groupRef:

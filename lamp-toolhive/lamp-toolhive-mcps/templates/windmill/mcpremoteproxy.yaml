@@ -2,7 +2,7 @@
 apiVersion: toolhive.stacklok.dev/v1beta1
 kind: MCPRemoteProxy
 metadata:
-  name: windmill
+  name: mcp-proxy-windmill
 spec:
   remoteUrl: {{ required "mcp.windmill.remoteUrl must be set to this environment's own Windmill URL" .Values.mcp.windmill.remoteUrl }}
   groupRef:
