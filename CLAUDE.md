@@ -8,11 +8,12 @@ to get everything needed, instead of assuming tools are on PATH or installing th
 
 ## CI: a build stage, then a push stage - and only `main` pushes
 
-| Stage | Job | Runs on | Command |
-|---|---|---|---|
-| `.pre` | `tools` | `Dockerfile`/`mise.toml` changed, or a web pipeline | builds the CI tools image with inline cache; pushes `:latest` **only on `main`** |
-| `build` | `build` | MRs and `main` | `task build:changed` - `helm dependency update`, `helm lint`, `helm package` into `<chart>/.output`, kept as job artifacts |
-| `push` | `push` | `main` only (never from an MR) | `task auth && task push:changed` - `helm push` of the packages the build stage left |
+`.gitlab-ci.yml` only includes the shared `task-pipeline` component from `infra/cicd` (its README
+has the jobs, inputs and contract). The `build` job runs `task auth` + `task build:changed` in every
+pipeline - `helm dependency update`, `helm lint`, `helm package` into `<chart>/.output`, kept as
+artifacts. The `push` job runs `task auth` + `task push:changed` on `main` only - `helm push` of
+those packages. Change what a stage does in this Taskfile; change the pipeline skeleton
+(rules, stages, tools image job) in `infra/cicd`, where it applies to every repository at once.
 
 MR pipelines therefore build and lint but cannot publish. Before this split every MR pipeline
 pushed (an unmerged Renovate MR overwrote `lamp-cert-manager:0.3.3`) - do not reintroduce a push
