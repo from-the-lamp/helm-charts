@@ -44,6 +44,17 @@ spec:
           args:
             - proxy
             - -config=/etc/vault-proxy/proxy.hcl
+          # The image's entrypoint runs `setcap cap_ipc_lock=+ep` so a Vault
+          # *server* cannot be swapped out, and dies on it here: toolhive runs
+          # the pod as uid 1000 with every capability dropped, so setcap itself
+          # fails and the entrypoint's own fallback never gets a chance. Vault
+          # Proxy holds no seal keys and does not mlock, so both steps are
+          # skipped rather than granting IPC_LOCK.
+          env:
+            - name: SKIP_SETCAP
+              value: "true"
+            - name: SKIP_CHOWN
+              value: "true"
           volumeMounts:
             - name: vault-proxy-config
               mountPath: /etc/vault-proxy
