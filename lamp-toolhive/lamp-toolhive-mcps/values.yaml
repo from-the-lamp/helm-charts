@@ -301,7 +301,7 @@ mcp:
 
   sentry:
     enabled: true
-    image: ghcr.io/stacklok/dockyard/npx/sentry-mcp-server:0.17.1
+    image: ghcr.io/stacklok/dockyard/npx/sentry-mcp-server:0.42.0
     mcps: []
 
   linkedin:
