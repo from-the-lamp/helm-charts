@@ -10,6 +10,7 @@ data:
   config.toml: |
     kubeconfig = "/etc/toolhive/kubeconfig/config"
     cluster_provider_strategy = "kubeconfig"
+    port = "{{ $.Values.mcp.kubernetes.mcpPort }}"
 {{- end }}
 ---
 apiVersion: toolhive.stacklok.dev/v1beta1

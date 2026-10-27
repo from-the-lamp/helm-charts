@@ -1,0 +1,58 @@
+{{- if .Values.buildkitd.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: buildkitd
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: buildkitd
+  template:
+    metadata:
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/buildkitd-configmap.yaml") . | sha256sum }}
+      labels:
+        app: buildkitd
+    spec:
+      {{- with .Values.buildkitd.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: buildkitd
+          image: "{{ .Values.buildkitd.image.repository }}:{{ .Values.buildkitd.image.tag }}"
+          imagePullPolicy: {{ .Values.buildkitd.image.pullPolicy }}
+          args:
+            - --config=/etc/buildkit/buildkitd.toml
+          ports:
+            - name: grpc
+              containerPort: {{ .Values.buildkitd.port }}
+          readinessProbe:
+            tcpSocket:
+              port: grpc
+            periodSeconds: 5
+          livenessProbe:
+            tcpSocket:
+              port: grpc
+            initialDelaySeconds: 10
+            periodSeconds: 30
+          securityContext:
+            privileged: true
+          resources:
+            {{- toYaml .Values.buildkitd.resources | nindent 12 }}
+          volumeMounts:
+            - name: config
+              mountPath: /etc/buildkit
+            - name: state
+              mountPath: /var/lib/buildkit
+      volumes:
+        - name: config
+          configMap:
+            name: buildkitd
+        - name: state
+          persistentVolumeClaim:
+            claimName: buildkitd
+{{- end }}

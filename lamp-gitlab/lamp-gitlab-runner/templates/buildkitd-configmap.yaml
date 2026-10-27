@@ -1,0 +1,17 @@
+{{- if .Values.buildkitd.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: buildkitd
+data:
+  buildkitd.toml: |
+    [grpc]
+      address = ["unix:///run/buildkit/buildkitd.sock", "tcp://0.0.0.0:{{ .Values.buildkitd.port }}"]
+
+    [worker.oci]
+      gc = true
+
+    [[worker.oci.gcpolicy]]
+      all = true
+      maxUsedSpace = "{{ .Values.buildkitd.gc.maxUsedSpace }}"
+{{- end }}
