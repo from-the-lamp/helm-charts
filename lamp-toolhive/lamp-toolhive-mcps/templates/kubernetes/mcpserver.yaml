@@ -18,7 +18,9 @@ metadata:
   name: mcp-{{ $item.name }}
 spec:
   image: {{ $.Values.mcp.kubernetes.image }}
-  transport: stdio
+  transport: streamable-http
+  mcpPort: {{ $.Values.mcp.kubernetes.mcpPort }}
+  proxyPort: 8080
   groupRef:
     name: {{ $item.groupRef | default $.Values.mcp.defaults.groupRef }}
   permissionProfile:

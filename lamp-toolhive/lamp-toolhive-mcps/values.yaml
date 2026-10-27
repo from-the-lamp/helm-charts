@@ -46,6 +46,7 @@ mcp:
   kubernetes:
     enabled: true
     image: quay.io/containers/kubernetes_mcp_server:v0.0.69
+    mcpPort: 8080
     mcps:
       - name: kubernetes
         serviceAccount: kubernetes-mcp
