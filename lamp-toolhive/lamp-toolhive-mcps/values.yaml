@@ -299,6 +299,11 @@ mcp:
     mcps:
       - name: letsfg
 
+  sentry:
+    enabled: true
+    image: ghcr.io/stacklok/dockyard/npx/sentry-mcp-server:0.17.1
+    mcps: []
+
   linkedin:
     enabled: true
     image: stickerdaniel/linkedin-mcp-server:latest
