@@ -8,7 +8,7 @@ annotations:
 dependencies:
   - name: prometheus-operator-crds
     condition: prometheus-operator-crds.enabled
-    version: 32.0.1
+    version: 32.0.2
     repository: https://prometheus-community.github.io/helm-charts
 
   - name: victoria-metrics-k8s-stack
@@ -19,7 +19,7 @@ dependencies:
   - name: prometheus-mysql-exporter
     alias: mysql-exporter
     condition: mysql-exporter.enabled
-    version: 2.15.0
+    version: 2.16.0
     repository: https://prometheus-community.github.io/helm-charts
 
   - name: prometheus-mongodb-exporter
