@@ -24,7 +24,7 @@ spec:
     - 0.0.0.0
     - --isolated
     - --allowed-hosts
-    - mcp-{{ $item.name }},mcp-{{ $item.name }}.{{ $.Release.Namespace }},mcp-{{ $item.name }}.{{ $.Release.Namespace }}.svc.cluster.local
+    - mcp-mcp-{{ $item.name }}:{{ $.Values.mcp.playwright.mcpPort }},mcp-mcp-{{ $item.name }}.{{ $.Release.Namespace }}:{{ $.Values.mcp.playwright.mcpPort }},mcp-mcp-{{ $item.name }}.{{ $.Release.Namespace }}.svc.cluster.local:{{ $.Values.mcp.playwright.mcpPort }}
     {{- with $item.allowedOrigins }}
     - --allowed-origins
     - {{ . | quote }}

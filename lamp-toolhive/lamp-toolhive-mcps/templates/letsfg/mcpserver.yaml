@@ -20,6 +20,8 @@ spec:
       value: {{ $item.vaultAddr | default "http://vault.vault:8200" }}
     - name: VAULT_K8S_ROLE
       value: {{ $item.vaultK8sRole | default "letsfg" }}
+    - name: VAULT_SECRET_PATH
+      value: {{ $item.vaultSecretPath | default "toolhive" }}
   podTemplateSpec:
     spec:
       containers:

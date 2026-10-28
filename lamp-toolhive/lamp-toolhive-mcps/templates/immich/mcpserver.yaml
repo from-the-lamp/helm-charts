@@ -29,7 +29,7 @@ spec:
     - name: IMMICH_BASE_URL
       value: {{ $item.baseUrl | default $.Values.mcp.immich.baseUrl }}
     - name: MCP_ALLOWED_HOSTS
-      value: mcp-{{ $item.name }}
+      value: mcp-mcp-{{ $item.name }}
     {{- with $item.env }}
     {{- toYaml . | nindent 4 }}
     {{- end }}
