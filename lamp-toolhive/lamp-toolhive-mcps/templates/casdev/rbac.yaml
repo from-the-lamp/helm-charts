@@ -1,0 +1,27 @@
+{{- if .Values.mcp.casDev.enabled }}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: cas-dev-mcp-token-refresher
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+rules:
+  - apiGroups: [""]
+    resources: ["secrets"]
+    resourceNames: ["cas-dev-mcp-auth-header"]
+    verbs: ["get", "patch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: cas-dev-mcp-token-refresher
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+subjects:
+  - kind: ServiceAccount
+    name: cas-dev-mcp-token-refresher
+roleRef:
+  kind: Role
+  name: cas-dev-mcp-token-refresher
+  apiGroup: rbac.authorization.k8s.io
+{{- end }}

@@ -1,0 +1,27 @@
+{{- if .Values.vmcpTokenRefresher.enabled }}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: vmcp-token-refresher
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+rules:
+  - apiGroups: [""]
+    resources: ["secrets"]
+    resourceNames: ["toolhive-bearer-token"]
+    verbs: ["get", "patch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: vmcp-token-refresher
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+subjects:
+  - kind: ServiceAccount
+    name: vmcp-token-refresher
+roleRef:
+  kind: Role
+  name: vmcp-token-refresher
+  apiGroup: rbac.authorization.k8s.io
+{{- end }}

@@ -1,0 +1,63 @@
+{{- if .Values.mcp.casDev.enabled }}
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: cas-dev-mcp-token-refresher
+spec:
+  schedule: {{ .Values.mcp.casDev.tokenRefresher.schedule | quote }}
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      activeDeadlineSeconds: 60
+      backoffLimit: 2
+      template:
+        spec:
+          restartPolicy: Never
+          serviceAccountName: cas-dev-mcp-token-refresher
+          containers:
+            - name: refresh
+              # Same prebaked curl+kubectl image the windmill bootstrap Job
+              # uses (docker-images/lamp-windmill-mcp-bootstrap) - this
+              # namespace's egress can't reach dl.k8s.io to install kubectl
+              # at runtime, confirmed when that Job was first built.
+              image: registry.gitlab.com/from-the-lamp/infra/docker-images/lamp-windmill-mcp-bootstrap:1.0.0
+              securityContext:
+                allowPrivilegeEscalation: false
+                capabilities:
+                  drop: ["ALL"]
+              env:
+                - name: ZITADEL_ISSUER
+                  value: {{ .Values.mcp.casDev.tokenRefresher.issuer }}
+                - name: ZITADEL_PROJECT_AUDIENCE
+                  value: {{ .Values.mcp.casDev.tokenRefresher.audience | quote }}
+                - name: CLIENT_ID
+                  valueFrom:
+                    secretKeyRef:
+                      name: cas-dev-zitadel-client
+                      key: clientId
+                - name: CLIENT_SECRET
+                  valueFrom:
+                    secretKeyRef:
+                      name: cas-dev-zitadel-client
+                      key: clientSecret
+              command: ["/bin/sh", "-euc"]
+              args:
+                - |
+                  code=$(curl -s -o /tmp/resp -w '%{http_code}' -X POST "${ZITADEL_ISSUER}/oauth/v2/token" \
+                    -u "${CLIENT_ID}:${CLIENT_SECRET}" \
+                    -d grant_type=client_credentials \
+                    -d "scope=openid urn:zitadel:iam:org:project:id:${ZITADEL_PROJECT_AUDIENCE}:aud")
+                  if [ "$code" != "200" ]; then
+                    echo "token request failed ($code): $(cat /tmp/resp)"
+                    exit 1
+                  fi
+                  TOKEN=$(sed -n 's/.*"access_token":"\([^"]*\)".*/\1/p' /tmp/resp)
+                  if [ -z "$TOKEN" ]; then
+                    echo "no access_token in response: $(cat /tmp/resp)"
+                    exit 1
+                  fi
+                  kubectl patch secret cas-dev-mcp-auth-header -n {{ .Release.Namespace }} \
+                    --type=merge -p "{\"stringData\":{\"authHeader\":\"Bearer ${TOKEN}\"}}"
+{{- end }}
