@@ -1,6 +1,6 @@
 kargo:
   api:
-    host: kargo.internal.from-the-lamp.work
+    host: kargo.CHANGE-ME.invalid
     adminAccount:
       enabled: false
     tls:
@@ -9,8 +9,10 @@ kargo:
     oidc:
       enabled: true
       remoteSecretKeys:
-        client_id: kargo-oauth-client-id
-        client_secret: kargo-oauth-client-secret
+        client_id: kargo
+        client_idProperty: client_id
+        client_secret: kargo
+        client_secretProperty: client_secret
       dex:
         enabled: true
         connectors:
@@ -21,7 +23,7 @@ kargo:
               baseURL: https://gitlab.com
               clientID: $OAUTH_CLIENT_ID
               clientSecret: $OAUTH_CLIENT_SECRET
-              redirectURI: https://kargo.internal.from-the-lamp.work/dex/callback
+              redirectURI: https://kargo.CHANGE-ME.invalid/dex/callback
         envFrom:
           - secretRef:
               name: kargo-sso-secrets
@@ -44,6 +46,6 @@ kargo:
 
 externalSecrets:
   kind: ClusterSecretStore
-  name: oracle
+  name: vault
   refreshInterval: 1h
   creationPolicy: Orphan

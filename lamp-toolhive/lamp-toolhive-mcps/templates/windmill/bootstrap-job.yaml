@@ -1,0 +1,112 @@
+{{- if .Values.mcp.windmill.enabled }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: windmill-mcp-bootstrap
+  annotations:
+    # Jobs are immutable once created - ArgoCD won't touch an existing one
+    # even when its spec changes. Replace=true hits a Kubernetes Job quirk
+    # (spec.selector is required on replace/PUT but is itself server-generated,
+    # so it's never in the git manifest - replace always fails with
+    # "spec.selector: Required value"). A PreSync hook with
+    # BeforeHookCreation does a real delete-then-create instead, avoiding
+    # replace semantics entirely (each run mints a fresh mcp:all token -
+    # cheap and harmless to repeat, old tokens just go unused rather than
+    # revoked).
+    # PostSync, not PreSync: a failing hook blocks the rest of that sync
+    # phase from ever applying - confirmed live, a transient Windmill-side
+    # 401 on token minting (unrelated to this cluster/RBAC/network) held
+    # every other resource in this Application hostage for hours. This is
+    # a last-mile credential patch for the windmill MCPRemoteProxy, not a
+    # prerequisite anything else here needs to exist first, so it can
+    # safely run after the main sync instead of gating it.
+    argocd.argoproj.io/hook: PostSync
+    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
+spec:
+  backoffLimit: 3
+  template:
+    spec:
+      restartPolicy: Never
+      serviceAccountName: windmill-mcp-bootstrap
+      containers:
+        - name: bootstrap
+          # curl+kubectl pre-baked at image build time (docker-images/
+          # lamp-windmill-mcp-bootstrap) - this namespace's egress can't
+          # reach dl.k8s.io (confirmed: curl exit 22, immediate failure),
+          # which silently blocked every ArgoCD sync of this entire
+          # Application for hours, since a failing PreSync hook blocks the
+          # rest of the sync.
+          image: registry.gitlab.com/from-the-lamp/infra/docker-images/lamp-windmill-mcp-bootstrap:1.0.0
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+          env:
+            - name: WINDMILL_BASE_URL
+              value: {{ required "mcp.windmill.bootstrap.windmillBaseUrl must be set to this environment's own Windmill URL" .Values.mcp.windmill.bootstrap.windmillBaseUrl }}
+            - name: WINDMILL_WORKSPACE
+              value: {{ .Values.mcp.windmill.bootstrap.workspaceId }}
+            - name: SERVICE_USER_EMAIL
+              value: {{ .Values.mcp.windmill.bootstrap.serviceUserEmail }}
+            - name: SUPERADMIN_SECRET_NAME
+              value: {{ .Values.mcp.windmill.bootstrap.superadminSecret.name }}
+            - name: SUPERADMIN_SECRET_NAMESPACE
+              value: {{ .Values.mcp.windmill.bootstrap.superadminSecret.namespace }}
+            - name: SUPERADMIN_SECRET_KEY
+              value: {{ .Values.mcp.windmill.bootstrap.superadminSecret.key }}
+          command: ["/bin/sh", "-euc"]
+          args:
+            - |
+              SUPERADMIN_SECRET=$(kubectl get secret "${SUPERADMIN_SECRET_NAME}" -n "${SUPERADMIN_SECRET_NAMESPACE}" -o "jsonpath={.data.${SUPERADMIN_SECRET_KEY}}" | base64 -d)
+
+              # Dedicated automation user - idempotent: Windmill rejects a
+              # duplicate email, which is treated as already-done, not a
+              # failure.
+              code=$(curl -s -o /tmp/resp -w '%{http_code}' -X POST "${WINDMILL_BASE_URL}/api/users/create" \
+                -H "Authorization: Bearer ${SUPERADMIN_SECRET}" -H "Content-Type: application/json" \
+                -d "{\"email\":\"${SERVICE_USER_EMAIL}\",\"password\":\"$(cat /proc/sys/kernel/random/uuid)\",\"super_admin\":false,\"name\":\"ToolHive MCP Gateway\",\"skip_email\":true,\"login_type\":\"password\"}")
+              if [ "$code" != "201" ] && ! grep -qi "already" /tmp/resp; then
+                echo "user create failed ($code): $(cat /tmp/resp)"
+                exit 1
+              fi
+
+              code=$(curl -s -o /tmp/resp -w '%{http_code}' -X POST "${WINDMILL_BASE_URL}/api/w/${WINDMILL_WORKSPACE}/workspaces/add_user" \
+                -H "Authorization: Bearer ${SUPERADMIN_SECRET}" -H "Content-Type: application/json" \
+                -d "{\"email\":\"${SERVICE_USER_EMAIL}\",\"is_admin\":false,\"operator\":false}")
+              if [ "$code" != "200" ] && [ "$code" != "201" ] && ! grep -qi "already" /tmp/resp; then
+                echo "add_user failed ($code): $(cat /tmp/resp)"
+                exit 1
+              fi
+
+              # SUPERADMIN_SECRET authenticates but its ApiAuthed always has
+              # scopes: None (no admin bypass in Windmill's has_mcp_scope) -
+              # a token "created by" it fails the MCP gateway's scope check
+              # regardless of what scopes are requested. Impersonating the
+              # dedicated user above and having THAT identity create its own
+              # token is the only way to get a token the MCP gateway accepts.
+              code=$(curl -s -o /tmp/resp -w '%{http_code}' -X POST "${WINDMILL_BASE_URL}/api/users/tokens/impersonate" \
+                -H "Authorization: Bearer ${SUPERADMIN_SECRET}" -H "Content-Type: application/json" \
+                -d "{\"label\":\"bootstrap-impersonate\",\"impersonate_email\":\"${SERVICE_USER_EMAIL}\"}")
+              if [ "$code" != "200" ] && [ "$code" != "201" ]; then
+                echo "impersonate failed ($code): $(cat /tmp/resp)"
+                exit 1
+              fi
+              IMPERSONATE_TOKEN=$(cat /tmp/resp)
+              echo "impersonate token length: $(echo -n "$IMPERSONATE_TOKEN" | wc -c)"
+
+              code=$(curl -s -o /tmp/resp -w '%{http_code}' "${WINDMILL_BASE_URL}/api/w/${WINDMILL_WORKSPACE}/users/whoami" \
+                -H "Authorization: Bearer ${IMPERSONATE_TOKEN}")
+              echo "whoami ($code): $(cat /tmp/resp)"
+
+              code=$(curl -s -o /tmp/resp -w '%{http_code}' -X POST "${WINDMILL_BASE_URL}/api/users/tokens/create" \
+                -H "Authorization: Bearer ${IMPERSONATE_TOKEN}" -H "Content-Type: application/json" \
+                -d "{\"label\":\"toolhive-mcp-gateway\",\"scopes\":[\"mcp:all\"],\"workspace_id\":\"${WINDMILL_WORKSPACE}\"}")
+              if [ "$code" != "200" ] && [ "$code" != "201" ]; then
+                echo "token create failed ($code): $(cat /tmp/resp)"
+                exit 1
+              fi
+              MCP_TOKEN=$(cat /tmp/resp)
+
+              kubectl patch secret windmill-mcp-auth-header -n {{ .Release.Namespace }} \
+                --type=merge -p "{\"stringData\":{\"authHeader\":\"Bearer ${MCP_TOKEN}\"}}"
+{{- end }}

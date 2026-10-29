@@ -1,0 +1,27 @@
+{{- if or .Values.dashboards.node_exporter.enabled .Values.dashboards.smartctl_exporter.enabled }}
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaFolder
+metadata:
+  name: nodes
+spec:
+  instanceSelector:
+    matchLabels:
+      dashboards: "grafana"
+  parentFolderRef: platform
+  title: Nodes
+{{- end }}
+---
+{{- if .Values.dashboards.node_exporter.enabled }}
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDashboard
+metadata:
+  name: node-exporter-full
+spec:
+  folderRef: nodes
+  instanceSelector:
+    matchLabels:
+      dashboards: "grafana"
+  grafanaCom:
+    id: 1860
+    revision: 45
+{{- end }}

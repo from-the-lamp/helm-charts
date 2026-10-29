@@ -139,6 +139,7 @@ remoteSecretKeys:
   tavilyApiKey: tavily-api-key
   openrouterApiKey: openrouter-api-key
   jira: jira
+  authProfiles: openclaw-auth-profiles-json
 
 externalSecrets:
   kind: ClusterSecretStore

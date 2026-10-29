@@ -1,0 +1,19 @@
+cilium:
+  # Only hubble-relay/hubble-ui should render from this release - the
+  # DaemonSet/operator/CNI plugin stay on the real CNI release this wraps.
+  agent: false
+  operator:
+    enabled: false
+  cni:
+    install: false
+  hubble:
+    # Chart defaults (hubble.tls.auto.enabled: true, method: helm) are
+    # correct here, not a landmine - the "cilium.ca.setup" helper does a
+    # live `lookup` for an existing "cilium-ca" Secret before generating
+    # anything, so against a real cluster it reuses the main release's CA
+    # to sign this release's hubble-relay-client-certs instead of minting
+    # an incompatible one.
+    relay:
+      enabled: true
+    ui:
+      enabled: true

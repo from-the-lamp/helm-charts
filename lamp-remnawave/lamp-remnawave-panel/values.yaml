@@ -48,8 +48,8 @@ env:
   WEBHOOK_ENABLED: false
   WEBHOOK_URL: https://webhook.site/1234567890
   WEBHOOK_SECRET_HEADER: "" #openssl rand -hex 64
-  FRONT_END_DOMAIN: remnawave.from-the-lamp.work
-  SUB_PUBLIC_DOMAIN: remnawave.from-the-lamp.work/api/sub
+  FRONT_END_DOMAIN: remnawave.CHANGE-ME.invalid
+  SUB_PUBLIC_DOMAIN: remnawave.CHANGE-ME.invalid/api/sub
 
 service:
   type: ClusterIP

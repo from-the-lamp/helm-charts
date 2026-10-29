@@ -1,5 +1,7 @@
 remoteSecretKeys:
   tailscale: tailscale
+  tailscaleClientIdProperty: oauth_client_id
+  tailscaleClientSecretProperty: oauth_client_secret
 
 tailscale-operator:
   operatorConfig:
@@ -10,6 +12,6 @@ tailscale-operator:
 
 externalSecrets:
   kind: ClusterSecretStore
-  name: oracle
+  name: vault
   refreshInterval: 1h
   creationPolicy: Orphan

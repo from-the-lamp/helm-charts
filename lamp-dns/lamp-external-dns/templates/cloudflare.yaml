@@ -17,3 +17,6 @@ spec:
   - secretKey: value
     remoteRef:
       key: "{{ .Values.cloudflare.remoteSecretKey }}"
+      {{- with .Values.cloudflare.remoteSecretProperty }}
+      property: {{ . }}
+      {{- end }}

@@ -1,0 +1,76 @@
+{{- range .Values.externalClusters }}
+{{- if .tailscaleProxy }}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ .secretName | default (printf "cluster-%s" .name) }}
+  labels:
+    argocd.argoproj.io/secret-type: cluster
+type: Opaque
+stringData:
+  name: "{{ .name }}"
+  server: "{{ .server }}"
+  # No tlsClientConfig cert/token: this cluster's Tailscale API server proxy
+  # (apiServerProxyConfig.mode, allowImpersonation) authenticates the caller
+  # by its Tailscale device identity/tags and impersonates the Kubernetes
+  # user/group the tailnet ACL grants it - there's no Kubernetes-level
+  # credential to carry here. insecure:true because the proxy's TLS cert is
+  # for its *.ts.net tailnet hostname, not a trust boundary this path relies
+  # on - the actual authentication is the Tailscale network layer itself.
+  # serverName must be the proxy's real tailnet hostname (not the
+  # Kubernetes-internal `server` address above) - the proxy's TLS listener
+  # validates SNI against its own tailnet FQDN and 500s with "invalid
+  # domain" otherwise (confirmed live against prod-0/prod-1's proxy logs).
+  config: |
+    {"tlsClientConfig": {"insecure": true, "serverName": "{{ .tailnetFqdn }}"}}
+{{- else }}
+---
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: cluster-{{ .name }}
+spec:
+  refreshInterval: "{{ $.Values.externalSecrets.refreshInterval }}"
+  secretStoreRef:
+    kind: "{{ $.Values.externalSecrets.kind }}"
+    name: "{{ include "argocd.secretStoreName" $ }}"
+  target:
+    name: {{ .secretName | default (printf "cluster-%s" .name) }}
+    creationPolicy: "{{ $.Values.externalSecrets.creationPolicy }}"
+    template:
+      metadata:
+        labels:
+          argocd.argoproj.io/secret-type: cluster
+      data:
+        name: "{{ .name }}"
+        # The remote value is a whole kubeconfig (not pre-split fields) -
+        # parsed here so either auth style it contains (a long-lived SA
+        # bearer token, or a client cert/key pair) round-trips into
+        # ArgoCD's cluster secret format without needing a second copy of
+        # the credential under different field names.
+        server: "{{`{{ (index (fromYaml .kubeconfig).clusters 0).cluster.server }}`}}"
+        config: |
+          {{`{{- $c := (index (fromYaml .kubeconfig).clusters 0).cluster -}}`}}
+          {{`{{- $u := (index (fromYaml .kubeconfig).users 0).user -}}`}}
+          {
+            "tlsClientConfig": {
+              "caData": "{{`{{ index $c "certificate-authority-data" }}`}}"
+              {{`{{- if index $u "client-certificate-data" }}`}},
+              "certData": "{{`{{ index $u "client-certificate-data" }}`}}",
+              "keyData": "{{`{{ index $u "client-key-data" }}`}}"
+              {{`{{- end }}`}}
+            }
+            {{`{{- if index $u "token" }}`}},
+            "bearerToken": "{{`{{ index $u "token" }}`}}"
+            {{`{{- end }}`}}
+          }
+  data:
+  - secretKey: kubeconfig
+    remoteRef:
+      key: {{ .remoteRef.key }}
+      {{- with .remoteRef.property }}
+      property: {{ . }}
+      {{- end }}
+{{- end }}
+{{- end }}

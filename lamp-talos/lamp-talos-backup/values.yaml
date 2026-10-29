@@ -1,0 +1,44 @@
+image:
+  name: ghcr.io/siderolabs/talos-backup
+  tag: v0.1.0-beta.3-5-g07d09ec
+
+schedule: "0 */6 * * *"
+
+enableCompression: true
+usePathStyle: true
+
+clusterName: homelab
+s3Prefix: talos-etcd
+
+s3:
+  bucket: from-the-lamp
+  region: eu-central-003
+  endpoint: https://s3.eu-central-003.backblazeb2.com
+
+# Public key only - safe to template directly, not a secret. The matching
+# private key lives in platform/talos.age_private_key (Vault),
+# needed only for `age -d` at restore time, never read by this CronJob.
+ageRecipientPublicKey: age1hllmpt38qq45zmurfu9j2tr3c5j8vdglj6v9z7u29w4zm38kv9hqr5cvcy
+
+remoteSecretKeys:
+  accessKeyId:
+    key: s3
+    property: backblaze.from-the-lamp.id
+  secretAccessKey:
+    key: s3
+    property: backblaze.from-the-lamp.secret
+
+externalSecrets:
+  kind: ClusterSecretStore
+  name: vault
+  refreshInterval: 1h
+  creationPolicy: Orphan
+
+resources:
+  requests:
+    cpu: 10m
+    memory: 128Mi
+  limits:
+    # 256Mi OOMKilled on a real run - the etcd snapshot gets buffered in
+    # memory for compression+encryption before upload, not streamed.
+    memory: 768Mi

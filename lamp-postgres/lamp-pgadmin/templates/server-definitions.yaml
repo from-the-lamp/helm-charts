@@ -1,3 +1,26 @@
+{{- /*
+  servers.json собирается здесь, а не средствами upstream-чарта, когда хотя бы у одного
+  сервера имя пользователя приходит из Vault (serverPasswords.<key>.userProperty).
+  pgAdmin считает Username обязательным полем при импорте серверов, поэтому подставить
+  его можно только через секрет — ConfigMap upstream-чарта значения из Vault не увидит.
+*/}}
+{{- $fromVault := dict }}
+{{- range $key, $ref := .Values.serverPasswords }}
+  {{- if $ref.userProperty }}
+    {{- $_ := set $fromVault $key $ref.userProperty }}
+  {{- end }}
+{{- end }}
+{{- if $fromVault }}
+{{- $servers := deepCopy .Values.pgadmin4.serverDefinitions.servers }}
+{{- range $key, $prop := $fromVault }}
+  {{- $srv := index $servers $key }}
+  {{- $placeholder := printf "{{ .%s_user }}" $key }}
+  {{- $_ := set $srv "Username" $placeholder }}
+  {{- /* Shared-серверу нужен SharedUsername; при имени из Vault он тот же. */}}
+  {{- if or (hasKey $srv "SharedUsername") (dig "Shared" false $srv) }}
+    {{- $_ := set $srv "SharedUsername" $placeholder }}
+  {{- end }}
+{{- end }}
 apiVersion: external-secrets.io/v1
 kind: ExternalSecret
 metadata:
@@ -12,22 +35,13 @@ spec:
     creationPolicy: "{{ .Values.externalSecrets.creationPolicy }}"
     template:
       data:
-        servers.json: |
-          {
-            "Servers": {
-              "firstServer": {
-                "Group": "{{ .Values.server.auth.group }}",
-                "Host": "{{ include "auth.host" (index .Values "server") }}",
-                "MaintenanceDB": "{{ .Values.server.auth.maintenanceDB }}",
-                "Name": "{{ .Values.server.auth.name }}",
-                "PassFile": "/var/lib/pgadmin/pgpassfile",
-                "Port": {{ include "auth.port" (index .Values "server") }},
-                "SSLMode": "prefer",
-                "Shared": true,
-                "SharedUsername": "{{ include "auth.user" (index .Values "server") }}",
-                "Username": "{{ include "auth.user" (index .Values "server") }}"
-              }
-            }
-          }
+        servers.json: |-
+          {{- toPrettyJson (dict "Servers" $servers) | nindent 10 }}
   data:
-    {{- include "auth.remoteRefs" (index .Values "server") | nindent 4 }}
+{{- range $key, $prop := $fromVault }}
+    - secretKey: {{ $key }}_user
+      remoteRef:
+        key: {{ (index $.Values.serverPasswords $key).path }}
+        property: {{ $prop }}
+{{- end }}
+{{- end }}

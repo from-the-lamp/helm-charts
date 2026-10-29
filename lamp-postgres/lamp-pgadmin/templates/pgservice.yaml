@@ -1,0 +1,38 @@
+{{- if .Values.serverPasswords }}
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: pgadmin-pgservice
+spec:
+  refreshInterval: "{{ .Values.externalSecrets.refreshInterval }}"
+  secretStoreRef:
+    kind: "{{ .Values.externalSecrets.kind }}"
+    name: "{{ .Values.externalSecrets.name }}"
+  target:
+    name: pgadmin-pgservice
+    creationPolicy: "{{ .Values.externalSecrets.creationPolicy }}"
+    template:
+      data:
+        pg_service.conf: |-
+{{- range $key, $srv := .Values.pgadmin4.serverDefinitions.servers }}
+          [{{ $key }}]
+          host={{ $srv.Host }}
+          port={{ $srv.Port }}
+          user={{ if (dig $key "userProperty" "" $.Values.serverPasswords) }}{{ printf "{{ .%s_user }}" $key }}{{ else }}{{ $srv.Username }}{{ end }}
+          dbname={{ dig "MaintenanceDB" "postgres" $srv }}
+          password={{ printf "{{ .%s }}" $key }}
+{{- end }}
+  data:
+{{- range $key, $ref := .Values.serverPasswords }}
+    - secretKey: {{ $key }}
+      remoteRef:
+        key: {{ $ref.path }}
+        property: {{ $ref.property }}
+{{- with $ref.userProperty }}
+    - secretKey: {{ $key }}_user
+      remoteRef:
+        key: {{ $ref.path }}
+        property: {{ . }}
+{{- end }}
+{{- end }}
+{{- end }}

@@ -15,11 +15,11 @@ openchoreo-control-plane:
 
   backstage:
     secretName: backstage-secrets
-    baseUrl: "https://console.openchoreo.internal.from-the-lamp.work"
+    baseUrl: "https://console.openchoreo.CHANGE-ME.invalid"
     http:
       enabled: false
       hostnames:
-        - "console.openchoreo.internal.from-the-lamp.work"
+        - "console.openchoreo.CHANGE-ME.invalid"
         
 openchoreo-data-plane:
   gateway:

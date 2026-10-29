@@ -1,0 +1,22 @@
+{{- range .Values.clusterStores }}
+{{- if eq .type "vault" }}
+---
+apiVersion: external-secrets.io/v1
+kind: ClusterSecretStore
+metadata:
+  name: {{ .name }}
+spec:
+  provider:
+    vault:
+      server: {{ .server }}
+      path: {{ .path }}
+      version: {{ .version | default "v2" }}
+      auth:
+        kubernetes:
+          mountPath: {{ .mountPath | default "kubernetes" }}
+          role: {{ .role }}
+          serviceAccountRef:
+            name: {{ .serviceAccount.name }}
+            namespace: {{ .serviceAccount.namespace }}
+{{- end }}
+{{- end }}

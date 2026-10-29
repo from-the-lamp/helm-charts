@@ -4,7 +4,7 @@
 apiVersion: toolhive.stacklok.dev/v1beta1
 kind: MCPServer
 metadata:
-  name: {{ $item.name }}
+  name: mcp-{{ $item.name }}
 spec:
   image: {{ $.Values.mcp.gitlab.image }}
   transport: stdio

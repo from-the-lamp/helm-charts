@@ -1,0 +1,33 @@
+{{- if .Values.mcp.sentry.enabled }}
+{{- range $item := .Values.mcp.sentry.mcps }}
+---
+apiVersion: toolhive.stacklok.dev/v1beta1
+kind: MCPServer
+metadata:
+  name: mcp-{{ $item.name }}
+spec:
+  image: {{ $.Values.mcp.sentry.image }}
+  transport: stdio
+  groupRef:
+    name: {{ $item.groupRef | default $.Values.mcp.defaults.groupRef }}
+  permissionProfile:
+    type: builtin
+    name: {{ $.Values.mcp.defaults.permissionProfile }}
+  audit:
+    enabled: true
+  {{- if or $item.host $item.env }}
+  env:
+    {{- with $item.host }}
+    - name: SENTRY_HOST
+      value: {{ . | quote }}
+    {{- end }}
+    {{- with $item.env }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- end }}
+  secrets:
+    - name: {{ $item.name }}-mcp-secret
+      key: access-token
+      targetEnvName: SENTRY_ACCESS_TOKEN
+{{- end }}
+{{- end }}

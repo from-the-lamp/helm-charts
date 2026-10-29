@@ -3,7 +3,7 @@
 apiVersion: toolhive.stacklok.dev/v1beta1
 kind: VirtualMCPServer
 metadata:
-  name: {{ .name }}
+  name: vmcp-{{ .name }}
 spec:
   groupRef:
     name: {{ .groupRef }}
@@ -49,6 +49,10 @@ spec:
     {{- end }}
     {{- with .aggregation }}
     aggregation:
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
+    {{- with .operational }}
+    operational:
       {{- toYaml . | nindent 6 }}
     {{- end }}
   {{- end }}

@@ -28,5 +28,8 @@ spec:
   - secretKey: password
     remoteRef:
       key: {{ $repo.passwordRemoteSecretKey }}
+      {{- with $repo.passwordRemoteSecretProperty }}
+      property: "{{ . }}"
+      {{- end }}
 {{- end }}
 {{- end }}

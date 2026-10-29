@@ -13,8 +13,17 @@ spec:
   {{- range .hosts }}
     - {{ . }}
   {{- end }}
+  {{- if .redirect }}
+  rules:
+    - filters:
+        - type: RequestRedirect
+          requestRedirect:
+            scheme: https
+            statusCode: 301
+  {{- else }}
   {{- with .rules }}
   rules:
     {{- toYaml . | nindent 4 }}
+  {{- end }}
   {{- end }}
 {{- end }}

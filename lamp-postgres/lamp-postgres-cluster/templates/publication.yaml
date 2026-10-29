@@ -1,0 +1,16 @@
+{{- range $key, $val := .Values.cluster.cluster.databases }}
+{{- if .publication.enabled }}
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Publication
+metadata:
+  name: {{ .name | replace "_" "-" }}-publisher
+spec:
+  cluster:
+    name: postgres
+  name: {{ .name | replace "_" "-" }}-publisher
+  dbname: {{ .name }}
+  target:
+    allTables: {{ .publication.allTables }}
+{{- end }}
+{{- end }}

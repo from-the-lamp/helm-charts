@@ -1,0 +1,23 @@
+{{- if .Values.monitoring.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: {{ .Values.vault.name }}
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ .Values.vault.name }}
+  podMetricsEndpoints:
+    - port: metrics
+      relabelings:
+        - targetLabel: job
+          replacement: vault
+    - port: api-port
+      path: /v1/sys/metrics
+      params:
+        format:
+          - prometheus
+      relabelings:
+        - targetLabel: job
+          replacement: vault
+{{- end }}

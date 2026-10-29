@@ -1,0 +1,13 @@
+{{- if .Values.buildkitd.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: buildkitd
+spec:
+  selector:
+    app: buildkitd
+  ports:
+    - name: grpc
+      port: {{ .Values.buildkitd.port }}
+      targetPort: grpc
+{{- end }}

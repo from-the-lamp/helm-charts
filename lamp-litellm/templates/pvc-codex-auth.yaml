@@ -1,29 +1,13 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: {{ .Values.codexAuthPersistence.pvcName }}
+  name: {{ .Values.chatgptAuthPersistence.pvcName }}
 spec:
   accessModes:
     - ReadWriteOnce
-  {{- with .Values.codexAuthPersistence.storageClass }}
+  {{- with .Values.chatgptAuthPersistence.storageClass }}
   storageClassName: {{ . }}
   {{- end }}
   resources:
     requests:
-      storage: {{ .Values.codexAuthPersistence.size }}
-{{- range .Values.codexAccounts }}
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: litellm-codex-auth-persistent-{{ .name }}
-spec:
-  accessModes:
-    - ReadWriteOnce
-  {{- with $.Values.codexAuthPersistence.storageClass }}
-  storageClassName: {{ . }}
-  {{- end }}
-  resources:
-    requests:
-      storage: {{ $.Values.codexAuthPersistence.size }}
-{{- end }}
+      storage: {{ .Values.chatgptAuthPersistence.size }}

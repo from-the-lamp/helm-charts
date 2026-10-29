@@ -9,5 +9,6 @@
   "dependencyDashboard": true,
   "labels": ["dependencies"],
   "schedule": ["every weekend"],
-  "timezone": "Europe/Bucharest"
+  "timezone": "Europe/Bucharest",
+  "recreateWhen": "always"
 }

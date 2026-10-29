@@ -1,5 +1,7 @@
 name: istio-gateway
 gatewayClassName: istio
+monitoring:
+  enabled: false
 addresses: []
   # - type: IPAddress
   #   value: 10.1.1.5
@@ -20,6 +22,11 @@ affinity:
           operator: In
           values:
           - "true"
+
+tolerations: []
+  # - key: node-role.kubernetes.io/control-plane
+  #   operator: Exists
+  #   effect: NoSchedule
 
 listeners:
   - name: http

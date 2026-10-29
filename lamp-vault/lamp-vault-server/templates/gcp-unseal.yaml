@@ -1,0 +1,99 @@
+{{- if .Values.gcpUnseal.enabled }}
+{{- $projectId := required "global.projectId must be set" .Values.global.projectId -}}
+{{- $region := required "global.region must be set" .Values.global.region -}}
+{{- $gsa := printf "%s@%s.iam.gserviceaccount.com" .Values.gcpUnseal.gsaName $projectId -}}
+apiVersion: kms.cnrm.cloud.google.com/v1beta1
+kind: KMSKeyRing
+metadata:
+  name: {{ .Values.gcpUnseal.keyRing }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+    cnrm.cloud.google.com/project-id: "{{ $projectId }}"
+    cnrm.cloud.google.com/state-into-spec: "absent"
+    cnrm.cloud.google.com/deletion-policy: abandon
+spec:
+  location: {{ $region }}
+---
+apiVersion: kms.cnrm.cloud.google.com/v1beta1
+kind: KMSCryptoKey
+metadata:
+  name: {{ .Values.gcpUnseal.cryptoKey }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+    cnrm.cloud.google.com/project-id: "{{ $projectId }}"
+    cnrm.cloud.google.com/state-into-spec: "absent"
+    cnrm.cloud.google.com/deletion-policy: abandon
+spec:
+  keyRingRef:
+    name: {{ .Values.gcpUnseal.keyRing }}
+  purpose: ENCRYPT_DECRYPT
+  rotationPeriod: {{ .Values.gcpUnseal.rotationPeriod | quote }}
+  destroyScheduledDuration: {{ .Values.gcpUnseal.destroyScheduledDuration | quote }}
+  versionTemplate:
+    algorithm: GOOGLE_SYMMETRIC_ENCRYPTION
+    protectionLevel: SOFTWARE
+---
+apiVersion: iam.cnrm.cloud.google.com/v1beta1
+kind: IAMServiceAccount
+metadata:
+  name: {{ .Values.gcpUnseal.gsaName }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+    cnrm.cloud.google.com/project-id: "{{ $projectId }}"
+    cnrm.cloud.google.com/state-into-spec: "absent"
+    cnrm.cloud.google.com/deletion-policy: abandon
+spec:
+  resourceID: {{ .Values.gcpUnseal.gsaName }}
+  displayName: "GCP SA for Vault auto-unseal via Cloud KMS"
+---
+apiVersion: iam.cnrm.cloud.google.com/v1beta1
+kind: IAMPolicyMember
+metadata:
+  name: vault-kms-encrypter-decrypter
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+    cnrm.cloud.google.com/project-id: "{{ $projectId }}"
+    cnrm.cloud.google.com/state-into-spec: "absent"
+    cnrm.cloud.google.com/deletion-policy: abandon
+spec:
+  member: "serviceAccount:{{ $gsa }}"
+  role: roles/cloudkms.cryptoKeyEncrypterDecrypter
+  resourceRef:
+    apiVersion: kms.cnrm.cloud.google.com/v1beta1
+    kind: KMSCryptoKey
+    name: {{ .Values.gcpUnseal.cryptoKey }}
+---
+apiVersion: iam.cnrm.cloud.google.com/v1beta1
+kind: IAMPolicyMember
+metadata:
+  name: vault-kms-viewer
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+    cnrm.cloud.google.com/project-id: "{{ $projectId }}"
+    cnrm.cloud.google.com/state-into-spec: "absent"
+    cnrm.cloud.google.com/deletion-policy: abandon
+spec:
+  member: "serviceAccount:{{ $gsa }}"
+  role: roles/cloudkms.viewer
+  resourceRef:
+    apiVersion: kms.cnrm.cloud.google.com/v1beta1
+    kind: KMSCryptoKey
+    name: {{ .Values.gcpUnseal.cryptoKey }}
+---
+apiVersion: iam.cnrm.cloud.google.com/v1beta1
+kind: IAMPolicyMember
+metadata:
+  name: vault-workload-identity
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+    cnrm.cloud.google.com/project-id: "{{ $projectId }}"
+    cnrm.cloud.google.com/state-into-spec: "absent"
+    cnrm.cloud.google.com/deletion-policy: abandon
+spec:
+  member: "serviceAccount:{{ $projectId }}.svc.id.goog[{{ .Release.Namespace }}/{{ .Values.serviceAccount.name }}]"
+  role: roles/iam.workloadIdentityUser
+  resourceRef:
+    apiVersion: iam.cnrm.cloud.google.com/v1beta1
+    kind: IAMServiceAccount
+    name: {{ .Values.gcpUnseal.gsaName }}
+{{- end }}

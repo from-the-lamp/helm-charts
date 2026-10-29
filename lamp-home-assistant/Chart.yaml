@@ -1,7 +1,7 @@
 apiVersion: v2
 name: lamp-home-assistant
-description: Home Assistant deployment chart with Istio integration
-version: 0.0.1
+description: Home Assistant deployment chart
+version: 0.1.1
 
 annotations:
-  notes: "Initial version and basic configuration."
+  notes: "Patch .storage/http stable trusted_proxies/use_x_forwarded_for on every start, working around Home Assistant >=2026.8 ignoring YAML http: configuration after first boot."

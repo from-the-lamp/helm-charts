@@ -5,52 +5,56 @@ mcp:
 
   grafana:
     enabled: false
-    image: grafana/mcp-grafana:1.2.0
+    image: grafana/mcp-grafana:2.1.1
     mcps: []
 
   github:
     enabled: true
-    image: ghcr.io/github/github-mcp-server:v1.11.0
+    image: ghcr.io/github/github-mcp-server:v2.0.3
     mcps:
       - name: github-xdata
         token:
-          key: github-mcp-xdata
-          property: personal-access-token
+          key: toolhive
+          property: github_xdata_token
 
   gitlab:
     enabled: true
-    image: zereight050/gitlab-mcp:2.1.51
+    image: zereight050/gitlab-mcp:2.3.11
     mcps:
       - name: gitlab
         apiUrl: https://gitlab.com/api/v4
         permissionMode: full
+        env:
+          - name: GITLAB_TOOLSETS
+            value: core,merge_requests,pipelines,ci,repositories
         token:
-          key: gitlab-mcp
-          property: personal-access-token
+          key: toolhive
+          property: gitlab_token_from_the_lamp
       - name: gitlab-cas-dev
         apiUrl: https://gitlab.v-soft.dev/api/v4
         permissionMode: full
         token:
-          key: gitlab-mcp-cas-dev
-          property: personal-access-token
+          key: toolhive
+          property: gitlab_token_cas_dev
       - name: gitlab-cas-gitops
         apiUrl: https://gitlab.v-gitops.cc/api/v4
         permissionMode: full
         token:
-          key: gitlab-mcp-cas-gitops
-          property: personal-access-token
+          key: toolhive
+          property: gitlab_token_cas_gitops
 
   kubernetes:
     enabled: true
-    image: quay.io/containers/kubernetes_mcp_server:v0.0.66
+    image: quay.io/containers/kubernetes_mcp_server:v0.0.69
+    mcpPort: 8080
     mcps:
       - name: kubernetes
         serviceAccount: kubernetes-mcp
-      - name: infra-admin
+      - name: oracle-1
         kubeconfig:
           key: toolhive
-          property: kubeconfig-infra
-      - name: prod-0-admin
+          property: kubeconfig-prod-1
+      - name: oracle-0
         kubeconfig:
           key: toolhive
           property: kubeconfig-prod-0
@@ -61,12 +65,16 @@ mcp:
     mcps:
       - name: slack-cas
         token:
-          key: slack-mcp-cas
-          property: xoxp-token
+          key: toolhive
+          property: slack_token_cas
       - name: slack-xdata
         token:
-          key: slack-mcp-xdata
-          property: xoxp-token
+          key: toolhive
+          property: slack_token_xdata
+      - name: slack-currency
+        token:
+          key: toolhive
+          property: slack_token_currency
 
   jira:
     enabled: false
@@ -81,33 +89,75 @@ mcp:
         domain: jirasolutions.atlassian.net
         email: artem.zverev@v-soft.dev
         token:
-          key: jira-mcp-cas
-          property: api-token
+          key: toolhive
+          property: atlassian_token_cas
       - name: jira-xdata
         domain: xdatagroup.atlassian.net
         email: artem.zverev@xdatagroup.io
         token:
-          key: jira-mcp-xdata
-          property: api-token
+          key: toolhive
+          property: atlassian_token_xdata
+      - name: jira-currency
+        domain: cx-labs-io.atlassian.net
+        email: a.zverev@cx-labs.io
+        token:
+          key: toolhive
+          property: atlassian_token_currency
+      - name: jira-from-the-lamp
+        domain: artyomzverev.atlassian.net
+        email: artyom.zverev@protonmail.com
+        token:
+          key: toolhive
+          property: jira_token_from_the_lamp
+
+  bitbucket:
+    enabled: true
+    image: registry.gitlab.com/from-the-lamp/infra/docker-images/lamp-bitbucket-mcp:latest
+    mcps:
+      - name: bitbucket
+        username: a.zverev@cx-labs.io
+        workspace: currencycom
+        token:
+          key: toolhive
+          property: atlassian_token_currency
 
   victoriametrics:
     enabled: false
-    image: ghcr.io/victoriametrics/mcp-victoriametrics:v1.20.2
+    image: ghcr.io/victoriametrics/mcp-victoriametrics:v1.120.1
+    mcps: []
+
+  # The upstream server only knows how to send a VAULT_TOKEN, so it talks to a
+  # Vault Proxy sidecar instead of to Vault: the proxy logs in with the pod's
+  # ServiceAccount (kubernetes auth) and rewrites the token on every request
+  # (use_auto_auth_token = "force"), which keeps a static token out of the
+  # cluster entirely and renews on its own. Each entry gets its own
+  # ServiceAccount named after it, bound to a Vault role of its choosing - that
+  # role's policy is what decides the reach. Pair every entry with
+  # toolConfig.toolsFilter so the write/delete/read tools the image also ships
+  # are never exposed to a client.
+  vault:
+    enabled: false
+    image: hashicorp/vault-mcp-server:0.2.0
+    address: http://vault.vault:8200
+    authMount: kubernetes
+    proxy:
+      image: hashicorp/vault:2.2.1
+      port: 8100
     mcps: []
 
   clickhouse:
     enabled: false
-    image: us-central1-docker.pkg.dev/database-toolbox/toolbox/toolbox:1.9.0
+    image: us-central1-docker.pkg.dev/database-toolbox/toolbox/toolbox:1.15.0
     mcps: []
 
   postgres:
     enabled: false
-    image: us-central1-docker.pkg.dev/database-toolbox/toolbox/toolbox:1.9.0
+    image: us-central1-docker.pkg.dev/database-toolbox/toolbox/toolbox:1.15.0
     mcps: []
 
   redis:
     enabled: false
-    image: us-central1-docker.pkg.dev/database-toolbox/toolbox/toolbox:1.9.0
+    image: us-central1-docker.pkg.dev/database-toolbox/toolbox/toolbox:1.15.0
     mcps: []
 
   kafka:
@@ -117,92 +167,223 @@ mcp:
 
   argocd:
     enabled: false
-    # No official container image for the argocd-mcp package (it's npx-only:
-    # `npx argocd-mcp@latest stdio`) — build/point at your own image before enabling.
     image: ""
     mcps: []
 
   sheets:
     enabled: true
-    # Self-built from docker-images/lamp-google-sheets (xing5/mcp-google-sheets from PyPI).
     image: registry.gitlab.com/from-the-lamp/infra/docker-images/lamp-google-sheets:latest
     mcps:
       - name: sheets
         credentials:
-          key: sheets-mcp
-          property: service-account-json
+          key: toolhive
+          property: sheets-mcp
 
   oracle:
     enabled: true
-    # Self-built from docker-images/lamp-oracle-mcp (generic OCI SDK wrapper).
     image: registry.gitlab.com/from-the-lamp/infra/docker-images/lamp-oracle-mcp:latest
     mcps:
-      - name: oracle-infra
-        profile: lamp-infra
-        config:
-          key: oracle-mcp
-          property: config
-        keyFiles:
-          - name: lamp-infra.pem
-            property: lamp-infra-pem
-          - name: lamp-prod-0.pem
-            property: lamp-prod-0-pem
-          - name: lamp-prod-1.pem
-            property: lamp-prod-1-pem
       - name: oracle-prod-0
         profile: lamp-prod-0
         config:
-          key: oracle-mcp
-          property: config
+          key: toolhive
+          property: oracle_config
         keyFiles:
-          - name: lamp-infra.pem
-            property: lamp-infra-pem
           - name: lamp-prod-0.pem
-            property: lamp-prod-0-pem
+            property: oracle_key_lamp_prod_0
           - name: lamp-prod-1.pem
-            property: lamp-prod-1-pem
+            property: oracle_key_lamp_prod_1
       - name: oracle-prod-1
         profile: lamp-prod-1
         config:
-          key: oracle-mcp
-          property: config
+          key: toolhive
+          property: oracle_config
         keyFiles:
-          - name: lamp-infra.pem
-            property: lamp-infra-pem
           - name: lamp-prod-0.pem
-            property: lamp-prod-0-pem
+            property: oracle_key_lamp_prod_0
           - name: lamp-prod-1.pem
-            property: lamp-prod-1-pem
+            property: oracle_key_lamp_prod_1
 
   etherscan:
     enabled: true
-    # Self-built from docker-images/lamp-etherscan-mcp (npm package mcp-etherscan-server, no official image).
     image: registry.gitlab.com/from-the-lamp/infra/docker-images/lamp-etherscan-mcp:latest
     mcps:
       - name: etherscan
         token:
-          key: etherscan-mcp
-          property: api-key
+          key: toolhive
+          property: etherscan_api_key
 
   alchemy:
     enabled: true
-    # Self-built from docker-images/lamp-alchemy-mcp (official npm package @alchemy/mcp-server, no official image).
     image: registry.gitlab.com/from-the-lamp/infra/docker-images/lamp-alchemy-mcp:latest
     mcps:
       - name: alchemy
         token:
-          key: alchemy-mcp
-          property: api-key
+          key: toolhive
+          property: alchemy_api_key
+
+  coingecko:
+    enabled: true
+    image: registry.gitlab.com/from-the-lamp/infra/docker-images/lamp-coingecko-mcp:1.0.2
+    mcps:
+      - name: coingecko
+        token:
+          key: toolhive
+          property: coingecko_demo_api_key
+
+  alphavantage:
+    enabled: true
+    image: registry.gitlab.com/from-the-lamp/infra/docker-images/lamp-alphavantage-mcp:1.0.3
+    mcps:
+      - name: alphavantage
+        token:
+          key: toolhive
+          property: alphavantage_api_key
+
+  googlemaps:
+    enabled: true
+    remoteUrl: https://mapstools.googleapis.com/mcp
+    mcps:
+      - name: googlemaps-grounding
+        token:
+          key: toolhive
+          property: googlemaps_grounding_lite_api_key
 
   thegraph:
     enabled: true
-    # Self-built from docker-images/lamp-thegraph-mcp (vendored from kukapay/thegraph-mcp, no packaged release).
     image: registry.gitlab.com/from-the-lamp/infra/docker-images/lamp-thegraph-mcp:latest
     mcps:
       - name: thegraph
         token:
-          key: thegraph-mcp
-          property: api-key
+          key: toolhive
+          property: thegraph_api_key
+
+  aave:
+    enabled: true
+    remoteUrl: https://mcp.aave.com
+    mcps:
+      - name: aave
+
+  # Same remote-proxy shape as aave/googlemaps/windmill below, but pointed
+  # at another ENVIRONMENT's own ToolHive vmcp rather than a third-party
+  # SaaS - see templates/casdev/. Auth is a two-hop exchange: ROPC against
+  # THIS cluster's own Dex (cas-dev's cluster can't reach our private
+  # apiserver JWKS, but can reach our already-public Dex) to get a
+  # subject id_token, then RFC 8693 token-exchange of that id_token
+  # against cas-dev's own vmcp token endpoint - mirrors the existing
+  # windmill-delegate pattern, just with Dex instead of a k8s SA JWT as
+  # the subject-token source. Disabled by default like every other
+  # category here; consumer values.yaml turns it on with the real
+  # cas-dev coordinates.
+  casDev:
+    enabled: false
+    remoteUrl: ""
+    mcps: []
+    tokenRefresher:
+      schedule: "*/15 * * * *"
+      dexTokenUrl: ""
+      dexClientId: ""
+      dexUsername: ""
+      dexClientSecretRef:
+        name: ""
+        key: ""
+      casDevTokenUrl: ""
+      casDevResource: ""
+      delegateClientId: ""
+      credentials:
+        key: toolhive
+        passwordProperty: casdevproxy.password
+        delegateSecretProperty: casdevproxy.delegate-secret
+
+  defillama:
+    enabled: false
+    remoteUrl: https://mcp.defillama.com/mcp
+    mcps:
+      - name: defillama
+
+  defilamaFreeApi:
+    enabled: true
+    image: registry.gitlab.com/from-the-lamp/infra/docker-images/lamp-defilama-free-api-mcp:0.1.0
+    mcps:
+      - name: defilama-free-api
+
+  defilamaYields:
+    enabled: true
+    image: registry.gitlab.com/from-the-lamp/infra/docker-images/lamp-defilama-yields-mcp:0.1.3
+    mcps:
+      - name: defilama-yields
+
+  windmill:
+    enabled: true
+    remoteUrl: ""
+    bootstrap:
+      windmillBaseUrl: ""
+      workspaceId: djinn
+      serviceUserEmail: toolhive-mcp@windmill.internal
+      superadminSecret:
+        name: windmill-superadmin-secret
+        namespace: windmill
+        key: secret
+
+  letsfg:
+    enabled: true
+    image: registry.gitlab.com/from-the-lamp/infra/docker-images/lamp-letsfg-mcp:1.1.0
+    mcps:
+      - name: letsfg
+
+  sentry:
+    enabled: true
+    image: ghcr.io/stacklok/dockyard/npx/sentry-mcp-server:0.42.0
+    mcps: []
+
+  linkedin:
+    enabled: true
+    image: stickerdaniel/linkedin-mcp-server:latest
+    mcps:
+      - name: linkedin
+        sessionClaimSize: 2Gi
+
+  playwright:
+    enabled: false
+    image: mcr.microsoft.com/playwright/mcp:v0.0.83
+    mcpPort: 8931
+    mcps: []
+
+  # ghcr.io/drolosoft/immich-photo-manager - unlike every stdio category
+  # above, this image already speaks MCP natively over streamable-http
+  # (port 8626) - see templates/immich/mcpserver.yaml for the transport/
+  # mcpPort difference that implies. API key comes from Vault like every
+  # other category (NOT self-minted): Immich's passwordLogin is commonly
+  # disabled once GitLab OAuth is confirmed working (GitLab-only login
+  # for humans), which also blocks any in-cluster Job from authenticating
+  # via POST /api/auth/login to mint its own key headlessly - confirmed
+  # live (401 "Password login has been disabled"). Create the key once by
+  # hand via the web UI (Settings > API Keys) and write it to Vault.
+  # baseUrl is the in-cluster Immich Service URL - override to match your
+  # own.
+  immich:
+    enabled: true
+    image: ghcr.io/drolosoft/immich-photo-manager:latest
+    mcpPort: 8626
+    baseUrl: http://immich-server.immich.svc.cluster.local:2283
+    mcps:
+      - name: immich
+        token:
+          key: toolhive
+          property: immich_api_key
+
+# Replaces the Windmill-hosted refresh_toolhive_token_v2 cron as the
+# refresh MECHANISM for windmill-delegate's RFC 8693 token exchange - see
+# templates/vmcptokenrefresher/. Disabled by default (no consumer should
+# get an extra CronJob+ServiceAccount+RBAC it didn't ask for); the
+# homelab consumer values.yaml turns this on with its own real
+# tokenEndpoint/resourceAudience/windmillApiBase.
+vmcpTokenRefresher:
+  enabled: false
+  schedule: "*/5 * * * *"
+  tokenEndpoint: ""
+  resourceAudience: ""
+  windmillApiBase: ""
 
   letsfg:
     enabled: true
@@ -246,6 +427,6 @@ mcp:
 
 externalSecrets:
   kind: ClusterSecretStore
-  name: oracle
+  name: vault
   refreshInterval: 1h
   creationPolicy: Orphan

@@ -1,0 +1,144 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kelos-controller-manager
+  namespace: kelos-system
+  labels:
+    app.kubernetes.io/name: kelos
+    app.kubernetes.io/component: manager
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: kelos
+      app.kubernetes.io/component: manager
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: kelos
+        app.kubernetes.io/component: manager
+        # Marks pods that serve the CRD conversion webhook on 9443. The
+        # kelos-webhook Service selects on this so that during an upgrade from a
+        # release whose controller did not serve the webhook, the old manager
+        # pods (which lack this label and do not listen on 9443) never become
+        # conversion endpoints.
+        kelos.dev/conversion-webhook: "true"
+    spec:
+      serviceAccountName: kelos-controller
+      securityContext:
+        runAsNonRoot: true
+      containers:
+        - name: manager
+          image: {{ .Values.controllerImage }}{{- if .Values.image.tag }}:{{ .Values.image.tag }}{{- end }}
+          {{- if .Values.image.pullPolicy }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          {{- end }}
+          args:
+            - --leader-elect
+            {{- if .Values.image.tag }}
+            - --version={{ .Values.image.tag }}
+            {{- end }}
+            - --claude-code-image={{ .Values.claudeCodeImage }}
+            {{- if .Values.image.pullPolicy }}
+            - --claude-code-image-pull-policy={{ .Values.image.pullPolicy }}
+            {{- end }}
+            - --codex-image={{ .Values.codexImage }}
+            {{- if .Values.image.pullPolicy }}
+            - --codex-image-pull-policy={{ .Values.image.pullPolicy }}
+            {{- end }}
+            - --gemini-image={{ .Values.geminiImage }}
+            {{- if .Values.image.pullPolicy }}
+            - --gemini-image-pull-policy={{ .Values.image.pullPolicy }}
+            {{- end }}
+            - --opencode-image={{ .Values.opencodeImage }}
+            {{- if .Values.image.pullPolicy }}
+            - --opencode-image-pull-policy={{ .Values.image.pullPolicy }}
+            {{- end }}
+            - --cursor-image={{ .Values.cursorImage }}
+            {{- if .Values.image.pullPolicy }}
+            - --cursor-image-pull-policy={{ .Values.image.pullPolicy }}
+            {{- end }}
+            - --spawner-image={{ .Values.spawner.image }}
+            {{- if .Values.image.pullPolicy }}
+            - --spawner-image-pull-policy={{ .Values.image.pullPolicy }}
+            {{- end }}
+            {{- if .Values.spawner.resources.requests }}
+            - --spawner-resource-requests={{ .Values.spawner.resources.requests }}
+            {{- end }}
+            {{- if .Values.spawner.resources.limits }}
+            - --spawner-resource-limits={{ .Values.spawner.resources.limits }}
+            {{- end }}
+            - --worker-runner-image={{ .Values.workerRunner.image }}
+            {{- if .Values.image.pullPolicy }}
+            - --worker-runner-image-pull-policy={{ .Values.image.pullPolicy }}
+            {{- end }}
+            - --session-runtime-image={{ .Values.sessionRuntime.image }}
+            {{- if .Values.image.pullPolicy }}
+            - --session-runtime-image-pull-policy={{ .Values.image.pullPolicy }}
+            {{- end }}
+            - --ghproxy-image={{ .Values.ghproxy.image }}
+            {{- if .Values.image.pullPolicy }}
+            - --ghproxy-image-pull-policy={{ .Values.image.pullPolicy }}
+            {{- end }}
+            {{- if .Values.ghproxy.resources.requests }}
+            - --ghproxy-resource-requests={{ .Values.ghproxy.resources.requests }}
+            {{- end }}
+            {{- if .Values.ghproxy.resources.limits }}
+            - --ghproxy-resource-limits={{ .Values.ghproxy.resources.limits }}
+            {{- end }}
+            {{- if .Values.ghproxy.cacheTTL }}
+            - --ghproxy-cache-ttl={{ .Values.ghproxy.cacheTTL }}
+            {{- end }}
+            - --codex-auth-refresher-schedule={{ .Values.codexAuthRefresher.schedule }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+          ports:
+            - name: metrics
+              containerPort: 8080
+              protocol: TCP
+            - name: health
+              containerPort: 8081
+              protocol: TCP
+            - name: webhook
+              containerPort: 9443
+              protocol: TCP
+          volumeMounts:
+            - name: webhook-cert
+              mountPath: /tmp/k8s-webhook-server/serving-certs
+              readOnly: true
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8081
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: 8081
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          {{- if or .Values.controller.resources.requests .Values.controller.resources.limits }}
+          resources:
+            {{- if .Values.controller.resources.limits }}
+            limits:
+              {{- range $k, $v := .Values.controller.resources.limits }}
+              {{ $k }}: {{ $v }}
+              {{- end }}
+            {{- end }}
+            {{- if .Values.controller.resources.requests }}
+            requests:
+              {{- range $k, $v := .Values.controller.resources.requests }}
+              {{ $k }}: {{ $v }}
+              {{- end }}
+            {{- end }}
+          {{- end }}
+      volumes:
+        - name: webhook-cert
+          secret:
+            secretName: kelos-webhook-server-cert
+            defaultMode: 420

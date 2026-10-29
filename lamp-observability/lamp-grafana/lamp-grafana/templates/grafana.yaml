@@ -8,6 +8,8 @@ spec:
   preferences:
     homeDashboardUid: "{{ .Values.homeDashboardUid }}"
   config:
+    feature_toggles:
+      enable: nestedFolders
     log:
       mode: "console"
     server:

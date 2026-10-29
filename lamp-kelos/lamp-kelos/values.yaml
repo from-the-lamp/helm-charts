@@ -1,0 +1,204 @@
+crds:
+  install: false
+  keep: true
+
+image:
+  tag: "latest"
+  pullPolicy: ""
+
+telemetry:
+  enabled: true
+
+# podMonitor optionally ships Prometheus Operator PodMonitor resources
+# (monitoring.coreos.com/v1) for scraping Kelos metrics. This requires the
+# Prometheus Operator CRDs to be installed in the cluster; leave disabled if
+# they are not present, otherwise the chart will fail to install.
+podMonitor:
+  # Scrape the control-plane pods (controller manager, webhook servers, slack
+  # server) in the release namespace. They all expose the metrics port (8080).
+  enabled: false
+  # Scrape interval and per-scrape timeout.
+  interval: 30s
+  scrapeTimeout: 10s
+  # honorLabels keeps metric labels exposed by the target when they collide
+  # with labels Prometheus would add.
+  honorLabels: false
+  # Extra labels and annotations on the PodMonitor object(s). Labels are
+  # commonly used to match a Prometheus instance's podMonitorSelector.
+  labels: {}
+  annotations: {}
+  spawners:
+    # Also ship a PodMonitor for long-lived spawner pods (event- and poll-based
+    # TaskSpawners). These run in arbitrary namespaces, so the PodMonitor
+    # discovers pod targets across all namespaces (spec.namespaceSelector.any).
+    # The scraping Prometheus's service account must have RBAC to read/scrape
+    # pods in those namespaces. Cron-based (one-shot) spawners expose no metrics
+    # port and are not scraped.
+    enabled: false
+
+# codexAuthRefresher lets the controller manage one scheduled Codex-image
+# CronJob in the target namespace per Secret labeled
+# kelos.dev/codex-oauth-refresh=true, keeping Codex OAuth credentials valid even
+# when no agent task runs for a while.
+codexAuthRefresher:
+  schedule: "0 */6 * * *"
+
+controllerImage: ghcr.io/kelos-dev/kelos-controller
+ghproxy:
+  image: ghcr.io/kelos-dev/ghproxy
+  allowedUpstreams: "https://api.github.com"
+  cacheTTL: ""
+  resources:
+    requests: ""
+    limits: ""
+claudeCodeImage: ghcr.io/kelos-dev/claude-code
+codexImage: ghcr.io/kelos-dev/codex
+geminiImage: ghcr.io/kelos-dev/gemini
+opencodeImage: ghcr.io/kelos-dev/opencode
+cursorImage: ghcr.io/kelos-dev/cursor
+spawner:
+  image: ghcr.io/kelos-dev/kelos-spawner
+  resources:
+    requests: ""
+    limits: ""
+workerRunner:
+  image: ghcr.io/kelos-dev/kelos-worker-runner
+sessionRuntime:
+  image: ghcr.io/kelos-dev/kelos-session-runtime
+consoleServer:
+  enabled: false
+  image: ghcr.io/kelos-dev/kelos-console-server
+  replicas: 1
+  secretName: ""
+  tokenKey: token
+  # Initial active namespace in the Console.
+  defaultNamespace: default
+  secureCookie: false
+  service:
+    type: ClusterIP
+    port: 80
+  resources:
+    limits:
+      cpu: 500m
+      memory: 256Mi
+    requests:
+      cpu: 10m
+      memory: 64Mi
+controller:
+  resources:
+    requests: {}
+    limits: {}
+webhookServer:
+  image: ghcr.io/kelos-dev/kelos-webhook-server
+  sources:
+    github:
+      enabled: false
+      replicas: 1
+      secretName: ""
+      githubSecretName: ""
+      service:
+        # Service type for the webhook endpoint.
+        # Allowed values: ClusterIP, LoadBalancer, NodePort.
+        # When type is ClusterIP, the Service also exposes the unauthenticated
+        # metrics port (8080) for in-cluster scraping. When type is
+        # LoadBalancer or NodePort, only the webhook port (8443) is exposed
+        # to avoid externally publishing the metrics endpoint; scrape metrics
+        # via a PodMonitor or a separate ClusterIP Service in that case.
+        type: ClusterIP
+    linear:
+      enabled: false
+      replicas: 1
+      secretName: ""
+      apiKeySecretName: ""
+      service:
+        # Service type for the webhook endpoint.
+        # Allowed values: ClusterIP, LoadBalancer, NodePort.
+        # When type is ClusterIP, the Service also exposes the unauthenticated
+        # metrics port (8080) for in-cluster scraping. When type is
+        # LoadBalancer or NodePort, only the webhook port (8443) is exposed
+        # to avoid externally publishing the metrics endpoint; scrape metrics
+        # via a PodMonitor or a separate ClusterIP Service in that case.
+        type: ClusterIP
+    generic:
+      enabled: false
+      replicas: 1
+      # Reserved for future per-source HMAC validation. The generic endpoint
+      # is currently unauthenticated; when set, these env vars are mounted but
+      # no code reads them.
+      secretName: ""
+      service:
+        # Service type for the webhook endpoint.
+        # Allowed values: ClusterIP, LoadBalancer, NodePort.
+        # When type is ClusterIP, the Service also exposes the unauthenticated
+        # metrics port (8080) for in-cluster scraping. When type is
+        # LoadBalancer or NodePort, only the webhook port (8443) is exposed
+        # to avoid externally publishing the metrics endpoint; scrape metrics
+        # via a PodMonitor or a separate ClusterIP Service in that case.
+        type: ClusterIP
+  # gatewayServer runs a single webhook server that routes by per-gateway path
+  # (/webhook/<namespace>/<name>) using WebhookGateway resources. Each gateway
+  # carries its own HMAC secret and (for github) API base URL and credentials,
+  # so one deployment can serve github.com plus multiple GitHub Enterprise
+  # instances. It serves TaskSpawners and SessionSpawners that reference a
+  # WebhookGateway. The github/linear per-source servers can run alongside it
+  # because they use more specific Gateway-API paths. The gateway server and
+  # generic per-source server both use the /webhook/ prefix, so the generated
+  # Gateway API route can expose only one of them.
+  gatewayServer:
+    enabled: false
+    replicas: 1
+    # Extra Deployment metadata. Built-in selector labels take precedence over
+    # conflicting entries in labels.
+    labels: {}
+    annotations: {}
+    # Extra Pod metadata. Built-in selector labels take precedence over
+    # conflicting entries in podLabels.
+    podLabels: {}
+    podAnnotations: {}
+    # ServiceAccount created and bound to the webhook role for the gateway
+    # server Pod. Names used by other chart components are reserved.
+    serviceAccountName: kelos-webhook
+    service:
+      # LoadBalancer and NodePort expose only the webhook port. In those modes,
+      # the chart creates a separate ClusterIP Service for metrics.
+      type: ClusterIP
+  resources:
+    limits:
+      cpu: 500m
+      memory: 128Mi
+    requests:
+      cpu: 10m
+      memory: 64Mi
+  ingress:
+    enabled: false
+    className: ""
+    host: ""
+    annotations: {}
+    tls:
+      enabled: false
+      secretName: ""
+  gateway:
+    enabled: false
+    gatewayClassName: ""
+    gatewayName: "kelos-webhook-gateway"
+    host: ""
+    annotations: {}
+    tls:
+      enabled: false
+      certificateRefs: []
+slackServer:
+  enabled: false
+  image: ghcr.io/kelos-dev/kelos-slack-server
+  replicas: 1
+  secretName: ""
+  # Message posted when the bot joins a channel. Leave empty to disable.
+  joinMessage: ""
+  # Deny service to externally shared (Slack Connect) channels.
+  denySlackConnectChannels: false
+  resources:
+    limits:
+      cpu: 500m
+      memory: 128Mi
+    requests:
+      cpu: 10m
+      memory: 64Mi

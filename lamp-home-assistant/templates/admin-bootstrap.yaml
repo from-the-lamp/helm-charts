@@ -1,0 +1,105 @@
+{{- if .Values.adminBootstrap.enabled }}
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: {{ include "home-assistant.fullname" . }}-admin-bootstrap
+spec:
+  refreshInterval: "{{ .Values.externalSecrets.refreshInterval }}"
+  secretStoreRef:
+    kind: "{{ .Values.externalSecrets.kind }}"
+    name: "{{ .Values.externalSecrets.name }}"
+  target:
+    name: {{ include "home-assistant.fullname" . }}-admin-bootstrap
+    creationPolicy: "{{ .Values.externalSecrets.creationPolicy }}"
+  data:
+    - secretKey: name
+      remoteRef:
+        key: {{ .Values.adminBootstrap.remoteSecretKey }}
+        property: {{ .Values.adminBootstrap.nameProperty }}
+    - secretKey: username
+      remoteRef:
+        key: {{ .Values.adminBootstrap.remoteSecretKey }}
+        property: {{ .Values.adminBootstrap.usernameProperty }}
+    - secretKey: password
+      remoteRef:
+        key: {{ .Values.adminBootstrap.remoteSecretKey }}
+        property: {{ .Values.adminBootstrap.passwordProperty }}
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "home-assistant.fullname" . }}-admin-bootstrap
+  annotations:
+    argocd.argoproj.io/sync-options: Replace=true
+spec:
+  backoffLimit: 3
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: onboarding
+          image: curlimages/curl:8.11.0
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+          envFrom:
+            - secretRef:
+                name: {{ include "home-assistant.fullname" . }}-admin-bootstrap
+          env:
+            - name: LANGUAGE
+              value: {{ .Values.adminBootstrap.language | quote }}
+          command: ["/bin/sh", "-euc"]
+          args:
+            - |
+              base_url="http://{{ include "home-assistant.fullname" . }}:{{ .Values.service.port }}"
+              client_id="${base_url}/"
+
+              for i in $(seq 1 60); do
+                curl -sf "${base_url}/api/onboarding" >/dev/null 2>&1 && break
+                echo "waiting for home-assistant..."
+                sleep 5
+              done
+
+              code=$(curl -s -o /tmp/users.json -w '%{http_code}' -X POST \
+                "${base_url}/api/onboarding/users" \
+                -H 'Content-Type: application/json' \
+                -d "{\"name\":\"${name}\",\"username\":\"${username}\",\"password\":\"${password}\",\"client_id\":\"${client_id}\",\"language\":\"${LANGUAGE}\"}")
+
+              if [ "$code" = "403" ]; then
+                echo "onboarding already done, nothing to do"
+                exit 0
+              fi
+              if [ "$code" != "200" ]; then
+                echo "unexpected response creating user: $code"
+                cat /tmp/users.json; echo
+                exit 1
+              fi
+
+              auth_code=$(sed -n 's/.*"auth_code":"\([^"]*\)".*/\1/p' /tmp/users.json)
+
+              token_code=$(curl -s -o /tmp/token.json -w '%{http_code}' -X POST \
+                "${base_url}/auth/token" \
+                --data-urlencode "client_id=${client_id}" \
+                --data-urlencode "grant_type=authorization_code" \
+                --data-urlencode "code=${auth_code}")
+
+              if [ "$token_code" != "200" ]; then
+                echo "unexpected response exchanging auth code: $token_code"
+                exit 1
+              fi
+              access_token=$(sed -n 's/.*"access_token":"\([^"]*\)".*/\1/p' /tmp/token.json)
+
+              for step in core_config analytics; do
+                step_code=$(curl -s -o /tmp/step.json -w '%{http_code}' -X POST \
+                  "${base_url}/api/onboarding/${step}" \
+                  -H "Authorization: Bearer ${access_token}")
+                if [ "$step_code" != "200" ] && [ "$step_code" != "403" ]; then
+                  echo "unexpected response completing ${step}: $step_code"
+                  cat /tmp/step.json; echo
+                  exit 1
+                fi
+              done
+
+              echo "admin user created and onboarding complete"
+{{- end }}

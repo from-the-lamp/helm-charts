@@ -18,6 +18,12 @@ spec:
   - secretKey: client_id
     remoteRef:
       key: {{ .Values.kargo.api.oidc.remoteSecretKeys.client_id }}
+      {{- with .Values.kargo.api.oidc.remoteSecretKeys.client_idProperty }}
+      property: {{ . }}
+      {{- end }}
   - secretKey: client_secret
     remoteRef:
       key: {{ .Values.kargo.api.oidc.remoteSecretKeys.client_secret }}
+      {{- with .Values.kargo.api.oidc.remoteSecretKeys.client_secretProperty }}
+      property: {{ . }}
+      {{- end }}

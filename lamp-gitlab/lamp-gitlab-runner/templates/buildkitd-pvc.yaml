@@ -1,0 +1,14 @@
+{{- if .Values.buildkitd.enabled }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: buildkitd
+spec:
+  accessModes: [ReadWriteOnce]
+  {{- with .Values.buildkitd.persistence.storageClass }}
+  storageClassName: {{ . }}
+  {{- end }}
+  resources:
+    requests:
+      storage: {{ .Values.buildkitd.persistence.size }}
+{{- end }}

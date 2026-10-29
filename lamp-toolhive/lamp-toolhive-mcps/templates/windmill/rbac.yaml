@@ -1,0 +1,60 @@
+{{- if .Values.mcp.windmill.enabled }}
+# Reads windmill-superadmin-secret across namespaces (it lives in the
+# windmill namespace, this chart's resources live in toolhive's).
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: windmill-mcp-bootstrap-read-superadmin
+  namespace: {{ .Values.mcp.windmill.bootstrap.superadminSecret.namespace }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+rules:
+  - apiGroups: [""]
+    resources: ["secrets"]
+    resourceNames: ["{{ .Values.mcp.windmill.bootstrap.superadminSecret.name }}"]
+    verbs: ["get"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: windmill-mcp-bootstrap-read-superadmin
+  namespace: {{ .Values.mcp.windmill.bootstrap.superadminSecret.namespace }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+subjects:
+  - kind: ServiceAccount
+    name: windmill-mcp-bootstrap
+    namespace: {{ .Release.Namespace }}
+roleRef:
+  kind: Role
+  name: windmill-mcp-bootstrap-read-superadmin
+  apiGroup: rbac.authorization.k8s.io
+---
+# Only patches the pre-existing stub below - never creates, so this doesn't
+# need a broad "create secrets" grant in a shared namespace.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: windmill-mcp-bootstrap-write-header
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+rules:
+  - apiGroups: [""]
+    resources: ["secrets"]
+    resourceNames: ["windmill-mcp-auth-header"]
+    verbs: ["get", "patch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: windmill-mcp-bootstrap-write-header
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+subjects:
+  - kind: ServiceAccount
+    name: windmill-mcp-bootstrap
+roleRef:
+  kind: Role
+  name: windmill-mcp-bootstrap-write-header
+  apiGroup: rbac.authorization.k8s.io
+{{- end }}

@@ -1,0 +1,8 @@
+apiVersion: v2
+name: lamp-smartctl-exporter
+version: 0.0.1
+
+dependencies:
+  - name: prometheus-smartctl-exporter
+    version: 0.17.1
+    repository: https://prometheus-community.github.io/helm-charts

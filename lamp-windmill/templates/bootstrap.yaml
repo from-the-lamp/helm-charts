@@ -1,0 +1,145 @@
+{{- if .Values.bootstrap.enabled }}
+{{- $bootstrap := .Values.bootstrap }}
+{{- $secretData := dict }}
+{{- range $path, $variable := $bootstrap.variables }}
+{{- with $variable.secretRef }}
+{{- $_ := set $secretData (replace "/" "." $path) . }}
+{{- end }}
+{{- end }}
+{{- if $secretData }}
+{{ include "lamp-windmill.externalSecret" (dict "root" $ "name" "windmill-bootstrap" "data" $secretData) }}
+---
+{{- end }}
+# Declaratively sets the two f/platform/*.variable.yaml secret values
+# that `wmill sync push` deliberately never pushes (skipSecrets: true
+# in wmill.yaml, by design - see its README). SUPERADMIN_SECRET itself
+# can't own a token that passes Windmill's scope checks (same root
+# cause documented in lamp-toolhive-mcps/templates/windmill/bootstrap-job.yaml),
+# so this impersonates the same toolhive-mcp@windmill.internal service
+# user that chart already creates idempotently, and uses the resulting
+# token to write the variables instead.
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: windmill-bootstrap-variables
+  annotations:
+    argocd.argoproj.io/hook: PostSync
+    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
+spec:
+  backoffLimit: 3
+  template:
+    spec:
+      restartPolicy: Never
+      serviceAccountName: {{ .Values.windmill.serviceAccount.name }}
+      volumes:
+        {{- if $secretData }}
+        - name: variables
+          secret:
+            secretName: windmill-bootstrap
+        {{- end }}
+        {{- with $bootstrap.tokenExchange }}
+        - name: mcp-token
+          projected:
+            sources:
+              - serviceAccountToken:
+                  path: token
+                  audience: {{ required "lamp-windmill: bootstrap.tokenExchange.resource is required" .resource }}
+                  expirationSeconds: 600
+        {{- end }}
+      containers:
+        - name: bootstrap-variables
+          image: {{ $bootstrap.image }}
+          volumeMounts:
+            {{- if $secretData }}
+            - name: variables
+              mountPath: /bootstrap
+              readOnly: true
+            {{- end }}
+            {{- if $bootstrap.tokenExchange }}
+            - name: mcp-token
+              mountPath: /var/run/secrets/mcp-token
+              readOnly: true
+            {{- end }}
+          env:
+            - name: WINDMILL_BASE_URL
+              value: {{ .Values.internalUrl }}
+            - name: WINDMILL_WORKSPACE
+              value: {{ required "lamp-windmill: bootstrap.workspace is required" $bootstrap.workspace }}
+            - name: SERVICE_USER_EMAIL
+              value: {{ $bootstrap.serviceUserEmail }}
+            - name: SUPERADMIN_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: windmill-superadmin-secret
+                  key: secret
+          command: ["/bin/sh", "-euc"]
+          args:
+            - |
+              apk add --no-cache curl ca-certificates jq >/dev/null
+
+              for i in $(seq 1 60); do
+                curl -sf "${WINDMILL_BASE_URL}/api/version" >/dev/null 2>&1 && break
+                echo "waiting for windmill-app..."
+                sleep 5
+              done
+
+              for folder in {{ join " " $bootstrap.folders }}; do
+                code=$(curl -s -o /tmp/resp -w '%{http_code}' -X POST "${WINDMILL_BASE_URL}/api/w/${WINDMILL_WORKSPACE}/folders/create" \
+                  -H "Authorization: Bearer ${SUPERADMIN_SECRET}" -H "Content-Type: application/json" \
+                  -d "{\"name\":\"${folder}\",\"extra_perms\":{\"g/all\":true}}")
+                if [ "$code" != "200" ] && ! grep -qi "already" /tmp/resp; then
+                  echo "folder create failed for ${folder} ($code): $(cat /tmp/resp)"
+                  exit 1
+                fi
+              done
+
+              IMPERSONATE_TOKEN=$(curl -sf -X POST "${WINDMILL_BASE_URL}/api/users/tokens/impersonate" \
+                -H "Authorization: Bearer ${SUPERADMIN_SECRET}" -H "Content-Type: application/json" \
+                -d "$(jq -n --arg email "$SERVICE_USER_EMAIL" '{label: "bootstrap-variables", impersonate_email: $email}')")
+
+              set_variable() {
+                path="$1"
+                value="$2"
+                description="$3"
+                body=$(jq -n --arg v "$value" '{value: $v}')
+                code=$(curl -s -o /tmp/resp -w '%{http_code}' -X POST \
+                  "${WINDMILL_BASE_URL}/api/w/${WINDMILL_WORKSPACE}/variables/update/${path}" \
+                  -H "Authorization: Bearer ${IMPERSONATE_TOKEN}" -H "Content-Type: application/json" \
+                  -d "$body")
+                if [ "$code" = "200" ]; then
+                  echo "updated $path"
+                  return
+                fi
+                body=$(jq -n --arg p "$path" --arg v "$value" --arg d "$description" \
+                  '{path: $p, value: $v, is_secret: true, description: $d}')
+                code=$(curl -s -o /tmp/resp -w '%{http_code}' -X POST \
+                  "${WINDMILL_BASE_URL}/api/w/${WINDMILL_WORKSPACE}/variables/create" \
+                  -H "Authorization: Bearer ${IMPERSONATE_TOKEN}" -H "Content-Type: application/json" \
+                  -d "$body")
+                if [ "$code" != "201" ]; then
+                  echo "failed to set $path ($code): $(cat /tmp/resp)"
+                  exit 1
+                fi
+                echo "created $path"
+              }
+              {{- range $path, $variable := $bootstrap.variables }}
+              set_variable {{ $path | quote }} {{ if $variable.secretRef }}"$(cat {{ include "lamp-windmill.variableFile" $path }})"{{ else }}{{ required (printf "lamp-windmill: bootstrap.variables.%s needs secretRef or value" $path) $variable.value | quote }}{{ end }} {{ $variable.description | default "" | quote }}
+              {{- end }}
+              {{- with $bootstrap.tokenExchange }}
+
+              SA_TOKEN=$(cat /var/run/secrets/mcp-token/token)
+
+              VMCP_ACCESS_TOKEN=$(curl -sf -X POST {{ required "lamp-windmill: bootstrap.tokenExchange.tokenUrl is required" .tokenUrl | quote }} \
+                -u "{{ .clientId }}:$(cat {{ include "lamp-windmill.variableFile" .clientSecretVariable }})" \
+                -d grant_type=urn:ietf:params:oauth:grant-type:token-exchange \
+                -d "subject_token=${SA_TOKEN}" \
+                -d subject_token_type=urn:ietf:params:oauth:token-type:jwt \
+                -d resource={{ .resource }} \
+                | jq -r '.access_token')
+              if [ "$VMCP_ACCESS_TOKEN" = "null" ] || [ -z "$VMCP_ACCESS_TOKEN" ]; then
+                echo "vmcp token exchange failed"
+                exit 1
+              fi
+              set_variable {{ .variable | quote }} "$VMCP_ACCESS_TOKEN" {{ .description | default "" | quote }}
+              {{- end }}
+{{- end }}

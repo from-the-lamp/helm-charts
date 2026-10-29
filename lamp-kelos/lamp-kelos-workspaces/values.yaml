@@ -1,0 +1,25 @@
+# One entry per Kelos Workspace CR to render:
+#   name: Workspace (and Task pod git identity) name, unique in its namespace
+#   repo: git clone URL (bare https://github.com/... for GitHub, oauth2@ prefix
+#     for GitLab, the account-username@ prefix Bitbucket's own clone URL uses
+#     for Bitbucket)
+#   secretRef: name of the Secret (produced by kelosWorkspaceSecrets below, or
+#     provisioned elsewhere) holding the GITHUB_TOKEN key
+#   gitIdentity: git user.name the agent commits as
+# sandbox_mode/network_access aren't per-entry fields - every Workspace gets
+# workspace-write + network_access=true (see _helpers.tpl), since git clone/
+# commit/push needs network and nothing here needs more than that.
+kelosWorkspaces: []
+
+# Secrets this chart provisions for Workspaces whose git host needs its own
+# credential. The ExternalSecret's own key is always GITHUB_TOKEN regardless
+# of property/provider - the Kelos Workspace CRD hardcodes that key name for
+# git auth on any host (see workspace-crd.yaml's secretRef field
+# description). A Workspace whose secretRef points at a Secret provisioned
+# elsewhere (e.g. a pre-existing hand-provisioned token) doesn't need an
+# entry here.
+#   name: ExternalSecret/Secret name
+#   property: Vault "toolhive" secret's property holding the token
+kelosWorkspaceSecrets: []
+
+namespace: kelos-tasks

@@ -1,8 +1,11 @@
 apiVersion: v2
 name: lamp-litellm
-version: 0.0.1
+version: 0.3.0
 
 dependencies:
   - name: litellm-helm
-    version: 1.82.3-stable.patch.2
+    version: 1.83.14-stable.patch.2
     repository: oci://ghcr.io/berriai
+
+annotations:
+  notes: "Add Anthropic Claude models (claude-opus-5, claude-sonnet-5, claude-haiku-4-5-20251001) via a direct API key - new claudeApiKey/claudeModels values, sourced from the platform/litellm vault secret's claude_api_token property, same pattern as the existing deepseek/groq integrations."

@@ -1,0 +1,8 @@
+apiVersion: v2
+name: lamp-metrics-server
+version: 0.0.1
+
+dependencies:
+  - name: metrics-server
+    version: 3.14.0
+    repository: https://kubernetes-sigs.github.io/metrics-server/

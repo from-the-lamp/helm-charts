@@ -1,12 +1,20 @@
 apiVersion: v2
 name: lamp-toolhive
-version: 0.0.1
+version: 0.0.4
 
 dependencies:
   - name: toolhive-operator-crds
+<<<<<<< HEAD
     version: 0.49.0
     repository: oci://ghcr.io/stacklok/toolhive
 
   - name: toolhive-operator
     version: 0.49.0
+=======
+    version: 0.58.0
+    repository: oci://ghcr.io/stacklok/toolhive
+
+  - name: toolhive-operator
+    version: 0.58.0
+>>>>>>> 639fe3162f13810ceb24aaf7a27521ba5ff950e0
     repository: oci://ghcr.io/stacklok/toolhive

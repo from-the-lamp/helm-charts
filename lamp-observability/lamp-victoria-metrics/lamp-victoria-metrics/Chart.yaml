@@ -7,9 +7,9 @@ annotations:
 
 dependencies:
   - name: prometheus-operator-crds
-    version: 27.0.1
+    version: 32.0.2
     repository: https://prometheus-community.github.io/helm-charts
 
   - name: victoria-metrics-k8s-stack
-    version: 0.72.4
+    version: 0.96.0
     repository: https://victoriametrics.github.io/helm-charts/

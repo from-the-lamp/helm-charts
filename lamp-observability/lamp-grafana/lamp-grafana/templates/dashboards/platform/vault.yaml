@@ -1,0 +1,28 @@
+{{- if .Values.dashboards.vault.enabled }}
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaFolder
+metadata:
+  name: vault
+spec:
+  instanceSelector:
+    matchLabels:
+      dashboards: "grafana"
+  parentFolderRef: platform
+  title: Vault
+---
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDashboard
+metadata:
+  name: vault
+spec:
+  folderRef: vault
+  instanceSelector:
+    matchLabels:
+      dashboards: "grafana"
+  datasources:
+    - inputName: DS_PROMXY
+      datasourceName: VictoriaMetrics
+  grafanaCom:
+    id: 12904
+    revision: 2
+{{- end }}

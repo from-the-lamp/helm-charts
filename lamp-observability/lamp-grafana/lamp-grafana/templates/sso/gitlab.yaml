@@ -19,7 +19,13 @@ spec:
   - secretKey: client_id
     remoteRef:
       key: "{{ .Values.auth.gitlab.remoteSecretKeys.clientId }}"
+      {{- with .Values.auth.gitlab.remoteSecretKeys.clientIdProperty }}
+      property: "{{ . }}"
+      {{- end }}
   - secretKey: client_secret
     remoteRef:
       key: "{{ .Values.auth.gitlab.remoteSecretKeys.clientSecret }}"
+      {{- with .Values.auth.gitlab.remoteSecretKeys.clientSecretProperty }}
+      property: "{{ . }}"
+      {{- end }}
 {{- end }}

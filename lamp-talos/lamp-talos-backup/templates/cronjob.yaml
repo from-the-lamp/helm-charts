@@ -1,0 +1,86 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: talos-backup
+spec:
+  schedule: "{{ .Values.schedule }}"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      ttlSecondsAfterFinished: 86400
+      template:
+        spec:
+          restartPolicy: OnFailure
+          containers:
+            - name: talos-backup
+              image: "{{ .Values.image.name }}:{{ .Values.image.tag }}"
+              workingDir: /tmp
+              imagePullPolicy: IfNotPresent
+              env:
+                - name: AWS_ACCESS_KEY_ID
+                  valueFrom:
+                    secretKeyRef:
+                      name: talos-backup-s3-creds
+                      key: access_key_id
+                - name: AWS_SECRET_ACCESS_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      name: talos-backup-s3-creds
+                      key: secret_access_key
+                - name: AWS_REGION
+                  value: "{{ .Values.s3.region }}"
+                - name: CUSTOM_S3_ENDPOINT
+                  value: "{{ .Values.s3.endpoint }}"
+                - name: USE_PATH_STYLE
+                  value: "{{ .Values.usePathStyle }}"
+                - name: BUCKET
+                  value: "{{ .Values.s3.bucket }}"
+                - name: CLUSTER_NAME
+                  value: "{{ .Values.clusterName }}"
+                - name: S3_PREFIX
+                  value: "{{ .Values.s3Prefix }}"
+                - name: AGE_RECIPIENT_PUBLIC_KEY
+                  value: "{{ .Values.ageRecipientPublicKey }}"
+                # Upstream quirk (v0.1.0-beta.3): GetServiceConfig() always
+                # does strings.Split(os.Getenv("AGE_X25519_PUBLIC_KEY"), ",")
+                # and appends the result to the recipient list regardless of
+                # whether that var is set - an unset var becomes [""], a
+                # spurious empty-string recipient that then fails to parse
+                # ("malformed recipient \"\""), even though
+                # AGE_RECIPIENT_PUBLIC_KEY itself was set correctly. Setting
+                # this to the same key avoids the empty-string entry.
+                - name: AGE_X25519_PUBLIC_KEY
+                  value: "{{ .Values.ageRecipientPublicKey }}"
+                - name: ENABLE_COMPRESSION
+                  value: "{{ .Values.enableCompression }}"
+              securityContext:
+                runAsUser: 1000
+                runAsGroup: 1000
+                allowPrivilegeEscalation: false
+                runAsNonRoot: true
+                capabilities:
+                  drop:
+                    - ALL
+                seccompProfile:
+                  type: RuntimeDefault
+              resources:
+                {{- toYaml .Values.resources | nindent 16 }}
+              command:
+                - /talos-backup
+              volumeMounts:
+                - mountPath: /tmp
+                  name: tmp
+                - mountPath: /.talos
+                  name: talos
+                - mountPath: /var/run/secrets/talos.dev
+                  name: talos-secrets
+          volumes:
+            - emptyDir: {}
+              name: tmp
+            - emptyDir: {}
+              name: talos
+            - name: talos-secrets
+              secret:
+                secretName: talos-backup-secrets

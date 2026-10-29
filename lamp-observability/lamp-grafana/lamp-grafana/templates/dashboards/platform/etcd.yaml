@@ -1,0 +1,17 @@
+{{- if .Values.dashboards.etcd.enabled }}
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDashboard
+metadata:
+  name: etcd
+spec:
+  folderRef: kubernetes
+  instanceSelector:
+    matchLabels:
+      dashboards: "grafana"
+  datasources:
+    - inputName: "DS_PROMETHEUS"
+      datasourceName: "VictoriaMetrics"
+  grafanaCom:
+    id: 3070
+    revision: 3
+{{- end }}

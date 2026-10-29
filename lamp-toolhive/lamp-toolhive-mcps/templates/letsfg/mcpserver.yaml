@@ -4,7 +4,11 @@
 apiVersion: toolhive.stacklok.dev/v1beta1
 kind: MCPServer
 metadata:
+<<<<<<< HEAD
   name: {{ $item.name }}
+=======
+  name: mcp-{{ $item.name }}
+>>>>>>> 639fe3162f13810ceb24aaf7a27521ba5ff950e0
 spec:
   image: {{ $.Values.mcp.letsfg.image }}
   transport: stdio
@@ -16,14 +20,24 @@ spec:
   audit:
     enabled: true
   env:
+<<<<<<< HEAD
     - name: OCI_CONFIG_PROFILE
       value: {{ $item.ociProfile | default "lamp-infra" }}
     - name: LETSFG_VAULT_SECRET_ID
       value: {{ $item.vaultSecretId | quote }}
+=======
+    - name: VAULT_ADDR
+      value: {{ $item.vaultAddr | default "http://vault.vault:8200" }}
+    - name: VAULT_K8S_ROLE
+      value: {{ $item.vaultK8sRole | default "letsfg" }}
+    - name: VAULT_SECRET_PATH
+      value: {{ $item.vaultSecretPath | default "toolhive" }}
+>>>>>>> 639fe3162f13810ceb24aaf7a27521ba5ff950e0
   podTemplateSpec:
     spec:
       containers:
         - name: mcp
+<<<<<<< HEAD
           volumeMounts:
             - name: ociconfig
               mountPath: /home/mcp/.oci
@@ -32,5 +46,20 @@ spec:
         - name: ociconfig
           secret:
             secretName: {{ $item.ociSecretName }}
+=======
+          livenessProbe:
+            exec:
+              command: ["python3", "/app/healthcheck.py"]
+            initialDelaySeconds: 30
+            periodSeconds: 600
+            timeoutSeconds: 15
+            failureThreshold: 1
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: tmp
+          emptyDir: {}
+>>>>>>> 639fe3162f13810ceb24aaf7a27521ba5ff950e0
 {{- end }}
 {{- end }}

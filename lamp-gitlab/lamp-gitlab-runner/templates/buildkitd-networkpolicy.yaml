@@ -1,0 +1,18 @@
+{{- if and .Values.buildkitd.enabled .Values.buildkitd.networkPolicy.enabled }}
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: buildkitd
+spec:
+  endpointSelector:
+    matchLabels:
+      app: buildkitd
+  ingress:
+    - fromEndpoints:
+        - matchLabels:
+            {{ .Values.buildkitd.networkPolicy.clientLabel }}: "true"
+      toPorts:
+        - ports:
+            - port: "{{ .Values.buildkitd.port }}"
+              protocol: TCP
+{{- end }}

@@ -1,0 +1,88 @@
+{{- if .Values.vmcpTokenRefresher.enabled }}
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: vmcp-token-refresher
+spec:
+  schedule: {{ .Values.vmcpTokenRefresher.schedule | default "*/5 * * * *" | quote }}
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      activeDeadlineSeconds: 60
+      backoffLimit: 2
+      template:
+        spec:
+          restartPolicy: Never
+          serviceAccountName: vmcp-token-refresher
+          containers:
+            - name: refresh
+              image: registry.gitlab.com/from-the-lamp/infra/docker-images/lamp-windmill-mcp-bootstrap:1.0.0
+              securityContext:
+                allowPrivilegeEscalation: false
+                capabilities:
+                  drop: ["ALL"]
+              env:
+                - name: VMCP_TOKEN_ENDPOINT
+                  value: {{ .Values.vmcpTokenRefresher.tokenEndpoint }}
+                - name: RESOURCE_AUDIENCE
+                  value: {{ .Values.vmcpTokenRefresher.resourceAudience }}
+                - name: WINDMILL_DELEGATE_CLIENT_SECRET
+                  valueFrom:
+                    secretKeyRef:
+                      name: toolhive-windmill-delegate-secret
+                      key: WINDMILL_DELEGATE_CLIENT_SECRET
+                - name: WINDMILL_API_BASE
+                  value: {{ .Values.vmcpTokenRefresher.windmillApiBase }}
+                - name: WINDMILL_AUTH_HEADER
+                  valueFrom:
+                    secretKeyRef:
+                      name: windmill-mcp-auth-header
+                      key: authHeader
+              volumeMounts:
+                - name: sa-token
+                  mountPath: /var/run/secrets/mcp-token
+                  readOnly: true
+              command: ["/bin/sh", "-euc"]
+              args:
+                - |
+                  SUBJECT_TOKEN=$(cat /var/run/secrets/mcp-token/token)
+                  code=$(curl -s -o /tmp/resp -w '%{http_code}' -X POST "${VMCP_TOKEN_ENDPOINT}" \
+                    -u "windmill-delegate:${WINDMILL_DELEGATE_CLIENT_SECRET}" \
+                    -d grant_type=urn:ietf:params:oauth:grant-type:token-exchange \
+                    -d "subject_token=${SUBJECT_TOKEN}" \
+                    -d subject_token_type=urn:ietf:params:oauth:token-type:jwt \
+                    -d "resource=${RESOURCE_AUDIENCE}")
+                  if [ "$code" != "200" ]; then
+                    echo "token exchange failed ($code): $(cat /tmp/resp)"
+                    exit 1
+                  fi
+                  TOKEN=$(sed -n 's/.*"access_token":"\([^"]*\)".*/\1/p' /tmp/resp)
+                  if [ -z "$TOKEN" ]; then
+                    echo "no access_token in response: $(cat /tmp/resp)"
+                    exit 1
+                  fi
+                  kubectl patch secret toolhive-bearer-token -n {{ .Release.Namespace }} \
+                    --type=merge -p "{\"stringData\":{\"token\":\"Bearer ${TOKEN}\"}}"
+                  # Mirror into the Windmill variable so existing flows
+                  # (defi:advise, kelos, etc.) keep working unchanged - OSS
+                  # Windmill has no resource type backed by a k8s Secret, so
+                  # this push is unavoidable even though the exchange itself
+                  # no longer runs as a Windmill cron. Logged (not yet
+                  # fatal on failure) - a prior run confirmed this specific
+                  # call isn't taking effect, cause still unconfirmed.
+                  varcode=$(curl -s -o /tmp/varresp -w '%{http_code}' -X POST \
+                    "${WINDMILL_API_BASE}/api/w/djinn/variables/update/f%2Fplatform%2Ftoolhive_bearer_token" \
+                    -H "Authorization: ${WINDMILL_AUTH_HEADER}" -H "Content-Type: application/json" \
+                    -d "{\"value\":\"${TOKEN}\",\"is_secret\":true}")
+                  echo "windmill variable update ($varcode): $(cat /tmp/varresp)"
+          volumes:
+            - name: sa-token
+              projected:
+                sources:
+                  - serviceAccountToken:
+                      audience: {{ .Values.vmcpTokenRefresher.resourceAudience }}
+                      expirationSeconds: 600
+                      path: token
+{{- end }}

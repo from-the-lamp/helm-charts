@@ -1,0 +1,171 @@
+# Immich (https://immich.app) - wraps the official immich-app/immich-charts
+# chart with this org's conventions: connects to the shared "postgres" CNPG
+# cluster (apps/platform/postgres - its "immich" role/database, and its
+# image carries the vectorchord extension Immich's ML embeddings need), a
+# pre-created library PVC (the upstream chart requires bringing your own
+# claim, it won't provision one), and the Redis/valkey wiring pre-set.
+#
+# Deployment-specific bits (hostnames, HTTPRoutes) are NOT here - set those
+# in the consuming app's own values.yaml via a separate lamp-istio-routes
+# dependency, same as every other app in this org.
+immich:
+  valkey:
+    enabled: true
+
+  server:
+    controllers:
+      main:
+        containers:
+          main:
+            resources:
+              requests:
+                cpu: 20m
+                memory: 256Mi
+              limits:
+                memory: 1Gi
+
+  machine-learning:
+    # Face/object recognition and smart search - CPU-only unless the
+    # cluster has a GPU node pool, so noticeably slower than a GPU box. Set
+    # "enabled: false" under immich.machine-learning if the memory cost
+    # isn't worth it.
+    controllers:
+      main:
+        containers:
+          main:
+            resources:
+              requests:
+                cpu: 100m
+                memory: 512Mi
+              limits:
+                cpu: "1"
+                memory: 2Gi
+    persistence:
+      cache:
+        # Keeps downloaded ML models across restarts instead of re-fetching
+        # them (multiple hundred MB) every time the pod reschedules.
+        enabled: true
+        type: persistentVolumeClaim
+        size: 10Gi
+        accessMode: ReadWriteOnce
+        storageClass: hcloud-volumes
+
+  immich:
+    persistence:
+      library:
+        # Created by this chart's templates/pvc.yaml.
+        existingClaim: immich-library
+    # Always points at our own Secret (templates/config.yaml), which exists
+    # regardless of oauth.enabled - keeps this wiring unconditional so
+    # toggling oauth never leaves existingConfiguration dangling at a
+    # missing name.
+    existingConfiguration: immich-config
+    configurationKind: Secret
+
+  controllers:
+    main:
+      containers:
+        main:
+          env:
+            # "immich" role/database created on the shared cluster by
+            # apps/platform/postgres's values.yaml (databases/roles lists).
+            # postgres-rw is that cluster's pgbouncer (transaction-mode)
+            # service, in the "postgres" namespace - cross-namespace, so
+            # needs the FQDN (bare short names only resolve same-namespace).
+            DB_HOSTNAME: postgres-rw.postgres.svc.cluster.local
+            DB_USERNAME: immich
+            DB_DATABASE_NAME: immich
+            DB_PASSWORD:
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-immich-password
+                  key: password
+
+# This chart's own resources (not part of the upstream immich chart) - see
+# templates/. "immich-library" is a fixed convention this chart relies on;
+# keep in sync if changed here.
+library:
+  storageClass: hcloud-volumes
+  size: 100Gi
+
+# Mirrors the Vault property the shared postgres cluster's own role entry
+# points at (apps/platform/postgres's values.yaml) - both need to agree on
+# the one value in Vault. See templates/db-password.yaml for why this
+# chart needs its own copy of that Secret rather than referencing the
+# postgres app's one directly (Secrets are namespace-scoped).
+database:
+  passwordSecret:
+    name: postgres-immich-password
+    remoteSecretKey: postgres
+    remoteSecretProperty: users.immich.password
+
+externalSecrets:
+  kind: ClusterSecretStore
+  name: vault
+  refreshInterval: 1h
+  creationPolicy: Orphan
+
+# Any other Immich config-file sections (storage template, trash, SMTP,
+# etc. - see https://immich.app/docs/install/config-file) that don't need
+# secret values. Merged alongside the oauth section below into one
+# immich-config.yaml by templates/config.yaml. Do NOT set "oauth" here -
+# use the dedicated oauth.* values instead, since that section needs
+# secret values templated in from Vault.
+configuration: {}
+
+# OAuth login - disabled by default since it needs a GitLab OAuth
+# Application created out-of-band first (same pattern as pgadmin/argocd/
+# vault's own GitLab OAuth Apps). When enabling: create the Application,
+# set its redirect URI to the web app's own https://<host>/auth/login (NOT
+# /api/oauth/callback - that's not what Immich's web client actually
+# sends), make sure openid/email/profile are checked in the Application's
+# own scope checkboxes (GitLab 400s with "invalid scope" otherwise), write
+# the client id/secret into Vault under remoteSecretKey/{clientIdProperty,
+# clientSecretProperty}, then set oauth.enabled: true.
+oauth:
+  enabled: false
+  issuerUrl: https://gitlab.com
+  scope: "openid email profile"
+  buttonText: "Login with GitLab"
+  autoRegister: true
+  remoteSecretKey: immich
+  clientIdProperty: oauth-client-id
+  clientSecretProperty: oauth-client-secret
+  # The mobile app's native redirect is the "app.immich:///oauth-callback"
+  # custom scheme, which most OAuth providers (GitLab included) won't
+  # accept as a registered redirect URI. Set this to
+  # https://<host>/api/oauth/mobile-redirect (Immich's own forwarder route
+  # that bounces to the native scheme) and register THAT https URL as a
+  # second redirect URI on the Application, alongside /auth/login. Leave
+  # empty to skip mobile OAuth entirely (web login still works either way).
+  mobileRedirectUri: ""
+
+# First-admin bootstrap - calls POST /api/auth/admin-sign-up once Immich is
+# reachable. Disabled by default; when enabling, write the three Vault
+# properties below first. Safe to leave enabled permanently: the endpoint
+# 400s once an admin already exists, and the Job's script treats that as
+# success, not failure.
+adminBootstrap:
+  enabled: false
+  remoteSecretKey: immich
+  emailProperty: admin-email
+  passwordProperty: admin-password
+  nameProperty: admin-name
+
+backup:
+  enabled: false
+  bucket: ""
+  path: immich
+  keep: 28
+  schedule: "0 */6 * * *"
+  deploymentName: immich-server
+  podSelector: "app.kubernetes.io/instance=immich,app.kubernetes.io/name=server"
+  pvcClaimName: immich-library
+  rclone:
+    provider: Other
+    region: ""
+    endpoint: ""
+  vault:
+    remoteSecretKey: s3
+    accessKeyProperty: ""
+    secretKeyProperty: ""

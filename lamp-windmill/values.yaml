@@ -1,0 +1,90 @@
+externalSecrets:
+  kind: ClusterSecretStore
+  name: vault
+  refreshInterval: 1h
+  creationPolicy: Owner
+
+internalUrl: http://windmill-app:8000
+
+database:
+  host: postgres-rw.postgres.svc.cluster.local
+  port: 5432
+  name: windmill
+  user: windmill
+  sslmode: disable
+  passwordRef:
+    key: postgres
+    property: users.windmill.password
+
+superadminSecretRef:
+  key: windmill
+  property: superadmin_secret
+
+oauth:
+  gitlab:
+    secretRef: {}
+
+bootstrap:
+  enabled: false
+  image: alpine:3.22
+  workspace: ""
+  serviceUserEmail: toolhive-mcp@windmill.internal
+  folders: []
+  variables: {}
+  tokenExchange: {}
+
+windmill:
+  serviceAccount:
+    name: windmill
+
+  # Chart default spins up its own demo CNPG cluster - use the shared one instead.
+  postgresql:
+    enabled: false
+
+  ingress:
+    enabled: false
+
+  windmill:
+    databaseUrlSecretName: windmill-database-url
+    databaseUrlSecretKey: url
+
+    # Full-text search over run/script history - optional, not needed to
+    # use Windmill at all. Also wants 50Gi ephemeral-storage by default.
+    indexer:
+      enabled: false
+
+    # Only pre-existing (manually added) users may sign in via OAuth - Windmill
+    # has no "disable password login" switch at all, this is the closest
+    # equivalent: it stops OAuth from auto-registering arbitrary GitLab accounts.
+    #
+    # SUPERADMIN_SECRET is a bare shared secret compared directly against any
+    # Bearer token in Windmill's own auth middleware (no login, no token
+    # table) - this is how the MCP gateway and any headless automation
+    # (wmill CLI, the windmill MCPRemoteProxy in toolhive) authenticate with
+    # zero manual UI steps. Treat it like a root password.
+    app:
+      extraEnv:
+        - name: REQUIRE_PREEXISTING_USER_FOR_OAUTH
+          value: "true"
+        - name: SUPERADMIN_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: windmill-superadmin-secret
+              key: secret
+
+    operator:
+      enabled: true
+      instanceSpec:
+        # The operator deletes any worker config row not declared here -
+        # without this, it silently wiped the implicit default worker_tags
+        # Windmill seeds on first migration, leaving windmill-workers-default
+        # subscribed to no tags at all (jobs queue forever, never picked up).
+        # The stock default list (deno/python3/bun/go/bash/powershell) left
+        # out "dependency" and "flow" - flow-dependency-lock jobs and flow
+        # orchestration jobs use those tags specifically, not a language
+        # tag, and got stuck in QueuedJob forever until this included them.
+        # Full self-hosted CE tag set, matching a real-world single-worker-
+        # group instance that handles everything.
+        worker_configs:
+          default:
+            worker_tags: ["ansible", "bash", "bun", "csharp", "deno", "dependency", "flow", "go", "hub", "other", "php", "powershell", "python3", "rust"]

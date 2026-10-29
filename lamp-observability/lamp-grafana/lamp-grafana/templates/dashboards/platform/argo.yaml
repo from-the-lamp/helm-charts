@@ -1,0 +1,12 @@
+{{- if or .Values.dashboards.argocd.enabled .Values.dashboards.argo_rollouts.enabled }}
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaFolder
+metadata:
+  name: argo
+spec:
+  instanceSelector:
+    matchLabels:
+      dashboards: "grafana"
+  parentFolderRef: platform
+  title: Argo
+{{- end }}

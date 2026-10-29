@@ -1,8 +1,19 @@
 clusterStores: []
   # - name: oracle
-  #   privateKey: 
-  #   fingerprint: 
-  #   user: 
-  #   tenancy: 
-  #   ocid: 
-  #   region: 
+  #   type: oracle   # optional, default
+  #   privateKey:
+  #   fingerprint:
+  #   user:
+  #   tenancy:
+  #   ocid:
+  #   region:
+  # - name: vault
+  #   type: vault
+  #   server: http://vault.vault:8200
+  #   path: platform
+  #   version: v2      # optional, default
+  #   mountPath: kubernetes   # optional, default
+  #   role: external-secrets
+  #   serviceAccount:
+  #     name: external-secrets
+  #     namespace: external-secrets

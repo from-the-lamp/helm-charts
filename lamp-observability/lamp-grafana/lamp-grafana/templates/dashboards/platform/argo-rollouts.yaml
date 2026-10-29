@@ -1,0 +1,17 @@
+{{- if .Values.dashboards.argo_rollouts.enabled }}
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDashboard
+metadata:
+  name: argo-rollouts
+spec:
+  folderRef: argo
+  instanceSelector:
+    matchLabels:
+      dashboards: "grafana"
+  datasources:
+    - inputName: DS_PROD-1-PROMETHEUS
+      datasourceName: VictoriaMetrics
+  grafanaCom:
+    id: 15386
+    revision: 5
+{{- end }}

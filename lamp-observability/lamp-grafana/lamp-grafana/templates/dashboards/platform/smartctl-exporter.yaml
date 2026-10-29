@@ -1,0 +1,17 @@
+{{- if .Values.dashboards.smartctl_exporter.enabled }}
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDashboard
+metadata:
+  name: smartctl-exporter
+spec:
+  folderRef: nodes
+  instanceSelector:
+    matchLabels:
+      dashboards: "grafana"
+  datasources:
+    - inputName: "DS_PROMETHEUS"
+      datasourceName: "VictoriaMetrics"
+  grafanaCom:
+    id: 22604
+    revision: 4
+{{- end }}

@@ -31,4 +31,23 @@ spec:
           resource
         );
       {{- end }}
+      {{- range .allowedClientIds }}
+      {{- $clientId := .clientId }}
+      {{- range .allowedServers }}
+      - |
+        permit(
+          principal,
+          action,
+          resource
+        )
+        when {
+          principal has claim_client_id &&
+          principal.claim_client_id == {{ $clientId | quote }} &&
+          resource.name like {{ printf "%s_*" . | quote }}
+        };
+      {{- end }}
+      {{- end }}
+      {{- range .rawPolicies }}
+      - {{ . | quote }}
+      {{- end }}
 {{- end }}

@@ -133,6 +133,29 @@ dashboards:
     overview: true
   hazelcast:
     enabled: false
+  node_exporter:
+    enabled: false
+  etcd:
+    enabled: false
+  smartctl_exporter:
+    enabled: false
+  argo_rollouts:
+    enabled: false
+  vault:
+    enabled: false
+  coredns:
+    enabled: false
+  external_secrets:
+    enabled: false
+  grafana:
+    enabled: false
+  cilium:
+    enabled: false
+    agent: true
+    operator: true
+    hubble: true
+  litellm:
+    enabled: false
 
 externalSecrets:
   kind: ClusterSecretStore

@@ -64,6 +64,7 @@ dex:
         - authorization_code
         - refresh_token
         - password
+        - client_credentials
     # id token lifetime long-lived to match the hermes-side "mint once, never
     # rotate" design already used for its (unreachable) k8s SA token attempt;
     # signingKeys must stay >= idTokens or token validation breaks once keys
@@ -90,15 +91,25 @@ dex:
         name: "Hermes (headless ROPC)"
         secretEnv: HERMES_CLIENT_SECRET
 
+  # templates/dex/configsecret.yaml (this wrapper chart's own template) is
+  # the only renderer of this Secret now - it's the one that actually knows
+  # how to build the connectors list (dex.sso.*.enabled above), which a
+  # plain pass-through of dex.config here cannot express. The upstream dex
+  # chart's own configSecret.create was briefly true to fix an unrelated,
+  # earlier bug (a stale secret from before this wrapper template existed,
+  # never re-rendered by Helm at all) - with the wrapper template now
+  # handling the full render, letting upstream ALSO create a same-named
+  # Secret just duplicates it (ArgoCD RepeatedResourceWarning) with a
+  # version that's missing connectors entirely.
   configSecret:
     create: false
     name: toolhive-dex-config
 
-  nodeSelector:
-    role: worker
-
   podAnnotations:
     reloader.stakater.com/auto: "true"
+
+  env:
+    DEX_CLIENT_CREDENTIAL_GRANT_ENABLED_BY_DEFAULT: "true"
 
   envFrom:
     - secretRef:
@@ -107,6 +118,20 @@ dex:
         name: toolhive-vmcp-client-secret
     - secretRef:
         name: toolhive-hermes-client-secret
+
+  # One ExternalSecret + env var per Dex static client that needs its secret
+  # pulled from Vault (templates/dex/clientsecrets.yaml ranges over this) -
+  # generalized from a single hardcoded "hermes" entry so a deployment can
+  # give each headless ROPC bot its own static client/secret instead of
+  # sharing one. Default below reproduces the original single-entry
+  # behavior exactly; a consumer adding more bot identities overrides this
+  # list (and dex.envFrom above, and dex.config.staticClients/staticPasswords)
+  # with one block per identity.
+  clientSecrets:
+    - secretName: toolhive-hermes-client-secret
+      envName: HERMES_CLIENT_SECRET
+      vaultKey: toolhive
+      vaultProperty: hermes-client-secret
 
   # volumes:
   #   - name: google-sa
@@ -179,6 +204,121 @@ authzConfigs:
   - name: mcp-tools-authz
     allowedGroups:
       - from-the-lamp
+    # windmill-delegate's real consumers are f/sources/collect_context's
+    # read-only Jira tool set (see that flow's include_tools - exactly the 6
+    # tool names below, per tenant) and, as of ADR-012,
+    # f/tasks/transition_merged_cas_kcl_tickets's one write call
+    # (jira_transition_issue). A plain "jira-<tenant>_*" server wildcard
+    # would silently also grant every *other* Jira/Confluence write tool
+    # (create/delete/update/...) under the same "read-only" label - these
+    # rawPolicies replace that wildcard with an explicit allowlist instead,
+    # so a new write call anywhere in this pipeline has to be a deliberate
+    # policy change here, not something that already worked by accident.
+    # Write permit now covers every tenant's jira_transition_issue, matching
+    # f/tasks/transition_merged_kelos_tickets's generalization across all
+    # SCM providers (GitLab/GitHub/Bitbucket) - see docs/adr/015.
+    #
+    # oracle-0/oracle-1 (raw kubectl against both prod
+    # clusters - pods_exec/pods_delete/resources_delete included) are
+    # explicitly forbidden too, mirroring mcp-tools-hermes-authz below - a
+    # human who completes GitLab OAuth login through this group permit has
+    # no legitimate reason to have MORE production access through this
+    # gateway than the bot was deliberately restricted from. Cedar
+    # evaluates forbid over permit regardless of policy order/position in
+    # this list.
+    rawPolicies:
+      - 'forbid(principal, action, resource) when { resource.name like "mcp-oracle-0_*" || resource.name like "mcp-oracle-1_*" };'
+      - |
+        permit(
+          principal,
+          action,
+          resource
+        )
+        when {
+          principal has claim_client_id &&
+          principal.claim_client_id == "windmill-delegate" &&
+          (resource.name == "mcp-jira-xdata_jira_get_issue" ||
+           resource.name == "mcp-jira-xdata_jira_search_issues" ||
+           resource.name == "mcp-jira-xdata_jira_transition_issue" ||
+           resource.name == "mcp-jira-xdata_jira_get_transitions" ||
+           resource.name == "mcp-jira-xdata_jira_get_issue_link_types" ||
+           resource.name == "mcp-jira-xdata_jira_get_project_issues" ||
+           resource.name == "mcp-jira-xdata_jira_get_user_profile")
+        };
+      - |
+        permit(
+          principal,
+          action,
+          resource
+        )
+        when {
+          principal has claim_client_id &&
+          principal.claim_client_id == "windmill-delegate" &&
+          (resource.name == "mcp-jira-cas_jira_get_issue" ||
+           resource.name == "mcp-jira-cas_jira_search_issues" ||
+           resource.name == "mcp-jira-cas_jira_get_transitions" ||
+           resource.name == "mcp-jira-cas_jira_get_issue_link_types" ||
+           resource.name == "mcp-jira-cas_jira_get_project_issues" ||
+           resource.name == "mcp-jira-cas_jira_get_user_profile" ||
+           resource.name == "mcp-jira-cas_jira_transition_issue")
+        };
+      - |
+        permit(
+          principal,
+          action,
+          resource
+        )
+        when {
+          principal has claim_client_id &&
+          principal.claim_client_id == "windmill-delegate" &&
+          (resource.name == "mcp-jira-currency_jira_get_issue" ||
+           resource.name == "mcp-jira-currency_jira_search_issues" ||
+           resource.name == "mcp-jira-currency_jira_transition_issue" ||
+           resource.name == "mcp-jira-currency_jira_get_transitions" ||
+           resource.name == "mcp-jira-currency_jira_get_issue_link_types" ||
+           resource.name == "mcp-jira-currency_jira_get_project_issues" ||
+           resource.name == "mcp-jira-currency_jira_get_user_profile")
+        };
+      - |
+        permit(
+          principal,
+          action,
+          resource
+        )
+        when {
+          principal has claim_client_id &&
+          principal.claim_client_id == "windmill-delegate" &&
+          (resource.name == "mcp-jira-from-the-lamp_jira_get_issue" ||
+           resource.name == "mcp-jira-from-the-lamp_jira_search_issues" ||
+           resource.name == "mcp-jira-from-the-lamp_jira_transition_issue" ||
+           resource.name == "mcp-jira-from-the-lamp_jira_get_transitions" ||
+           resource.name == "mcp-jira-from-the-lamp_jira_get_issue_link_types" ||
+           resource.name == "mcp-jira-from-the-lamp_jira_get_project_issues" ||
+           resource.name == "mcp-jira-from-the-lamp_jira_get_user_profile")
+        };
+
+  # mcp-tools-hermes's own entry point - every token that reaches it is
+  # already proven to be Hermes by mcp-tools-hermes-oidc, so these policies
+  # need no principal match, only a resource (tool-name) restriction. Full
+  # access to everything else stays as-is; only the windmill_* backend (it
+  # proxies Windmill's *native* MCP API - every script/flow in the
+  # workspace, not just the intended intake flows) is cut down to an
+  # explicit allow-list. rawPolicies is a passthrough for exact-match Cedar
+  # policies the allowedServers/allowedGroups/allowedClientIds shapes above
+  # can't express (they only generate "<prefix>_*" wildcard permits).
+  #
+  # oracle-0/oracle-1 (raw kubectl against both prod
+  # clusters - pods_exec/pods_delete/resources_delete included) are
+  # explicitly forbidden rather than left to the blanket permit above -
+  # confirmed with the user this isn't something Hermes is actually used
+  # for day to day, unlike Oracle/crypto-signing/Jira/Slack/etc, which
+  # stay as-is. Cedar evaluates forbid over permit regardless of policy
+  # order, so this wins even though it's listed after the broad allow.
+  - name: mcp-tools-hermes-authz
+    rawPolicies:
+      - 'permit(principal, action, resource) when { !(resource.name like "mcp-proxy-windmill_*") };'
+      - 'permit(principal, action, resource) when { resource.name == "mcp-proxy-windmill_f-f_tasks_poll__assigned__jira" || resource.name == "mcp-proxy-windmill_f-f_kelos_trigger__task" || resource.name == "mcp-proxy-windmill_s-f_tasks_list__my__assigned__jira__issues" };'
+      - 'forbid(principal, action, resource) when { resource.name like "mcp-oracle-0_*" || resource.name like "mcp-oracle-1_*" };'
 
 mcpGroups:
   - name: mcp-tools
@@ -208,6 +348,32 @@ virtualMcpServers:
       signingKeySecretRefs:
         - name: toolhive-authserver-secrets
           key: signing
+      trustedIssuers:
+        - name: k8s-apiserver
+          issuerUrl: https://91.98.221.117:6443
+          jwksUrl: https://91.98.221.117:6443/openid/v1/jwks
+          caBundleRef:
+            configMapRef:
+              name: kube-root-ca.crt
+              key: ca.crt
+      inboundGrants:
+        tokenExchange:
+          issuerPolicies:
+            - issuerRef: k8s-apiserver
+              expectedAudience: https://mcp.internal.from-the-lamp.work/mcp
+              allowedDelegateClients:
+                - windmill-delegate
+              actorMatcher: 'claims.sub == "system:serviceaccount:windmill:windmill"'
+          delegateClients:
+            - clientId: windmill-delegate
+              clientSecretRef:
+                name: toolhive-windmill-delegate-secret
+                key: WINDMILL_DELEGATE_CLIENT_SECRET
+              audiences:
+                - https://mcp.internal.from-the-lamp.work/mcp
+              scopes:
+                - openid
+                - offline_access
       upstreamProviders:
         - name: gitlab
           type: oidc
@@ -240,6 +406,7 @@ virtualMcpServers:
             passwordSecretRef:
               name: toolhive-redis-password
               key: password
+<<<<<<< HEAD
     operational:
       timeouts:
         default: 30s
@@ -248,6 +415,8 @@ virtualMcpServers:
         # failing with "context deadline exceeded" before letsfg even finishes.
         perWorkload:
           letsfg: 120s
+=======
+>>>>>>> 639fe3162f13810ceb24aaf7a27521ba5ff950e0
     # TODO: re-enable once toolhive-operator 0.49.0's sessionStorage.passwordRef wiring
     # is confirmed working - it currently fails with "NOAUTH Authentication required"
     # even though the referenced secret's password matches Redis's own auth secret,
@@ -264,8 +433,6 @@ virtualMcpServers:
         annotations:
           reloader.stakater.com/auto: "true"
       spec:
-        nodeSelector:
-          role: worker
         containers:
           - name: vmcp
             resources:
@@ -280,9 +447,10 @@ virtualMcpServers:
   # ingress/route) for hermes to reach using a Dex-issued ROPC token instead
   # of a human GitLab login. Audience matches the hermes-toolhive Dex client
   # id, since Dex sets a token's aud claim to the requesting client_id.
-  # No authzConfigRef: any token that validates against mcp-tools-hermes-oidc
-  # already proves it came from that client, so it gets the full mcp-tools
-  # toolset.
+  # authzConfigRef (mcp-tools-hermes-authz above) leaves every non-windmill
+  # tool as-is but cuts windmill_* down to an explicit allow-list - that
+  # backend is Windmill's own native MCP API, which otherwise exposes every
+  # script/flow in the workspace, not just the intended task-intake ones.
   - name: mcp-tools-hermes
     groupRef: mcp-tools
     incomingAuth:
@@ -290,14 +458,17 @@ virtualMcpServers:
       oidcConfigRef:
         name: mcp-tools-hermes-oidc
         audience: hermes-toolhive
+<<<<<<< HEAD
+=======
+      authzConfigRef:
+        name: mcp-tools-hermes-authz
+>>>>>>> 639fe3162f13810ceb24aaf7a27521ba5ff950e0
     # sessionStorage: see TODO on mcp-tools above - same passwordRef issue.
     podTemplateSpec:
       metadata:
         annotations:
           reloader.stakater.com/auto: "true"
       spec:
-        nodeSelector:
-          role: worker
         containers:
           - name: vmcp
             resources:
@@ -308,6 +479,7 @@ virtualMcpServers:
                 cpu: 500m
                 memory: 512Mi
 
+
 tailscaleExpose:
   enabled: false
   hostname: mcp-tools
@@ -315,18 +487,21 @@ tailscaleExpose:
     - tag:exit
 
 # hermes runs in the prod-0 cluster, which can't reach this cluster's
-# ClusterIP service DNS - expose mcp-tools-hermes on the shared tailnet
-# instead. prod-0's own lamp-tailscale-services deployment (argo-apps
-# prod-0/platform/tailscale-services) proxies an ExternalName service back
-# to this tailnet hostname, so hermes reaches it via ordinary in-cluster DNS.
+# ClusterIP service DNS - was exposing mcp-tools-hermes on the shared
+# tailnet for that. Disabled along with prod-0's consuming
+# lamp-tailscale-services deployment: Tailscale rejects an OAuth-client
+# authkey request unless the requested tags exactly match the client's
+# whole configured tag set (not a subset), which no shared operator client
+# can satisfy alongside its own tag - simplifying down to just the
+# operators (plus the old infra cluster's exit-node) sidesteps that.
 hermesTailscaleExpose:
-  enabled: true
+  enabled: false
   hostname: mcp-tools-hermes
   tags:
     - tag:exit
 
 externalSecrets:
   kind: ClusterSecretStore
-  name: oracle
+  name: vault
   refreshInterval: 1h
   creationPolicy: Orphan

@@ -27,3 +27,21 @@ externalSecrets:
   name: oracle
   refreshInterval: 1h
   creationPolicy: Orphan
+
+buildkitd:
+  enabled: false
+  image:
+    repository: moby/buildkit
+    tag: v0.33.1
+    pullPolicy: IfNotPresent
+  port: 1234
+  persistence:
+    size: 30Gi
+    storageClass: ""
+  gc:
+    maxUsedSpace: 20GB
+  resources: {}
+  nodeSelector: {}
+  networkPolicy:
+    enabled: true
+    clientLabel: ci-docker-client
