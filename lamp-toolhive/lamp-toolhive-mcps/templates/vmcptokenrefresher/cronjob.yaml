@@ -84,4 +84,5 @@ spec:
                   - serviceAccountToken:
                       audience: {{ .Values.vmcpTokenRefresher.resourceAudience }}
                       expirationSeconds: 600
+                      path: token
 {{- end }}
