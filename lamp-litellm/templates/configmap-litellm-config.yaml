@@ -16,6 +16,12 @@ data:
           model: deepseek/{{ $model }}
           api_key: os.environ/DEEPSEEK_API_KEY
       {{- end }}
+      {{- range $model := .Values.claudeModels }}
+      - model_name: {{ $model }}
+        litellm_params:
+          model: anthropic/{{ $model }}
+          api_key: os.environ/ANTHROPIC_API_KEY
+      {{- end }}
       {{- range $model := .Values.whisperModels }}
       - model_name: {{ $model }}
         litellm_params:
