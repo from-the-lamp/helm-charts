@@ -1,5 +1,6 @@
 {{- if .Values.mcp.playwright.enabled }}
 {{- range $item := .Values.mcp.playwright.mcps }}
+{{- $transport := $item.transport | default "streamable-http" }}
 ---
 apiVersion: toolhive.stacklok.dev/v1beta1
 kind: MCPServer
@@ -7,9 +8,11 @@ metadata:
   name: mcp-{{ $item.name }}
 spec:
   image: {{ $.Values.mcp.playwright.image }}
-  transport: streamable-http
+  transport: {{ $transport }}
+  {{- if eq $transport "streamable-http" }}
   mcpPort: {{ $.Values.mcp.playwright.mcpPort }}
   proxyPort: 8080
+  {{- end }}
   groupRef:
     name: {{ $item.groupRef | default $.Values.mcp.defaults.groupRef }}
   permissionProfile:
@@ -18,13 +21,17 @@ spec:
   audit:
     enabled: true
   args:
+    {{- if eq $transport "streamable-http" }}
     - --port
     - {{ $.Values.mcp.playwright.mcpPort | quote }}
     - --host
     - 0.0.0.0
+    {{- end }}
     - --isolated
+    {{- if eq $transport "streamable-http" }}
     - --allowed-hosts
     - mcp-mcp-{{ $item.name }}:{{ $.Values.mcp.playwright.mcpPort }},mcp-mcp-{{ $item.name }}.{{ $.Release.Namespace }}:{{ $.Values.mcp.playwright.mcpPort }},mcp-mcp-{{ $item.name }}.{{ $.Release.Namespace }}.svc.cluster.local:{{ $.Values.mcp.playwright.mcpPort }}
+    {{- end }}
     {{- with $item.allowedOrigins }}
     - --allowed-origins
     - {{ . | quote }}
