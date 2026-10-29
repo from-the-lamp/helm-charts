@@ -266,23 +266,34 @@ mcp:
 
   # Same remote-proxy shape as aave/googlemaps/windmill below, but pointed
   # at another ENVIRONMENT's own ToolHive vmcp rather than a third-party
-  # SaaS - see templates/casdev/. Auth is Zitadel client_credentials, not
-  # a static token, so this also ships its own CronJob
-  # (templates/casdev/cronjob.yaml) to mint+refresh it - disabled by
-  # default like every other category here, consumer values.yaml turns it
-  # on with the real cas-dev remoteUrl/issuer/audience/Vault coordinates.
+  # SaaS - see templates/casdev/. Auth is a two-hop exchange: ROPC against
+  # THIS cluster's own Dex (cas-dev's cluster can't reach our private
+  # apiserver JWKS, but can reach our already-public Dex) to get a
+  # subject id_token, then RFC 8693 token-exchange of that id_token
+  # against cas-dev's own vmcp token endpoint - mirrors the existing
+  # windmill-delegate pattern, just with Dex instead of a k8s SA JWT as
+  # the subject-token source. Disabled by default like every other
+  # category here; consumer values.yaml turns it on with the real
+  # cas-dev coordinates.
   casDev:
     enabled: false
     remoteUrl: ""
     mcps: []
     tokenRefresher:
       schedule: "*/15 * * * *"
-      issuer: ""
-      audience: ""
-      clientCredentials:
+      dexTokenUrl: ""
+      dexClientId: ""
+      dexUsername: ""
+      dexClientSecretRef:
+        name: ""
+        key: ""
+      casDevTokenUrl: ""
+      casDevResource: ""
+      delegateClientId: ""
+      credentials:
         key: toolhive
-        clientIdProperty: zitadel_client_id
-        clientSecretProperty: zitadel_client_secret
+        passwordProperty: casdevproxy.password
+        delegateSecretProperty: casdevproxy.delegate-secret
 
   defillama:
     enabled: false
