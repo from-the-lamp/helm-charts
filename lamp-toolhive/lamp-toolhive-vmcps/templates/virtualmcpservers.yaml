@@ -29,6 +29,10 @@ spec:
   outgoingAuth:
     {{- toYaml . | nindent 4 }}
   {{- end }}
+  {{- with .operational }}
+  operational:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
   {{- with .podTemplateSpec }}
   podTemplateSpec:
     {{- toYaml . | nindent 4 }}

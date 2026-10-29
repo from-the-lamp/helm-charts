@@ -23,13 +23,12 @@ codexAuthPersistence:
   size: 64Mi
   storageClass: local-path
 
-# Unrelated to the "litellm" vault secret above - shared GitLab registry
-# token reused by many charts, stays its own Vault entry.
 imagePullSecret:
   secretName: litellm-image-pull
   registry: registry.gitlab.com/from-the-lamp
   username: token
-  remoteKey: gitlab-token
+  remoteKey: gitlab
+  remoteProperty: image-pull-secret
 
 # Models served through the ChatGPT/Codex OAuth handler. Shared by the main
 # proxy config and every account worker's config.

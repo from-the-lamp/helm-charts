@@ -8,7 +8,8 @@ imagePullSecret:
   secretName: hermes-image-pull
   registry: registry.gitlab.com/from-the-lamp
   username: token
-  remoteKey: gitlab-token
+  remoteKey: gitlab
+  remoteProperty: image-pull-secret
 nameOverride: ""
 fullnameOverride: ""
 

@@ -1,0 +1,46 @@
+{{- if .Values.mcp.remote.enabled }}
+{{- range $item := .Values.mcp.remote.mcps }}
+---
+apiVersion: toolhive.stacklok.dev/v1beta1
+kind: MCPRemoteProxy
+metadata:
+  name: {{ $item.name }}
+spec:
+  remoteUrl: {{ $item.remoteUrl }}
+  transport: {{ $item.transport | default "streamable-http" }}
+  groupRef:
+    name: {{ $item.groupRef | default $.Values.mcp.defaults.groupRef }}
+  audit:
+    enabled: true
+  {{- with $item.toolConfig }}
+  toolConfigRef:
+    name: {{ $item.name }}-tool-config
+  {{- end }}
+  {{- with $item.headers }}
+  headerForward:
+    addHeadersFromSecret:
+      {{- range . }}
+      - headerName: {{ .name }}
+        valueSecretRef:
+          name: {{ $item.name }}-mcp-secret
+          key: {{ .secretKey }}
+      {{- end }}
+  {{- end }}
+  {{- with $item.toolConfig }}
+---
+apiVersion: toolhive.stacklok.dev/v1beta1
+kind: MCPToolConfig
+metadata:
+  name: {{ $item.name }}-tool-config
+spec:
+  {{- with .toolsFilter }}
+  toolsFilter:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- with .toolsOverride }}
+  toolsOverride:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- end }}
+{{- end }}
+{{- end }}

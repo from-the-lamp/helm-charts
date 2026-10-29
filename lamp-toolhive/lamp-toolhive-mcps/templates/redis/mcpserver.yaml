@@ -30,7 +30,7 @@ spec:
           env:
             {{- range $e := $item.envs }}
             - name: {{ $e.env | upper }}_PASSWORD
-              {{- if $e.password }}
+              {{- if hasKey $e "password" }}
               value: {{ $e.password | quote }}
               {{- else }}
               valueFrom:

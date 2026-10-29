@@ -204,6 +204,46 @@ mcp:
           key: thegraph-mcp
           property: api-key
 
+  letsfg:
+    enabled: true
+    # Self-built from docker-images/lamp-letsfg-mcp (npm package letsfg-mcp, no official image).
+    # letsfg-mcp only accepts a static LETSFG_BEARER_TOKEN env var (no refresh logic of its own),
+    # and its OAuth refresh_token rotates on every use - so the container's own supervisor reads
+    # the current refresh_token straight from Vault (via the mounted lamp-infra OCI profile,
+    # reusing the oracle-infra MCP's ExternalSecret-derived k8s Secret), exchanges it for a fresh
+    # access token, writes the rotated refresh_token back, and restarts itself shortly before
+    # the access token expires so Kubernetes cycles the pod through this loop again.
+    image: registry.gitlab.com/from-the-lamp/infra/docker-images/lamp-letsfg-mcp:latest
+    mcps:
+      - name: letsfg
+        ociProfile: lamp-infra
+        ociSecretName: oracle-infra-mcp-secret
+        vaultSecretId: ocid1.vaultsecret.oc1.eu-frankfurt-1.amaaaaaap56pctia3kx6u2sw3qqt5gkav6rp4pst77gu2lu54qmeram4jcfa
+
+  gcloud:
+    enabled: false
+    image: europe-central2-docker.pkg.dev/common-infra-4585/docker-images/gcloud-mcp:0.1.0
+    mcps: []
+
+  # remote proxies an externally-hosted MCP server (MCPRemoteProxy) instead of
+  # running one in-cluster, so there is no `image` at the type level.
+  remote:
+    enabled: false
+    mcps: []
+    # - name: example-remote
+    #   groupRef: mcp-tools            # optional, defaults to mcp.defaults.groupRef
+    #   remoteUrl: https://example-mcp.internal.example.com
+    #   transport: streamable-http     # streamable-http | sse
+    #   toolConfig:                    # optional, renders an MCPToolConfig + toolConfigRef
+    #     toolsFilter:
+    #       - example_tool_one
+    #       - example_tool_two
+    #   headers:                       # optional, renders spec.headerForward.addHeadersFromSecret
+    #     - name: X-Internal-Auth
+    #       secretKey: shared_token    # key inside the generated <name>-mcp-secret
+    #       token:
+    #         key: example-remote-shared-token
+
 externalSecrets:
   kind: ClusterSecretStore
   name: oracle
