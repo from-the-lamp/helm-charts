@@ -264,6 +264,26 @@ mcp:
     mcps:
       - name: aave
 
+  # Same remote-proxy shape as aave/googlemaps/windmill below, but pointed
+  # at another ENVIRONMENT's own ToolHive vmcp rather than a third-party
+  # SaaS - see templates/casdev/. Auth is Zitadel client_credentials, not
+  # a static token, so this also ships its own CronJob
+  # (templates/casdev/cronjob.yaml) to mint+refresh it - disabled by
+  # default like every other category here, consumer values.yaml turns it
+  # on with the real cas-dev remoteUrl/issuer/audience/Vault coordinates.
+  casDev:
+    enabled: false
+    remoteUrl: ""
+    mcps: []
+    tokenRefresher:
+      schedule: "*/15 * * * *"
+      issuer: ""
+      audience: ""
+      clientCredentials:
+        key: toolhive
+        clientIdProperty: zitadel_client_id
+        clientSecretProperty: zitadel_client_secret
+
   defillama:
     enabled: false
     remoteUrl: https://mcp.defillama.com/mcp
@@ -340,6 +360,19 @@ mcp:
         token:
           key: toolhive
           property: immich_api_key
+
+# Replaces the Windmill-hosted refresh_toolhive_token_v2 cron as the
+# refresh MECHANISM for windmill-delegate's RFC 8693 token exchange - see
+# templates/vmcptokenrefresher/. Disabled by default (no consumer should
+# get an extra CronJob+ServiceAccount+RBAC it didn't ask for); the
+# homelab consumer values.yaml turns this on with its own real
+# tokenEndpoint/resourceAudience/windmillApiBase.
+vmcpTokenRefresher:
+  enabled: false
+  schedule: "*/5 * * * *"
+  tokenEndpoint: ""
+  resourceAudience: ""
+  windmillApiBase: ""
 
 externalSecrets:
   kind: ClusterSecretStore
