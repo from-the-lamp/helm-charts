@@ -77,4 +77,12 @@ spec:
                     -H "Authorization: ${WINDMILL_AUTH_HEADER}" -H "Content-Type: application/json" \
                     -d "{\"value\":\"${TOKEN}\",\"is_secret\":true}")
                   echo "windmill variable update ($varcode): $(cat /tmp/varresp)"
+          volumes:
+            - name: sa-token
+              projected:
+                sources:
+                  - serviceAccountToken:
+                      audience: {{ .Values.vmcpTokenRefresher.resourceAudience }}
+                      expirationSeconds: 600
+                      path: token
 {{- end }}
