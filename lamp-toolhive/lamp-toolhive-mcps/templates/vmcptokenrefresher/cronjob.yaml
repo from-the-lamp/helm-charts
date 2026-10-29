@@ -69,20 +69,12 @@ spec:
                   # (defi:advise, kelos, etc.) keep working unchanged - OSS
                   # Windmill has no resource type backed by a k8s Secret, so
                   # this push is unavoidable even though the exchange itself
-                  # no longer runs as a Windmill cron. NOT yet verified
-                  # against the real Windmill API - confirm this endpoint/
-                  # payload shape against a live workspace before relying on
-                  # it (see MR description).
-                  curl -s -o /tmp/varresp -w '%{http_code}' -X POST \
+                  # no longer runs as a Windmill cron. Logged (not yet
+                  # fatal on failure) - a prior run confirmed this specific
+                  # call isn't taking effect, cause still unconfirmed.
+                  varcode=$(curl -s -o /tmp/varresp -w '%{http_code}' -X POST \
                     "${WINDMILL_API_BASE}/api/w/djinn/variables/update/f%2Fplatform%2Ftoolhive_bearer_token" \
                     -H "Authorization: ${WINDMILL_AUTH_HEADER}" -H "Content-Type: application/json" \
-                    -d "{\"value\":\"${TOKEN}\",\"is_secret\":true}" > /tmp/varcode
-          volumes:
-            - name: sa-token
-              projected:
-                sources:
-                  - serviceAccountToken:
-                      audience: {{ .Values.vmcpTokenRefresher.resourceAudience }}
-                      expirationSeconds: 600
-                      path: token
+                    -d "{\"value\":\"${TOKEN}\",\"is_secret\":true}")
+                  echo "windmill variable update ($varcode): $(cat /tmp/varresp)"
 {{- end }}
