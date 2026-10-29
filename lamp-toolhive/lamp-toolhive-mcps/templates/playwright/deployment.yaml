@@ -31,6 +31,13 @@ spec:
             - --host
             - "0.0.0.0"
             - --isolated
+            # DNS-rebinding guard: playwright-mcp checks the request's Host
+            # header against this allowlist independently of --host/bind
+            # address. vmcp calls in via the cluster service DNS name, so
+            # without this every request 403s with "Access is only allowed
+            # at localhost:<port>".
+            - --allowed-hosts
+            - {{ $item.allowedHosts | default "*" | quote }}
             {{- with $item.allowedOrigins }}
             - --allowed-origins
             - {{ . | quote }}
