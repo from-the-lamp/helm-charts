@@ -19,38 +19,68 @@ spec:
           containers:
             - name: refresh
               # Same prebaked curl+kubectl image the windmill bootstrap Job
-              # uses (docker-images/lamp-windmill-mcp-bootstrap) - this
-              # namespace's egress can't reach dl.k8s.io to install kubectl
-              # at runtime, confirmed when that Job was first built.
+              # uses - this namespace's egress can't reach dl.k8s.io to
+              # install kubectl at runtime.
               image: registry.gitlab.com/from-the-lamp/infra/docker-images/lamp-windmill-mcp-bootstrap:1.0.0
               securityContext:
                 allowPrivilegeEscalation: false
                 capabilities:
                   drop: ["ALL"]
               env:
-                - name: ZITADEL_ISSUER
-                  value: {{ .Values.mcp.casDev.tokenRefresher.issuer }}
-                - name: ZITADEL_PROJECT_AUDIENCE
-                  value: {{ .Values.mcp.casDev.tokenRefresher.audience | quote }}
-                - name: CLIENT_ID
+                - name: DEX_TOKEN_URL
+                  value: {{ .Values.mcp.casDev.tokenRefresher.dexTokenUrl }}
+                - name: DEX_CLIENT_ID
+                  value: {{ .Values.mcp.casDev.tokenRefresher.dexClientId }}
+                - name: DEX_USERNAME
+                  value: {{ .Values.mcp.casDev.tokenRefresher.dexUsername }}
+                - name: DEX_CLIENT_SECRET
                   valueFrom:
                     secretKeyRef:
-                      name: cas-dev-zitadel-client
-                      key: clientId
-                - name: CLIENT_SECRET
+                      name: {{ .Values.mcp.casDev.tokenRefresher.dexClientSecretRef.name }}
+                      key: {{ .Values.mcp.casDev.tokenRefresher.dexClientSecretRef.key }}
+                - name: DEX_PASSWORD
                   valueFrom:
                     secretKeyRef:
-                      name: cas-dev-zitadel-client
-                      key: clientSecret
+                      name: cas-dev-proxy-credentials
+                      key: password
+                - name: CASDEV_TOKEN_URL
+                  value: {{ .Values.mcp.casDev.tokenRefresher.casDevTokenUrl }}
+                - name: CASDEV_RESOURCE
+                  value: {{ .Values.mcp.casDev.tokenRefresher.casDevResource }}
+                - name: DELEGATE_CLIENT_ID
+                  value: {{ .Values.mcp.casDev.tokenRefresher.delegateClientId }}
+                - name: DELEGATE_SECRET
+                  valueFrom:
+                    secretKeyRef:
+                      name: cas-dev-proxy-credentials
+                      key: delegateSecret
               command: ["/bin/sh", "-euc"]
               args:
                 - |
-                  code=$(curl -s -o /tmp/resp -w '%{http_code}' -X POST "${ZITADEL_ISSUER}/oauth/v2/token" \
-                    -u "${CLIENT_ID}:${CLIENT_SECRET}" \
-                    -d grant_type=client_credentials \
-                    -d "scope=openid urn:zitadel:iam:org:project:id:${ZITADEL_PROJECT_AUDIENCE}:aud")
+                  dexcode=$(curl -s -o /tmp/dexresp -w '%{http_code}' -X POST "${DEX_TOKEN_URL}" \
+                    -d grant_type=password \
+                    -d "client_id=${DEX_CLIENT_ID}" \
+                    -d "client_secret=${DEX_CLIENT_SECRET}" \
+                    -d "username=${DEX_USERNAME}" \
+                    -d "password=${DEX_PASSWORD}" \
+                    -d scope=openid)
+                  if [ "$dexcode" != "200" ]; then
+                    echo "dex ropc login failed ($dexcode): $(cat /tmp/dexresp)"
+                    exit 1
+                  fi
+                  ID_TOKEN=$(sed -n 's/.*"id_token":"\([^"]*\)".*/\1/p' /tmp/dexresp)
+                  if [ -z "$ID_TOKEN" ]; then
+                    echo "no id_token in dex response: $(cat /tmp/dexresp)"
+                    exit 1
+                  fi
+                  code=$(curl -s -o /tmp/resp -w '%{http_code}' -X POST "${CASDEV_TOKEN_URL}" \
+                    -u "${DELEGATE_CLIENT_ID}:${DELEGATE_SECRET}" \
+                    -d grant_type=urn:ietf:params:oauth:grant-type:token-exchange \
+                    -d "subject_token=${ID_TOKEN}" \
+                    -d subject_token_type=urn:ietf:params:oauth:token-type:id_token \
+                    -d "resource=${CASDEV_RESOURCE}")
                   if [ "$code" != "200" ]; then
-                    echo "token request failed ($code): $(cat /tmp/resp)"
+                    echo "cas-dev token exchange failed ($code): $(cat /tmp/resp)"
                     exit 1
                   fi
                   TOKEN=$(sed -n 's/.*"access_token":"\([^"]*\)".*/\1/p' /tmp/resp)
