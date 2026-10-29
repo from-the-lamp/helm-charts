@@ -25,6 +25,14 @@ spec:
       containers:
         - name: mcp
           image: {{ $.Values.mcp.playwright.image }}
+          env:
+            # Chrome derives its crashpad database path from $HOME; with
+            # readOnlyRootFilesystem the real $HOME (/home/node) isn't
+            # writable, so Chrome silently drops --database when spawning
+            # chrome_crashpad_handler and the handler SIGTRAPs the process.
+            # /tmp is the one writable path we already mount.
+            - name: HOME
+              value: /tmp
           args:
             - --port
             - {{ $.Values.mcp.playwright.mcpPort | quote }}
