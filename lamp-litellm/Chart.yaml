@@ -1,6 +1,6 @@
 apiVersion: v2
 name: lamp-litellm
-version: 0.2.0
+version: 0.3.0
 
 dependencies:
   - name: litellm-helm
@@ -8,4 +8,4 @@ dependencies:
     repository: oci://ghcr.io/berriai
 
 annotations:
-  notes: "Switch ChatGPT Plus/Pro model access to litellm's native chatgpt/ provider, drop the custom Codex OAuth bridge (jslorrma/litellm-codex-oauth-provider) entirely - it had a hand-rolled SSE parser that misdetected larger responses as non-streaming, causing empty completions. The existing OAuth session migrates automatically via an init container; no re-login needed."
+  notes: "Add Anthropic Claude models (claude-opus-5, claude-sonnet-5, claude-haiku-4-5-20251001) via a direct API key - new claudeApiKey/claudeModels values, sourced from the platform/litellm vault secret's claude_api_token property, same pattern as the existing deepseek/groq integrations."
