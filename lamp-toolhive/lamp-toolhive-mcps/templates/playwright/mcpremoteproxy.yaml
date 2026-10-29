@@ -1,0 +1,15 @@
+{{- if .Values.mcp.playwright.enabled }}
+{{- range $item := .Values.mcp.playwright.mcps }}
+---
+apiVersion: toolhive.stacklok.dev/v1beta1
+kind: MCPRemoteProxy
+metadata:
+  name: mcp-{{ $item.name }}
+spec:
+  remoteUrl: http://mcp-{{ $item.name }}-backend.{{ $.Release.Namespace }}.svc.cluster.local:{{ $.Values.mcp.playwright.mcpPort }}/mcp
+  allowPrivateEndpoint: true
+  groupRef:
+    name: {{ $item.groupRef | default $.Values.mcp.defaults.groupRef }}
+  proxyPort: 8080
+{{- end }}
+{{- end }}

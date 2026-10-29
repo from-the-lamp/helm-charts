@@ -1,0 +1,104 @@
+{{- if .Values.mcp.playwright.enabled }}
+{{- range $item := .Values.mcp.playwright.mcps }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mcp-{{ $item.name }}-backend
+  labels:
+    app: mcp-{{ $item.name }}-backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mcp-{{ $item.name }}-backend
+  template:
+    metadata:
+      labels:
+        app: mcp-{{ $item.name }}-backend
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+      containers:
+        - name: mcp
+          image: {{ $.Values.mcp.playwright.image }}
+          args:
+            - --port
+            - {{ $.Values.mcp.playwright.mcpPort | quote }}
+            - --host
+            - "0.0.0.0"
+            - --isolated
+            {{- with $item.allowedOrigins }}
+            - --allowed-origins
+            - {{ . | quote }}
+            {{- end }}
+            {{- with $item.blockedOrigins }}
+            - --blocked-origins
+            - {{ . | quote }}
+            {{- end }}
+            {{- if $item.storageState }}
+            - --storage-state
+            - /etc/toolhive/playwright/state.json
+            {{- end }}
+            {{- with $item.extraArgs }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          ports:
+            - name: http
+              containerPort: {{ $.Values.mcp.playwright.mcpPort }}
+          # Deliberately NOT toolhive-operator-managed (MCPServer): the operator
+          # unconditionally stamps seccompProfile: RuntimeDefault on every
+          # MCPServer backend container with no override mechanism (confirmed
+          # in its source, cmd/thv-operator - configureContainer() nil-checks
+          # privileged/runAsUser/etc but not SeccompProfile), which crashes
+          # Chromium (SIGTRAP via chrome_crashpad_handler) on launch every
+          # time. A plain Deployment we own outright lets us actually set
+          # Unconfined - safe here because this namespace's PSA was relaxed
+          # to privileged for exactly this reason (see namespace.yaml in the
+          # parent toolhive app chart).
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            privileged: false
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            runAsUser: 1000
+            runAsGroup: 1000
+            seccompProfile:
+              type: Unconfined
+          {{- with $item.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+            - name: dshm
+              mountPath: /dev/shm
+            {{- if $item.storageState }}
+            - name: storage-state
+              mountPath: /etc/toolhive/playwright
+              readOnly: true
+            {{- end }}
+      volumes:
+        - name: tmp
+          emptyDir: {}
+        - name: dshm
+          emptyDir:
+            medium: Memory
+            sizeLimit: {{ $item.shmSize | default "1Gi" }}
+        {{- if $item.storageState }}
+        - name: storage-state
+          secret:
+            secretName: {{ $item.name }}-mcp-secret
+            items:
+              - key: state
+                path: state.json
+        {{- end }}
+{{- end }}
+{{- end }}
