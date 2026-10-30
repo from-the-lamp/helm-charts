@@ -275,26 +275,6 @@ mcp:
   # the subject-token source. Disabled by default like every other
   # category here; consumer values.yaml turns it on with the real
   # cas-dev coordinates.
-  casDev:
-    enabled: false
-    remoteUrl: ""
-    mcps: []
-    tokenRefresher:
-      schedule: "*/15 * * * *"
-      dexTokenUrl: ""
-      dexClientId: ""
-      dexUsername: ""
-      dexClientSecretRef:
-        name: ""
-        key: ""
-      casDevTokenUrl: ""
-      casDevResource: ""
-      delegateClientId: ""
-      credentials:
-        key: toolhive
-        passwordProperty: casdevproxy.password
-        delegateSecretProperty: casdevproxy.delegate-secret
-
   defillama:
     enabled: false
     remoteUrl: https://mcp.defillama.com/mcp
