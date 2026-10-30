@@ -1,0 +1,23 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace
+        exclude: ^.*\.(md|tpl)$
+      - id: end-of-file-fixer
+      - id: check-merge-conflict
+      - id: check-yaml
+        args: ["--allow-multiple-documents"]
+        exclude: ^.*/templates/.*\.ya?ml$
+      - id: check-added-large-files
+        args: ["--maxkb=512"]
+      - id: detect-private-key
+
+  - repo: local
+    hooks:
+      - id: chart-readme
+        name: Generate chart README.md (task readme:changed)
+        entry: task readme:changed
+        language: system
+        pass_filenames: false
+        files: (values\.ya?ml|Chart\.ya?ml)$

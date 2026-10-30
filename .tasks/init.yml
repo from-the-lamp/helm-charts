@@ -3,7 +3,7 @@ version: '3'
 silent: true
 tasks:
   init:
-    desc: Install the pinned toolchain (mise)
+    desc: Install toolchain (mise) and git hooks (pre-commit)
     dir: "{{ .ROOT_DIR }}"
     cmds:
       - |
@@ -16,4 +16,6 @@ tasks:
       - mise trust
       - echo -e "\033[36m==>\033[0m installing the tool versions pinned in mise.toml"
       - mise install
+      - echo -e "\033[36m==>\033[0m installing the pre-commit git hook"
+      - pre-commit install
       - echo -e "\033[32m==> toolchain ready\033[0m - 'mise list' shows what is active here"
