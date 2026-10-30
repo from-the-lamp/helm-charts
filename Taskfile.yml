@@ -32,6 +32,9 @@ includes:
   build:
     taskfile: .tasks/build.yml
     flatten: true
+  build_dev:
+    taskfile: .tasks/build_dev.yml
+    flatten: true
   readme: 
     taskfile: .tasks/readme.yml
     flatten: true
