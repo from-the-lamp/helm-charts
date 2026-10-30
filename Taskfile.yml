@@ -89,7 +89,7 @@ tasks:
     desc: Remove temporary files
     cmds:
     - find . -type d -name ".output" -prune -exec rm -rf {} \;
-    - find . -type d -name "charts" -prune -exec rm -rf {} \;
+    - find charts -mindepth 2 -type d -name "charts" -prune -exec rm -rf {} \;
     - find . -iname "*tmpcharts*" -delete;
     - find . -iname "Chart.lock" -delete;
 

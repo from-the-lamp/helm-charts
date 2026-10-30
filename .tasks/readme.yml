@@ -47,9 +47,9 @@ tasks:
         done | jq -s '.' > .output/charts.json
       - gomplate -d charts=.output/charts.json -f .tasks/README.md.gotmpl -o README.md
     sources:
-      - lamp-*/**/Chart.yaml
-      - lamp-*/**/NOTES.txt
-      - lamp-*/**/NOTES.md
+      - charts/lamp-*/**/Chart.yaml
+      - charts/lamp-*/**/NOTES.txt
+      - charts/lamp-*/**/NOTES.md
       - README.md.gotmpl
     generates:
       - README.md
