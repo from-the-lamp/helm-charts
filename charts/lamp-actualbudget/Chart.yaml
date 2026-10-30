@@ -1,0 +1,9 @@
+apiVersion: v2
+name: lamp-actualbudget
+description: Actual Budget deployment chart; thin wrapper around the community-charts actualbudget chart
+version: 0.1.0
+
+dependencies:
+  - name: actualbudget
+    version: 1.9.5
+    repository: https://community-charts.github.io/helm-charts

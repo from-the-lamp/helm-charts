@@ -1,0 +1,30 @@
+# Actual Budget bundles its own SQLite store under /data and does its own
+# password auth (set by the first user to open the instance) - no database
+# or OAuth wiring needed here, unlike lamp-pgadmin/lamp-home-assistant.
+actualbudget:
+  image:
+    tag: "" # defaults to appVersion (26.10.0)
+
+  # RollingUpdate (the chart default) briefly runs two pods against the same
+  # RWO SQLite-backed PVC - force Recreate to avoid two actual-server
+  # processes writing the same data files at once.
+  strategy:
+    type: Recreate
+
+  service:
+    type: ClusterIP
+    port: 5006
+
+  persistence:
+    enabled: true
+    accessModes:
+      - ReadWriteOnce
+    size: 5Gi
+
+  # Routing is handled by lamp-istio-routes in the consuming argo-apps app;
+  # this chart's own ingress stays disabled.
+  ingress:
+    enabled: false
+
+  login:
+    method: password
