@@ -1,6 +1,5 @@
-# Actual Budget bundles its own SQLite store under /data and does its own
-# password auth (set by the first user to open the instance) - no database
-# or OAuth wiring needed here, unlike lamp-pgadmin/lamp-home-assistant.
+# Actual Budget bundles its own SQLite store under /data - no database
+# wiring needed here, unlike lamp-pgadmin/lamp-home-assistant.
 actualbudget:
   image:
     tag: "" # defaults to appVersion (26.10.0)
@@ -21,10 +20,61 @@ actualbudget:
       - ReadWriteOnce
     size: 5Gi
 
-  # Routing is handled by lamp-istio-routes in the consuming argo-apps app;
-  # this chart's own ingress stays disabled.
+  # Routing is handled by lamp-istio-routes in the consuming argo-apps app,
+  # so this chart's own Ingress object is never actually used for traffic -
+  # BUT the chart's own deployment.yaml gates its *entire* ACTUAL_OPENID_*
+  # env/secret wiring (client id/secret, discovery url, hostname, ...) behind
+  # `ingress.enabled`, with no other toggle to reach it. Left on for that
+  # reason alone; no IngressClass on this cluster (Gateway API/Istio only)
+  # ever picks the resulting Ingress object up.
   ingress:
-    enabled: false
+    enabled: true
 
   login:
+    # Flip to "openid" (here or in the consuming argo-apps values.yaml) once
+    # the GitLab OAuth Application exists and openid.remoteSecretKeys below
+    # resolves in Vault - until then the openid-client ExternalSecret is
+    # harmless to leave in place unsynced, since nothing references it in
+    # password mode.
     method: password
+    openid:
+      # Chart default; per Actual's own docs this "forces OpenID/OAuth2 as
+      # the only allowed login method" - kept true intentionally, SSO is
+      # meant to be the only way in. allowedLoginMethods is restricted to
+      # match at the consuming (argo-apps) layer once method flips to
+      # "openid", since it's rendered unconditionally and listing
+      # "password" there while method is still "password" (chart default)
+      # must stay valid for anyone else using this chart's defaults as-is.
+      enforce: true
+      providerName: "GitLab"
+      discoveryUrl: "https://gitlab.com"
+      authMethod: openid
+      existingSecret:
+        name: actualbudget-openid-client
+        clientIdKey: client_id
+        clientSecretKey: client_secret
+
+  # Static (non-secret) - the chart would otherwise derive this from
+  # ingress.hosts/tls, which carry no real data since routing is via
+  # lamp-istio-routes; env entries override envFrom-sourced ones of the same
+  # name, so this always wins over the chart's own guess.
+  extraEnvVars:
+    ACTUAL_OPENID_SERVER_HOSTNAME: "https://actualbudget.from-the-lamp.work"
+
+# Consumed by templates/openid-secret.yaml, same remoteSecretKeys shape as
+# lamp-pgadmin's oauth block. Placeholder path here; the argo-apps layer
+# points it at the real Vault path once the GitLab OAuth Application exists.
+openid:
+  remoteSecretKeys:
+    client_id:
+      path: example/path
+      key: client_id
+    client_secret:
+      path: example/path
+      key: client_secret
+
+externalSecrets:
+  kind: ClusterSecretStore
+  name: vault
+  refreshInterval: 1h
+  creationPolicy: Orphan
