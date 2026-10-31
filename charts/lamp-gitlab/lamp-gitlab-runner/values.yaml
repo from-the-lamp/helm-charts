@@ -32,7 +32,7 @@ buildkitd:
   enabled: false
   image:
     repository: moby/buildkit
-    tag: v0.33.1
+    tag: v0.34.1
     pullPolicy: IfNotPresent
   port: 1234
   persistence:
