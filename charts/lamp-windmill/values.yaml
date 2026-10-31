@@ -26,7 +26,7 @@ oauth:
 
 bootstrap:
   enabled: false
-  image: alpine:3.22
+  image: alpine:3.24
   workspace: ""
   serviceUserEmail: toolhive-mcp@windmill.internal
   folders: []
