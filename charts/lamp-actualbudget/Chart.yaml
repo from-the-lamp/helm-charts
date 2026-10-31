@@ -1,7 +1,7 @@
 apiVersion: v2
 name: lamp-actualbudget
 description: Actual Budget deployment chart; thin wrapper around the community-charts actualbudget chart
-version: 0.2.0
+version: 0.3.0
 
 dependencies:
   - name: actualbudget

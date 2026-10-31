@@ -1,6 +1,6 @@
 # lamp-actualbudget
 
-![Version: 0.2.0](https://img.shields.io/badge/Version-0.2.0-informational?style=flat-square)
+![Version: 0.3.0](https://img.shields.io/badge/Version-0.3.0-informational?style=flat-square)
 
 Actual Budget deployment chart; thin wrapper around the community-charts actualbudget chart
 
@@ -31,6 +31,20 @@ Actual Budget deployment chart; thin wrapper around the community-charts actualb
 | actualbudget.service.port | int | `5006` |  |
 | actualbudget.service.type | string | `"ClusterIP"` |  |
 | actualbudget.strategy.type | string | `"Recreate"` |  |
+| backup.bucket | string | `""` |  |
+| backup.deploymentName | string | `"actualbudget"` |  |
+| backup.enabled | bool | `false` |  |
+| backup.keep | int | `7` |  |
+| backup.path | string | `"actualbudget"` |  |
+| backup.podSelector | string | `"app.kubernetes.io/instance=actualbudget,app.kubernetes.io/name=actualbudget"` |  |
+| backup.pvcClaimName | string | `"actualbudget-data"` |  |
+| backup.rclone.endpoint | string | `""` |  |
+| backup.rclone.provider | string | `"Other"` |  |
+| backup.rclone.region | string | `""` |  |
+| backup.schedule | string | `"0 3 * * *"` |  |
+| backup.vault.accessKeyProperty | string | `""` |  |
+| backup.vault.remoteSecretKey | string | `"s3"` |  |
+| backup.vault.secretKeyProperty | string | `""` |  |
 | externalSecrets.creationPolicy | string | `"Orphan"` |  |
 | externalSecrets.kind | string | `"ClusterSecretStore"` |  |
 | externalSecrets.name | string | `"vault"` |  |

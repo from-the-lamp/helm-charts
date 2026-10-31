@@ -78,3 +78,26 @@ externalSecrets:
   name: vault
   refreshInterval: 1h
   creationPolicy: Orphan
+
+# No storage-layer replication on a single-node cluster (local-path), and
+# no backup for this PVC otherwise - same rclone-to-S3 CronJob shape as
+# lamp-immich's backup.*, just tarring the whole /data dir (server-files +
+# user-files) instead of a library subset. Disabled by default; the
+# consuming argo-apps app turns it on with real bucket/Vault values.
+backup:
+  enabled: false
+  bucket: ""
+  path: actualbudget
+  keep: 7
+  schedule: "0 3 * * *"
+  deploymentName: actualbudget
+  podSelector: "app.kubernetes.io/instance=actualbudget,app.kubernetes.io/name=actualbudget"
+  pvcClaimName: actualbudget-data
+  rclone:
+    provider: Other
+    region: ""
+    endpoint: ""
+  vault:
+    remoteSecretKey: s3
+    accessKeyProperty: ""
+    secretKeyProperty: ""

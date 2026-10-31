@@ -1,0 +1,30 @@
+{{- if .Values.backup.enabled }}
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: actualbudget-backup
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: actualbudget-backup
+rules:
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["get", "list"]
+  - apiGroups: [""]
+    resources: ["pods/exec"]
+    verbs: ["create"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: actualbudget-backup
+subjects:
+  - kind: ServiceAccount
+    name: actualbudget-backup
+roleRef:
+  kind: Role
+  name: actualbudget-backup
+  apiGroup: rbac.authorization.k8s.io
+{{- end }}
