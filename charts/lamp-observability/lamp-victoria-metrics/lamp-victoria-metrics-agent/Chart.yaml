@@ -31,7 +31,7 @@ dependencies:
   - name: prometheus-postgres-exporter
     alias: postgres-exporter
     condition: postgres-exporter.enabled
-    version: 8.2.0
+    version: 8.2.1
     repository: https://prometheus-community.github.io/helm-charts
 
   - name: prometheus-blackbox-exporter
