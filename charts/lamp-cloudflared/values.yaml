@@ -9,7 +9,7 @@ replicaCount: 1
 image:
   repository: cloudflare/cloudflared
   pullPolicy: IfNotPresent
-  tag: 2026.10.3
+  tag: 2026.10.7
 imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: cloudflared
