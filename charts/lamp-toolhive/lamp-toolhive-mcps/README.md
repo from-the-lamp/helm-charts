@@ -1,6 +1,6 @@
 # lamp-toolhive-mcps
 
-![Version: 0.0.49](https://img.shields.io/badge/Version-0.0.49-informational?style=flat-square)
+![Version: 0.0.50](https://img.shields.io/badge/Version-0.0.50-informational?style=flat-square)
 
 ## Values
 
@@ -9,7 +9,7 @@
 | externalSecrets.creationPolicy | string | `"Orphan"` |  |
 | externalSecrets.kind | string | `"ClusterSecretStore"` |  |
 | externalSecrets.name | string | `"vault"` |  |
-| externalSecrets.refreshInterval | string | `"1h"` |  |
+| externalSecrets.refreshInterval | string | `"1m"` |  |
 | mcp.aave.enabled | bool | `true` |  |
 | mcp.aave.mcps[0].name | string | `"aave"` |  |
 | mcp.aave.remoteUrl | string | `"https://mcp.aave.com"` |  |

@@ -400,5 +400,10 @@ vmcpTokenRefresher:
 externalSecrets:
   kind: ClusterSecretStore
   name: vault
-  refreshInterval: 1h
+  # Was 1h - a rotated/recreated secret (Vault value changed, or a
+  # grafana-operator-issued token reissued after Grafana lost its backing
+  # store) could sit stale in the mirrored toolhive Secret for up to an hour
+  # before ESO even looked again. Internal Vault/K8s API reads, so polling
+  # every minute instead costs nothing meaningful.
+  refreshInterval: 1m
   creationPolicy: Orphan
