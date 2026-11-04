@@ -1,6 +1,6 @@
 apiVersion: v2
 name: lamp-litellm
-version: 0.4.0
+version: 0.4.1
 
 dependencies:
   - name: litellm-helm
@@ -8,4 +8,4 @@ dependencies:
     repository: oci://ghcr.io/berriai
 
 annotations:
-  notes: "Add modelFallbacks - explicit cross-provider fallback declarations in router_settings.fallbacks, additive to the existing chatgptModels sibling fallback. Also fixes an unresolved git merge conflict left in imagePullSecret.remoteProperty's default."
+  notes: "Add service_callback: [\"prometheus_system\"] to litellm_settings so the Grafana dashboard's internal-service-health panels (redis/postgres/router/auth latency and request/failure rates) get data."
