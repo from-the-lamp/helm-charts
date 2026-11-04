@@ -1,6 +1,6 @@
 # lamp-victoria-metrics
 
-![Version: 3.0.1](https://img.shields.io/badge/Version-3.0.1-informational?style=flat-square)
+![Version: 3.1.0](https://img.shields.io/badge/Version-3.1.0-informational?style=flat-square)
 
 ## Requirements
 
@@ -22,7 +22,10 @@
 | alertManagerConfig.receivers | list | `[]` |  |
 | alertManagerConfig.routes | list | `[]` |  |
 | alertManagerConfig.slack.apiUrl | string | `"https://slack.com/api/chat.postMessage"` |  |
-| alertManagerConfig.slack.token | string | `"token"` |  |
+| alertManagerConfig.slack.enabled | bool | `false` |  |
+| alertManagerConfig.slack.secretName | string | `"vmalertmanager-slack-secret"` |  |
+| alertManagerConfig.slack.tokenSecret.key | string | `"slack"` |  |
+| alertManagerConfig.slack.tokenSecret.property | string | `"alertmanager"` |  |
 | externalSecrets.creationPolicy | string | `"Orphan"` |  |
 | externalSecrets.kind | string | `"ClusterSecretStore"` |  |
 | externalSecrets.name | string | `"vault"` |  |
@@ -168,109 +171,109 @@ Report Summary
 ┌──────────────────────────────────────────────────────────────────────────────────┬────────────┬───────────────────┐
 │                                      Target                                      │    Type    │ Misconfigurations │
 ├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
-│ .output/lamp-victoria-metrics-3.0.1.tgz:charts/prometheus-operator-crds/charts/- │    helm    │         0         │
+│ .output/lamp-victoria-metrics-3.1.0.tgz:charts/prometheus-operator-crds/charts/- │    helm    │         0         │
 │ crds/templates/crd-alertmanagerconfigs.yaml                                      │            │                   │
 ├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
-│ .output/lamp-victoria-metrics-3.0.1.tgz:charts/prometheus-operator-crds/charts/- │    helm    │         0         │
+│ .output/lamp-victoria-metrics-3.1.0.tgz:charts/prometheus-operator-crds/charts/- │    helm    │         0         │
 │ crds/templates/crd-alertmanagers.yaml                                            │            │                   │
 ├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
-│ .output/lamp-victoria-metrics-3.0.1.tgz:charts/prometheus-operator-crds/charts/- │    helm    │         0         │
+│ .output/lamp-victoria-metrics-3.1.0.tgz:charts/prometheus-operator-crds/charts/- │    helm    │         0         │
 │ crds/templates/crd-podmonitors.yaml                                              │            │                   │
 ├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
-│ .output/lamp-victoria-metrics-3.0.1.tgz:charts/prometheus-operator-crds/charts/- │    helm    │         0         │
+│ .output/lamp-victoria-metrics-3.1.0.tgz:charts/prometheus-operator-crds/charts/- │    helm    │         0         │
 │ crds/templates/crd-probes.yaml                                                   │            │                   │
 ├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
-│ .output/lamp-victoria-metrics-3.0.1.tgz:charts/prometheus-operator-crds/charts/- │    helm    │         0         │
+│ .output/lamp-victoria-metrics-3.1.0.tgz:charts/prometheus-operator-crds/charts/- │    helm    │         0         │
 │ crds/templates/crd-prometheusagents.yaml                                         │            │                   │
 ├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
-│ .output/lamp-victoria-metrics-3.0.1.tgz:charts/prometheus-operator-crds/charts/- │    helm    │         0         │
+│ .output/lamp-victoria-metrics-3.1.0.tgz:charts/prometheus-operator-crds/charts/- │    helm    │         0         │
 │ crds/templates/crd-prometheuses.yaml                                             │            │                   │
 ├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
-│ .output/lamp-victoria-metrics-3.0.1.tgz:charts/prometheus-operator-crds/charts/- │    helm    │         0         │
+│ .output/lamp-victoria-metrics-3.1.0.tgz:charts/prometheus-operator-crds/charts/- │    helm    │         0         │
 │ crds/templates/crd-prometheusrules.yaml                                          │            │                   │
 ├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
-│ .output/lamp-victoria-metrics-3.0.1.tgz:charts/prometheus-operator-crds/charts/- │    helm    │         0         │
+│ .output/lamp-victoria-metrics-3.1.0.tgz:charts/prometheus-operator-crds/charts/- │    helm    │         0         │
 │ crds/templates/crd-scrapeconfigs.yaml                                            │            │                   │
 ├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
-│ .output/lamp-victoria-metrics-3.0.1.tgz:charts/prometheus-operator-crds/charts/- │    helm    │         0         │
+│ .output/lamp-victoria-metrics-3.1.0.tgz:charts/prometheus-operator-crds/charts/- │    helm    │         0         │
 │ crds/templates/crd-servicemonitors.yaml                                          │            │                   │
 ├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
-│ .output/lamp-victoria-metrics-3.0.1.tgz:charts/prometheus-operator-crds/charts/- │    helm    │         0         │
+│ .output/lamp-victoria-metrics-3.1.0.tgz:charts/prometheus-operator-crds/charts/- │    helm    │         0         │
 │ crds/templates/crd-thanosrulers.yaml                                             │            │                   │
 ├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
-│ .output/lamp-victoria-metrics-3.0.1.tgz:charts/victoria-metrics-k8s-stack/chart- │    helm    │         0         │
+│ .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/chart- │    helm    │         0         │
 │ s/kube-state-metrics/templates/clusterrolebinding.yaml                           │            │                   │
 ├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
-│ .output/lamp-victoria-metrics-3.0.1.tgz:charts/victoria-metrics-k8s-stack/chart- │    helm    │         5         │
+│ .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/chart- │    helm    │         5         │
 │ s/kube-state-metrics/templates/deployment.yaml                                   │            │                   │
 ├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
-│ .output/lamp-victoria-metrics-3.0.1.tgz:charts/victoria-metrics-k8s-stack/chart- │    helm    │         1         │
+│ .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/chart- │    helm    │         1         │
 │ s/kube-state-metrics/templates/role.yaml                                         │            │                   │
 ├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
-│ .output/lamp-victoria-metrics-3.0.1.tgz:charts/victoria-metrics-k8s-stack/chart- │    helm    │         0         │
+│ .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/chart- │    helm    │         0         │
 │ s/kube-state-metrics/templates/service.yaml                                      │            │                   │
 ├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
-│ .output/lamp-victoria-metrics-3.0.1.tgz:charts/victoria-metrics-k8s-stack/chart- │    helm    │         0         │
+│ .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/chart- │    helm    │         0         │
 │ s/kube-state-metrics/templates/serviceaccount.yaml                               │            │                   │
 ├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
-│ .output/lamp-victoria-metrics-3.0.1.tgz:charts/victoria-metrics-k8s-stack/chart- │    helm    │        15         │
+│ .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/chart- │    helm    │        15         │
 │ s/prometheus-node-exporter/templates/daemonset.yaml                              │            │                   │
 ├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
-│ .output/lamp-victoria-metrics-3.0.1.tgz:charts/victoria-metrics-k8s-stack/chart- │    helm    │         0         │
+│ .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/chart- │    helm    │         0         │
 │ s/prometheus-node-exporter/templates/service.yaml                                │            │                   │
 ├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
-│ .output/lamp-victoria-metrics-3.0.1.tgz:charts/victoria-metrics-k8s-stack/chart- │    helm    │         0         │
+│ .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/chart- │    helm    │         0         │
 │ s/prometheus-node-exporter/templates/serviceaccount.yaml                         │            │                   │
 ├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
-│ .output/lamp-victoria-metrics-3.0.1.tgz:charts/victoria-metrics-k8s-stack/chart- │    helm    │         0         │
+│ .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/chart- │    helm    │         0         │
 │ s/victoria-metrics-operator/templates/crb.yaml                                   │            │                   │
 ├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
-│ .output/lamp-victoria-metrics-3.0.1.tgz:charts/victoria-metrics-k8s-stack/chart- │    helm    │         0         │
+│ .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/chart- │    helm    │         0         │
 │ s/victoria-metrics-operator/templates/monitor.yaml                               │            │                   │
 ├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
-│ .output/lamp-victoria-metrics-3.0.1.tgz:charts/victoria-metrics-k8s-stack/chart- │    helm    │         0         │
+│ .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/chart- │    helm    │         0         │
 │ s/victoria-metrics-operator/templates/rb.yaml                                    │            │                   │
 ├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
-│ .output/lamp-victoria-metrics-3.0.1.tgz:charts/victoria-metrics-k8s-stack/chart- │    helm    │        11         │
+│ .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/chart- │    helm    │        11         │
 │ s/victoria-metrics-operator/templates/role.yaml                                  │            │                   │
 ├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
-│ .output/lamp-victoria-metrics-3.0.1.tgz:charts/victoria-metrics-k8s-stack/chart- │    helm    │         9         │
+│ .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/chart- │    helm    │         9         │
 │ s/victoria-metrics-operator/templates/server.yaml                                │            │                   │
 ├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
-│ .output/lamp-victoria-metrics-3.0.1.tgz:charts/victoria-metrics-k8s-stack/chart- │    helm    │         0         │
+│ .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/chart- │    helm    │         0         │
 │ s/victoria-metrics-operator/templates/service.yaml                               │            │                   │
 ├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
-│ .output/lamp-victoria-metrics-3.0.1.tgz:charts/victoria-metrics-k8s-stack/chart- │    helm    │         0         │
+│ .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/chart- │    helm    │         0         │
 │ s/victoria-metrics-operator/templates/serviceaccount.yaml                        │            │                   │
 ├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
-│ .output/lamp-victoria-metrics-3.0.1.tgz:charts/victoria-metrics-k8s-stack/chart- │    helm    │         0         │
+│ .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/chart- │    helm    │         0         │
 │ s/victoria-metrics-operator/templates/webhook.yaml                               │            │                   │
 ├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
-│ .output/lamp-victoria-metrics-3.0.1.tgz:charts/victoria-metrics-k8s-stack/templ- │    helm    │         0         │
+│ .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/templ- │    helm    │         0         │
 │ ates/servicemonitors.yaml                                                        │            │                   │
 ├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
-│ .output/lamp-victoria-metrics-3.0.1.tgz:charts/victoria-metrics-k8s-stack/templ- │    helm    │         0         │
+│ .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/templ- │    helm    │         0         │
 │ ates/sync-job/config.yaml                                                        │            │                   │
 ├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
-│ .output/lamp-victoria-metrics-3.0.1.tgz:charts/victoria-metrics-k8s-stack/templ- │    helm    │         0         │
+│ .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/templ- │    helm    │         0         │
 │ ates/sync-job/rbac.yaml                                                          │            │                   │
 ├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
-│ .output/lamp-victoria-metrics-3.0.1.tgz:charts/victoria-metrics-k8s-stack/templ- │    helm    │         0         │
+│ .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/templ- │    helm    │         0         │
 │ ates/victoria-metrics-operator/vmagent/vmagent.yaml                              │            │                   │
 ├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
-│ .output/lamp-victoria-metrics-3.0.1.tgz:charts/victoria-metrics-k8s-stack/templ- │    helm    │         0         │
+│ .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/templ- │    helm    │         0         │
 │ ates/victoria-metrics-operator/vmalert/vmalert.yaml                              │            │                   │
 ├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
-│ .output/lamp-victoria-metrics-3.0.1.tgz:charts/victoria-metrics-k8s-stack/templ- │    helm    │         0         │
+│ .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/templ- │    helm    │         0         │
 │ ates/victoria-metrics-operator/vmalertmanager/monzo-template.yaml                │            │                   │
 ├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
-│ .output/lamp-victoria-metrics-3.0.1.tgz:charts/victoria-metrics-k8s-stack/templ- │    helm    │         0         │
+│ .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/templ- │    helm    │         0         │
 │ ates/victoria-metrics-operator/vmalertmanager/vmalertmanager.yaml                │            │                   │
 ├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
-│ .output/lamp-victoria-metrics-3.0.1.tgz:charts/victoria-metrics-k8s-stack/templ- │    helm    │         0         │
+│ .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/templ- │    helm    │         0         │
 │ ates/victoria-metrics-operator/vmcluster/vmcluster.yaml                          │            │                   │
 ├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
-│ .output/lamp-victoria-metrics-3.0.1.tgz:templates/vmalertmanager-config.yaml     │    helm    │         0         │
+│ .output/lamp-victoria-metrics-3.1.0.tgz:templates/vmalertmanager-config.yaml     │    helm    │         0         │
 ├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
 │ charts/prometheus-operator-crds/charts/crds/templates/crd-alertmanagerconfigs.y- │    helm    │         0         │
 │ aml                                                                              │            │                   │
@@ -368,7 +371,7 @@ Legend:
 - '0': Clean (no security findings detected)
 
 
-.output/lamp-victoria-metrics-3.0.1.tgz:charts/victoria-metrics-k8s-stack/charts/kube-state-metrics/templates/deployment.yaml (helm)
+.output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/charts/kube-state-metrics/templates/deployment.yaml (helm)
 ====================================================================================================================================
 Tests: 98 (SUCCESSES: 93, FAILURES: 5)
 Failures: 5 (UNKNOWN: 0, LOW: 4, MEDIUM: 1, HIGH: 0, CRITICAL: 0)
@@ -379,7 +382,7 @@ Enforcing CPU limits prevents DoS via resource exhaustion.
 
 See https://avd.aquasec.com/misconfig/ksv-0011
 ────────────────────────────────────────
- .output/lamp-victoria-metrics-3.0.1.tgz:charts/victoria-metrics-k8s-stack/charts/kube-state-metrics/templates/deployment.yaml:46-84
+ .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/charts/kube-state-metrics/templates/deployment.yaml:46-84
 ────────────────────────────────────────
   46 ┌       - name: kube-state-metrics
   47 │         args:
@@ -400,7 +403,7 @@ When containers have resource requests specified, the scheduler can make better 
 
 See https://avd.aquasec.com/misconfig/ksv-0015
 ────────────────────────────────────────
- .output/lamp-victoria-metrics-3.0.1.tgz:charts/victoria-metrics-k8s-stack/charts/kube-state-metrics/templates/deployment.yaml:46-84
+ .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/charts/kube-state-metrics/templates/deployment.yaml:46-84
 ────────────────────────────────────────
   46 ┌       - name: kube-state-metrics
   47 │         args:
@@ -421,7 +424,7 @@ When containers have memory requests specified, the scheduler can make better de
 
 See https://avd.aquasec.com/misconfig/ksv-0016
 ────────────────────────────────────────
- .output/lamp-victoria-metrics-3.0.1.tgz:charts/victoria-metrics-k8s-stack/charts/kube-state-metrics/templates/deployment.yaml:46-84
+ .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/charts/kube-state-metrics/templates/deployment.yaml:46-84
 ────────────────────────────────────────
   46 ┌       - name: kube-state-metrics
   47 │         args:
@@ -442,7 +445,7 @@ Enforcing memory limits prevents DoS via resource exhaustion.
 
 See https://avd.aquasec.com/misconfig/ksv-0018
 ────────────────────────────────────────
- .output/lamp-victoria-metrics-3.0.1.tgz:charts/victoria-metrics-k8s-stack/charts/kube-state-metrics/templates/deployment.yaml:46-84
+ .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/charts/kube-state-metrics/templates/deployment.yaml:46-84
 ────────────────────────────────────────
   46 ┌       - name: kube-state-metrics
   47 │         args:
@@ -463,7 +466,7 @@ Ensure that all containers use images only from trusted registry domains.
 
 See https://avd.aquasec.com/misconfig/ksv-0125
 ────────────────────────────────────────
- .output/lamp-victoria-metrics-3.0.1.tgz:charts/victoria-metrics-k8s-stack/charts/kube-state-metrics/templates/deployment.yaml:46-84
+ .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/charts/kube-state-metrics/templates/deployment.yaml:46-84
 ────────────────────────────────────────
   46 ┌       - name: kube-state-metrics
   47 │         args:
@@ -479,7 +482,7 @@ See https://avd.aquasec.com/misconfig/ksv-0125
 
 
 
-.output/lamp-victoria-metrics-3.0.1.tgz:charts/victoria-metrics-k8s-stack/charts/kube-state-metrics/templates/role.yaml (helm)
+.output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/charts/kube-state-metrics/templates/role.yaml (helm)
 ==============================================================================================================================
 Tests: 71 (SUCCESSES: 70, FAILURES: 1)
 Failures: 1 (UNKNOWN: 0, LOW: 0, MEDIUM: 0, HIGH: 0, CRITICAL: 1)
@@ -490,7 +493,7 @@ Viewing secrets at the cluster-scope is akin to cluster-admin in most clusters a
 
 See https://avd.aquasec.com/misconfig/ksv-0041
 ────────────────────────────────────────
- .output/lamp-victoria-metrics-3.0.1.tgz:charts/victoria-metrics-k8s-stack/charts/kube-state-metrics/templates/role.yaml:126-129
+ .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/charts/kube-state-metrics/templates/role.yaml:126-129
 ────────────────────────────────────────
  126 ┌ - apiGroups: [""]
  127 │   resources:
@@ -500,7 +503,7 @@ See https://avd.aquasec.com/misconfig/ksv-0041
 
 
 
-.output/lamp-victoria-metrics-3.0.1.tgz:charts/victoria-metrics-k8s-stack/charts/prometheus-node-exporter/templates/daemonset.yaml (helm)
+.output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/charts/prometheus-node-exporter/templates/daemonset.yaml (helm)
 =========================================================================================================================================
 Tests: 98 (SUCCESSES: 83, FAILURES: 15)
 Failures: 15 (UNKNOWN: 0, LOW: 8, MEDIUM: 4, HIGH: 3, CRITICAL: 0)
@@ -511,7 +514,7 @@ A program inside the container can elevate its own privileges and run as root, w
 
 See https://avd.aquasec.com/misconfig/ksv-0001
 ────────────────────────────────────────
- .output/lamp-victoria-metrics-3.0.1.tgz:charts/victoria-metrics-k8s-stack/charts/prometheus-node-exporter/templates/daemonset.yaml:45-97
+ .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/charts/prometheus-node-exporter/templates/daemonset.yaml:45-97
 ────────────────────────────────────────
   45 ┌         - name: node-exporter
   46 │           image: quay.io/prometheus/node-exporter:v1.12.1
@@ -532,7 +535,7 @@ The container should drop all default capabilities and add only those that are n
 
 See https://avd.aquasec.com/misconfig/ksv-0003
 ────────────────────────────────────────
- .output/lamp-victoria-metrics-3.0.1.tgz:charts/victoria-metrics-k8s-stack/charts/prometheus-node-exporter/templates/daemonset.yaml:45-97
+ .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/charts/prometheus-node-exporter/templates/daemonset.yaml:45-97
 ────────────────────────────────────────
   45 ┌         - name: node-exporter
   46 │           image: quay.io/prometheus/node-exporter:v1.12.1
@@ -553,7 +556,7 @@ Security best practices require containers to run with minimal required capabili
 
 See https://avd.aquasec.com/misconfig/ksv-0004
 ────────────────────────────────────────
- .output/lamp-victoria-metrics-3.0.1.tgz:charts/victoria-metrics-k8s-stack/charts/prometheus-node-exporter/templates/daemonset.yaml:45-97
+ .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/charts/prometheus-node-exporter/templates/daemonset.yaml:45-97
 ────────────────────────────────────────
   45 ┌         - name: node-exporter
   46 │           image: quay.io/prometheus/node-exporter:v1.12.1
@@ -574,7 +577,7 @@ Sharing the host’s network namespace permits processes in the pod to communica
 
 See https://avd.aquasec.com/misconfig/ksv-0009
 ────────────────────────────────────────
- .output/lamp-victoria-metrics-3.0.1.tgz:charts/victoria-metrics-k8s-stack/charts/prometheus-node-exporter/templates/daemonset.yaml:15-128
+ .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/charts/prometheus-node-exporter/templates/daemonset.yaml:15-128
 ────────────────────────────────────────
   15 ┌ spec:
   16 │   selector:
@@ -595,7 +598,7 @@ Sharing the host’s PID namespace allows visibility on host processes, potentia
 
 See https://avd.aquasec.com/misconfig/ksv-0010
 ────────────────────────────────────────
- .output/lamp-victoria-metrics-3.0.1.tgz:charts/victoria-metrics-k8s-stack/charts/prometheus-node-exporter/templates/daemonset.yaml:15-128
+ .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/charts/prometheus-node-exporter/templates/daemonset.yaml:15-128
 ────────────────────────────────────────
   15 ┌ spec:
   16 │   selector:
@@ -616,7 +619,7 @@ Enforcing CPU limits prevents DoS via resource exhaustion.
 
 See https://avd.aquasec.com/misconfig/ksv-0011
 ────────────────────────────────────────
- .output/lamp-victoria-metrics-3.0.1.tgz:charts/victoria-metrics-k8s-stack/charts/prometheus-node-exporter/templates/daemonset.yaml:45-97
+ .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/charts/prometheus-node-exporter/templates/daemonset.yaml:45-97
 ────────────────────────────────────────
   45 ┌         - name: node-exporter
   46 │           image: quay.io/prometheus/node-exporter:v1.12.1
@@ -637,7 +640,7 @@ When containers have resource requests specified, the scheduler can make better 
 
 See https://avd.aquasec.com/misconfig/ksv-0015
 ────────────────────────────────────────
- .output/lamp-victoria-metrics-3.0.1.tgz:charts/victoria-metrics-k8s-stack/charts/prometheus-node-exporter/templates/daemonset.yaml:45-97
+ .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/charts/prometheus-node-exporter/templates/daemonset.yaml:45-97
 ────────────────────────────────────────
   45 ┌         - name: node-exporter
   46 │           image: quay.io/prometheus/node-exporter:v1.12.1
@@ -658,7 +661,7 @@ When containers have memory requests specified, the scheduler can make better de
 
 See https://avd.aquasec.com/misconfig/ksv-0016
 ────────────────────────────────────────
- .output/lamp-victoria-metrics-3.0.1.tgz:charts/victoria-metrics-k8s-stack/charts/prometheus-node-exporter/templates/daemonset.yaml:45-97
+ .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/charts/prometheus-node-exporter/templates/daemonset.yaml:45-97
 ────────────────────────────────────────
   45 ┌         - name: node-exporter
   46 │           image: quay.io/prometheus/node-exporter:v1.12.1
@@ -679,7 +682,7 @@ Enforcing memory limits prevents DoS via resource exhaustion.
 
 See https://avd.aquasec.com/misconfig/ksv-0018
 ────────────────────────────────────────
- .output/lamp-victoria-metrics-3.0.1.tgz:charts/victoria-metrics-k8s-stack/charts/prometheus-node-exporter/templates/daemonset.yaml:45-97
+ .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/charts/prometheus-node-exporter/templates/daemonset.yaml:45-97
 ────────────────────────────────────────
   45 ┌         - name: node-exporter
   46 │           image: quay.io/prometheus/node-exporter:v1.12.1
@@ -700,7 +703,7 @@ According to pod security standard 'HostPath Volumes', HostPath volumes must be 
 
 See https://avd.aquasec.com/misconfig/ksv-0023
 ────────────────────────────────────────
- .output/lamp-victoria-metrics-3.0.1.tgz:charts/victoria-metrics-k8s-stack/charts/prometheus-node-exporter/templates/daemonset.yaml:15-128
+ .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/charts/prometheus-node-exporter/templates/daemonset.yaml:15-128
 ────────────────────────────────────────
   15 ┌ spec:
   16 │   selector:
@@ -721,7 +724,7 @@ According to pod security standard 'Seccomp', the RuntimeDefault seccomp profile
 
 See https://avd.aquasec.com/misconfig/ksv-0030
 ────────────────────────────────────────
- .output/lamp-victoria-metrics-3.0.1.tgz:charts/victoria-metrics-k8s-stack/charts/prometheus-node-exporter/templates/daemonset.yaml:45-97
+ .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/charts/prometheus-node-exporter/templates/daemonset.yaml:45-97
 ────────────────────────────────────────
   45 ┌         - name: node-exporter
   46 │           image: quay.io/prometheus/node-exporter:v1.12.1
@@ -742,7 +745,7 @@ A program inside the container can bypass Seccomp protection policies.
 
 See https://avd.aquasec.com/misconfig/ksv-0104
 ────────────────────────────────────────
- .output/lamp-victoria-metrics-3.0.1.tgz:charts/victoria-metrics-k8s-stack/charts/prometheus-node-exporter/templates/daemonset.yaml:45-97
+ .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/charts/prometheus-node-exporter/templates/daemonset.yaml:45-97
 ────────────────────────────────────────
   45 ┌         - name: node-exporter
   46 │           image: quay.io/prometheus/node-exporter:v1.12.1
@@ -763,7 +766,7 @@ Containers must drop ALL capabilities, and are only permitted to add back the NE
 
 See https://avd.aquasec.com/misconfig/ksv-0106
 ────────────────────────────────────────
- .output/lamp-victoria-metrics-3.0.1.tgz:charts/victoria-metrics-k8s-stack/charts/prometheus-node-exporter/templates/daemonset.yaml:45-97
+ .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/charts/prometheus-node-exporter/templates/daemonset.yaml:45-97
 ────────────────────────────────────────
   45 ┌         - name: node-exporter
   46 │           image: quay.io/prometheus/node-exporter:v1.12.1
@@ -784,7 +787,7 @@ HostPath present many security risks and as a security practice it is better to 
 
 See https://avd.aquasec.com/misconfig/ksv-0121
 ────────────────────────────────────────
- .output/lamp-victoria-metrics-3.0.1.tgz:charts/victoria-metrics-k8s-stack/charts/prometheus-node-exporter/templates/daemonset.yaml:15-128
+ .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/charts/prometheus-node-exporter/templates/daemonset.yaml:15-128
 ────────────────────────────────────────
   15 ┌ spec:
   16 │   selector:
@@ -805,7 +808,7 @@ Ensure that all containers use images only from trusted registry domains.
 
 See https://avd.aquasec.com/misconfig/ksv-0125
 ────────────────────────────────────────
- .output/lamp-victoria-metrics-3.0.1.tgz:charts/victoria-metrics-k8s-stack/charts/prometheus-node-exporter/templates/daemonset.yaml:45-97
+ .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/charts/prometheus-node-exporter/templates/daemonset.yaml:45-97
 ────────────────────────────────────────
   45 ┌         - name: node-exporter
   46 │           image: quay.io/prometheus/node-exporter:v1.12.1
@@ -821,7 +824,7 @@ See https://avd.aquasec.com/misconfig/ksv-0125
 
 
 
-.output/lamp-victoria-metrics-3.0.1.tgz:charts/victoria-metrics-k8s-stack/charts/victoria-metrics-operator/templates/role.yaml (helm)
+.output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/charts/victoria-metrics-operator/templates/role.yaml (helm)
 =====================================================================================================================================
 Tests: 84 (SUCCESSES: 73, FAILURES: 11)
 Failures: 11 (UNKNOWN: 0, LOW: 0, MEDIUM: 3, HIGH: 2, CRITICAL: 6)
@@ -832,7 +835,7 @@ Viewing secrets at the cluster-scope is akin to cluster-admin in most clusters a
 
 See https://avd.aquasec.com/misconfig/ksv-0041
 ────────────────────────────────────────
- .output/lamp-victoria-metrics-3.0.1.tgz:charts/victoria-metrics-k8s-stack/charts/victoria-metrics-operator/templates/role.yaml:21-39
+ .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/charts/victoria-metrics-operator/templates/role.yaml:21-39
 ────────────────────────────────────────
   21 ┌ - apiGroups:
   22 │   - ""
@@ -853,7 +856,7 @@ Check whether role permits wildcard verb on specific resources
 
 See https://avd.aquasec.com/misconfig/ksv-0045
 ────────────────────────────────────────
- .output/lamp-victoria-metrics-3.0.1.tgz:charts/victoria-metrics-k8s-stack/charts/victoria-metrics-operator/templates/role.yaml:21-39
+ .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/charts/victoria-metrics-operator/templates/role.yaml:21-39
 ────────────────────────────────────────
   21 ┌ - apiGroups:
   22 │   - ""
@@ -874,7 +877,7 @@ Check whether role permits wildcard verb on specific resources
 
 See https://avd.aquasec.com/misconfig/ksv-0045
 ────────────────────────────────────────
- .output/lamp-victoria-metrics-3.0.1.tgz:charts/victoria-metrics-k8s-stack/charts/victoria-metrics-operator/templates/role.yaml:51-63
+ .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/charts/victoria-metrics-operator/templates/role.yaml:51-63
 ────────────────────────────────────────
   51 ┌ - apiGroups:
   52 │   - apps
@@ -895,7 +898,7 @@ Check whether role permits wildcard verb on specific resources
 
 See https://avd.aquasec.com/misconfig/ksv-0045
 ────────────────────────────────────────
- .output/lamp-victoria-metrics-3.0.1.tgz:charts/victoria-metrics-k8s-stack/charts/victoria-metrics-operator/templates/role.yaml:70-80
+ .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/charts/victoria-metrics-operator/templates/role.yaml:70-80
 ────────────────────────────────────────
   70 ┌ - apiGroups:
   71 │   - rbac.authorization.k8s.io
@@ -916,7 +919,7 @@ Full control of the cluster resources, and therefore also root on all nodes wher
 
 See https://avd.aquasec.com/misconfig/ksv-0046
 ────────────────────────────────────────
- .output/lamp-victoria-metrics-3.0.1.tgz:charts/victoria-metrics-k8s-stack/charts/victoria-metrics-operator/templates/role.yaml:64-69
+ .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/charts/victoria-metrics-operator/templates/role.yaml:64-69
 ────────────────────────────────────────
   64 ┌ - apiGroups:
   65 │   - monitoring.coreos.com
@@ -933,7 +936,7 @@ Depending on the policies enforced by the admission controller, this permission 
 
 See https://avd.aquasec.com/misconfig/ksv-0048
 ────────────────────────────────────────
- .output/lamp-victoria-metrics-3.0.1.tgz:charts/victoria-metrics-k8s-stack/charts/victoria-metrics-operator/templates/role.yaml:21-39
+ .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/charts/victoria-metrics-operator/templates/role.yaml:21-39
 ────────────────────────────────────────
   21 ┌ - apiGroups:
   22 │   - ""
@@ -954,7 +957,7 @@ Depending on the policies enforced by the admission controller, this permission 
 
 See https://avd.aquasec.com/misconfig/ksv-0048
 ────────────────────────────────────────
- .output/lamp-victoria-metrics-3.0.1.tgz:charts/victoria-metrics-k8s-stack/charts/victoria-metrics-operator/templates/role.yaml:51-63
+ .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/charts/victoria-metrics-operator/templates/role.yaml:51-63
 ────────────────────────────────────────
   51 ┌ - apiGroups:
   52 │   - apps
@@ -975,7 +978,7 @@ Some workloads leverage configmaps to store sensitive data or configuration para
 
 See https://avd.aquasec.com/misconfig/ksv-0049
 ────────────────────────────────────────
- .output/lamp-victoria-metrics-3.0.1.tgz:charts/victoria-metrics-k8s-stack/charts/victoria-metrics-operator/templates/role.yaml:21-39
+ .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/charts/victoria-metrics-operator/templates/role.yaml:21-39
 ────────────────────────────────────────
   21 ┌ - apiGroups:
   22 │   - ""
@@ -996,7 +999,7 @@ Check whether role permits escalate, bind, or impersonate on roles/rolebindings,
 
 See https://avd.aquasec.com/misconfig/ksv-0050
 ────────────────────────────────────────
- .output/lamp-victoria-metrics-3.0.1.tgz:charts/victoria-metrics-k8s-stack/charts/victoria-metrics-operator/templates/role.yaml:70-80
+ .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/charts/victoria-metrics-operator/templates/role.yaml:70-80
 ────────────────────────────────────────
   70 ┌ - apiGroups:
   71 │   - rbac.authorization.k8s.io
@@ -1017,7 +1020,7 @@ The ability to control which pods get service traffic directed to them allows fo
 
 See https://avd.aquasec.com/misconfig/ksv-0056
 ────────────────────────────────────────
- .output/lamp-victoria-metrics-3.0.1.tgz:charts/victoria-metrics-k8s-stack/charts/victoria-metrics-operator/templates/role.yaml:21-39
+ .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/charts/victoria-metrics-operator/templates/role.yaml:21-39
 ────────────────────────────────────────
   21 ┌ - apiGroups:
   22 │   - ""
@@ -1038,7 +1041,7 @@ The ability to control which pods get service traffic directed to them allows fo
 
 See https://avd.aquasec.com/misconfig/ksv-0056
 ────────────────────────────────────────
- .output/lamp-victoria-metrics-3.0.1.tgz:charts/victoria-metrics-k8s-stack/charts/victoria-metrics-operator/templates/role.yaml:110-117
+ .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/charts/victoria-metrics-operator/templates/role.yaml:110-117
 ────────────────────────────────────────
  110 ┌ - apiGroups:
  111 │   - networking.k8s.io
@@ -1052,7 +1055,7 @@ See https://avd.aquasec.com/misconfig/ksv-0056
 
 
 
-.output/lamp-victoria-metrics-3.0.1.tgz:charts/victoria-metrics-k8s-stack/charts/victoria-metrics-operator/templates/server.yaml (helm)
+.output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/charts/victoria-metrics-operator/templates/server.yaml (helm)
 =======================================================================================================================================
 Tests: 98 (SUCCESSES: 89, FAILURES: 9)
 Failures: 9 (UNKNOWN: 0, LOW: 7, MEDIUM: 2, HIGH: 0, CRITICAL: 0)
@@ -1063,7 +1066,7 @@ Enforcing CPU limits prevents DoS via resource exhaustion.
 
 See https://avd.aquasec.com/misconfig/ksv-0011
 ────────────────────────────────────────
- .output/lamp-victoria-metrics-3.0.1.tgz:charts/victoria-metrics-k8s-stack/charts/victoria-metrics-operator/templates/server.yaml:38-104
+ .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/charts/victoria-metrics-operator/templates/server.yaml:38-104
 ────────────────────────────────────────
   38 ┌         - name: operator
   39 │           image: victoriametrics/operator:v0.75.2
@@ -1084,7 +1087,7 @@ When containers have resource requests specified, the scheduler can make better 
 
 See https://avd.aquasec.com/misconfig/ksv-0015
 ────────────────────────────────────────
- .output/lamp-victoria-metrics-3.0.1.tgz:charts/victoria-metrics-k8s-stack/charts/victoria-metrics-operator/templates/server.yaml:38-104
+ .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/charts/victoria-metrics-operator/templates/server.yaml:38-104
 ────────────────────────────────────────
   38 ┌         - name: operator
   39 │           image: victoriametrics/operator:v0.75.2
@@ -1105,7 +1108,7 @@ When containers have memory requests specified, the scheduler can make better de
 
 See https://avd.aquasec.com/misconfig/ksv-0016
 ────────────────────────────────────────
- .output/lamp-victoria-metrics-3.0.1.tgz:charts/victoria-metrics-k8s-stack/charts/victoria-metrics-operator/templates/server.yaml:38-104
+ .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/charts/victoria-metrics-operator/templates/server.yaml:38-104
 ────────────────────────────────────────
   38 ┌         - name: operator
   39 │           image: victoriametrics/operator:v0.75.2
@@ -1126,7 +1129,7 @@ Enforcing memory limits prevents DoS via resource exhaustion.
 
 See https://avd.aquasec.com/misconfig/ksv-0018
 ────────────────────────────────────────
- .output/lamp-victoria-metrics-3.0.1.tgz:charts/victoria-metrics-k8s-stack/charts/victoria-metrics-operator/templates/server.yaml:38-104
+ .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/charts/victoria-metrics-operator/templates/server.yaml:38-104
 ────────────────────────────────────────
   38 ┌         - name: operator
   39 │           image: victoriametrics/operator:v0.75.2
@@ -1147,7 +1150,7 @@ Force the container to run with user ID > 10000 to avoid conflicts with the host
 
 See https://avd.aquasec.com/misconfig/ksv-0020
 ────────────────────────────────────────
- .output/lamp-victoria-metrics-3.0.1.tgz:charts/victoria-metrics-k8s-stack/charts/victoria-metrics-operator/templates/server.yaml:38-104
+ .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/charts/victoria-metrics-operator/templates/server.yaml:38-104
 ────────────────────────────────────────
   38 ┌         - name: operator
   39 │           image: victoriametrics/operator:v0.75.2
@@ -1168,7 +1171,7 @@ Force the container to run with group ID > 10000 to avoid conflicts with the hos
 
 See https://avd.aquasec.com/misconfig/ksv-0021
 ────────────────────────────────────────
- .output/lamp-victoria-metrics-3.0.1.tgz:charts/victoria-metrics-k8s-stack/charts/victoria-metrics-operator/templates/server.yaml:38-104
+ .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/charts/victoria-metrics-operator/templates/server.yaml:38-104
 ────────────────────────────────────────
   38 ┌         - name: operator
   39 │           image: victoriametrics/operator:v0.75.2
@@ -1189,7 +1192,7 @@ According to pod security standard 'Seccomp', the RuntimeDefault seccomp profile
 
 See https://avd.aquasec.com/misconfig/ksv-0030
 ────────────────────────────────────────
- .output/lamp-victoria-metrics-3.0.1.tgz:charts/victoria-metrics-k8s-stack/charts/victoria-metrics-operator/templates/server.yaml:38-104
+ .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/charts/victoria-metrics-operator/templates/server.yaml:38-104
 ────────────────────────────────────────
   38 ┌         - name: operator
   39 │           image: victoriametrics/operator:v0.75.2
@@ -1210,7 +1213,7 @@ A program inside the container can bypass Seccomp protection policies.
 
 See https://avd.aquasec.com/misconfig/ksv-0104
 ────────────────────────────────────────
- .output/lamp-victoria-metrics-3.0.1.tgz:charts/victoria-metrics-k8s-stack/charts/victoria-metrics-operator/templates/server.yaml:38-104
+ .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/charts/victoria-metrics-operator/templates/server.yaml:38-104
 ────────────────────────────────────────
   38 ┌         - name: operator
   39 │           image: victoriametrics/operator:v0.75.2
@@ -1231,7 +1234,7 @@ Ensure that all containers use images only from trusted registry domains.
 
 See https://avd.aquasec.com/misconfig/ksv-0125
 ────────────────────────────────────────
- .output/lamp-victoria-metrics-3.0.1.tgz:charts/victoria-metrics-k8s-stack/charts/victoria-metrics-operator/templates/server.yaml:38-104
+ .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/charts/victoria-metrics-operator/templates/server.yaml:38-104
 ────────────────────────────────────────
   38 ┌         - name: operator
   39 │           image: victoriametrics/operator:v0.75.2

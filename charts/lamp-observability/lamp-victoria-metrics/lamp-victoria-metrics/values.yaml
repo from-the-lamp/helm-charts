@@ -2,9 +2,18 @@ global:
   slack_api_url: https://slack.com/api/chat.postMessage
 
 alertManagerConfig:
+  # Disabled by default, same reasoning as cronitor below - no consumer
+  # should get an extra ExternalSecret/mount it didn't ask for. apiUrl is
+  # Slack's own fixed chat.postMessage endpoint (not per-workspace), so it
+  # stays a literal default; the bot token is Vault-sourced like everything
+  # else here, never a literal value.
   slack:
+    enabled: false
     apiUrl: https://slack.com/api/chat.postMessage
-    token: token # FIXME, but it's realy hard
+    secretName: vmalertmanager-slack-secret
+    tokenSecret:
+      key: slack
+      property: alertmanager
   # Dead man's switch (FTL-83) - disabled by default, no consumer should get
   # an extra ExternalSecret/webhook it didn't ask for. urlSecret.key/property
   # is a Vault platform/<key> path + nested property, same convention as

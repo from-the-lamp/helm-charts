@@ -1,9 +1,9 @@
 apiVersion: v2
 name: lamp-victoria-metrics
-version: 3.0.1
+version: 3.1.0
 
 annotations:
-  notes: "VictoriaMetrics v1.131.0, configurable RBAC roles for VMAgent. 3.0.0: alertManagerConfig.cronitor dead man's switch for Watchdog (FTL-83). 3.0.1: fix invalid YAML when alertManagerConfig.routes is empty (bare [] broke the Alertmanager config parse)."
+  notes: "VictoriaMetrics v1.131.0, configurable RBAC roles for VMAgent. 3.0.0: alertManagerConfig.cronitor dead man's switch for Watchdog (FTL-83). 3.0.1: fix invalid YAML when alertManagerConfig.routes is empty (bare [] broke the Alertmanager config parse). 3.1.0: alertManagerConfig.slack token now Vault-sourced (credentials_file via its own ExternalSecret) instead of a literal value."
 
 dependencies:
   - name: prometheus-operator-crds

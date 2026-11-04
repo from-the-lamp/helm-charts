@@ -82,7 +82,11 @@ stringData:
         - channel: "#{{ .channel }}"
           http_config:
             authorization:
-              credentials: {{ $.Values.alertManagerConfig.slack.token }}
+              # credentials_file, not credentials - the bot token is Vault-
+              # sourced via slack-externalsecret.yaml and mounted at
+              # /etc/vm/secrets/<secret-name>/token, same reasoning as
+              # cronitor's url_file above.
+              credentials_file: /etc/vm/secrets/{{ $.Values.alertManagerConfig.slack.secretName }}/token
           color: '{{`{{ template "slack.monzo.color" . }}`}}'
           icon_emoji: '{{`{{ template "slack.monzo.icon_emoji" . }}`}}'
           send_resolved: true
