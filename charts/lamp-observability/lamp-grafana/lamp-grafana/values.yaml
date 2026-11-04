@@ -158,6 +158,8 @@ dashboards:
     enabled: false
   claude_code:
     enabled: false
+  openwrt:
+    enabled: false
 
 externalSecrets:
   kind: ClusterSecretStore

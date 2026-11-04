@@ -1,6 +1,6 @@
 # lamp-grafana
 
-![Version: 0.0.18](https://img.shields.io/badge/Version-0.0.18-informational?style=flat-square)
+![Version: 0.0.19](https://img.shields.io/badge/Version-0.0.19-informational?style=flat-square)
 
 ## Values
 
@@ -91,6 +91,7 @@
 | dashboards.nginx.ingress | bool | `true` |  |
 | dashboards.nginx.loki | bool | `true` |  |
 | dashboards.node_exporter.enabled | bool | `false` |  |
+| dashboards.openwrt.enabled | bool | `false` |  |
 | dashboards.postgresql.cnpg | bool | `false` |  |
 | dashboards.postgresql.enabled | bool | `false` |  |
 | dashboards.postgresql.mixin | bool | `false` |  |
