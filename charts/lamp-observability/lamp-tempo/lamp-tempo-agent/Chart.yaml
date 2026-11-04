@@ -4,10 +4,10 @@ version: 0.4.0
 
 dependencies:
   - name: alloy
-    version: 1.14.3
+    version: 1.15.0
     repository: https://grafana.github.io/helm-charts
     condition: alloy.enabled
   - name: beyla
-    version: 1.16.16
+    version: 1.16.17
     repository: https://grafana.github.io/helm-charts
     condition: beyla.enabled

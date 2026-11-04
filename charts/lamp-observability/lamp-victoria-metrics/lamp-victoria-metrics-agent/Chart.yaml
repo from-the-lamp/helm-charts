@@ -13,7 +13,7 @@ dependencies:
 
   - name: victoria-metrics-k8s-stack
     condition: victoria-metrics-k8s-stack.enabled
-    version: 0.96.0
+    version: 0.97.1
     repository: https://victoriametrics.github.io/helm-charts
 
   - name: prometheus-mysql-exporter
@@ -31,7 +31,7 @@ dependencies:
   - name: prometheus-postgres-exporter
     alias: postgres-exporter
     condition: postgres-exporter.enabled
-    version: 8.2.0
+    version: 8.2.2
     repository: https://prometheus-community.github.io/helm-charts
 
   - name: prometheus-blackbox-exporter
