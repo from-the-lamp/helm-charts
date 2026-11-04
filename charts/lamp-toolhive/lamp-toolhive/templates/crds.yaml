@@ -6660,7 +6660,6 @@ spec:
     plural: mcpgroups
     shortNames:
     - mcpg
-    - mcpgroup
     singular: mcpgroup
   scope: Namespaced
   versions:
@@ -12232,9 +12231,6 @@ spec:
     kind: MCPServer
     listKind: MCPServerList
     plural: mcpservers
-    shortNames:
-    - mcpserver
-    - mcpservers
     singular: mcpserver
   scope: Namespaced
   versions:
