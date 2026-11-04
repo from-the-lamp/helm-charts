@@ -17,12 +17,17 @@ kestra:
           tmp-dir:
             path: /tmp/kestra-wd/tmp
 
-      datasources:
-        h2:
-          url: jdbc:h2:file:/app/storage/h2;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
-          driverClassName: org.h2.Driver
-          username: sa
-          password: ""
+      # No "datasources" default here on purpose. Kestra's
+      # PostgresMigrationLock injects a bare `DataSource` with no
+      # @Named/@Qualifier - if both an h2 AND a postgres datasource exist
+      # at once (e.g. this chart default's h2 plus homelab's app-level
+      # postgres override), Micronaut throws NonUniqueBeanException on
+      # startup ("Multiple possible bean candidates found: [DataSource,
+      # DataSource]"). Every real consumer overrides repository/queue/
+      # storage + datasources together anyway (see
+      # apps/homelab/platform/kestra/values.yaml) - this chart has no
+      # standalone eval/demo use, so there is no default worth keeping
+      # that doesn't risk colliding with it.
 
   deployments:
     standalone:

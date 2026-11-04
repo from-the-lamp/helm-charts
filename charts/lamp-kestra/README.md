@@ -1,6 +1,6 @@
 # lamp-kestra
 
-![Version: 0.2.0](https://img.shields.io/badge/Version-0.2.0-informational?style=flat-square)
+![Version: 0.2.1](https://img.shields.io/badge/Version-0.2.1-informational?style=flat-square)
 
 ## Requirements
 
@@ -12,10 +12,6 @@
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| kestra.configurations.application.datasources.h2.driverClassName | string | `"org.h2.Driver"` |  |
-| kestra.configurations.application.datasources.h2.password | string | `""` |  |
-| kestra.configurations.application.datasources.h2.url | string | `"jdbc:h2:file:/app/storage/h2;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE"` |  |
-| kestra.configurations.application.datasources.h2.username | string | `"sa"` |  |
 | kestra.configurations.application.kestra.queue.type | string | `"h2"` |  |
 | kestra.configurations.application.kestra.repository.type | string | `"h2"` |  |
 | kestra.configurations.application.kestra.storage.local.base-path | string | `"/app/storage"` |  |
