@@ -1,0 +1,12 @@
+{{- if or .Values.dashboards.litellm.enabled .Values.dashboards.claude_code.enabled }}
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaFolder
+metadata:
+  name: ai
+spec:
+  instanceSelector:
+    matchLabels:
+      dashboards: "grafana"
+  parentFolderRef: platform
+  title: AI
+{{- end }}
