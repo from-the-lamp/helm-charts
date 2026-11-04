@@ -90,7 +90,13 @@ spec:
       {{- end }}
     {{- end }}
 
-    {{- if or .Values.kubernetesAuth.enabled .Values.oidc.enabled .Values.jwtAuth.enabled }}
+    {{- $anyJwtAuthEnabled := false }}
+    {{- range .Values.jwtAuth }}
+      {{- if .enabled }}
+        {{- $anyJwtAuthEnabled = true }}
+      {{- end }}
+    {{- end }}
+    {{- if or .Values.kubernetesAuth.enabled .Values.oidc.enabled $anyJwtAuthEnabled }}
     auth:
       {{- if .Values.kubernetesAuth.enabled }}
       - type: kubernetes
@@ -128,21 +134,22 @@ spec:
             groups_claim: {{ .Values.oidc.role.groupsClaim | quote }}
             oidc_scopes: {{ toJson .Values.oidc.role.oidcScopes }}
       {{- end }}
-      {{- if .Values.jwtAuth.enabled }}
+      {{- range .Values.jwtAuth }}
+      {{- if .enabled }}
       - type: jwt
-        path: {{ .Values.jwtAuth.path }}
-        {{- with .Values.jwtAuth.listingVisibility }}
+        path: {{ .path }}
+        {{- with .listingVisibility }}
         options:
           listing_visibility: {{ . | quote }}
         {{- end }}
         config:
-          oidc_discovery_url: {{ .Values.jwtAuth.discoveryUrl | quote }}
-          {{- with .Values.jwtAuth.boundIssuer }}
+          oidc_discovery_url: {{ .discoveryUrl | quote }}
+          {{- with .boundIssuer }}
           bound_issuer: {{ . | quote }}
           {{- end }}
-          default_role: {{ .Values.jwtAuth.defaultRole | quote }}
+          default_role: {{ .defaultRole | quote }}
         roles:
-          {{- range .Values.jwtAuth.roles }}
+          {{- range .roles }}
           - name: {{ .name }}
             role_type: jwt
             user_claim: {{ .userClaim | default "email" | quote }}
@@ -160,6 +167,7 @@ spec:
             ttl: {{ .ttl | default "5m" | quote }}
             max_ttl: {{ .maxTtl | default "5m" | quote }}
           {{- end }}
+      {{- end }}
       {{- end }}
     {{- end }}
 

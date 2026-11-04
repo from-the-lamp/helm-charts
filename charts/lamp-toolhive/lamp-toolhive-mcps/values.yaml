@@ -360,35 +360,6 @@ mcp:
           key: toolhive
           property: immich_api_key
 
-# Replaces the Windmill-hosted refresh_toolhive_token_v2 cron as the
-# refresh MECHANISM for windmill-delegate's RFC 8693 token exchange - see
-# templates/vmcptokenrefresher/. Disabled by default (no consumer should
-# get an extra CronJob+ServiceAccount+RBAC it didn't ask for); the
-# homelab consumer values.yaml turns this on with its own real
-# tokenEndpoint/resourceAudience/windmillApiBase.
-vmcpTokenRefresher:
-  enabled: false
-  schedule: "*/5 * * * *"
-  tokenEndpoint: ""
-  resourceAudience: ""
-  windmillApiBase: ""
-
-  letsfg:
-    enabled: true
-    # Self-built from docker-images/lamp-letsfg-mcp (npm package letsfg-mcp, no official image).
-    # letsfg-mcp only accepts a static LETSFG_BEARER_TOKEN env var (no refresh logic of its own),
-    # and its OAuth refresh_token rotates on every use - so the container's own supervisor reads
-    # the current refresh_token straight from Vault (via the mounted lamp-infra OCI profile,
-    # reusing the oracle-infra MCP's ExternalSecret-derived k8s Secret), exchanges it for a fresh
-    # access token, writes the rotated refresh_token back, and restarts itself shortly before
-    # the access token expires so Kubernetes cycles the pod through this loop again.
-    image: registry.gitlab.com/from-the-lamp/infra/docker-images/lamp-letsfg-mcp:latest
-    mcps:
-      - name: letsfg
-        ociProfile: lamp-infra
-        ociSecretName: oracle-infra-mcp-secret
-        vaultSecretId: ocid1.vaultsecret.oc1.eu-frankfurt-1.amaaaaaap56pctia3kx6u2sw3qqt5gkav6rp4pst77gu2lu54qmeram4jcfa
-
   gcloud:
     enabled: false
     image: europe-central2-docker.pkg.dev/common-infra-4585/docker-images/gcloud-mcp:0.1.0
@@ -412,6 +383,19 @@ vmcpTokenRefresher:
     #       secretKey: shared_token    # key inside the generated <name>-mcp-secret
     #       token:
     #         key: example-remote-shared-token
+
+# Replaces the Windmill-hosted refresh_toolhive_token_v2 cron as the
+# refresh MECHANISM for windmill-delegate's RFC 8693 token exchange - see
+# templates/vmcptokenrefresher/. Disabled by default (no consumer should
+# get an extra CronJob+ServiceAccount+RBAC it didn't ask for); the
+# homelab consumer values.yaml turns this on with its own real
+# tokenEndpoint/resourceAudience/windmillApiBase.
+vmcpTokenRefresher:
+  enabled: false
+  schedule: "*/5 * * * *"
+  tokenEndpoint: ""
+  resourceAudience: ""
+  windmillApiBase: ""
 
 externalSecrets:
   kind: ClusterSecretStore

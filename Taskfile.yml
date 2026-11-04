@@ -16,14 +16,30 @@ vars:
           exit 0
         fi
       done
-      echo HEAD~1
+      # Local/pre-commit fallback: "HEAD" is a sentinel GIT_DIFF_FLAGS below
+      # keys off of, not just another ref. HEAD~1 looked equivalent but
+      # breaks the moment HEAD is a merge commit - its first parent is "my
+      # own tip before the merge", so everything the merge brought in from
+      # the other side reads as "changed" (e.g. every renovate Chart.yaml
+      # bump pulled in by a `git pull`/merge from main).
+      echo HEAD
+  # Pre-commit hooks see the *staged* snapshot, not the full working tree -
+  # --cached scopes the local fallback to that, so unrelated unstaged edits
+  # elsewhere in the tree don't get swept into "changed" either. Empty in CI,
+  # where DIFF_BASE is a real historical SHA and the checkout has nothing
+  # staged anyway.
+  GIT_DIFF_FLAGS:
+    sh: |
+      if [ "{{.DIFF_BASE}}" = "HEAD" ]; then
+        echo "--cached"
+      fi
   CHANGED_CHART_DIRS:
     sh: |
       if [ -n "${TARGETS:-}" ]; then
         echo "$TARGETS"
         exit 0
       fi
-      git diff --name-only --diff-filter=d {{.DIFF_BASE}} | grep 'Chart.yaml$' | xargs -r -n1 dirname | sort -u | tr '\n' ' '
+      git diff {{.GIT_DIFF_FLAGS}} --name-only --diff-filter=d {{.DIFF_BASE}} | grep 'Chart.yaml$' | xargs -r -n1 dirname | sort -u | tr '\n' ' '
 
 includes:
   init:
@@ -35,10 +51,10 @@ includes:
   build_dev:
     taskfile: .tasks/build_dev.yml
     flatten: true
-  readme: 
+  readme:
     taskfile: .tasks/readme.yml
     flatten: true
-  template: 
+  template:
     taskfile: .tasks/template.yml
     flatten: true
 
@@ -47,7 +63,7 @@ tasks:
   default:
     desc: List all available tasks
     cmd: task --list-all
-        
+
   list:all:
     desc: List all Chart directories
     cmd: echo {{.CHART_DIRS}} | tr ' ' '\n'

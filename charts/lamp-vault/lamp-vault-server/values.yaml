@@ -143,25 +143,29 @@ audit: []
 pkiMounts: []
 
 # ====================================================================
-# JWT auth method. Used here for cross-cluster auth via Google OIDC:
-# child Vault's bootstrap Job presents a GKE metadata-server JWT
-# (audience = vault/<role>); bound by `email` claim to a specific GCP SA.
+# JWT auth methods. A list - each entry is its own mount path/issuer/role
+# set, since different JWT issuers (GCP, a CI provider, ...) need different
+# discovery URLs and cannot share one mount. Example entry below is for
+# cross-cluster auth via Google OIDC: a child Vault's bootstrap Job presents
+# a GKE metadata-server JWT (audience = vault/<role>); bound by `email`
+# claim to a specific GCP SA. Disabled by default - add real entries per
+# instance (see homelab's vault values for an active one).
 # ====================================================================
 jwtAuth:
-  enabled: false
-  path: jwt-gcp
-  discoveryUrl: https://accounts.google.com
-  boundIssuer: https://accounts.google.com
-  defaultRole: ""
-  roles: []
-  # - name: prod-eu-c2-main-0-signer
-  #   userClaim: email
-  #   boundAudiences: ["vault/prod-eu-c2-main-0-signer"]
-  #   boundClaims:
-  #     email: ["vault-pki-bootstrap@prod-907c.iam.gserviceaccount.com"]
-  #   policies: ["sign-intermediate-prod-eu-c2-main-0"]
-  #   ttl: "5m"
-  #   maxTtl: "5m"
+  - enabled: false
+    path: jwt-gcp
+    discoveryUrl: https://accounts.google.com
+    boundIssuer: https://accounts.google.com
+    defaultRole: ""
+    roles: []
+    # - name: prod-eu-c2-main-0-signer
+    #   userClaim: email
+    #   boundAudiences: ["vault/prod-eu-c2-main-0-signer"]
+    #   boundClaims:
+    #     email: ["vault-pki-bootstrap@prod-907c.iam.gserviceaccount.com"]
+    #   policies: ["sign-intermediate-prod-eu-c2-main-0"]
+    #   ttl: "5m"
+    #   maxTtl: "5m"
 
 externalSecrets:
   kind: ClusterSecretStore
