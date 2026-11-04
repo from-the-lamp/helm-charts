@@ -38,6 +38,9 @@ spec:
     - --config
     - /etc/toolhive/mcp-config/config.toml
   podTemplateSpec:
+    metadata:
+      annotations:
+        {{- include "lamp-toolhive-mcps.podAnnotations" . | nindent 8 }}
     spec:
       containers:
         - name: mcp
@@ -64,6 +67,9 @@ spec:
     - /etc/toolhive/mcp-config/config.toml
   serviceAccount: {{ $item.connectGateway.serviceAccount }}
   podTemplateSpec:
+    metadata:
+      annotations:
+        {{- include "lamp-toolhive-mcps.podAnnotations" . | nindent 8 }}
     spec:
       nodeSelector:
         iam.gke.io/gke-metadata-server-enabled: "true"
@@ -86,6 +92,10 @@ spec:
             name: {{ $item.name }}-mcp-config
   {{- else }}
   serviceAccount: {{ $item.serviceAccount }}
+  podTemplateSpec:
+    metadata:
+      annotations:
+        {{- include "lamp-toolhive-mcps.podAnnotations" . | nindent 8 }}
   {{- end }}
   {{- with $item.env }}
   env:

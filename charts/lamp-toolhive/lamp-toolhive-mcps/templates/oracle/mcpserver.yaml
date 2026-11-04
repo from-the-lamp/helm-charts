@@ -19,6 +19,9 @@ spec:
     - name: OCI_CONFIG_PROFILE
       value: {{ $item.profile | default "DEFAULT" }}
   podTemplateSpec:
+    metadata:
+      annotations:
+        {{- include "lamp-toolhive-mcps.podAnnotations" . | nindent 8 }}
     spec:
       containers:
         - name: mcp

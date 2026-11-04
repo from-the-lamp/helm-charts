@@ -1,6 +1,6 @@
 # lamp-toolhive-mcps
 
-![Version: 0.0.48](https://img.shields.io/badge/Version-0.0.48-informational?style=flat-square)
+![Version: 0.0.49](https://img.shields.io/badge/Version-0.0.49-informational?style=flat-square)
 
 ## Values
 
@@ -79,13 +79,16 @@
 | mcp.etherscan.mcps[0].name | string | `"etherscan"` |  |
 | mcp.etherscan.mcps[0].token.key | string | `"toolhive"` |  |
 | mcp.etherscan.mcps[0].token.property | string | `"etherscan_api_key"` |  |
+| mcp.gcloud.enabled | bool | `false` |  |
+| mcp.gcloud.image | string | `"europe-central2-docker.pkg.dev/common-infra-4585/docker-images/gcloud-mcp:0.1.0"` |  |
+| mcp.gcloud.mcps | list | `[]` |  |
 | mcp.github.enabled | bool | `true` |  |
 | mcp.github.image | string | `"ghcr.io/github/github-mcp-server:v2.0.3"` |  |
 | mcp.github.mcps[0].name | string | `"github-xdata"` |  |
 | mcp.github.mcps[0].token.key | string | `"toolhive"` |  |
 | mcp.github.mcps[0].token.property | string | `"github_xdata_token"` |  |
 | mcp.gitlab.enabled | bool | `true` |  |
-| mcp.gitlab.image | string | `"zereight050/gitlab-mcp:2.3.11"` |  |
+| mcp.gitlab.image | string | `"zereight050/gitlab-mcp:2.3.20"` |  |
 | mcp.gitlab.mcps[0].apiUrl | string | `"https://gitlab.com/api/v4"` |  |
 | mcp.gitlab.mcps[0].env[0].name | string | `"GITLAB_TOOLSETS"` |  |
 | mcp.gitlab.mcps[0].env[0].value | string | `"core,merge_requests,pipelines,ci,repositories"` |  |
@@ -125,7 +128,7 @@
 | mcp.kafka.image | string | `"ghcr.io/tuannvm/kafka-mcp-server:2.0.2"` |  |
 | mcp.kafka.mcps | list | `[]` |  |
 | mcp.kubernetes.enabled | bool | `true` |  |
-| mcp.kubernetes.image | string | `"quay.io/containers/kubernetes_mcp_server:v0.0.69"` |  |
+| mcp.kubernetes.image | string | `"quay.io/containers/kubernetes_mcp_server:v0.1.1"` |  |
 | mcp.kubernetes.mcpPort | int | `8080` |  |
 | mcp.kubernetes.mcps[0].name | string | `"kubernetes"` |  |
 | mcp.kubernetes.mcps[0].serviceAccount | string | `"kubernetes-mcp"` |  |
@@ -170,6 +173,8 @@
 | mcp.redis.enabled | bool | `false` |  |
 | mcp.redis.image | string | `"us-central1-docker.pkg.dev/database-toolbox/toolbox/toolbox:1.15.0"` |  |
 | mcp.redis.mcps | list | `[]` |  |
+| mcp.remote.enabled | bool | `false` |  |
+| mcp.remote.mcps | list | `[]` |  |
 | mcp.sentry.enabled | bool | `true` |  |
 | mcp.sentry.image | string | `"ghcr.io/stacklok/dockyard/npx/sentry-mcp-server:0.42.0"` |  |
 | mcp.sentry.mcps | list | `[]` |  |
@@ -225,17 +230,6 @@
 | mcp.windmill.enabled | bool | `true` |  |
 | mcp.windmill.remoteUrl | string | `""` |  |
 | vmcpTokenRefresher.enabled | bool | `false` |  |
-| vmcpTokenRefresher.gcloud.enabled | bool | `false` |  |
-| vmcpTokenRefresher.gcloud.image | string | `"europe-central2-docker.pkg.dev/common-infra-4585/docker-images/gcloud-mcp:0.1.0"` |  |
-| vmcpTokenRefresher.gcloud.mcps | list | `[]` |  |
-| vmcpTokenRefresher.letsfg.enabled | bool | `true` |  |
-| vmcpTokenRefresher.letsfg.image | string | `"registry.gitlab.com/from-the-lamp/infra/docker-images/lamp-letsfg-mcp:latest"` |  |
-| vmcpTokenRefresher.letsfg.mcps[0].name | string | `"letsfg"` |  |
-| vmcpTokenRefresher.letsfg.mcps[0].ociProfile | string | `"lamp-infra"` |  |
-| vmcpTokenRefresher.letsfg.mcps[0].ociSecretName | string | `"oracle-infra-mcp-secret"` |  |
-| vmcpTokenRefresher.letsfg.mcps[0].vaultSecretId | string | `"ocid1.vaultsecret.oc1.eu-frankfurt-1.amaaaaaap56pctia3kx6u2sw3qqt5gkav6rp4pst77gu2lu54qmeram4jcfa"` |  |
-| vmcpTokenRefresher.remote.enabled | bool | `false` |  |
-| vmcpTokenRefresher.remote.mcps | list | `[]` |  |
 | vmcpTokenRefresher.resourceAudience | string | `""` |  |
 | vmcpTokenRefresher.schedule | string | `"*/5 * * * *"` |  |
 | vmcpTokenRefresher.tokenEndpoint | string | `""` |  |

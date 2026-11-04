@@ -24,6 +24,9 @@ spec:
     name: {{ $item.name }}-tool-config
   {{- end }}
   podTemplateSpec:
+    metadata:
+      annotations:
+        {{- include "lamp-toolhive-mcps.podAnnotations" . | nindent 8 }}
     spec:
       containers:
         - name: mcp

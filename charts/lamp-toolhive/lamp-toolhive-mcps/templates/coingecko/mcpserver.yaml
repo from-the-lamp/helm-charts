@@ -23,6 +23,9 @@ spec:
     - name: COINGECKO_ENVIRONMENT
       value: demo
   podTemplateSpec:
+    metadata:
+      annotations:
+        {{- include "lamp-toolhive-mcps.podAnnotations" . | nindent 8 }}
     spec:
       containers:
         - name: mcp

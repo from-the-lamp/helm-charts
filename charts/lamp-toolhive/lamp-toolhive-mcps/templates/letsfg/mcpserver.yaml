@@ -23,6 +23,9 @@ spec:
     - name: VAULT_SECRET_PATH
       value: {{ $item.vaultSecretPath | default "toolhive" }}
   podTemplateSpec:
+    metadata:
+      annotations:
+        {{- include "lamp-toolhive-mcps.podAnnotations" . | nindent 8 }}
     spec:
       containers:
         - name: mcp

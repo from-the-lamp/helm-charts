@@ -24,6 +24,9 @@ spec:
   {{- end }}
   serviceAccount: {{ $item.workloadIdentity.serviceAccount }}
   podTemplateSpec:
+    metadata:
+      annotations:
+        {{- include "lamp-toolhive-mcps.podAnnotations" . | nindent 8 }}
     spec:
       nodeSelector:
         iam.gke.io/gke-metadata-server-enabled: "true"
