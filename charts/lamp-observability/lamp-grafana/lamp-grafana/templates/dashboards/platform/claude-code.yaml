@@ -1,21 +1,10 @@
 {{- if .Values.dashboards.claude_code.enabled }}
 apiVersion: grafana.integreatly.org/v1beta1
-kind: GrafanaFolder
-metadata:
-  name: claude-code
-spec:
-  instanceSelector:
-    matchLabels:
-      dashboards: "grafana"
-  parentFolderRef: platform
-  title: Claude Code
----
-apiVersion: grafana.integreatly.org/v1beta1
 kind: GrafanaDashboard
 metadata:
   name: claude-code
 spec:
-  folderRef: claude-code
+  folderRef: ai
   instanceSelector:
     matchLabels:
       dashboards: "grafana"
