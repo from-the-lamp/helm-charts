@@ -1,6 +1,6 @@
 # lamp-grafana
 
-![Version: 0.0.22](https://img.shields.io/badge/Version-0.0.22-informational?style=flat-square)
+![Version: 0.0.23](https://img.shields.io/badge/Version-0.0.23-informational?style=flat-square)
 
 ## Values
 
@@ -114,11 +114,11 @@
 | datasources.postgres.enabled | bool | `false` |  |
 | datasources.postgres.host | string | `""` |  |
 | datasources.postgres.password.remoteKey | string | `"postgres"` |  |
-| datasources.postgres.password.remoteProperty | string | `"users.superuser.password"` |  |
+| datasources.postgres.password.remoteProperty | string | `"users.grafana.password"` |  |
 | datasources.postgres.port | int | `5432` |  |
 | datasources.postgres.postgresVersion | int | `1600` |  |
 | datasources.postgres.sslmode | string | `"disable"` |  |
-| datasources.postgres.user | string | `"postgres"` |  |
+| datasources.postgres.user | string | `"grafana"` |  |
 | datasources.pyroscope.enabled | bool | `true` |  |
 | datasources.pyroscope.url | string | `"http://pyroscope.pyroscope.svc.cluster.local:4040"` |  |
 | datasources.tempo.enabled | bool | `true` |  |

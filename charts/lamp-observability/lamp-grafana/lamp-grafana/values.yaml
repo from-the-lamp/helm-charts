@@ -51,12 +51,15 @@ datasources:
     host: ""
     port: 5432
     database: postgres
-    user: postgres
+    # Dedicated read-only role (pg_read_all_data), not superuser - see
+    # lamp-postgres-cluster's `roles` entry for "grafana" on whichever
+    # cluster this points at.
+    user: grafana
     sslmode: disable
     postgresVersion: 1600
     password:
       remoteKey: postgres
-      remoteProperty: users.superuser.password
+      remoteProperty: users.grafana.password
   infinity:
     enabled: false
     pluginVersion: 4.1.5
