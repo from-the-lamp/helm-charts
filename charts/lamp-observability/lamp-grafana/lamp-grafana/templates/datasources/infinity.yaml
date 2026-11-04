@@ -1,0 +1,25 @@
+{{- if .Values.datasources.infinity.enabled }}
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDatasource
+metadata:
+  name: infinity
+spec:
+  instanceSelector:
+    matchLabels:
+      dashboards: "grafana"
+  plugins:
+    - name: yesoreyeram-infinity-datasource
+      version: {{ .Values.datasources.infinity.pluginVersion }}
+  datasource:
+    name: Infinity
+    type: yesoreyeram-infinity-datasource
+    access: proxy
+    url: ""
+    isDefault: false
+    jsonData:
+      global_queries: []
+      {{- if .Values.datasources.infinity.allowedHosts }}
+      allowedHosts:
+        {{- toYaml .Values.datasources.infinity.allowedHosts | nindent 8 }}
+      {{- end }}
+{{- end }}

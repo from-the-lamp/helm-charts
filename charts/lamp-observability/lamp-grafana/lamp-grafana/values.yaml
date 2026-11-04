@@ -46,6 +46,21 @@ datasources:
   alertmanager:
     enabled: true
     url: http://vmalertmanager-victoria-metrics-0.vmalertmanager-victoria-metrics.victoria-metrics.svc.cluster.local.:9093
+  postgres:
+    enabled: false
+    host: ""
+    port: 5432
+    database: postgres
+    user: postgres
+    sslmode: disable
+    postgresVersion: 1600
+    password:
+      remoteKey: postgres
+      remoteProperty: users.superuser.password
+  infinity:
+    enabled: false
+    pluginVersion: 4.1.5
+    allowedHosts: []
   loki:
     enabled: true
     url: http://loki.loki.svc.cluster.local:3100

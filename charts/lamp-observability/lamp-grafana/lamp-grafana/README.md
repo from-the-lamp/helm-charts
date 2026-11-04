@@ -1,6 +1,6 @@
 # lamp-grafana
 
-![Version: 0.0.20](https://img.shields.io/badge/Version-0.0.20-informational?style=flat-square)
+![Version: 0.0.21](https://img.shields.io/badge/Version-0.0.21-informational?style=flat-square)
 
 ## Values
 
@@ -105,8 +105,20 @@
 | datasources.google.defaultProject | string | `"example-infra"` |  |
 | datasources.google.enabled | bool | `false` |  |
 | datasources.google.serviceAccountEmail | string | `"grafana-monitoring-viewer@example-infra.iam.gserviceaccount.com"` |  |
+| datasources.infinity.allowedHosts | list | `[]` |  |
+| datasources.infinity.enabled | bool | `false` |  |
+| datasources.infinity.pluginVersion | string | `"4.1.5"` |  |
 | datasources.loki.enabled | bool | `true` |  |
 | datasources.loki.url | string | `"http://loki.loki.svc.cluster.local:3100"` |  |
+| datasources.postgres.database | string | `"postgres"` |  |
+| datasources.postgres.enabled | bool | `false` |  |
+| datasources.postgres.host | string | `""` |  |
+| datasources.postgres.password.remoteKey | string | `"postgres"` |  |
+| datasources.postgres.password.remoteProperty | string | `"users.superuser.password"` |  |
+| datasources.postgres.port | int | `5432` |  |
+| datasources.postgres.postgresVersion | int | `1600` |  |
+| datasources.postgres.sslmode | string | `"disable"` |  |
+| datasources.postgres.user | string | `"postgres"` |  |
 | datasources.pyroscope.enabled | bool | `true` |  |
 | datasources.pyroscope.url | string | `"http://pyroscope.pyroscope.svc.cluster.local:4040"` |  |
 | datasources.tempo.enabled | bool | `true` |  |

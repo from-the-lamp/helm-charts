@@ -1,0 +1,51 @@
+{{- if .Values.datasources.postgres.enabled }}
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDatasource
+metadata:
+  name: postgres
+spec:
+  instanceSelector:
+    matchLabels:
+      dashboards: "grafana"
+  datasource:
+    name: Postgres
+    type: postgres
+    access: proxy
+    url: "{{ .Values.datasources.postgres.host }}:{{ .Values.datasources.postgres.port }}"
+    user: {{ .Values.datasources.postgres.user }}
+    database: {{ .Values.datasources.postgres.database }}
+    isDefault: false
+    jsonData:
+      sslmode: {{ .Values.datasources.postgres.sslmode }}
+      postgresVersion: {{ .Values.datasources.postgres.postgresVersion }}
+      timescaledb: false
+    secureJsonData:
+      password: <path:{{ .Values.datasources.postgres.password.remoteKey }}#{{ .Values.datasources.postgres.password.remoteProperty }}>
+  valuesFrom:
+    - targetPath: "secureJsonData.password"
+      valueFrom:
+        secretKeyRef:
+          name: "datasource-postgres-credentials"
+          key: "password"
+---
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: datasource-postgres-credentials
+spec:
+  refreshInterval: "{{ .Values.externalSecrets.refreshInterval }}"
+  secretStoreRef:
+    kind: "{{ .Values.externalSecrets.kind }}"
+    name: "{{ .Values.externalSecrets.name }}"
+  target:
+    name: datasource-postgres-credentials
+    creationPolicy: "{{ .Values.externalSecrets.creationPolicy }}"
+    template:
+      data:
+        password: '{{`{{ .password }}`}}'
+  data:
+  - secretKey: password
+    remoteRef:
+      key: {{ .Values.datasources.postgres.password.remoteKey }}
+      property: {{ .Values.datasources.postgres.password.remoteProperty }}
+{{- end }}
