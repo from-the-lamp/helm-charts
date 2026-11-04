@@ -1,6 +1,6 @@
 global:
   projectId: ""
-  
+
 defaultClusterName: ""
 
 gcp:
@@ -43,6 +43,18 @@ argo-cd:
     cm:
       admin.enabled: false
       exec.enabled: true
+      # No IngressClass/controller in this cluster ever watches classic
+      # networking.k8s.io Ingress objects - all real traffic routes through
+      # Gateway API (Istio HTTPRoute). Some community charts (e.g.
+      # lamp-actualbudget) still render one because it gates unrelated
+      # template logic behind `ingress.enabled`, leaving `status.loadBalancer`
+      # permanently empty. ArgoCD's default Ingress health check reports
+      # Progressing forever on that empty status, so override it cluster-wide.
+      resource.customizations.health.networking.k8s.io_Ingress: |
+        hs = {}
+        hs.status = "Healthy"
+        hs.message = "Classic Ingress objects are never watched on this cluster (Gateway API/Istio only)"
+        return hs
 
   controller:
     metrics:

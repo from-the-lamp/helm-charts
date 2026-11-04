@@ -1,0 +1,39 @@
+# lamp-kestra
+
+![Version: 0.2.0](https://img.shields.io/badge/Version-0.2.0-informational?style=flat-square)
+
+## Requirements
+
+| Repository | Name | Version |
+|------------|------|---------|
+| https://helm.kestra.io | kestra | 2.0.9 |
+
+## Values
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| kestra.configurations.application.datasources.h2.driverClassName | string | `"org.h2.Driver"` |  |
+| kestra.configurations.application.datasources.h2.password | string | `""` |  |
+| kestra.configurations.application.datasources.h2.url | string | `"jdbc:h2:file:/app/storage/h2;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE"` |  |
+| kestra.configurations.application.datasources.h2.username | string | `"sa"` |  |
+| kestra.configurations.application.kestra.queue.type | string | `"h2"` |  |
+| kestra.configurations.application.kestra.repository.type | string | `"h2"` |  |
+| kestra.configurations.application.kestra.storage.local.base-path | string | `"/app/storage"` |  |
+| kestra.configurations.application.kestra.storage.type | string | `"local"` |  |
+| kestra.configurations.application.kestra.tasks.tmp-dir.path | string | `"/tmp/kestra-wd/tmp"` |  |
+| kestra.deployments.standalone.dind.enabled | bool | `false` |  |
+# Trivy scan - Helm Chart
+```
+
+Report Summary
+
+┌────────┬──────┬───────────────────┐
+│ Target │ Type │ Misconfigurations │
+├────────┼──────┼───────────────────┤
+│   -    │  -   │         -         │
+└────────┴──────┴───────────────────┘
+Legend:
+- '-': Not scanned
+- '0': Clean (no security findings detected)
+
+```
