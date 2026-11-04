@@ -1,6 +1,6 @@
 # lamp-actualbudget
 
-![Version: 0.3.0](https://img.shields.io/badge/Version-0.3.0-informational?style=flat-square)
+![Version: 0.3.1](https://img.shields.io/badge/Version-0.3.1-informational?style=flat-square)
 
 Actual Budget deployment chart; thin wrapper around the community-charts actualbudget chart
 

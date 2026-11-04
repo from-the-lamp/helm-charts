@@ -1,6 +1,6 @@
 # lamp-grafana
 
-![Version: 0.0.19](https://img.shields.io/badge/Version-0.0.19-informational?style=flat-square)
+![Version: 0.0.20](https://img.shields.io/badge/Version-0.0.20-informational?style=flat-square)
 
 ## Values
 
@@ -100,6 +100,8 @@
 | dashboards.smartctl_exporter.enabled | bool | `false` |  |
 | dashboards.vault.enabled | bool | `false` |  |
 | dashboards.victoria_metrics.enabled | bool | `true` |  |
+| datasources.alertmanager.enabled | bool | `true` |  |
+| datasources.alertmanager.url | string | `"http://vmalertmanager-victoria-metrics-0.vmalertmanager-victoria-metrics.victoria-metrics.svc.cluster.local.:9093"` |  |
 | datasources.google.defaultProject | string | `"example-infra"` |  |
 | datasources.google.enabled | bool | `false` |  |
 | datasources.google.serviceAccountEmail | string | `"grafana-monitoring-viewer@example-infra.iam.gserviceaccount.com"` |  |
@@ -127,35 +129,66 @@
 
 Report Summary
 
-┌─────────────────────────────────────────────────────┬────────────┬───────────────────┐
-│                       Target                        │    Type    │ Misconfigurations │
-├─────────────────────────────────────────────────────┼────────────┼───────────────────┤
-│ templates/dashboards/folders.yaml                   │ kubernetes │         0         │
-├─────────────────────────────────────────────────────┼────────────┼───────────────────┤
-│ templates/dashboards/platform/argo.yaml             │    helm    │         0         │
-├─────────────────────────────────────────────────────┼────────────┼───────────────────┤
-│ templates/dashboards/platform/argocd.yaml           │    helm    │         0         │
-├─────────────────────────────────────────────────────┼────────────┼───────────────────┤
-│ templates/dashboards/platform/cert-manager.yaml     │    helm    │         0         │
-├─────────────────────────────────────────────────────┼────────────┼───────────────────┤
-│ templates/dashboards/platform/kubernetes.yaml       │    helm    │         0         │
-├─────────────────────────────────────────────────────┼────────────┼───────────────────┤
-│ templates/dashboards/platform/loki.yaml             │    helm    │         0         │
-├─────────────────────────────────────────────────────┼────────────┼───────────────────┤
-│ templates/dashboards/platform/victoria-metrics.yaml │    helm    │         0         │
-├─────────────────────────────────────────────────────┼────────────┼───────────────────┤
-│ templates/datasources/loki.yaml                     │    helm    │         0         │
-├─────────────────────────────────────────────────────┼────────────┼───────────────────┤
-│ templates/datasources/pyroscope.yaml                │    helm    │         0         │
-├─────────────────────────────────────────────────────┼────────────┼───────────────────┤
-│ templates/datasources/tempo.yaml                    │    helm    │         0         │
-├─────────────────────────────────────────────────────┼────────────┼───────────────────┤
-│ templates/datasources/victoria-metrics.yaml         │    helm    │         0         │
-├─────────────────────────────────────────────────────┼────────────┼───────────────────┤
-│ templates/grafana.yaml                              │    helm    │         0         │
-├─────────────────────────────────────────────────────┼────────────┼───────────────────┤
-│ templates/sso/gitlab.yaml                           │    helm    │         0         │
-└─────────────────────────────────────────────────────┴────────────┴───────────────────┘
+┌──────────────────────────────────────────────────────────────────────────────────┬────────────┬───────────────────┐
+│                                      Target                                      │    Type    │ Misconfigurations │
+├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
+│ .output/lamp-grafana-0.0.20.tgz:templates/dashboards/folders.yaml                │    helm    │         0         │
+├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
+│ .output/lamp-grafana-0.0.20.tgz:templates/dashboards/platform/argo.yaml          │    helm    │         0         │
+├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
+│ .output/lamp-grafana-0.0.20.tgz:templates/dashboards/platform/argocd.yaml        │    helm    │         0         │
+├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
+│ .output/lamp-grafana-0.0.20.tgz:templates/dashboards/platform/cert-manager.yaml  │    helm    │         0         │
+├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
+│ .output/lamp-grafana-0.0.20.tgz:templates/dashboards/platform/kubernetes.yaml    │    helm    │         0         │
+├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
+│ .output/lamp-grafana-0.0.20.tgz:templates/dashboards/platform/loki.yaml          │    helm    │         0         │
+├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
+│ .output/lamp-grafana-0.0.20.tgz:templates/dashboards/platform/victoria-metrics.- │    helm    │         0         │
+│ yaml                                                                             │            │                   │
+├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
+│ .output/lamp-grafana-0.0.20.tgz:templates/datasources/alertmanager.yaml          │    helm    │         0         │
+├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
+│ .output/lamp-grafana-0.0.20.tgz:templates/datasources/loki.yaml                  │    helm    │         0         │
+├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
+│ .output/lamp-grafana-0.0.20.tgz:templates/datasources/pyroscope.yaml             │    helm    │         0         │
+├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
+│ .output/lamp-grafana-0.0.20.tgz:templates/datasources/tempo.yaml                 │    helm    │         0         │
+├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
+│ .output/lamp-grafana-0.0.20.tgz:templates/datasources/victoria-metrics.yaml      │    helm    │         0         │
+├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
+│ .output/lamp-grafana-0.0.20.tgz:templates/grafana.yaml                           │    helm    │         0         │
+├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
+│ .output/lamp-grafana-0.0.20.tgz:templates/sso/gitlab.yaml                        │    helm    │         0         │
+├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
+│ templates/dashboards/folders.yaml                                                │ kubernetes │         0         │
+├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
+│ templates/dashboards/platform/argo.yaml                                          │    helm    │         0         │
+├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
+│ templates/dashboards/platform/argocd.yaml                                        │    helm    │         0         │
+├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
+│ templates/dashboards/platform/cert-manager.yaml                                  │    helm    │         0         │
+├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
+│ templates/dashboards/platform/kubernetes.yaml                                    │    helm    │         0         │
+├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
+│ templates/dashboards/platform/loki.yaml                                          │    helm    │         0         │
+├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
+│ templates/dashboards/platform/victoria-metrics.yaml                              │    helm    │         0         │
+├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
+│ templates/datasources/alertmanager.yaml                                          │    helm    │         0         │
+├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
+│ templates/datasources/loki.yaml                                                  │    helm    │         0         │
+├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
+│ templates/datasources/pyroscope.yaml                                             │    helm    │         0         │
+├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
+│ templates/datasources/tempo.yaml                                                 │    helm    │         0         │
+├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
+│ templates/datasources/victoria-metrics.yaml                                      │    helm    │         0         │
+├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
+│ templates/grafana.yaml                                                           │    helm    │         0         │
+├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
+│ templates/sso/gitlab.yaml                                                        │    helm    │         0         │
+└──────────────────────────────────────────────────────────────────────────────────┴────────────┴───────────────────┘
 Legend:
 - '-': Not scanned
 - '0': Clean (no security findings detected)

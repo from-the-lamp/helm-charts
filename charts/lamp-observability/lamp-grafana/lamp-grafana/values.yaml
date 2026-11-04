@@ -43,6 +43,9 @@ datasources:
   victoria_metrics:
     enabled: true
     url: http://vmselect-victoria-metrics.victoria-metrics:8481/select/0/prometheus
+  alertmanager:
+    enabled: true
+    url: http://vmalertmanager-victoria-metrics-0.vmalertmanager-victoria-metrics.victoria-metrics.svc.cluster.local.:9093
   loki:
     enabled: true
     url: http://loki.loki.svc.cluster.local:3100
