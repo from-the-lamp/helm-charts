@@ -8,7 +8,7 @@ annotations:
 dependencies:
   - name: valkey
     repository: "oci://registry-1.docker.io/bitnamicharts"
-    version: 6.3.12
+    version: 6.3.13
     condition: valkey.enabled
   - name: postgresql
     repository: "oci://registry-1.docker.io/bitnamicharts"
