@@ -1,5 +1,6 @@
 {{- if .Values.mcp.playwright.enabled }}
 {{- range $item := .Values.mcp.playwright.mcps }}
+{{- if ne $item.enabled false }}
 ---
 apiVersion: v1
 kind: Service
@@ -12,5 +13,6 @@ spec:
     - name: http
       port: {{ $.Values.mcp.playwright.mcpPort }}
       targetPort: {{ $.Values.mcp.playwright.mcpPort }}
+{{- end }}
 {{- end }}
 {{- end }}

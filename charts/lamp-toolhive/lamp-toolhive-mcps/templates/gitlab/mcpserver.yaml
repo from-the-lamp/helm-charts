@@ -1,5 +1,6 @@
 {{- if .Values.mcp.gitlab.enabled }}
 {{- range $item := .Values.mcp.gitlab.mcps }}
+{{- if ne $item.enabled false }}
 ---
 apiVersion: toolhive.stacklok.dev/v1beta1
 kind: MCPServer
@@ -51,5 +52,6 @@ spec:
     {{- toYaml . | nindent 4 }}
   {{- end }}
   {{- end }}
+{{- end }}
 {{- end }}
 {{- end }}

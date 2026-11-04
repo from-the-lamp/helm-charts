@@ -1,5 +1,6 @@
 {{- if .Values.mcp.playwright.enabled }}
 {{- range $item := .Values.mcp.playwright.mcps }}
+{{- if ne $item.enabled false }}
 ---
 apiVersion: toolhive.stacklok.dev/v1beta1
 kind: MCPRemoteProxy
@@ -11,5 +12,6 @@ spec:
   groupRef:
     name: {{ $item.groupRef | default $.Values.mcp.defaults.groupRef }}
   proxyPort: 8080
+{{- end }}
 {{- end }}
 {{- end }}

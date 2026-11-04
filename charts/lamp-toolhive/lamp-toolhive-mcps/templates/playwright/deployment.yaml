@@ -1,5 +1,6 @@
 {{- if .Values.mcp.playwright.enabled }}
 {{- range $item := .Values.mcp.playwright.mcps }}
+{{- if ne $item.enabled false }}
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -115,5 +116,6 @@ spec:
               - key: state
                 path: state.json
         {{- end }}
+{{- end }}
 {{- end }}
 {{- end }}
