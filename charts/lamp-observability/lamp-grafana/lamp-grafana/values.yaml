@@ -4,7 +4,7 @@ global:
 image:
   name: grafana/grafana
   tag: 10.0.3
-  
+
 domain: grafana.example.infra.cloud
 ingress:
   enabled: false
@@ -63,7 +63,7 @@ dashboards:
     enabled: true
   cert_manager:
     enabled: true
-  kubernetes: 
+  kubernetes:
     enabled: true
     apiServer: false
     global: true
@@ -89,7 +89,7 @@ dashboards:
     network-tcp-loadbalancer-monitoring: true
   argocd:
     enabled: true
-  loki: 
+  loki:
     enabled: true
     logs-by-service: true
   # Optional
@@ -110,11 +110,11 @@ dashboards:
   mysql:
     enabled: false
     mixin: true
-  postgresql: 
+  postgresql:
     enabled: false
     cnpg: false
     mixin: false
-  kafka: 
+  kafka:
     enabled: false
     strimzi-cruise-control: true
     strimzi-bridge: true
@@ -155,6 +155,8 @@ dashboards:
     operator: true
     hubble: true
   litellm:
+    enabled: false
+  claude_code:
     enabled: false
 
 externalSecrets:

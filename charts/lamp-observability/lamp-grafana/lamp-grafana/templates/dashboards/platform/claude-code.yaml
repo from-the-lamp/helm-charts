@@ -1,0 +1,28 @@
+{{- if .Values.dashboards.claude_code.enabled }}
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaFolder
+metadata:
+  name: claude-code
+spec:
+  instanceSelector:
+    matchLabels:
+      dashboards: "grafana"
+  parentFolderRef: platform
+  title: Claude Code
+---
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDashboard
+metadata:
+  name: claude-code
+spec:
+  folderRef: claude-code
+  instanceSelector:
+    matchLabels:
+      dashboards: "grafana"
+  datasources:
+    - inputName: DS_PROMETHEUS
+      datasourceName: VictoriaMetrics
+  grafanaCom:
+    id: 24993
+    revision: 1
+{{- end }}
