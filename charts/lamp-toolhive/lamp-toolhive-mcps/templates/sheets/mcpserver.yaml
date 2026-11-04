@@ -1,5 +1,6 @@
 {{- if .Values.mcp.sheets.enabled }}
 {{- range $item := .Values.mcp.sheets.mcps }}
+{{- if ne $item.enabled false }}
 ---
 apiVersion: toolhive.stacklok.dev/v1beta1
 kind: MCPServer
@@ -31,5 +32,6 @@ spec:
     - name: {{ $item.name }}-mcp-secret
       key: credentials-config
       targetEnvName: CREDENTIALS_CONFIG
+{{- end }}
 {{- end }}
 {{- end }}

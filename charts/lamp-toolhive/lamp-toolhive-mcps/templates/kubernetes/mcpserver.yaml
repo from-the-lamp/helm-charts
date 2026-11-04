@@ -1,5 +1,6 @@
 {{- if .Values.mcp.kubernetes.enabled }}
 {{- range $item := .Values.mcp.kubernetes.mcps }}
+{{- if ne $item.enabled false }}
 {{- if or $item.kubeconfig $item.connectGateway }}
 ---
 apiVersion: v1
@@ -117,5 +118,6 @@ spec:
     {{- toYaml . | nindent 4 }}
   {{- end }}
   {{- end }}
+{{- end }}
 {{- end }}
 {{- end }}

@@ -1,8 +1,10 @@
 {{- if .Values.mcp.kubernetes.enabled }}
 {{- $serviceAccounts := dict }}
 {{- range $item := .Values.mcp.kubernetes.mcps }}
+{{- if ne $item.enabled false }}
 {{- if and $item.serviceAccount (not $item.kubeconfig) (not $item.connectGateway) }}
 {{- $_ := set $serviceAccounts $item.serviceAccount ($item.clusterRole | default "view") }}
+{{- end }}
 {{- end }}
 {{- end }}
 {{- range $sa, $clusterRole := $serviceAccounts }}
