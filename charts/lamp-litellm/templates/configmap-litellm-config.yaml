@@ -53,6 +53,7 @@ data:
       drop_params: true
       {{- if .Values.metrics.enabled }}
       callbacks: ["prometheus"]
+      service_callback: ["prometheus_system"]
       require_auth_for_metrics_endpoint: false
       {{- end }}
     general_settings:
