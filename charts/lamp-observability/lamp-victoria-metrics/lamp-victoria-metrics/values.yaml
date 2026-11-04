@@ -5,6 +5,18 @@ alertManagerConfig:
   slack:
     apiUrl: https://slack.com/api/chat.postMessage
     token: token # FIXME, but it's realy hard
+  # Dead man's switch (FTL-83) - disabled by default, no consumer should get
+  # an extra ExternalSecret/webhook it didn't ask for. urlSecret.key/property
+  # is a Vault platform/<key> path + nested property, same convention as
+  # every other per-service secret in this stack (see toolhive's mcp wiring)
+  # - never put the ping URL itself in values.
+  cronitor:
+    enabled: false
+    secretName: vmalertmanager-cronitor-secret
+    repeatInterval: 5m
+    urlSecret:
+      key: cronitor
+      property: alertmanager_watchdog_url
   receivers: []
     # - name: slack-dev-product
     #   channel: alerts-dev-product
@@ -22,6 +34,12 @@ alertManagerConfig:
     #   - cluster="dev"
     #   - severity=~"info|warning|critical"
     #   receiver: slack-dev-platform
+
+externalSecrets:
+  kind: ClusterSecretStore
+  name: vault
+  refreshInterval: 1h
+  creationPolicy: Orphan
 
 additionDashboards:
   kubernetes: false

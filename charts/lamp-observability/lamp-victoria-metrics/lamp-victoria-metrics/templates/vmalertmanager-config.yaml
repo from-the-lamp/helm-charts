@@ -14,7 +14,25 @@ stringData:
         - cluster
         - service
       routes:
-      {{- toYaml .Values.alertManagerConfig.routes | nindent 8 }}
+      {{- if .Values.alertManagerConfig.cronitor.enabled }}
+      # Dead man's switch (FTL-83): Watchdog (vector(1), always firing) pings
+      # Cronitor's heartbeat monitor. Must come first with continue: false -
+      # Watchdog must never reach the slack routes below (pure noise there)
+      # and must never pick up their repeat_interval. send_resolved: false on
+      # the receiver side is the other half of this - a resolved notification
+      # (e.g. vmalert itself dying) would otherwise count as a valid ping and
+      # defeat the switch.
+      - receiver: cronitor-watchdog
+        matchers:
+        - alertname="Watchdog"
+        continue: false
+        group_wait: 0s
+        group_interval: 1m
+        repeat_interval: {{ .Values.alertManagerConfig.cronitor.repeatInterval }}
+      {{- end }}
+      {{- if .Values.alertManagerConfig.routes }}
+      {{- toYaml .Values.alertManagerConfig.routes | nindent 6 }}
+      {{- end }}
       group_wait: 30s
       group_interval: 5m
       repeat_interval: 12h
@@ -44,6 +62,20 @@ stringData:
         - severity=info
     receivers:
       - name: blackhole
+      {{- if .Values.alertManagerConfig.cronitor.enabled }}
+      # url_file, not url - the ping URL is a bearer-token-equivalent secret
+      # (anyone with it can forge a heartbeat), sourced from Vault via the
+      # ExternalSecret this chart also renders (cronitor-externalsecret.yaml)
+      # and mounted by the operator's spec.secrets convention at
+      # /etc/vm/secrets/<secret-name>/<key> - the caller must add
+      # {{ .Values.alertManagerConfig.cronitor.secretName }} to
+      # victoria-metrics-k8s-stack.alertmanager.spec.secrets for that mount
+      # to actually exist.
+      - name: cronitor-watchdog
+        webhook_configs:
+        - url_file: /etc/vm/secrets/{{ .Values.alertManagerConfig.cronitor.secretName }}/url
+          send_resolved: false
+      {{- end }}
       {{- range .Values.alertManagerConfig.receivers }}
       - name: {{ .name }}
         slack_configs:
