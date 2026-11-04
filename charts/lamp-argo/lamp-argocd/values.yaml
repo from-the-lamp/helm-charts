@@ -55,6 +55,29 @@ argo-cd:
         hs.status = "Healthy"
         hs.message = "Classic Ingress objects are never watched on this cluster (Gateway API/Istio only)"
         return hs
+      # Kubernetes' CRD names-controller can leave status.conditions'
+      # NamesAccepted stuck at False (e.g. ShortNamesConflict from a shortName
+      # that once duplicated the CRD's own singular/plural) even after the
+      # spec is fixed and status.acceptedNames fully matches spec.names again
+      # (observed live on toolhive's mcpgroups/mcpservers CRDs) - it doesn't
+      # self-clear without the apiserver re-running that specific check.
+      # ArgoCD's default CRD health check keys off NamesAccepted and reports
+      # Degraded forever in that case even though Established stays True and
+      # the CRD serves correctly. Established is what actually matters.
+      resource.customizations.health.apiextensions.k8s.io_CustomResourceDefinition: |
+        hs = {}
+        hs.status = "Progressing"
+        hs.message = "Waiting for CRD to be established"
+        if obj.status ~= nil and obj.status.conditions ~= nil then
+          for i, condition in ipairs(obj.status.conditions) do
+            if condition.type == "Established" and condition.status == "True" then
+              hs.status = "Healthy"
+              hs.message = "CRD is established"
+              return hs
+            end
+          end
+        end
+        return hs
 
   controller:
     metrics:

@@ -1,6 +1,6 @@
 # lamp-argocd
 
-![Version: 0.0.6](https://img.shields.io/badge/Version-0.0.6-informational?style=flat-square)
+![Version: 0.0.7](https://img.shields.io/badge/Version-0.0.7-informational?style=flat-square)
 
 ## Requirements
 
@@ -16,6 +16,7 @@
 | argo-cd.applicationSet.metrics.serviceMonitor.enabled | bool | `true` |  |
 | argo-cd.configs.cm."admin.enabled" | bool | `false` |  |
 | argo-cd.configs.cm."exec.enabled" | bool | `true` |  |
+| argo-cd.configs.cm."resource.customizations.health.apiextensions.k8s.io_CustomResourceDefinition" | string | `"hs = {}\nhs.status = \"Progressing\"\nhs.message = \"Waiting for CRD to be established\"\nif obj.status ~= nil and obj.status.conditions ~= nil then\n  for i, condition in ipairs(obj.status.conditions) do\n    if condition.type == \"Established\" and condition.status == \"True\" then\n      hs.status = \"Healthy\"\n      hs.message = \"CRD is established\"\n      return hs\n    end\n  end\nend\nreturn hs\n"` |  |
 | argo-cd.configs.cm."resource.customizations.health.networking.k8s.io_Ingress" | string | `"hs = {}\nhs.status = \"Healthy\"\nhs.message = \"Classic Ingress objects are never watched on this cluster (Gateway API/Istio only)\"\nreturn hs\n"` |  |
 | argo-cd.configs.params."server.insecure" | string | `"true"` |  |
 | argo-cd.configs.rbac."policy.default" | string | `"deny"` |  |
