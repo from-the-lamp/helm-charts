@@ -43,6 +43,12 @@ data:
             {{- end }}
             {{- end }}
         {{- end }}
+        {{- range $model, $targets := .Values.modelFallbacks }}
+        - {{ $model }}:
+            {{- range $target := $targets }}
+            - {{ $target }}
+            {{- end }}
+        {{- end }}
     litellm_settings:
       drop_params: true
       {{- if .Values.metrics.enabled }}

@@ -30,11 +30,7 @@ imagePullSecret:
   registry: registry.gitlab.com/from-the-lamp
   username: token
   remoteKey: gitlab
-<<<<<<< HEAD
   remoteProperty: image-pull-secret
-=======
-  remoteProperty: image_pull_secret
->>>>>>> 639fe3162f13810ceb24aaf7a27521ba5ff950e0
 
 # Models served through litellm's native ChatGPT Plus/Pro OAuth provider.
 chatgptModels:
@@ -67,6 +63,14 @@ claudeModels:
   - claude-opus-5
   - claude-sonnet-5
   - claude-haiku-4-5-20251001
+
+# Explicit cross-provider fallbacks, additive to the chatgptModels sibling
+# fallback below - litellm's router tries each listed target, in order, if
+# the key model's call fails (rate limit, outage, etc). claude-sonnet-5 is
+# Kelos's primary model; gpt-5.6-terra is the fallback if Anthropic is down.
+modelFallbacks:
+  claude-sonnet-5:
+    - gpt-5.6-terra
 
 # Audio transcription (Whisper) via Groq - same shape as deepseekApiKey/
 # deepseekModels above, each becomes `groq/<model>` in litellm's model_list
