@@ -1,0 +1,32 @@
+{{- if .Values.mcp.ssh.enabled }}
+{{- range $item := .Values.mcp.ssh.mcps }}
+---
+apiVersion: toolhive.stacklok.dev/v1beta1
+kind: MCPServer
+metadata:
+  name: mcp-{{ $item.name }}
+spec:
+  image: {{ $.Values.mcp.ssh.image }}
+  transport: stdio
+  groupRef:
+    name: {{ $item.groupRef | default $.Values.mcp.defaults.groupRef }}
+  permissionProfile:
+    type: builtin
+    name: {{ $.Values.mcp.defaults.permissionProfile }}
+  audit:
+    enabled: true
+  podTemplateSpec:
+    spec:
+      containers:
+        - name: mcp
+          volumeMounts:
+            - name: sshconfig
+              mountPath: /home/mcp/.ssh
+              readOnly: true
+      volumes:
+        - name: sshconfig
+          secret:
+            secretName: {{ $item.name }}-mcp-secret
+            defaultMode: 0400
+{{- end }}
+{{- end }}

@@ -204,6 +204,25 @@ mcp:
           - name: lamp-prod-1.pem
             property: oracle_key_lamp_prod_1
 
+  ssh:
+    enabled: true
+    image: registry.gitlab.com/from-the-lamp/infra/docker-images/lamp-ssh-mcp:latest
+    mcps:
+      - name: ssh-oracle-prod-0
+        config:
+          key: toolhive
+          property: ssh_config_oracle_prod_0
+        keyFiles:
+          - name: id_ed25519
+            property: ssh_key_oracle_prod_0
+      - name: ssh-oracle-prod-1
+        config:
+          key: toolhive
+          property: ssh_config_oracle_prod_1
+        keyFiles:
+          - name: id_ed25519
+            property: ssh_key_oracle_prod_1
+
   etherscan:
     enabled: true
     image: registry.gitlab.com/from-the-lamp/infra/docker-images/lamp-etherscan-mcp:latest
