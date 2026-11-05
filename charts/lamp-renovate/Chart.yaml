@@ -1,6 +1,6 @@
 apiVersion: v2
 name: lamp-renovate
-version: 1.4.1
+version: 1.4.2
 
 dependencies:
   - name: renovate

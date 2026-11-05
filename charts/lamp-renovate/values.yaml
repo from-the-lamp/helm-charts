@@ -13,6 +13,20 @@ config:
 renovate:
   renovate:
     existingConfigFile: /etc/renovate/config.json
+  # helm-charts has grown to 47 charts / 138 deps across 61 files - Node's
+  # default heap sizing (no limit set) started hitting "JavaScript heap out
+  # of memory" partway through extraction on that repo (confirmed live:
+  # every scheduled run failing with this FATAL ERROR). Explicit memory
+  # limit + a matching --max-old-space-size (comfortably under the limit,
+  # leaving headroom for non-heap overhead) fixes it.
+  env:
+    NODE_OPTIONS: "--max-old-space-size=2560"
+  resources:
+    requests:
+      cpu: 50m
+      memory: 512Mi
+    limits:
+      memory: 3Gi
   extraVolumes:
     - name: renovate-config
       secret:
