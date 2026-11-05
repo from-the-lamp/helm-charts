@@ -1,6 +1,6 @@
 apiVersion: v2
 name: lamp-istio-system
-version: 0.0.6
+version: 0.1.0
 
 dependencies:
   - name: istiod
@@ -21,4 +21,3 @@ dependencies:
 
 annotations:
   notes: "InferencePool v1 (AI) support, Dual-stack (IPv4/IPv6) in beta, native nftables support."
-  
