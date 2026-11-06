@@ -1,0 +1,9 @@
+apiVersion: v2
+name: lamp-holmesgpt
+version: 0.0.1
+description: Thin wrapper around the upstream HolmesGPT chart (read-only alert/incident investigation agent)
+
+dependencies:
+  - name: holmes
+    version: 0.46.0
+    repository: https://robusta-charts.storage.googleapis.com

@@ -31,10 +31,13 @@ metadata:
   name: immich-admin-bootstrap
   annotations:
     # Jobs are immutable once created - ArgoCD won't touch an existing one
-    # even when its spec changes. Replace=true makes every sync delete and
-    # recreate it instead, which is what lets this stay enabled forever
+    # even when its spec changes. Replace=true alone still issues a plain
+    # "kubectl replace" (PUT), which fails with "field is immutable" the
+    # moment the rendered template differs from the live object (selector/
+    # template-hash). Force=true is required too so ArgoCD deletes and
+    # recreates it instead, which is what lets this stay enabled forever
     # (re-running against an already-bootstrapped instance is a no-op).
-    argocd.argoproj.io/sync-options: Replace=true
+    argocd.argoproj.io/sync-options: Replace=true,Force=true
 spec:
   backoffLimit: 3
   template:

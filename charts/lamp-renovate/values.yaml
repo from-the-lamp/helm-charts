@@ -9,6 +9,7 @@ config:
     property: token_legacy
   gitAuthor: "Renovate Bot <renovate@from-the-lamp.work>"
   allowedCommands: []
+  allowPostUpgradeCommandTemplating: false
 
 renovate:
   renovate:

@@ -9,15 +9,19 @@ tasks:
       - mkdir -p .output
       # Helm-docs
       - helm-docs --skip-version-footer -o .output/helm.md
-      # Trivy
-      - echo "# Trivy scan - Helm Chart" > .output/trivy.md
-      - echo '```' >> .output/trivy.md
-      - trivy config . --format table >> .output/trivy.md
-      - echo '```' >> .output/trivy.md
+      # Trivy - rendered from JSON via trivy-report.jq instead of --format
+      # table: table's own renderer has no stable tie-break when two findings
+      # share the same rule ID *and* message (e.g. a generic rule firing on
+      # two containers of the same pod) - order then depends on internal map
+      # iteration and flips between runs, which broke this hook's idempotency
+      # (chart-readme kept reporting "files were modified" forever). The jq
+      # filter sorts everything explicitly, so the same scan always renders
+      # byte-identical markdown.
+      - trivy config . --format json 2>/dev/null | jq -r -f '{{.TASKFILE_DIR}}/trivy-report.jq' > .output/trivy.md
       # README.md
       - cat .output/helm.md > README.md
       - cat .output/trivy.md >> README.md
-      
+
   readme:all:
     desc: Generate README.md for all Charts
     deps:

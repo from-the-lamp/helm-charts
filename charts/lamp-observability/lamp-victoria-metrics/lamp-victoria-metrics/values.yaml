@@ -31,6 +31,16 @@ alertManagerConfig:
     #   channel: alerts-dev-product
     # - name: slack-dev-platform
     #   channel: alerts-dev-platform
+  # Plain webhook_configs receivers (FTL-110) - distinct from the slack_configs
+  # ones above because those are hardcoded to the Slack message shape. No
+  # credentials_file/url_file indirection here: unlike Slack/Cronitor, the
+  # target is expected to be an in-cluster, unauthenticated-by-design endpoint
+  # (e.g. Kelos's own generic webhook ingestion server) - url is a plain value,
+  # never a secret.
+  webhookReceivers: []
+    # - name: kelos-alertmanager-remediation
+    #   url: http://kelos-webhook-generic.kelos-system.svc.cluster.local:8443/webhook/alertmanager
+    #   sendResolved: false
   routes: []
     # - continue: false
     #   matchers:

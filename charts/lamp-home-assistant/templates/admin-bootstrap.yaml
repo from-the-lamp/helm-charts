@@ -30,7 +30,11 @@ kind: Job
 metadata:
   name: {{ include "home-assistant.fullname" . }}-admin-bootstrap
   annotations:
-    argocd.argoproj.io/sync-options: Replace=true
+    # Replace=true alone issues a plain "kubectl replace" (PUT), which fails
+    # with "field is immutable" once the rendered template differs from the
+    # live Job (selector/template-hash). Force=true makes ArgoCD delete and
+    # recreate it instead.
+    argocd.argoproj.io/sync-options: Replace=true,Force=true
 spec:
   backoffLimit: 3
   template:

@@ -1,6 +1,6 @@
 # lamp-victoria-metrics
 
-![Version: 3.1.0](https://img.shields.io/badge/Version-3.1.0-informational?style=flat-square)
+![Version: 3.2.0](https://img.shields.io/badge/Version-3.2.0-informational?style=flat-square)
 
 ## Requirements
 
@@ -26,6 +26,7 @@
 | alertManagerConfig.slack.secretName | string | `"vmalertmanager-slack-secret"` |  |
 | alertManagerConfig.slack.tokenSecret.key | string | `"slack"` |  |
 | alertManagerConfig.slack.tokenSecret.property | string | `"alertmanager"` |  |
+| alertManagerConfig.webhookReceivers | list | `[]` |  |
 | externalSecrets.creationPolicy | string | `"Orphan"` |  |
 | externalSecrets.kind | string | `"ClusterSecretStore"` |  |
 | externalSecrets.name | string | `"vault"` |  |
@@ -164,1968 +165,906 @@
 | victoria-metrics-k8s-stack.vmcluster.spec.vmstorage.storage.volumeClaimTemplate.spec.resources.requests.storage | string | `"30Gi"` |  |
 | victoria-metrics-k8s-stack.vmsingle.enabled | bool | `false` |  |
 # Trivy scan - Helm Chart
+
+## Report Summary
+
+| Target | Type | Misconfigurations |
+| --- | --- | --- |
+| charts/prometheus-operator-crds/charts/crds/templates/crd-alertmanagerconfigs.yaml | helm | 0 |
+| charts/prometheus-operator-crds/charts/crds/templates/crd-alertmanagers.yaml | helm | 0 |
+| charts/prometheus-operator-crds/charts/crds/templates/crd-podmonitors.yaml | helm | 0 |
+| charts/prometheus-operator-crds/charts/crds/templates/crd-probes.yaml | helm | 0 |
+| charts/prometheus-operator-crds/charts/crds/templates/crd-prometheusagents.yaml | helm | 0 |
+| charts/prometheus-operator-crds/charts/crds/templates/crd-prometheuses.yaml | helm | 0 |
+| charts/prometheus-operator-crds/charts/crds/templates/crd-prometheusrules.yaml | helm | 0 |
+| charts/prometheus-operator-crds/charts/crds/templates/crd-scrapeconfigs.yaml | helm | 0 |
+| charts/prometheus-operator-crds/charts/crds/templates/crd-servicemonitors.yaml | helm | 0 |
+| charts/prometheus-operator-crds/charts/crds/templates/crd-thanosrulers.yaml | helm | 0 |
+| charts/victoria-metrics-k8s-stack/charts/kube-state-metrics/templates/clusterrolebinding.yaml | helm | 0 |
+| charts/victoria-metrics-k8s-stack/charts/kube-state-metrics/templates/deployment.yaml | helm | 5 |
+| charts/victoria-metrics-k8s-stack/charts/kube-state-metrics/templates/role.yaml | helm | 1 |
+| charts/victoria-metrics-k8s-stack/charts/kube-state-metrics/templates/service.yaml | helm | 0 |
+| charts/victoria-metrics-k8s-stack/charts/kube-state-metrics/templates/serviceaccount.yaml | helm | 0 |
+| charts/victoria-metrics-k8s-stack/charts/prometheus-node-exporter/templates/daemonset.yaml | helm | 15 |
+| charts/victoria-metrics-k8s-stack/charts/prometheus-node-exporter/templates/service.yaml | helm | 0 |
+| charts/victoria-metrics-k8s-stack/charts/prometheus-node-exporter/templates/serviceaccount.yaml | helm | 0 |
+| charts/victoria-metrics-k8s-stack/charts/victoria-metrics-operator/templates/crb.yaml | helm | 0 |
+| charts/victoria-metrics-k8s-stack/charts/victoria-metrics-operator/templates/monitor.yaml | helm | 0 |
+| charts/victoria-metrics-k8s-stack/charts/victoria-metrics-operator/templates/rb.yaml | helm | 0 |
+| charts/victoria-metrics-k8s-stack/charts/victoria-metrics-operator/templates/role.yaml | helm | 11 |
+| charts/victoria-metrics-k8s-stack/charts/victoria-metrics-operator/templates/server.yaml | helm | 9 |
+| charts/victoria-metrics-k8s-stack/charts/victoria-metrics-operator/templates/service.yaml | helm | 0 |
+| charts/victoria-metrics-k8s-stack/charts/victoria-metrics-operator/templates/serviceaccount.yaml | helm | 0 |
+| charts/victoria-metrics-k8s-stack/charts/victoria-metrics-operator/templates/webhook.yaml | helm | 0 |
+| charts/victoria-metrics-k8s-stack/templates/servicemonitors.yaml | helm | 0 |
+| charts/victoria-metrics-k8s-stack/templates/sync-job/config.yaml | helm | 0 |
+| charts/victoria-metrics-k8s-stack/templates/sync-job/rbac.yaml | helm | 0 |
+| charts/victoria-metrics-k8s-stack/templates/victoria-metrics-operator/vmagent/vmagent.yaml | helm | 0 |
+| charts/victoria-metrics-k8s-stack/templates/victoria-metrics-operator/vmalert/vmalert.yaml | helm | 0 |
+| charts/victoria-metrics-k8s-stack/templates/victoria-metrics-operator/vmalertmanager/monzo-template.yaml | helm | 0 |
+| charts/victoria-metrics-k8s-stack/templates/victoria-metrics-operator/vmalertmanager/vmalertmanager.yaml | helm | 0 |
+| charts/victoria-metrics-k8s-stack/templates/victoria-metrics-operator/vmcluster/vmcluster.yaml | helm | 0 |
+| templates/vmalertmanager-config.yaml | kubernetes | 0 |
+
+## charts/victoria-metrics-k8s-stack/charts/kube-state-metrics/templates/deployment.yaml
+
+### KSV-0011 (LOW): CPU not limited
+
+Container 'kube-state-metrics' of Deployment 'lamp-victoria-metrics-kube-state-metrics' should set 'resources.limits.cpu'
+
+- Resolution: Set a limit value under 'containers[].resources.limits.cpu'.
+- See: https://avd.aquasec.com/misconfig/ksv-0011
+- Location: `charts/victoria-metrics-k8s-stack/charts/kube-state-metrics/templates/deployment.yaml:46-84`
+
+```
+46:       - name: kube-state-metrics
+47:         args:
+48:         - --port=8080
+49:         - --resources=certificatesigningrequests,configmaps,cronjobs,daemonsets,deployments,endpointslices,horizontalpodautoscalers,ingresses,jobs,leases,limitranges,mutatingwebhookconfigurations,namespaces,networkpolicies,nodes,persistentvolumeclaims,persistentvolumes,poddisruptionbudgets,pods,replicasets,replicationcontrollers,resourcequotas,secrets,services,statefulsets,storageclasses,validatingwebhookconfigurations,volumeattachments
+50:         imagePullPolicy: IfNotPresent
+51:         image: registry.k8s.io/kube-state-metrics/kube-state-metrics:v2.20.0
+52:         ports:
+53:         - containerPort: 8080
+54:           name: http
+55:
 ```
 
-Report Summary
-
-┌──────────────────────────────────────────────────────────────────────────────────┬────────────┬───────────────────┐
-│                                      Target                                      │    Type    │ Misconfigurations │
-├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
-│ .output/lamp-victoria-metrics-3.1.0.tgz:charts/prometheus-operator-crds/charts/- │    helm    │         0         │
-│ crds/templates/crd-alertmanagerconfigs.yaml                                      │            │                   │
-├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
-│ .output/lamp-victoria-metrics-3.1.0.tgz:charts/prometheus-operator-crds/charts/- │    helm    │         0         │
-│ crds/templates/crd-alertmanagers.yaml                                            │            │                   │
-├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
-│ .output/lamp-victoria-metrics-3.1.0.tgz:charts/prometheus-operator-crds/charts/- │    helm    │         0         │
-│ crds/templates/crd-podmonitors.yaml                                              │            │                   │
-├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
-│ .output/lamp-victoria-metrics-3.1.0.tgz:charts/prometheus-operator-crds/charts/- │    helm    │         0         │
-│ crds/templates/crd-probes.yaml                                                   │            │                   │
-├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
-│ .output/lamp-victoria-metrics-3.1.0.tgz:charts/prometheus-operator-crds/charts/- │    helm    │         0         │
-│ crds/templates/crd-prometheusagents.yaml                                         │            │                   │
-├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
-│ .output/lamp-victoria-metrics-3.1.0.tgz:charts/prometheus-operator-crds/charts/- │    helm    │         0         │
-│ crds/templates/crd-prometheuses.yaml                                             │            │                   │
-├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
-│ .output/lamp-victoria-metrics-3.1.0.tgz:charts/prometheus-operator-crds/charts/- │    helm    │         0         │
-│ crds/templates/crd-prometheusrules.yaml                                          │            │                   │
-├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
-│ .output/lamp-victoria-metrics-3.1.0.tgz:charts/prometheus-operator-crds/charts/- │    helm    │         0         │
-│ crds/templates/crd-scrapeconfigs.yaml                                            │            │                   │
-├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
-│ .output/lamp-victoria-metrics-3.1.0.tgz:charts/prometheus-operator-crds/charts/- │    helm    │         0         │
-│ crds/templates/crd-servicemonitors.yaml                                          │            │                   │
-├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
-│ .output/lamp-victoria-metrics-3.1.0.tgz:charts/prometheus-operator-crds/charts/- │    helm    │         0         │
-│ crds/templates/crd-thanosrulers.yaml                                             │            │                   │
-├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
-│ .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/chart- │    helm    │         0         │
-│ s/kube-state-metrics/templates/clusterrolebinding.yaml                           │            │                   │
-├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
-│ .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/chart- │    helm    │         5         │
-│ s/kube-state-metrics/templates/deployment.yaml                                   │            │                   │
-├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
-│ .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/chart- │    helm    │         1         │
-│ s/kube-state-metrics/templates/role.yaml                                         │            │                   │
-├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
-│ .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/chart- │    helm    │         0         │
-│ s/kube-state-metrics/templates/service.yaml                                      │            │                   │
-├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
-│ .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/chart- │    helm    │         0         │
-│ s/kube-state-metrics/templates/serviceaccount.yaml                               │            │                   │
-├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
-│ .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/chart- │    helm    │        15         │
-│ s/prometheus-node-exporter/templates/daemonset.yaml                              │            │                   │
-├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
-│ .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/chart- │    helm    │         0         │
-│ s/prometheus-node-exporter/templates/service.yaml                                │            │                   │
-├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
-│ .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/chart- │    helm    │         0         │
-│ s/prometheus-node-exporter/templates/serviceaccount.yaml                         │            │                   │
-├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
-│ .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/chart- │    helm    │         0         │
-│ s/victoria-metrics-operator/templates/crb.yaml                                   │            │                   │
-├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
-│ .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/chart- │    helm    │         0         │
-│ s/victoria-metrics-operator/templates/monitor.yaml                               │            │                   │
-├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
-│ .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/chart- │    helm    │         0         │
-│ s/victoria-metrics-operator/templates/rb.yaml                                    │            │                   │
-├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
-│ .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/chart- │    helm    │        11         │
-│ s/victoria-metrics-operator/templates/role.yaml                                  │            │                   │
-├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
-│ .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/chart- │    helm    │         9         │
-│ s/victoria-metrics-operator/templates/server.yaml                                │            │                   │
-├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
-│ .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/chart- │    helm    │         0         │
-│ s/victoria-metrics-operator/templates/service.yaml                               │            │                   │
-├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
-│ .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/chart- │    helm    │         0         │
-│ s/victoria-metrics-operator/templates/serviceaccount.yaml                        │            │                   │
-├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
-│ .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/chart- │    helm    │         0         │
-│ s/victoria-metrics-operator/templates/webhook.yaml                               │            │                   │
-├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
-│ .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/templ- │    helm    │         0         │
-│ ates/servicemonitors.yaml                                                        │            │                   │
-├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
-│ .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/templ- │    helm    │         0         │
-│ ates/sync-job/config.yaml                                                        │            │                   │
-├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
-│ .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/templ- │    helm    │         0         │
-│ ates/sync-job/rbac.yaml                                                          │            │                   │
-├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
-│ .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/templ- │    helm    │         0         │
-│ ates/victoria-metrics-operator/vmagent/vmagent.yaml                              │            │                   │
-├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
-│ .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/templ- │    helm    │         0         │
-│ ates/victoria-metrics-operator/vmalert/vmalert.yaml                              │            │                   │
-├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
-│ .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/templ- │    helm    │         0         │
-│ ates/victoria-metrics-operator/vmalertmanager/monzo-template.yaml                │            │                   │
-├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
-│ .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/templ- │    helm    │         0         │
-│ ates/victoria-metrics-operator/vmalertmanager/vmalertmanager.yaml                │            │                   │
-├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
-│ .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/templ- │    helm    │         0         │
-│ ates/victoria-metrics-operator/vmcluster/vmcluster.yaml                          │            │                   │
-├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
-│ .output/lamp-victoria-metrics-3.1.0.tgz:templates/vmalertmanager-config.yaml     │    helm    │         0         │
-├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
-│ charts/prometheus-operator-crds/charts/crds/templates/crd-alertmanagerconfigs.y- │    helm    │         0         │
-│ aml                                                                              │            │                   │
-├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
-│ charts/prometheus-operator-crds/charts/crds/templates/crd-alertmanagers.yaml     │    helm    │         0         │
-├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
-│ charts/prometheus-operator-crds/charts/crds/templates/crd-podmonitors.yaml       │    helm    │         0         │
-├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
-│ charts/prometheus-operator-crds/charts/crds/templates/crd-probes.yaml            │    helm    │         0         │
-├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
-│ charts/prometheus-operator-crds/charts/crds/templates/crd-prometheusagents.yaml  │    helm    │         0         │
-├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
-│ charts/prometheus-operator-crds/charts/crds/templates/crd-prometheuses.yaml      │    helm    │         0         │
-├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
-│ charts/prometheus-operator-crds/charts/crds/templates/crd-prometheusrules.yaml   │    helm    │         0         │
-├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
-│ charts/prometheus-operator-crds/charts/crds/templates/crd-scrapeconfigs.yaml     │    helm    │         0         │
-├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
-│ charts/prometheus-operator-crds/charts/crds/templates/crd-servicemonitors.yaml   │    helm    │         0         │
-├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
-│ charts/prometheus-operator-crds/charts/crds/templates/crd-thanosrulers.yaml      │    helm    │         0         │
-├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
-│ charts/victoria-metrics-k8s-stack/charts/kube-state-metrics/templates/clusterro- │    helm    │         0         │
-│ lebinding.yaml                                                                   │            │                   │
-├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
-│ charts/victoria-metrics-k8s-stack/charts/kube-state-metrics/templates/deploymen- │    helm    │         5         │
-│ t.yaml                                                                           │            │                   │
-├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
-│ charts/victoria-metrics-k8s-stack/charts/kube-state-metrics/templates/role.yaml  │    helm    │         1         │
-├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
-│ charts/victoria-metrics-k8s-stack/charts/kube-state-metrics/templates/service.y- │    helm    │         0         │
-│ aml                                                                              │            │                   │
-├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
-│ charts/victoria-metrics-k8s-stack/charts/kube-state-metrics/templates/serviceac- │    helm    │         0         │
-│ count.yaml                                                                       │            │                   │
-├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
-│ charts/victoria-metrics-k8s-stack/charts/prometheus-node-exporter/templates/dae- │    helm    │        15         │
-│ monset.yaml                                                                      │            │                   │
-├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
-│ charts/victoria-metrics-k8s-stack/charts/prometheus-node-exporter/templates/ser- │    helm    │         0         │
-│ vice.yaml                                                                        │            │                   │
-├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
-│ charts/victoria-metrics-k8s-stack/charts/prometheus-node-exporter/templates/ser- │    helm    │         0         │
-│ viceaccount.yaml                                                                 │            │                   │
-├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
-│ charts/victoria-metrics-k8s-stack/charts/victoria-metrics-operator/templates/cr- │    helm    │         0         │
-│ b.yaml                                                                           │            │                   │
-├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
-│ charts/victoria-metrics-k8s-stack/charts/victoria-metrics-operator/templates/mo- │    helm    │         0         │
-│ nitor.yaml                                                                       │            │                   │
-├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
-│ charts/victoria-metrics-k8s-stack/charts/victoria-metrics-operator/templates/rb- │    helm    │         0         │
-│ .yaml                                                                            │            │                   │
-├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
-│ charts/victoria-metrics-k8s-stack/charts/victoria-metrics-operator/templates/ro- │    helm    │        11         │
-│ le.yaml                                                                          │            │                   │
-├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
-│ charts/victoria-metrics-k8s-stack/charts/victoria-metrics-operator/templates/se- │    helm    │         9         │
-│ rver.yaml                                                                        │            │                   │
-├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
-│ charts/victoria-metrics-k8s-stack/charts/victoria-metrics-operator/templates/se- │    helm    │         0         │
-│ rvice.yaml                                                                       │            │                   │
-├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
-│ charts/victoria-metrics-k8s-stack/charts/victoria-metrics-operator/templates/se- │    helm    │         0         │
-│ rviceaccount.yaml                                                                │            │                   │
-├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
-│ charts/victoria-metrics-k8s-stack/charts/victoria-metrics-operator/templates/we- │    helm    │         0         │
-│ bhook.yaml                                                                       │            │                   │
-├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
-│ charts/victoria-metrics-k8s-stack/templates/servicemonitors.yaml                 │    helm    │         0         │
-├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
-│ charts/victoria-metrics-k8s-stack/templates/sync-job/config.yaml                 │    helm    │         0         │
-├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
-│ charts/victoria-metrics-k8s-stack/templates/sync-job/rbac.yaml                   │    helm    │         0         │
-├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
-│ charts/victoria-metrics-k8s-stack/templates/victoria-metrics-operator/vmagent/v- │    helm    │         0         │
-│ magent.yaml                                                                      │            │                   │
-├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
-│ charts/victoria-metrics-k8s-stack/templates/victoria-metrics-operator/vmalert/v- │    helm    │         0         │
-│ malert.yaml                                                                      │            │                   │
-├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
-│ charts/victoria-metrics-k8s-stack/templates/victoria-metrics-operator/vmalertma- │    helm    │         0         │
-│ nager/monzo-template.yaml                                                        │            │                   │
-├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
-│ charts/victoria-metrics-k8s-stack/templates/victoria-metrics-operator/vmalertma- │    helm    │         0         │
-│ nager/vmalertmanager.yaml                                                        │            │                   │
-├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
-│ charts/victoria-metrics-k8s-stack/templates/victoria-metrics-operator/vmcluster- │    helm    │         0         │
-│ /vmcluster.yaml                                                                  │            │                   │
-├──────────────────────────────────────────────────────────────────────────────────┼────────────┼───────────────────┤
-│ templates/vmalertmanager-config.yaml                                             │ kubernetes │         0         │
-└──────────────────────────────────────────────────────────────────────────────────┴────────────┴───────────────────┘
-Legend:
-- '-': Not scanned
-- '0': Clean (no security findings detected)
-
-
-.output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/charts/kube-state-metrics/templates/deployment.yaml (helm)
-====================================================================================================================================
-Tests: 98 (SUCCESSES: 93, FAILURES: 5)
-Failures: 5 (UNKNOWN: 0, LOW: 4, MEDIUM: 1, HIGH: 0, CRITICAL: 0)
-
-KSV-0011 (LOW): Container 'kube-state-metrics' of Deployment 'lamp-victoria-metrics-kube-state-metrics' should set 'resources.limits.cpu'
-════════════════════════════════════════
-Enforcing CPU limits prevents DoS via resource exhaustion.
-
-See https://avd.aquasec.com/misconfig/ksv-0011
-────────────────────────────────────────
- .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/charts/kube-state-metrics/templates/deployment.yaml:46-84
-────────────────────────────────────────
-  46 ┌       - name: kube-state-metrics
-  47 │         args:
-  48 │         - --port=8080
-  49 │         - --resources=certificatesigningrequests,configmaps,cronjobs,daemonsets,deployments,endpointslices,horizontalpodautoscalers,ingresses,jobs,leases,limitranges,mutatingwebhookconfigurations,namespaces,networkpolicies,nodes,persistentvolumeclaims,persistentvolumes,poddisruptionbudgets,pods,replicasets,replicationcontrollers,resourcequotas,secrets,services,statefulsets,storageclasses,validatingwebhookconfigurations,volumeattachments
-  50 │         imagePullPolicy: IfNotPresent
-  51 │         image: registry.k8s.io/kube-state-metrics/kube-state-metrics:v2.20.0
-  52 │         ports:
-  53 │         - containerPort: 8080
-  54 └           name: http
-  ..   
-────────────────────────────────────────
-
-
-KSV-0015 (LOW): Container 'kube-state-metrics' of Deployment 'lamp-victoria-metrics-kube-state-metrics' should set 'resources.requests.cpu'
-════════════════════════════════════════
-When containers have resource requests specified, the scheduler can make better decisions about which nodes to place pods on, and how to deal with resource contention.
-
-See https://avd.aquasec.com/misconfig/ksv-0015
-────────────────────────────────────────
- .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/charts/kube-state-metrics/templates/deployment.yaml:46-84
-────────────────────────────────────────
-  46 ┌       - name: kube-state-metrics
-  47 │         args:
-  48 │         - --port=8080
-  49 │         - --resources=certificatesigningrequests,configmaps,cronjobs,daemonsets,deployments,endpointslices,horizontalpodautoscalers,ingresses,jobs,leases,limitranges,mutatingwebhookconfigurations,namespaces,networkpolicies,nodes,persistentvolumeclaims,persistentvolumes,poddisruptionbudgets,pods,replicasets,replicationcontrollers,resourcequotas,secrets,services,statefulsets,storageclasses,validatingwebhookconfigurations,volumeattachments
-  50 │         imagePullPolicy: IfNotPresent
-  51 │         image: registry.k8s.io/kube-state-metrics/kube-state-metrics:v2.20.0
-  52 │         ports:
-  53 │         - containerPort: 8080
-  54 └           name: http
-  ..   
-────────────────────────────────────────
-
-
-KSV-0016 (LOW): Container 'kube-state-metrics' of Deployment 'lamp-victoria-metrics-kube-state-metrics' should set 'resources.requests.memory'
-════════════════════════════════════════
-When containers have memory requests specified, the scheduler can make better decisions about which nodes to place pods on, and how to deal with resource contention.
-
-See https://avd.aquasec.com/misconfig/ksv-0016
-────────────────────────────────────────
- .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/charts/kube-state-metrics/templates/deployment.yaml:46-84
-────────────────────────────────────────
-  46 ┌       - name: kube-state-metrics
-  47 │         args:
-  48 │         - --port=8080
-  49 │         - --resources=certificatesigningrequests,configmaps,cronjobs,daemonsets,deployments,endpointslices,horizontalpodautoscalers,ingresses,jobs,leases,limitranges,mutatingwebhookconfigurations,namespaces,networkpolicies,nodes,persistentvolumeclaims,persistentvolumes,poddisruptionbudgets,pods,replicasets,replicationcontrollers,resourcequotas,secrets,services,statefulsets,storageclasses,validatingwebhookconfigurations,volumeattachments
-  50 │         imagePullPolicy: IfNotPresent
-  51 │         image: registry.k8s.io/kube-state-metrics/kube-state-metrics:v2.20.0
-  52 │         ports:
-  53 │         - containerPort: 8080
-  54 └           name: http
-  ..   
-────────────────────────────────────────
-
-
-KSV-0018 (LOW): Container 'kube-state-metrics' of Deployment 'lamp-victoria-metrics-kube-state-metrics' should set 'resources.limits.memory'
-════════════════════════════════════════
-Enforcing memory limits prevents DoS via resource exhaustion.
-
-See https://avd.aquasec.com/misconfig/ksv-0018
-────────────────────────────────────────
- .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/charts/kube-state-metrics/templates/deployment.yaml:46-84
-────────────────────────────────────────
-  46 ┌       - name: kube-state-metrics
-  47 │         args:
-  48 │         - --port=8080
-  49 │         - --resources=certificatesigningrequests,configmaps,cronjobs,daemonsets,deployments,endpointslices,horizontalpodautoscalers,ingresses,jobs,leases,limitranges,mutatingwebhookconfigurations,namespaces,networkpolicies,nodes,persistentvolumeclaims,persistentvolumes,poddisruptionbudgets,pods,replicasets,replicationcontrollers,resourcequotas,secrets,services,statefulsets,storageclasses,validatingwebhookconfigurations,volumeattachments
-  50 │         imagePullPolicy: IfNotPresent
-  51 │         image: registry.k8s.io/kube-state-metrics/kube-state-metrics:v2.20.0
-  52 │         ports:
-  53 │         - containerPort: 8080
-  54 └           name: http
-  ..   
-────────────────────────────────────────
-
-
-KSV-0125 (MEDIUM): Container kube-state-metrics in deployment lamp-victoria-metrics-kube-state-metrics (namespace: null) uses an image from an untrusted registry.
-════════════════════════════════════════
-Ensure that all containers use images only from trusted registry domains.
-
-See https://avd.aquasec.com/misconfig/ksv-0125
-────────────────────────────────────────
- .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/charts/kube-state-metrics/templates/deployment.yaml:46-84
-────────────────────────────────────────
-  46 ┌       - name: kube-state-metrics
-  47 │         args:
-  48 │         - --port=8080
-  49 │         - --resources=certificatesigningrequests,configmaps,cronjobs,daemonsets,deployments,endpointslices,horizontalpodautoscalers,ingresses,jobs,leases,limitranges,mutatingwebhookconfigurations,namespaces,networkpolicies,nodes,persistentvolumeclaims,persistentvolumes,poddisruptionbudgets,pods,replicasets,replicationcontrollers,resourcequotas,secrets,services,statefulsets,storageclasses,validatingwebhookconfigurations,volumeattachments
-  50 │         imagePullPolicy: IfNotPresent
-  51 │         image: registry.k8s.io/kube-state-metrics/kube-state-metrics:v2.20.0
-  52 │         ports:
-  53 │         - containerPort: 8080
-  54 └           name: http
-  ..   
-────────────────────────────────────────
-
-
-
-.output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/charts/kube-state-metrics/templates/role.yaml (helm)
-==============================================================================================================================
-Tests: 71 (SUCCESSES: 70, FAILURES: 1)
-Failures: 1 (UNKNOWN: 0, LOW: 0, MEDIUM: 0, HIGH: 0, CRITICAL: 1)
-
-KSV-0041 (CRITICAL): ClusterRole 'lamp-victoria-metrics-kube-state-metrics' shouldn't have access to manage resource 'secrets'
-════════════════════════════════════════
-Viewing secrets at the cluster-scope is akin to cluster-admin in most clusters as there are typically at least one service accounts (their token stored in a secret) bound to cluster-admin directly or a role/clusterrole that gives similar permissions.
-
-See https://avd.aquasec.com/misconfig/ksv-0041
-────────────────────────────────────────
- .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/charts/kube-state-metrics/templates/role.yaml:126-129
-────────────────────────────────────────
- 126 ┌ - apiGroups: [""]
- 127 │   resources:
- 128 │   - secrets
- 129 └   verbs: ["list", "watch"]
-────────────────────────────────────────
-
-
-
-.output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/charts/prometheus-node-exporter/templates/daemonset.yaml (helm)
-=========================================================================================================================================
-Tests: 98 (SUCCESSES: 83, FAILURES: 15)
-Failures: 15 (UNKNOWN: 0, LOW: 8, MEDIUM: 4, HIGH: 3, CRITICAL: 0)
-
-KSV-0001 (MEDIUM): Container 'node-exporter' of DaemonSet 'lamp-victoria-metrics-prometheus-node-exporter' should set 'securityContext.allowPrivilegeEscalation' to false
-════════════════════════════════════════
-A program inside the container can elevate its own privileges and run as root, which might give the program control over the container and node.
-
-See https://avd.aquasec.com/misconfig/ksv-0001
-────────────────────────────────────────
- .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/charts/prometheus-node-exporter/templates/daemonset.yaml:45-97
-────────────────────────────────────────
-  45 ┌         - name: node-exporter
-  46 │           image: quay.io/prometheus/node-exporter:v1.12.1
-  47 │           imagePullPolicy: IfNotPresent
-  48 │           args:
-  49 │             - --path.procfs=/host/proc
-  50 │             - --path.sysfs=/host/sys
-  51 │             - --path.rootfs=/host/root
-  52 │             - --path.udev.data=/host/root/run/udev/data
-  53 └             - --web.listen-address=[$(HOST_IP)]:9100
-  ..   
-────────────────────────────────────────
-
-
-KSV-0003 (LOW): Container 'node-exporter' of DaemonSet 'lamp-victoria-metrics-prometheus-node-exporter' should add 'ALL' to 'securityContext.capabilities.drop'
-════════════════════════════════════════
-The container should drop all default capabilities and add only those that are needed for its execution.
-
-See https://avd.aquasec.com/misconfig/ksv-0003
-────────────────────────────────────────
- .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/charts/prometheus-node-exporter/templates/daemonset.yaml:45-97
-────────────────────────────────────────
-  45 ┌         - name: node-exporter
-  46 │           image: quay.io/prometheus/node-exporter:v1.12.1
-  47 │           imagePullPolicy: IfNotPresent
-  48 │           args:
-  49 │             - --path.procfs=/host/proc
-  50 │             - --path.sysfs=/host/sys
-  51 │             - --path.rootfs=/host/root
-  52 │             - --path.udev.data=/host/root/run/udev/data
-  53 └             - --web.listen-address=[$(HOST_IP)]:9100
-  ..   
-────────────────────────────────────────
-
-
-KSV-0004 (LOW): Container 'node-exporter' of 'daemonset' 'lamp-victoria-metrics-prometheus-node-exporter' in 'null' namespace should set securityContext.capabilities.drop
-════════════════════════════════════════
-Security best practices require containers to run with minimal required capabilities.
-
-See https://avd.aquasec.com/misconfig/ksv-0004
-────────────────────────────────────────
- .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/charts/prometheus-node-exporter/templates/daemonset.yaml:45-97
-────────────────────────────────────────
-  45 ┌         - name: node-exporter
-  46 │           image: quay.io/prometheus/node-exporter:v1.12.1
-  47 │           imagePullPolicy: IfNotPresent
-  48 │           args:
-  49 │             - --path.procfs=/host/proc
-  50 │             - --path.sysfs=/host/sys
-  51 │             - --path.rootfs=/host/root
-  52 │             - --path.udev.data=/host/root/run/udev/data
-  53 └             - --web.listen-address=[$(HOST_IP)]:9100
-  ..   
-────────────────────────────────────────
-
-
-KSV-0009 (HIGH): DaemonSet 'lamp-victoria-metrics-prometheus-node-exporter' should not set 'spec.template.spec.hostNetwork' to true
-════════════════════════════════════════
-Sharing the host’s network namespace permits processes in the pod to communicate with processes bound to the host’s loopback adapter.
-
-See https://avd.aquasec.com/misconfig/ksv-0009
-────────────────────────────────────────
- .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/charts/prometheus-node-exporter/templates/daemonset.yaml:15-128
-────────────────────────────────────────
-  15 ┌ spec:
-  16 │   selector:
-  17 │     matchLabels:
-  18 │       app.kubernetes.io/name: prometheus-node-exporter
-  19 │       app.kubernetes.io/instance: lamp-victoria-metrics
-  20 │   revisionHistoryLimit: 10
-  21 │   updateStrategy:
-  22 │     rollingUpdate:
-  23 └       maxUnavailable: 1
-  ..   
-────────────────────────────────────────
-
-
-KSV-0010 (HIGH): DaemonSet 'lamp-victoria-metrics-prometheus-node-exporter' should not set 'spec.template.spec.hostPID' to true
-════════════════════════════════════════
-Sharing the host’s PID namespace allows visibility on host processes, potentially leaking information such as environment variables and configuration.
-
-See https://avd.aquasec.com/misconfig/ksv-0010
-────────────────────────────────────────
- .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/charts/prometheus-node-exporter/templates/daemonset.yaml:15-128
-────────────────────────────────────────
-  15 ┌ spec:
-  16 │   selector:
-  17 │     matchLabels:
-  18 │       app.kubernetes.io/name: prometheus-node-exporter
-  19 │       app.kubernetes.io/instance: lamp-victoria-metrics
-  20 │   revisionHistoryLimit: 10
-  21 │   updateStrategy:
-  22 │     rollingUpdate:
-  23 └       maxUnavailable: 1
-  ..   
-────────────────────────────────────────
-
-
-KSV-0011 (LOW): Container 'node-exporter' of DaemonSet 'lamp-victoria-metrics-prometheus-node-exporter' should set 'resources.limits.cpu'
-════════════════════════════════════════
-Enforcing CPU limits prevents DoS via resource exhaustion.
-
-See https://avd.aquasec.com/misconfig/ksv-0011
-────────────────────────────────────────
- .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/charts/prometheus-node-exporter/templates/daemonset.yaml:45-97
-────────────────────────────────────────
-  45 ┌         - name: node-exporter
-  46 │           image: quay.io/prometheus/node-exporter:v1.12.1
-  47 │           imagePullPolicy: IfNotPresent
-  48 │           args:
-  49 │             - --path.procfs=/host/proc
-  50 │             - --path.sysfs=/host/sys
-  51 │             - --path.rootfs=/host/root
-  52 │             - --path.udev.data=/host/root/run/udev/data
-  53 └             - --web.listen-address=[$(HOST_IP)]:9100
-  ..   
-────────────────────────────────────────
-
-
-KSV-0015 (LOW): Container 'node-exporter' of DaemonSet 'lamp-victoria-metrics-prometheus-node-exporter' should set 'resources.requests.cpu'
-════════════════════════════════════════
-When containers have resource requests specified, the scheduler can make better decisions about which nodes to place pods on, and how to deal with resource contention.
-
-See https://avd.aquasec.com/misconfig/ksv-0015
-────────────────────────────────────────
- .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/charts/prometheus-node-exporter/templates/daemonset.yaml:45-97
-────────────────────────────────────────
-  45 ┌         - name: node-exporter
-  46 │           image: quay.io/prometheus/node-exporter:v1.12.1
-  47 │           imagePullPolicy: IfNotPresent
-  48 │           args:
-  49 │             - --path.procfs=/host/proc
-  50 │             - --path.sysfs=/host/sys
-  51 │             - --path.rootfs=/host/root
-  52 │             - --path.udev.data=/host/root/run/udev/data
-  53 └             - --web.listen-address=[$(HOST_IP)]:9100
-  ..   
-────────────────────────────────────────
-
-
-KSV-0016 (LOW): Container 'node-exporter' of DaemonSet 'lamp-victoria-metrics-prometheus-node-exporter' should set 'resources.requests.memory'
-════════════════════════════════════════
-When containers have memory requests specified, the scheduler can make better decisions about which nodes to place pods on, and how to deal with resource contention.
-
-See https://avd.aquasec.com/misconfig/ksv-0016
-────────────────────────────────────────
- .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/charts/prometheus-node-exporter/templates/daemonset.yaml:45-97
-────────────────────────────────────────
-  45 ┌         - name: node-exporter
-  46 │           image: quay.io/prometheus/node-exporter:v1.12.1
-  47 │           imagePullPolicy: IfNotPresent
-  48 │           args:
-  49 │             - --path.procfs=/host/proc
-  50 │             - --path.sysfs=/host/sys
-  51 │             - --path.rootfs=/host/root
-  52 │             - --path.udev.data=/host/root/run/udev/data
-  53 └             - --web.listen-address=[$(HOST_IP)]:9100
-  ..   
-────────────────────────────────────────
-
-
-KSV-0018 (LOW): Container 'node-exporter' of DaemonSet 'lamp-victoria-metrics-prometheus-node-exporter' should set 'resources.limits.memory'
-════════════════════════════════════════
-Enforcing memory limits prevents DoS via resource exhaustion.
-
-See https://avd.aquasec.com/misconfig/ksv-0018
-────────────────────────────────────────
- .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/charts/prometheus-node-exporter/templates/daemonset.yaml:45-97
-────────────────────────────────────────
-  45 ┌         - name: node-exporter
-  46 │           image: quay.io/prometheus/node-exporter:v1.12.1
-  47 │           imagePullPolicy: IfNotPresent
-  48 │           args:
-  49 │             - --path.procfs=/host/proc
-  50 │             - --path.sysfs=/host/sys
-  51 │             - --path.rootfs=/host/root
-  52 │             - --path.udev.data=/host/root/run/udev/data
-  53 └             - --web.listen-address=[$(HOST_IP)]:9100
-  ..   
-────────────────────────────────────────
-
-
-KSV-0023 (MEDIUM): DaemonSet 'lamp-victoria-metrics-prometheus-node-exporter' should not set 'spec.template.volumes.hostPath'
-════════════════════════════════════════
-According to pod security standard 'HostPath Volumes', HostPath volumes must be forbidden.
-
-See https://avd.aquasec.com/misconfig/ksv-0023
-────────────────────────────────────────
- .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/charts/prometheus-node-exporter/templates/daemonset.yaml:15-128
-────────────────────────────────────────
-  15 ┌ spec:
-  16 │   selector:
-  17 │     matchLabels:
-  18 │       app.kubernetes.io/name: prometheus-node-exporter
-  19 │       app.kubernetes.io/instance: lamp-victoria-metrics
-  20 │   revisionHistoryLimit: 10
-  21 │   updateStrategy:
-  22 │     rollingUpdate:
-  23 └       maxUnavailable: 1
-  ..   
-────────────────────────────────────────
-
-
-KSV-0030 (LOW): Either Pod or Container should set 'securityContext.seccompProfile.type' to 'RuntimeDefault'
-════════════════════════════════════════
-According to pod security standard 'Seccomp', the RuntimeDefault seccomp profile must be required, or allow specific additional profiles.
-
-See https://avd.aquasec.com/misconfig/ksv-0030
-────────────────────────────────────────
- .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/charts/prometheus-node-exporter/templates/daemonset.yaml:45-97
-────────────────────────────────────────
-  45 ┌         - name: node-exporter
-  46 │           image: quay.io/prometheus/node-exporter:v1.12.1
-  47 │           imagePullPolicy: IfNotPresent
-  48 │           args:
-  49 │             - --path.procfs=/host/proc
-  50 │             - --path.sysfs=/host/sys
-  51 │             - --path.rootfs=/host/root
-  52 │             - --path.udev.data=/host/root/run/udev/data
-  53 └             - --web.listen-address=[$(HOST_IP)]:9100
-  ..   
-────────────────────────────────────────
-
-
-KSV-0104 (MEDIUM): container "node-exporter" of daemonset "lamp-victoria-metrics-prometheus-node-exporter" in "null" namespace should specify a seccomp profile
-════════════════════════════════════════
-A program inside the container can bypass Seccomp protection policies.
-
-See https://avd.aquasec.com/misconfig/ksv-0104
-────────────────────────────────────────
- .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/charts/prometheus-node-exporter/templates/daemonset.yaml:45-97
-────────────────────────────────────────
-  45 ┌         - name: node-exporter
-  46 │           image: quay.io/prometheus/node-exporter:v1.12.1
-  47 │           imagePullPolicy: IfNotPresent
-  48 │           args:
-  49 │             - --path.procfs=/host/proc
-  50 │             - --path.sysfs=/host/sys
-  51 │             - --path.rootfs=/host/root
-  52 │             - --path.udev.data=/host/root/run/udev/data
-  53 └             - --web.listen-address=[$(HOST_IP)]:9100
-  ..   
-────────────────────────────────────────
-
-
-KSV-0106 (LOW): container should drop all
-════════════════════════════════════════
-Containers must drop ALL capabilities, and are only permitted to add back the NET_BIND_SERVICE capability.
-
-See https://avd.aquasec.com/misconfig/ksv-0106
-────────────────────────────────────────
- .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/charts/prometheus-node-exporter/templates/daemonset.yaml:45-97
-────────────────────────────────────────
-  45 ┌         - name: node-exporter
-  46 │           image: quay.io/prometheus/node-exporter:v1.12.1
-  47 │           imagePullPolicy: IfNotPresent
-  48 │           args:
-  49 │             - --path.procfs=/host/proc
-  50 │             - --path.sysfs=/host/sys
-  51 │             - --path.rootfs=/host/root
-  52 │             - --path.udev.data=/host/root/run/udev/data
-  53 └             - --web.listen-address=[$(HOST_IP)]:9100
-  ..   
-────────────────────────────────────────
-
-
-KSV-0121 (HIGH): daemonset lamp-victoria-metrics-prometheus-node-exporter in null namespace shouldn't have volumes set to {"/", "/proc", "/sys"}
-════════════════════════════════════════
-HostPath present many security risks and as a security practice it is better to avoid critical host paths mounts.
-
-See https://avd.aquasec.com/misconfig/ksv-0121
-────────────────────────────────────────
- .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/charts/prometheus-node-exporter/templates/daemonset.yaml:15-128
-────────────────────────────────────────
-  15 ┌ spec:
-  16 │   selector:
-  17 │     matchLabels:
-  18 │       app.kubernetes.io/name: prometheus-node-exporter
-  19 │       app.kubernetes.io/instance: lamp-victoria-metrics
-  20 │   revisionHistoryLimit: 10
-  21 │   updateStrategy:
-  22 │     rollingUpdate:
-  23 └       maxUnavailable: 1
-  ..   
-────────────────────────────────────────
-
-
-KSV-0125 (MEDIUM): Container node-exporter in daemonset lamp-victoria-metrics-prometheus-node-exporter (namespace: null) uses an image from an untrusted registry.
-════════════════════════════════════════
-Ensure that all containers use images only from trusted registry domains.
-
-See https://avd.aquasec.com/misconfig/ksv-0125
-────────────────────────────────────────
- .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/charts/prometheus-node-exporter/templates/daemonset.yaml:45-97
-────────────────────────────────────────
-  45 ┌         - name: node-exporter
-  46 │           image: quay.io/prometheus/node-exporter:v1.12.1
-  47 │           imagePullPolicy: IfNotPresent
-  48 │           args:
-  49 │             - --path.procfs=/host/proc
-  50 │             - --path.sysfs=/host/sys
-  51 │             - --path.rootfs=/host/root
-  52 │             - --path.udev.data=/host/root/run/udev/data
-  53 └             - --web.listen-address=[$(HOST_IP)]:9100
-  ..   
-────────────────────────────────────────
-
-
-
-.output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/charts/victoria-metrics-operator/templates/role.yaml (helm)
-=====================================================================================================================================
-Tests: 84 (SUCCESSES: 73, FAILURES: 11)
-Failures: 11 (UNKNOWN: 0, LOW: 0, MEDIUM: 3, HIGH: 2, CRITICAL: 6)
-
-KSV-0041 (CRITICAL): ClusterRole 'lamp-victoria-metrics-victoria-metrics-operator' shouldn't have access to manage resource 'secrets'
-════════════════════════════════════════
-Viewing secrets at the cluster-scope is akin to cluster-admin in most clusters as there are typically at least one service accounts (their token stored in a secret) bound to cluster-admin directly or a role/clusterrole that gives similar permissions.
-
-See https://avd.aquasec.com/misconfig/ksv-0041
-────────────────────────────────────────
- .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/charts/victoria-metrics-operator/templates/role.yaml:21-39
-────────────────────────────────────────
-  21 ┌ - apiGroups:
-  22 │   - ""
-  23 │   resources:
-  24 │   - configmaps
-  25 │   - configmaps/finalizers
-  26 │   - endpoints
-  27 │   - events
-  28 │   - persistentvolumeclaims
-  29 └   - persistentvolumeclaims/finalizers
-  ..   
-────────────────────────────────────────
-
-
-KSV-0045 (CRITICAL): Role permits wildcard verb on specific resources
-════════════════════════════════════════
-Check whether role permits wildcard verb on specific resources
-
-See https://avd.aquasec.com/misconfig/ksv-0045
-────────────────────────────────────────
- .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/charts/victoria-metrics-operator/templates/role.yaml:21-39
-────────────────────────────────────────
-  21 ┌ - apiGroups:
-  22 │   - ""
-  23 │   resources:
-  24 │   - configmaps
-  25 │   - configmaps/finalizers
-  26 │   - endpoints
-  27 │   - events
-  28 │   - persistentvolumeclaims
-  29 └   - persistentvolumeclaims/finalizers
-  ..   
-────────────────────────────────────────
-
-
-KSV-0045 (CRITICAL): Role permits wildcard verb on specific resources
-════════════════════════════════════════
-Check whether role permits wildcard verb on specific resources
-
-See https://avd.aquasec.com/misconfig/ksv-0045
-────────────────────────────────────────
- .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/charts/victoria-metrics-operator/templates/role.yaml:51-63
-────────────────────────────────────────
-  51 ┌ - apiGroups:
-  52 │   - apps
-  53 │   resources:
-  54 │   - daemonsets
-  55 │   - daemonsets/finalizers
-  56 │   - deployments
-  57 │   - deployments/finalizers
-  58 │   - replicasets
-  59 └   - statefulsets
-  ..   
-────────────────────────────────────────
-
-
-KSV-0045 (CRITICAL): Role permits wildcard verb on specific resources
-════════════════════════════════════════
-Check whether role permits wildcard verb on specific resources
-
-See https://avd.aquasec.com/misconfig/ksv-0045
-────────────────────────────────────────
- .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/charts/victoria-metrics-operator/templates/role.yaml:70-80
-────────────────────────────────────────
-  70 ┌ - apiGroups:
-  71 │   - rbac.authorization.k8s.io
-  72 │   resources:
-  73 │   - clusterrolebindings
-  74 │   - clusterrolebindings/finalizers
-  75 │   - clusterroles
-  76 │   - clusterroles/finalizers
-  77 │   - roles
-  78 └   - rolebindings
-  ..   
-────────────────────────────────────────
-
-
-KSV-0046 (CRITICAL): ClusterRole 'lamp-victoria-metrics-victoria-metrics-operator' shouldn't manage all resources
-════════════════════════════════════════
-Full control of the cluster resources, and therefore also root on all nodes where workloads can run and has access to all pods, secrets, and data.
-
-See https://avd.aquasec.com/misconfig/ksv-0046
-────────────────────────────────────────
- .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/charts/victoria-metrics-operator/templates/role.yaml:64-69
-────────────────────────────────────────
-  64 ┌ - apiGroups:
-  65 │   - monitoring.coreos.com
-  66 │   resources:
-  67 │   - "*"
-  68 │   verbs:
-  69 └   - "*"
-────────────────────────────────────────
-
-
-KSV-0048 (MEDIUM): ClusterRole 'lamp-victoria-metrics-victoria-metrics-operator' should not have access to resources ["pods", "deployments", "jobs", "cronjobs", "statefulsets", "daemonsets", "replicasets", "replicationcontrollers"] for verbs ["create", "update", "patch", "delete", "deletecollection", "impersonate", "*"]
-════════════════════════════════════════
-Depending on the policies enforced by the admission controller, this permission ranges from the ability to steal compute (crypto) by running workloads or allowing for creating workloads that escape to the node as root and escalation to cluster-admin.
-
-See https://avd.aquasec.com/misconfig/ksv-0048
-────────────────────────────────────────
- .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/charts/victoria-metrics-operator/templates/role.yaml:21-39
-────────────────────────────────────────
-  21 ┌ - apiGroups:
-  22 │   - ""
-  23 │   resources:
-  24 │   - configmaps
-  25 │   - configmaps/finalizers
-  26 │   - endpoints
-  27 │   - events
-  28 │   - persistentvolumeclaims
-  29 └   - persistentvolumeclaims/finalizers
-  ..   
-────────────────────────────────────────
-
-
-KSV-0048 (MEDIUM): ClusterRole 'lamp-victoria-metrics-victoria-metrics-operator' should not have access to resources ["pods", "deployments", "jobs", "cronjobs", "statefulsets", "daemonsets", "replicasets", "replicationcontrollers"] for verbs ["create", "update", "patch", "delete", "deletecollection", "impersonate", "*"]
-════════════════════════════════════════
-Depending on the policies enforced by the admission controller, this permission ranges from the ability to steal compute (crypto) by running workloads or allowing for creating workloads that escape to the node as root and escalation to cluster-admin.
-
-See https://avd.aquasec.com/misconfig/ksv-0048
-────────────────────────────────────────
- .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/charts/victoria-metrics-operator/templates/role.yaml:51-63
-────────────────────────────────────────
-  51 ┌ - apiGroups:
-  52 │   - apps
-  53 │   resources:
-  54 │   - daemonsets
-  55 │   - daemonsets/finalizers
-  56 │   - deployments
-  57 │   - deployments/finalizers
-  58 │   - replicasets
-  59 └   - statefulsets
-  ..   
-────────────────────────────────────────
-
-
-KSV-0049 (MEDIUM): ClusterRole 'lamp-victoria-metrics-victoria-metrics-operator' should not have access to resource 'configmaps' for verbs ["create", "update", "patch", "delete", "deletecollection", "impersonate", "*"]
-════════════════════════════════════════
-Some workloads leverage configmaps to store sensitive data or configuration parameters that affect runtime behavior that can be modified by an attacker or combined with another issue to potentially lead to compromise.
-
-See https://avd.aquasec.com/misconfig/ksv-0049
-────────────────────────────────────────
- .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/charts/victoria-metrics-operator/templates/role.yaml:21-39
-────────────────────────────────────────
-  21 ┌ - apiGroups:
-  22 │   - ""
-  23 │   resources:
-  24 │   - configmaps
-  25 │   - configmaps/finalizers
-  26 │   - endpoints
-  27 │   - events
-  28 │   - persistentvolumeclaims
-  29 └   - persistentvolumeclaims/finalizers
-  ..   
-────────────────────────────────────────
-
-
-KSV-0050 (CRITICAL): ClusterRole 'lamp-victoria-metrics-victoria-metrics-operator' should not have access to resources ["roles", "rolebindings"] for verbs ["escalate", "bind", "impersonate", "*"] as they can lead to privilege escalation
-════════════════════════════════════════
-Check whether role permits escalate, bind, or impersonate on roles/rolebindings, which can lead to privilege escalation.
-
-See https://avd.aquasec.com/misconfig/ksv-0050
-────────────────────────────────────────
- .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/charts/victoria-metrics-operator/templates/role.yaml:70-80
-────────────────────────────────────────
-  70 ┌ - apiGroups:
-  71 │   - rbac.authorization.k8s.io
-  72 │   resources:
-  73 │   - clusterrolebindings
-  74 │   - clusterrolebindings/finalizers
-  75 │   - clusterroles
-  76 │   - clusterroles/finalizers
-  77 │   - roles
-  78 └   - rolebindings
-  ..   
-────────────────────────────────────────
-
-
-KSV-0056 (HIGH): ClusterRole 'lamp-victoria-metrics-victoria-metrics-operator' should not have access to resources ["services", "endpoints", "endpointslices", "networkpolicies", "ingresses"] for verbs ["create", "update", "patch", "delete", "deletecollection", "impersonate", "*"]
-════════════════════════════════════════
-The ability to control which pods get service traffic directed to them allows for interception attacks. Controlling network policy allows for bypassing lateral movement restrictions.
-
-See https://avd.aquasec.com/misconfig/ksv-0056
-────────────────────────────────────────
- .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/charts/victoria-metrics-operator/templates/role.yaml:21-39
-────────────────────────────────────────
-  21 ┌ - apiGroups:
-  22 │   - ""
-  23 │   resources:
-  24 │   - configmaps
-  25 │   - configmaps/finalizers
-  26 │   - endpoints
-  27 │   - events
-  28 │   - persistentvolumeclaims
-  29 └   - persistentvolumeclaims/finalizers
-  ..   
-────────────────────────────────────────
-
-
-KSV-0056 (HIGH): ClusterRole 'lamp-victoria-metrics-victoria-metrics-operator' should not have access to resources ["services", "endpoints", "endpointslices", "networkpolicies", "ingresses"] for verbs ["create", "update", "patch", "delete", "deletecollection", "impersonate", "*"]
-════════════════════════════════════════
-The ability to control which pods get service traffic directed to them allows for interception attacks. Controlling network policy allows for bypassing lateral movement restrictions.
-
-See https://avd.aquasec.com/misconfig/ksv-0056
-────────────────────────────────────────
- .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/charts/victoria-metrics-operator/templates/role.yaml:110-117
-────────────────────────────────────────
- 110 ┌ - apiGroups:
- 111 │   - networking.k8s.io
- 112 │   resources:
- 113 │   - ingresses
- 114 │   - ingresses/finalizers
- 115 │   - networkpolicies
- 116 │   verbs:
- 117 └   - "*"
-────────────────────────────────────────
-
-
-
-.output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/charts/victoria-metrics-operator/templates/server.yaml (helm)
-=======================================================================================================================================
-Tests: 98 (SUCCESSES: 89, FAILURES: 9)
-Failures: 9 (UNKNOWN: 0, LOW: 7, MEDIUM: 2, HIGH: 0, CRITICAL: 0)
-
-KSV-0011 (LOW): Container 'operator' of Deployment 'lamp-victoria-metrics-victoria-metrics-operator' should set 'resources.limits.cpu'
-════════════════════════════════════════
-Enforcing CPU limits prevents DoS via resource exhaustion.
-
-See https://avd.aquasec.com/misconfig/ksv-0011
-────────────────────────────────────────
- .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/charts/victoria-metrics-operator/templates/server.yaml:38-104
-────────────────────────────────────────
-  38 ┌         - name: operator
-  39 │           image: victoriametrics/operator:v0.75.2
-  40 │           imagePullPolicy: IfNotPresent
-  41 │           env:
-  42 │             - name: VM_ANOMALY_VERSION
-  43 │               value: "v1.31.1"
-  44 │             - name: VM_LOGS_VERSION
-  45 │               value: "v1.53.0"
-  46 └             - name: VM_METRICS_VERSION
-  ..   
-────────────────────────────────────────
-
-
-KSV-0015 (LOW): Container 'operator' of Deployment 'lamp-victoria-metrics-victoria-metrics-operator' should set 'resources.requests.cpu'
-════════════════════════════════════════
-When containers have resource requests specified, the scheduler can make better decisions about which nodes to place pods on, and how to deal with resource contention.
-
-See https://avd.aquasec.com/misconfig/ksv-0015
-────────────────────────────────────────
- .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/charts/victoria-metrics-operator/templates/server.yaml:38-104
-────────────────────────────────────────
-  38 ┌         - name: operator
-  39 │           image: victoriametrics/operator:v0.75.2
-  40 │           imagePullPolicy: IfNotPresent
-  41 │           env:
-  42 │             - name: VM_ANOMALY_VERSION
-  43 │               value: "v1.31.1"
-  44 │             - name: VM_LOGS_VERSION
-  45 │               value: "v1.53.0"
-  46 └             - name: VM_METRICS_VERSION
-  ..   
-────────────────────────────────────────
-
-
-KSV-0016 (LOW): Container 'operator' of Deployment 'lamp-victoria-metrics-victoria-metrics-operator' should set 'resources.requests.memory'
-════════════════════════════════════════
-When containers have memory requests specified, the scheduler can make better decisions about which nodes to place pods on, and how to deal with resource contention.
-
-See https://avd.aquasec.com/misconfig/ksv-0016
-────────────────────────────────────────
- .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/charts/victoria-metrics-operator/templates/server.yaml:38-104
-────────────────────────────────────────
-  38 ┌         - name: operator
-  39 │           image: victoriametrics/operator:v0.75.2
-  40 │           imagePullPolicy: IfNotPresent
-  41 │           env:
-  42 │             - name: VM_ANOMALY_VERSION
-  43 │               value: "v1.31.1"
-  44 │             - name: VM_LOGS_VERSION
-  45 │               value: "v1.53.0"
-  46 └             - name: VM_METRICS_VERSION
-  ..   
-────────────────────────────────────────
-
-
-KSV-0018 (LOW): Container 'operator' of Deployment 'lamp-victoria-metrics-victoria-metrics-operator' should set 'resources.limits.memory'
-════════════════════════════════════════
-Enforcing memory limits prevents DoS via resource exhaustion.
-
-See https://avd.aquasec.com/misconfig/ksv-0018
-────────────────────────────────────────
- .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/charts/victoria-metrics-operator/templates/server.yaml:38-104
-────────────────────────────────────────
-  38 ┌         - name: operator
-  39 │           image: victoriametrics/operator:v0.75.2
-  40 │           imagePullPolicy: IfNotPresent
-  41 │           env:
-  42 │             - name: VM_ANOMALY_VERSION
-  43 │               value: "v1.31.1"
-  44 │             - name: VM_LOGS_VERSION
-  45 │               value: "v1.53.0"
-  46 └             - name: VM_METRICS_VERSION
-  ..   
-────────────────────────────────────────
-
-
-KSV-0020 (LOW): Container 'operator' of Deployment 'lamp-victoria-metrics-victoria-metrics-operator' should set 'securityContext.runAsUser' > 10000
-════════════════════════════════════════
-Force the container to run with user ID > 10000 to avoid conflicts with the host’s user table.
-
-See https://avd.aquasec.com/misconfig/ksv-0020
-────────────────────────────────────────
- .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/charts/victoria-metrics-operator/templates/server.yaml:38-104
-────────────────────────────────────────
-  38 ┌         - name: operator
-  39 │           image: victoriametrics/operator:v0.75.2
-  40 │           imagePullPolicy: IfNotPresent
-  41 │           env:
-  42 │             - name: VM_ANOMALY_VERSION
-  43 │               value: "v1.31.1"
-  44 │             - name: VM_LOGS_VERSION
-  45 │               value: "v1.53.0"
-  46 └             - name: VM_METRICS_VERSION
-  ..   
-────────────────────────────────────────
-
-
-KSV-0021 (LOW): Container 'operator' of Deployment 'lamp-victoria-metrics-victoria-metrics-operator' should set 'securityContext.runAsGroup' > 10000
-════════════════════════════════════════
-Force the container to run with group ID > 10000 to avoid conflicts with the host’s user table.
-
-See https://avd.aquasec.com/misconfig/ksv-0021
-────────────────────────────────────────
- .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/charts/victoria-metrics-operator/templates/server.yaml:38-104
-────────────────────────────────────────
-  38 ┌         - name: operator
-  39 │           image: victoriametrics/operator:v0.75.2
-  40 │           imagePullPolicy: IfNotPresent
-  41 │           env:
-  42 │             - name: VM_ANOMALY_VERSION
-  43 │               value: "v1.31.1"
-  44 │             - name: VM_LOGS_VERSION
-  45 │               value: "v1.53.0"
-  46 └             - name: VM_METRICS_VERSION
-  ..   
-────────────────────────────────────────
-
-
-KSV-0030 (LOW): Either Pod or Container should set 'securityContext.seccompProfile.type' to 'RuntimeDefault'
-════════════════════════════════════════
-According to pod security standard 'Seccomp', the RuntimeDefault seccomp profile must be required, or allow specific additional profiles.
-
-See https://avd.aquasec.com/misconfig/ksv-0030
-────────────────────────────────────────
- .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/charts/victoria-metrics-operator/templates/server.yaml:38-104
-────────────────────────────────────────
-  38 ┌         - name: operator
-  39 │           image: victoriametrics/operator:v0.75.2
-  40 │           imagePullPolicy: IfNotPresent
-  41 │           env:
-  42 │             - name: VM_ANOMALY_VERSION
-  43 │               value: "v1.31.1"
-  44 │             - name: VM_LOGS_VERSION
-  45 │               value: "v1.53.0"
-  46 └             - name: VM_METRICS_VERSION
-  ..   
-────────────────────────────────────────
-
-
-KSV-0104 (MEDIUM): container "operator" of deployment "lamp-victoria-metrics-victoria-metrics-operator" in "null" namespace should specify a seccomp profile
-════════════════════════════════════════
-A program inside the container can bypass Seccomp protection policies.
-
-See https://avd.aquasec.com/misconfig/ksv-0104
-────────────────────────────────────────
- .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/charts/victoria-metrics-operator/templates/server.yaml:38-104
-────────────────────────────────────────
-  38 ┌         - name: operator
-  39 │           image: victoriametrics/operator:v0.75.2
-  40 │           imagePullPolicy: IfNotPresent
-  41 │           env:
-  42 │             - name: VM_ANOMALY_VERSION
-  43 │               value: "v1.31.1"
-  44 │             - name: VM_LOGS_VERSION
-  45 │               value: "v1.53.0"
-  46 └             - name: VM_METRICS_VERSION
-  ..   
-────────────────────────────────────────
-
-
-KSV-0125 (MEDIUM): Container operator in deployment lamp-victoria-metrics-victoria-metrics-operator (namespace: null) uses an image from an untrusted registry.
-════════════════════════════════════════
-Ensure that all containers use images only from trusted registry domains.
-
-See https://avd.aquasec.com/misconfig/ksv-0125
-────────────────────────────────────────
- .output/lamp-victoria-metrics-3.1.0.tgz:charts/victoria-metrics-k8s-stack/charts/victoria-metrics-operator/templates/server.yaml:38-104
-────────────────────────────────────────
-  38 ┌         - name: operator
-  39 │           image: victoriametrics/operator:v0.75.2
-  40 │           imagePullPolicy: IfNotPresent
-  41 │           env:
-  42 │             - name: VM_ANOMALY_VERSION
-  43 │               value: "v1.31.1"
-  44 │             - name: VM_LOGS_VERSION
-  45 │               value: "v1.53.0"
-  46 └             - name: VM_METRICS_VERSION
-  ..   
-────────────────────────────────────────
-
-
-
-charts/victoria-metrics-k8s-stack/charts/kube-state-metrics/templates/deployment.yaml (helm)
-============================================================================================
-Tests: 98 (SUCCESSES: 93, FAILURES: 5)
-Failures: 5 (UNKNOWN: 0, LOW: 4, MEDIUM: 1, HIGH: 0, CRITICAL: 0)
-
-KSV-0011 (LOW): Container 'kube-state-metrics' of Deployment 'lamp-victoria-metrics-kube-state-metrics' should set 'resources.limits.cpu'
-════════════════════════════════════════
-Enforcing CPU limits prevents DoS via resource exhaustion.
-
-See https://avd.aquasec.com/misconfig/ksv-0011
-────────────────────────────────────────
- charts/victoria-metrics-k8s-stack/charts/kube-state-metrics/templates/deployment.yaml:46-84
-────────────────────────────────────────
-  46 ┌       - name: kube-state-metrics
-  47 │         args:
-  48 │         - --port=8080
-  49 │         - --resources=certificatesigningrequests,configmaps,cronjobs,daemonsets,deployments,endpointslices,horizontalpodautoscalers,ingresses,jobs,leases,limitranges,mutatingwebhookconfigurations,namespaces,networkpolicies,nodes,persistentvolumeclaims,persistentvolumes,poddisruptionbudgets,pods,replicasets,replicationcontrollers,resourcequotas,secrets,services,statefulsets,storageclasses,validatingwebhookconfigurations,volumeattachments
-  50 │         imagePullPolicy: IfNotPresent
-  51 │         image: registry.k8s.io/kube-state-metrics/kube-state-metrics:v2.20.0
-  52 │         ports:
-  53 │         - containerPort: 8080
-  54 └           name: http
-  ..   
-────────────────────────────────────────
-
-
-KSV-0015 (LOW): Container 'kube-state-metrics' of Deployment 'lamp-victoria-metrics-kube-state-metrics' should set 'resources.requests.cpu'
-════════════════════════════════════════
-When containers have resource requests specified, the scheduler can make better decisions about which nodes to place pods on, and how to deal with resource contention.
-
-See https://avd.aquasec.com/misconfig/ksv-0015
-────────────────────────────────────────
- charts/victoria-metrics-k8s-stack/charts/kube-state-metrics/templates/deployment.yaml:46-84
-────────────────────────────────────────
-  46 ┌       - name: kube-state-metrics
-  47 │         args:
-  48 │         - --port=8080
-  49 │         - --resources=certificatesigningrequests,configmaps,cronjobs,daemonsets,deployments,endpointslices,horizontalpodautoscalers,ingresses,jobs,leases,limitranges,mutatingwebhookconfigurations,namespaces,networkpolicies,nodes,persistentvolumeclaims,persistentvolumes,poddisruptionbudgets,pods,replicasets,replicationcontrollers,resourcequotas,secrets,services,statefulsets,storageclasses,validatingwebhookconfigurations,volumeattachments
-  50 │         imagePullPolicy: IfNotPresent
-  51 │         image: registry.k8s.io/kube-state-metrics/kube-state-metrics:v2.20.0
-  52 │         ports:
-  53 │         - containerPort: 8080
-  54 └           name: http
-  ..   
-────────────────────────────────────────
-
-
-KSV-0016 (LOW): Container 'kube-state-metrics' of Deployment 'lamp-victoria-metrics-kube-state-metrics' should set 'resources.requests.memory'
-════════════════════════════════════════
-When containers have memory requests specified, the scheduler can make better decisions about which nodes to place pods on, and how to deal with resource contention.
-
-See https://avd.aquasec.com/misconfig/ksv-0016
-────────────────────────────────────────
- charts/victoria-metrics-k8s-stack/charts/kube-state-metrics/templates/deployment.yaml:46-84
-────────────────────────────────────────
-  46 ┌       - name: kube-state-metrics
-  47 │         args:
-  48 │         - --port=8080
-  49 │         - --resources=certificatesigningrequests,configmaps,cronjobs,daemonsets,deployments,endpointslices,horizontalpodautoscalers,ingresses,jobs,leases,limitranges,mutatingwebhookconfigurations,namespaces,networkpolicies,nodes,persistentvolumeclaims,persistentvolumes,poddisruptionbudgets,pods,replicasets,replicationcontrollers,resourcequotas,secrets,services,statefulsets,storageclasses,validatingwebhookconfigurations,volumeattachments
-  50 │         imagePullPolicy: IfNotPresent
-  51 │         image: registry.k8s.io/kube-state-metrics/kube-state-metrics:v2.20.0
-  52 │         ports:
-  53 │         - containerPort: 8080
-  54 └           name: http
-  ..   
-────────────────────────────────────────
-
-
-KSV-0018 (LOW): Container 'kube-state-metrics' of Deployment 'lamp-victoria-metrics-kube-state-metrics' should set 'resources.limits.memory'
-════════════════════════════════════════
-Enforcing memory limits prevents DoS via resource exhaustion.
-
-See https://avd.aquasec.com/misconfig/ksv-0018
-────────────────────────────────────────
- charts/victoria-metrics-k8s-stack/charts/kube-state-metrics/templates/deployment.yaml:46-84
-────────────────────────────────────────
-  46 ┌       - name: kube-state-metrics
-  47 │         args:
-  48 │         - --port=8080
-  49 │         - --resources=certificatesigningrequests,configmaps,cronjobs,daemonsets,deployments,endpointslices,horizontalpodautoscalers,ingresses,jobs,leases,limitranges,mutatingwebhookconfigurations,namespaces,networkpolicies,nodes,persistentvolumeclaims,persistentvolumes,poddisruptionbudgets,pods,replicasets,replicationcontrollers,resourcequotas,secrets,services,statefulsets,storageclasses,validatingwebhookconfigurations,volumeattachments
-  50 │         imagePullPolicy: IfNotPresent
-  51 │         image: registry.k8s.io/kube-state-metrics/kube-state-metrics:v2.20.0
-  52 │         ports:
-  53 │         - containerPort: 8080
-  54 └           name: http
-  ..   
-────────────────────────────────────────
-
-
-KSV-0125 (MEDIUM): Container kube-state-metrics in deployment lamp-victoria-metrics-kube-state-metrics (namespace: null) uses an image from an untrusted registry.
-════════════════════════════════════════
-Ensure that all containers use images only from trusted registry domains.
-
-See https://avd.aquasec.com/misconfig/ksv-0125
-────────────────────────────────────────
- charts/victoria-metrics-k8s-stack/charts/kube-state-metrics/templates/deployment.yaml:46-84
-────────────────────────────────────────
-  46 ┌       - name: kube-state-metrics
-  47 │         args:
-  48 │         - --port=8080
-  49 │         - --resources=certificatesigningrequests,configmaps,cronjobs,daemonsets,deployments,endpointslices,horizontalpodautoscalers,ingresses,jobs,leases,limitranges,mutatingwebhookconfigurations,namespaces,networkpolicies,nodes,persistentvolumeclaims,persistentvolumes,poddisruptionbudgets,pods,replicasets,replicationcontrollers,resourcequotas,secrets,services,statefulsets,storageclasses,validatingwebhookconfigurations,volumeattachments
-  50 │         imagePullPolicy: IfNotPresent
-  51 │         image: registry.k8s.io/kube-state-metrics/kube-state-metrics:v2.20.0
-  52 │         ports:
-  53 │         - containerPort: 8080
-  54 └           name: http
-  ..   
-────────────────────────────────────────
-
-
-
-charts/victoria-metrics-k8s-stack/charts/kube-state-metrics/templates/role.yaml (helm)
-======================================================================================
-Tests: 71 (SUCCESSES: 70, FAILURES: 1)
-Failures: 1 (UNKNOWN: 0, LOW: 0, MEDIUM: 0, HIGH: 0, CRITICAL: 1)
-
-KSV-0041 (CRITICAL): ClusterRole 'lamp-victoria-metrics-kube-state-metrics' shouldn't have access to manage resource 'secrets'
-════════════════════════════════════════
-Viewing secrets at the cluster-scope is akin to cluster-admin in most clusters as there are typically at least one service accounts (their token stored in a secret) bound to cluster-admin directly or a role/clusterrole that gives similar permissions.
-
-See https://avd.aquasec.com/misconfig/ksv-0041
-────────────────────────────────────────
- charts/victoria-metrics-k8s-stack/charts/kube-state-metrics/templates/role.yaml:126-129
-────────────────────────────────────────
- 126 ┌ - apiGroups: [""]
- 127 │   resources:
- 128 │   - secrets
- 129 └   verbs: ["list", "watch"]
-────────────────────────────────────────
-
-
-
-charts/victoria-metrics-k8s-stack/charts/prometheus-node-exporter/templates/daemonset.yaml (helm)
-=================================================================================================
-Tests: 98 (SUCCESSES: 83, FAILURES: 15)
-Failures: 15 (UNKNOWN: 0, LOW: 8, MEDIUM: 4, HIGH: 3, CRITICAL: 0)
-
-KSV-0001 (MEDIUM): Container 'node-exporter' of DaemonSet 'lamp-victoria-metrics-prometheus-node-exporter' should set 'securityContext.allowPrivilegeEscalation' to false
-════════════════════════════════════════
-A program inside the container can elevate its own privileges and run as root, which might give the program control over the container and node.
-
-See https://avd.aquasec.com/misconfig/ksv-0001
-────────────────────────────────────────
- charts/victoria-metrics-k8s-stack/charts/prometheus-node-exporter/templates/daemonset.yaml:45-97
-────────────────────────────────────────
-  45 ┌         - name: node-exporter
-  46 │           image: quay.io/prometheus/node-exporter:v1.12.1
-  47 │           imagePullPolicy: IfNotPresent
-  48 │           args:
-  49 │             - --path.procfs=/host/proc
-  50 │             - --path.sysfs=/host/sys
-  51 │             - --path.rootfs=/host/root
-  52 │             - --path.udev.data=/host/root/run/udev/data
-  53 └             - --web.listen-address=[$(HOST_IP)]:9100
-  ..   
-────────────────────────────────────────
-
-
-KSV-0003 (LOW): Container 'node-exporter' of DaemonSet 'lamp-victoria-metrics-prometheus-node-exporter' should add 'ALL' to 'securityContext.capabilities.drop'
-════════════════════════════════════════
-The container should drop all default capabilities and add only those that are needed for its execution.
-
-See https://avd.aquasec.com/misconfig/ksv-0003
-────────────────────────────────────────
- charts/victoria-metrics-k8s-stack/charts/prometheus-node-exporter/templates/daemonset.yaml:45-97
-────────────────────────────────────────
-  45 ┌         - name: node-exporter
-  46 │           image: quay.io/prometheus/node-exporter:v1.12.1
-  47 │           imagePullPolicy: IfNotPresent
-  48 │           args:
-  49 │             - --path.procfs=/host/proc
-  50 │             - --path.sysfs=/host/sys
-  51 │             - --path.rootfs=/host/root
-  52 │             - --path.udev.data=/host/root/run/udev/data
-  53 └             - --web.listen-address=[$(HOST_IP)]:9100
-  ..   
-────────────────────────────────────────
-
-
-KSV-0004 (LOW): Container 'node-exporter' of 'daemonset' 'lamp-victoria-metrics-prometheus-node-exporter' in 'null' namespace should set securityContext.capabilities.drop
-════════════════════════════════════════
-Security best practices require containers to run with minimal required capabilities.
-
-See https://avd.aquasec.com/misconfig/ksv-0004
-────────────────────────────────────────
- charts/victoria-metrics-k8s-stack/charts/prometheus-node-exporter/templates/daemonset.yaml:45-97
-────────────────────────────────────────
-  45 ┌         - name: node-exporter
-  46 │           image: quay.io/prometheus/node-exporter:v1.12.1
-  47 │           imagePullPolicy: IfNotPresent
-  48 │           args:
-  49 │             - --path.procfs=/host/proc
-  50 │             - --path.sysfs=/host/sys
-  51 │             - --path.rootfs=/host/root
-  52 │             - --path.udev.data=/host/root/run/udev/data
-  53 └             - --web.listen-address=[$(HOST_IP)]:9100
-  ..   
-────────────────────────────────────────
-
-
-KSV-0009 (HIGH): DaemonSet 'lamp-victoria-metrics-prometheus-node-exporter' should not set 'spec.template.spec.hostNetwork' to true
-════════════════════════════════════════
-Sharing the host’s network namespace permits processes in the pod to communicate with processes bound to the host’s loopback adapter.
-
-See https://avd.aquasec.com/misconfig/ksv-0009
-────────────────────────────────────────
- charts/victoria-metrics-k8s-stack/charts/prometheus-node-exporter/templates/daemonset.yaml:15-128
-────────────────────────────────────────
-  15 ┌ spec:
-  16 │   selector:
-  17 │     matchLabels:
-  18 │       app.kubernetes.io/name: prometheus-node-exporter
-  19 │       app.kubernetes.io/instance: lamp-victoria-metrics
-  20 │   revisionHistoryLimit: 10
-  21 │   updateStrategy:
-  22 │     rollingUpdate:
-  23 └       maxUnavailable: 1
-  ..   
-────────────────────────────────────────
-
-
-KSV-0010 (HIGH): DaemonSet 'lamp-victoria-metrics-prometheus-node-exporter' should not set 'spec.template.spec.hostPID' to true
-════════════════════════════════════════
-Sharing the host’s PID namespace allows visibility on host processes, potentially leaking information such as environment variables and configuration.
-
-See https://avd.aquasec.com/misconfig/ksv-0010
-────────────────────────────────────────
- charts/victoria-metrics-k8s-stack/charts/prometheus-node-exporter/templates/daemonset.yaml:15-128
-────────────────────────────────────────
-  15 ┌ spec:
-  16 │   selector:
-  17 │     matchLabels:
-  18 │       app.kubernetes.io/name: prometheus-node-exporter
-  19 │       app.kubernetes.io/instance: lamp-victoria-metrics
-  20 │   revisionHistoryLimit: 10
-  21 │   updateStrategy:
-  22 │     rollingUpdate:
-  23 └       maxUnavailable: 1
-  ..   
-────────────────────────────────────────
-
-
-KSV-0011 (LOW): Container 'node-exporter' of DaemonSet 'lamp-victoria-metrics-prometheus-node-exporter' should set 'resources.limits.cpu'
-════════════════════════════════════════
-Enforcing CPU limits prevents DoS via resource exhaustion.
-
-See https://avd.aquasec.com/misconfig/ksv-0011
-────────────────────────────────────────
- charts/victoria-metrics-k8s-stack/charts/prometheus-node-exporter/templates/daemonset.yaml:45-97
-────────────────────────────────────────
-  45 ┌         - name: node-exporter
-  46 │           image: quay.io/prometheus/node-exporter:v1.12.1
-  47 │           imagePullPolicy: IfNotPresent
-  48 │           args:
-  49 │             - --path.procfs=/host/proc
-  50 │             - --path.sysfs=/host/sys
-  51 │             - --path.rootfs=/host/root
-  52 │             - --path.udev.data=/host/root/run/udev/data
-  53 └             - --web.listen-address=[$(HOST_IP)]:9100
-  ..   
-────────────────────────────────────────
-
-
-KSV-0015 (LOW): Container 'node-exporter' of DaemonSet 'lamp-victoria-metrics-prometheus-node-exporter' should set 'resources.requests.cpu'
-════════════════════════════════════════
-When containers have resource requests specified, the scheduler can make better decisions about which nodes to place pods on, and how to deal with resource contention.
-
-See https://avd.aquasec.com/misconfig/ksv-0015
-────────────────────────────────────────
- charts/victoria-metrics-k8s-stack/charts/prometheus-node-exporter/templates/daemonset.yaml:45-97
-────────────────────────────────────────
-  45 ┌         - name: node-exporter
-  46 │           image: quay.io/prometheus/node-exporter:v1.12.1
-  47 │           imagePullPolicy: IfNotPresent
-  48 │           args:
-  49 │             - --path.procfs=/host/proc
-  50 │             - --path.sysfs=/host/sys
-  51 │             - --path.rootfs=/host/root
-  52 │             - --path.udev.data=/host/root/run/udev/data
-  53 └             - --web.listen-address=[$(HOST_IP)]:9100
-  ..   
-────────────────────────────────────────
-
-
-KSV-0016 (LOW): Container 'node-exporter' of DaemonSet 'lamp-victoria-metrics-prometheus-node-exporter' should set 'resources.requests.memory'
-════════════════════════════════════════
-When containers have memory requests specified, the scheduler can make better decisions about which nodes to place pods on, and how to deal with resource contention.
-
-See https://avd.aquasec.com/misconfig/ksv-0016
-────────────────────────────────────────
- charts/victoria-metrics-k8s-stack/charts/prometheus-node-exporter/templates/daemonset.yaml:45-97
-────────────────────────────────────────
-  45 ┌         - name: node-exporter
-  46 │           image: quay.io/prometheus/node-exporter:v1.12.1
-  47 │           imagePullPolicy: IfNotPresent
-  48 │           args:
-  49 │             - --path.procfs=/host/proc
-  50 │             - --path.sysfs=/host/sys
-  51 │             - --path.rootfs=/host/root
-  52 │             - --path.udev.data=/host/root/run/udev/data
-  53 └             - --web.listen-address=[$(HOST_IP)]:9100
-  ..   
-────────────────────────────────────────
-
-
-KSV-0018 (LOW): Container 'node-exporter' of DaemonSet 'lamp-victoria-metrics-prometheus-node-exporter' should set 'resources.limits.memory'
-════════════════════════════════════════
-Enforcing memory limits prevents DoS via resource exhaustion.
-
-See https://avd.aquasec.com/misconfig/ksv-0018
-────────────────────────────────────────
- charts/victoria-metrics-k8s-stack/charts/prometheus-node-exporter/templates/daemonset.yaml:45-97
-────────────────────────────────────────
-  45 ┌         - name: node-exporter
-  46 │           image: quay.io/prometheus/node-exporter:v1.12.1
-  47 │           imagePullPolicy: IfNotPresent
-  48 │           args:
-  49 │             - --path.procfs=/host/proc
-  50 │             - --path.sysfs=/host/sys
-  51 │             - --path.rootfs=/host/root
-  52 │             - --path.udev.data=/host/root/run/udev/data
-  53 └             - --web.listen-address=[$(HOST_IP)]:9100
-  ..   
-────────────────────────────────────────
-
-
-KSV-0023 (MEDIUM): DaemonSet 'lamp-victoria-metrics-prometheus-node-exporter' should not set 'spec.template.volumes.hostPath'
-════════════════════════════════════════
-According to pod security standard 'HostPath Volumes', HostPath volumes must be forbidden.
-
-See https://avd.aquasec.com/misconfig/ksv-0023
-────────────────────────────────────────
- charts/victoria-metrics-k8s-stack/charts/prometheus-node-exporter/templates/daemonset.yaml:15-128
-────────────────────────────────────────
-  15 ┌ spec:
-  16 │   selector:
-  17 │     matchLabels:
-  18 │       app.kubernetes.io/name: prometheus-node-exporter
-  19 │       app.kubernetes.io/instance: lamp-victoria-metrics
-  20 │   revisionHistoryLimit: 10
-  21 │   updateStrategy:
-  22 │     rollingUpdate:
-  23 └       maxUnavailable: 1
-  ..   
-────────────────────────────────────────
-
-
-KSV-0030 (LOW): Either Pod or Container should set 'securityContext.seccompProfile.type' to 'RuntimeDefault'
-════════════════════════════════════════
-According to pod security standard 'Seccomp', the RuntimeDefault seccomp profile must be required, or allow specific additional profiles.
-
-See https://avd.aquasec.com/misconfig/ksv-0030
-────────────────────────────────────────
- charts/victoria-metrics-k8s-stack/charts/prometheus-node-exporter/templates/daemonset.yaml:45-97
-────────────────────────────────────────
-  45 ┌         - name: node-exporter
-  46 │           image: quay.io/prometheus/node-exporter:v1.12.1
-  47 │           imagePullPolicy: IfNotPresent
-  48 │           args:
-  49 │             - --path.procfs=/host/proc
-  50 │             - --path.sysfs=/host/sys
-  51 │             - --path.rootfs=/host/root
-  52 │             - --path.udev.data=/host/root/run/udev/data
-  53 └             - --web.listen-address=[$(HOST_IP)]:9100
-  ..   
-────────────────────────────────────────
-
-
-KSV-0104 (MEDIUM): container "node-exporter" of daemonset "lamp-victoria-metrics-prometheus-node-exporter" in "null" namespace should specify a seccomp profile
-════════════════════════════════════════
-A program inside the container can bypass Seccomp protection policies.
-
-See https://avd.aquasec.com/misconfig/ksv-0104
-────────────────────────────────────────
- charts/victoria-metrics-k8s-stack/charts/prometheus-node-exporter/templates/daemonset.yaml:45-97
-────────────────────────────────────────
-  45 ┌         - name: node-exporter
-  46 │           image: quay.io/prometheus/node-exporter:v1.12.1
-  47 │           imagePullPolicy: IfNotPresent
-  48 │           args:
-  49 │             - --path.procfs=/host/proc
-  50 │             - --path.sysfs=/host/sys
-  51 │             - --path.rootfs=/host/root
-  52 │             - --path.udev.data=/host/root/run/udev/data
-  53 └             - --web.listen-address=[$(HOST_IP)]:9100
-  ..   
-────────────────────────────────────────
-
-
-KSV-0106 (LOW): container should drop all
-════════════════════════════════════════
-Containers must drop ALL capabilities, and are only permitted to add back the NET_BIND_SERVICE capability.
-
-See https://avd.aquasec.com/misconfig/ksv-0106
-────────────────────────────────────────
- charts/victoria-metrics-k8s-stack/charts/prometheus-node-exporter/templates/daemonset.yaml:45-97
-────────────────────────────────────────
-  45 ┌         - name: node-exporter
-  46 │           image: quay.io/prometheus/node-exporter:v1.12.1
-  47 │           imagePullPolicy: IfNotPresent
-  48 │           args:
-  49 │             - --path.procfs=/host/proc
-  50 │             - --path.sysfs=/host/sys
-  51 │             - --path.rootfs=/host/root
-  52 │             - --path.udev.data=/host/root/run/udev/data
-  53 └             - --web.listen-address=[$(HOST_IP)]:9100
-  ..   
-────────────────────────────────────────
-
-
-KSV-0121 (HIGH): daemonset lamp-victoria-metrics-prometheus-node-exporter in null namespace shouldn't have volumes set to {"/", "/proc", "/sys"}
-════════════════════════════════════════
-HostPath present many security risks and as a security practice it is better to avoid critical host paths mounts.
-
-See https://avd.aquasec.com/misconfig/ksv-0121
-────────────────────────────────────────
- charts/victoria-metrics-k8s-stack/charts/prometheus-node-exporter/templates/daemonset.yaml:15-128
-────────────────────────────────────────
-  15 ┌ spec:
-  16 │   selector:
-  17 │     matchLabels:
-  18 │       app.kubernetes.io/name: prometheus-node-exporter
-  19 │       app.kubernetes.io/instance: lamp-victoria-metrics
-  20 │   revisionHistoryLimit: 10
-  21 │   updateStrategy:
-  22 │     rollingUpdate:
-  23 └       maxUnavailable: 1
-  ..   
-────────────────────────────────────────
-
-
-KSV-0125 (MEDIUM): Container node-exporter in daemonset lamp-victoria-metrics-prometheus-node-exporter (namespace: null) uses an image from an untrusted registry.
-════════════════════════════════════════
-Ensure that all containers use images only from trusted registry domains.
-
-See https://avd.aquasec.com/misconfig/ksv-0125
-────────────────────────────────────────
- charts/victoria-metrics-k8s-stack/charts/prometheus-node-exporter/templates/daemonset.yaml:45-97
-────────────────────────────────────────
-  45 ┌         - name: node-exporter
-  46 │           image: quay.io/prometheus/node-exporter:v1.12.1
-  47 │           imagePullPolicy: IfNotPresent
-  48 │           args:
-  49 │             - --path.procfs=/host/proc
-  50 │             - --path.sysfs=/host/sys
-  51 │             - --path.rootfs=/host/root
-  52 │             - --path.udev.data=/host/root/run/udev/data
-  53 └             - --web.listen-address=[$(HOST_IP)]:9100
-  ..   
-────────────────────────────────────────
-
-
-
-charts/victoria-metrics-k8s-stack/charts/victoria-metrics-operator/templates/role.yaml (helm)
-=============================================================================================
-Tests: 84 (SUCCESSES: 73, FAILURES: 11)
-Failures: 11 (UNKNOWN: 0, LOW: 0, MEDIUM: 3, HIGH: 2, CRITICAL: 6)
-
-KSV-0041 (CRITICAL): ClusterRole 'lamp-victoria-metrics-victoria-metrics-operator' shouldn't have access to manage resource 'secrets'
-════════════════════════════════════════
-Viewing secrets at the cluster-scope is akin to cluster-admin in most clusters as there are typically at least one service accounts (their token stored in a secret) bound to cluster-admin directly or a role/clusterrole that gives similar permissions.
-
-See https://avd.aquasec.com/misconfig/ksv-0041
-────────────────────────────────────────
- charts/victoria-metrics-k8s-stack/charts/victoria-metrics-operator/templates/role.yaml:21-39
-────────────────────────────────────────
-  21 ┌ - apiGroups:
-  22 │   - ""
-  23 │   resources:
-  24 │   - configmaps
-  25 │   - configmaps/finalizers
-  26 │   - endpoints
-  27 │   - events
-  28 │   - persistentvolumeclaims
-  29 └   - persistentvolumeclaims/finalizers
-  ..   
-────────────────────────────────────────
-
-
-KSV-0045 (CRITICAL): Role permits wildcard verb on specific resources
-════════════════════════════════════════
-Check whether role permits wildcard verb on specific resources
-
-See https://avd.aquasec.com/misconfig/ksv-0045
-────────────────────────────────────────
- charts/victoria-metrics-k8s-stack/charts/victoria-metrics-operator/templates/role.yaml:21-39
-────────────────────────────────────────
-  21 ┌ - apiGroups:
-  22 │   - ""
-  23 │   resources:
-  24 │   - configmaps
-  25 │   - configmaps/finalizers
-  26 │   - endpoints
-  27 │   - events
-  28 │   - persistentvolumeclaims
-  29 └   - persistentvolumeclaims/finalizers
-  ..   
-────────────────────────────────────────
-
-
-KSV-0045 (CRITICAL): Role permits wildcard verb on specific resources
-════════════════════════════════════════
-Check whether role permits wildcard verb on specific resources
-
-See https://avd.aquasec.com/misconfig/ksv-0045
-────────────────────────────────────────
- charts/victoria-metrics-k8s-stack/charts/victoria-metrics-operator/templates/role.yaml:51-63
-────────────────────────────────────────
-  51 ┌ - apiGroups:
-  52 │   - apps
-  53 │   resources:
-  54 │   - daemonsets
-  55 │   - daemonsets/finalizers
-  56 │   - deployments
-  57 │   - deployments/finalizers
-  58 │   - replicasets
-  59 └   - statefulsets
-  ..   
-────────────────────────────────────────
-
-
-KSV-0045 (CRITICAL): Role permits wildcard verb on specific resources
-════════════════════════════════════════
-Check whether role permits wildcard verb on specific resources
-
-See https://avd.aquasec.com/misconfig/ksv-0045
-────────────────────────────────────────
- charts/victoria-metrics-k8s-stack/charts/victoria-metrics-operator/templates/role.yaml:70-80
-────────────────────────────────────────
-  70 ┌ - apiGroups:
-  71 │   - rbac.authorization.k8s.io
-  72 │   resources:
-  73 │   - clusterrolebindings
-  74 │   - clusterrolebindings/finalizers
-  75 │   - clusterroles
-  76 │   - clusterroles/finalizers
-  77 │   - roles
-  78 └   - rolebindings
-  ..   
-────────────────────────────────────────
-
-
-KSV-0046 (CRITICAL): ClusterRole 'lamp-victoria-metrics-victoria-metrics-operator' shouldn't manage all resources
-════════════════════════════════════════
-Full control of the cluster resources, and therefore also root on all nodes where workloads can run and has access to all pods, secrets, and data.
-
-See https://avd.aquasec.com/misconfig/ksv-0046
-────────────────────────────────────────
- charts/victoria-metrics-k8s-stack/charts/victoria-metrics-operator/templates/role.yaml:64-69
-────────────────────────────────────────
-  64 ┌ - apiGroups:
-  65 │   - monitoring.coreos.com
-  66 │   resources:
-  67 │   - "*"
-  68 │   verbs:
-  69 └   - "*"
-────────────────────────────────────────
-
-
-KSV-0048 (MEDIUM): ClusterRole 'lamp-victoria-metrics-victoria-metrics-operator' should not have access to resources ["pods", "deployments", "jobs", "cronjobs", "statefulsets", "daemonsets", "replicasets", "replicationcontrollers"] for verbs ["create", "update", "patch", "delete", "deletecollection", "impersonate", "*"]
-════════════════════════════════════════
-Depending on the policies enforced by the admission controller, this permission ranges from the ability to steal compute (crypto) by running workloads or allowing for creating workloads that escape to the node as root and escalation to cluster-admin.
-
-See https://avd.aquasec.com/misconfig/ksv-0048
-────────────────────────────────────────
- charts/victoria-metrics-k8s-stack/charts/victoria-metrics-operator/templates/role.yaml:21-39
-────────────────────────────────────────
-  21 ┌ - apiGroups:
-  22 │   - ""
-  23 │   resources:
-  24 │   - configmaps
-  25 │   - configmaps/finalizers
-  26 │   - endpoints
-  27 │   - events
-  28 │   - persistentvolumeclaims
-  29 └   - persistentvolumeclaims/finalizers
-  ..   
-────────────────────────────────────────
-
-
-KSV-0048 (MEDIUM): ClusterRole 'lamp-victoria-metrics-victoria-metrics-operator' should not have access to resources ["pods", "deployments", "jobs", "cronjobs", "statefulsets", "daemonsets", "replicasets", "replicationcontrollers"] for verbs ["create", "update", "patch", "delete", "deletecollection", "impersonate", "*"]
-════════════════════════════════════════
-Depending on the policies enforced by the admission controller, this permission ranges from the ability to steal compute (crypto) by running workloads or allowing for creating workloads that escape to the node as root and escalation to cluster-admin.
-
-See https://avd.aquasec.com/misconfig/ksv-0048
-────────────────────────────────────────
- charts/victoria-metrics-k8s-stack/charts/victoria-metrics-operator/templates/role.yaml:51-63
-────────────────────────────────────────
-  51 ┌ - apiGroups:
-  52 │   - apps
-  53 │   resources:
-  54 │   - daemonsets
-  55 │   - daemonsets/finalizers
-  56 │   - deployments
-  57 │   - deployments/finalizers
-  58 │   - replicasets
-  59 └   - statefulsets
-  ..   
-────────────────────────────────────────
-
-
-KSV-0049 (MEDIUM): ClusterRole 'lamp-victoria-metrics-victoria-metrics-operator' should not have access to resource 'configmaps' for verbs ["create", "update", "patch", "delete", "deletecollection", "impersonate", "*"]
-════════════════════════════════════════
-Some workloads leverage configmaps to store sensitive data or configuration parameters that affect runtime behavior that can be modified by an attacker or combined with another issue to potentially lead to compromise.
-
-See https://avd.aquasec.com/misconfig/ksv-0049
-────────────────────────────────────────
- charts/victoria-metrics-k8s-stack/charts/victoria-metrics-operator/templates/role.yaml:21-39
-────────────────────────────────────────
-  21 ┌ - apiGroups:
-  22 │   - ""
-  23 │   resources:
-  24 │   - configmaps
-  25 │   - configmaps/finalizers
-  26 │   - endpoints
-  27 │   - events
-  28 │   - persistentvolumeclaims
-  29 └   - persistentvolumeclaims/finalizers
-  ..   
-────────────────────────────────────────
-
-
-KSV-0050 (CRITICAL): ClusterRole 'lamp-victoria-metrics-victoria-metrics-operator' should not have access to resources ["roles", "rolebindings"] for verbs ["escalate", "bind", "impersonate", "*"] as they can lead to privilege escalation
-════════════════════════════════════════
-Check whether role permits escalate, bind, or impersonate on roles/rolebindings, which can lead to privilege escalation.
-
-See https://avd.aquasec.com/misconfig/ksv-0050
-────────────────────────────────────────
- charts/victoria-metrics-k8s-stack/charts/victoria-metrics-operator/templates/role.yaml:70-80
-────────────────────────────────────────
-  70 ┌ - apiGroups:
-  71 │   - rbac.authorization.k8s.io
-  72 │   resources:
-  73 │   - clusterrolebindings
-  74 │   - clusterrolebindings/finalizers
-  75 │   - clusterroles
-  76 │   - clusterroles/finalizers
-  77 │   - roles
-  78 └   - rolebindings
-  ..   
-────────────────────────────────────────
-
-
-KSV-0056 (HIGH): ClusterRole 'lamp-victoria-metrics-victoria-metrics-operator' should not have access to resources ["services", "endpoints", "endpointslices", "networkpolicies", "ingresses"] for verbs ["create", "update", "patch", "delete", "deletecollection", "impersonate", "*"]
-════════════════════════════════════════
-The ability to control which pods get service traffic directed to them allows for interception attacks. Controlling network policy allows for bypassing lateral movement restrictions.
-
-See https://avd.aquasec.com/misconfig/ksv-0056
-────────────────────────────────────────
- charts/victoria-metrics-k8s-stack/charts/victoria-metrics-operator/templates/role.yaml:21-39
-────────────────────────────────────────
-  21 ┌ - apiGroups:
-  22 │   - ""
-  23 │   resources:
-  24 │   - configmaps
-  25 │   - configmaps/finalizers
-  26 │   - endpoints
-  27 │   - events
-  28 │   - persistentvolumeclaims
-  29 └   - persistentvolumeclaims/finalizers
-  ..   
-────────────────────────────────────────
-
-
-KSV-0056 (HIGH): ClusterRole 'lamp-victoria-metrics-victoria-metrics-operator' should not have access to resources ["services", "endpoints", "endpointslices", "networkpolicies", "ingresses"] for verbs ["create", "update", "patch", "delete", "deletecollection", "impersonate", "*"]
-════════════════════════════════════════
-The ability to control which pods get service traffic directed to them allows for interception attacks. Controlling network policy allows for bypassing lateral movement restrictions.
-
-See https://avd.aquasec.com/misconfig/ksv-0056
-────────────────────────────────────────
- charts/victoria-metrics-k8s-stack/charts/victoria-metrics-operator/templates/role.yaml:110-117
-────────────────────────────────────────
- 110 ┌ - apiGroups:
- 111 │   - networking.k8s.io
- 112 │   resources:
- 113 │   - ingresses
- 114 │   - ingresses/finalizers
- 115 │   - networkpolicies
- 116 │   verbs:
- 117 └   - "*"
-────────────────────────────────────────
-
-
-
-charts/victoria-metrics-k8s-stack/charts/victoria-metrics-operator/templates/server.yaml (helm)
-===============================================================================================
-Tests: 98 (SUCCESSES: 89, FAILURES: 9)
-Failures: 9 (UNKNOWN: 0, LOW: 7, MEDIUM: 2, HIGH: 0, CRITICAL: 0)
-
-KSV-0011 (LOW): Container 'operator' of Deployment 'lamp-victoria-metrics-victoria-metrics-operator' should set 'resources.limits.cpu'
-════════════════════════════════════════
-Enforcing CPU limits prevents DoS via resource exhaustion.
-
-See https://avd.aquasec.com/misconfig/ksv-0011
-────────────────────────────────────────
- charts/victoria-metrics-k8s-stack/charts/victoria-metrics-operator/templates/server.yaml:38-104
-────────────────────────────────────────
-  38 ┌         - name: operator
-  39 │           image: victoriametrics/operator:v0.75.2
-  40 │           imagePullPolicy: IfNotPresent
-  41 │           env:
-  42 │             - name: VM_ANOMALY_VERSION
-  43 │               value: "v1.31.1"
-  44 │             - name: VM_LOGS_VERSION
-  45 │               value: "v1.53.0"
-  46 └             - name: VM_METRICS_VERSION
-  ..   
-────────────────────────────────────────
-
-
-KSV-0015 (LOW): Container 'operator' of Deployment 'lamp-victoria-metrics-victoria-metrics-operator' should set 'resources.requests.cpu'
-════════════════════════════════════════
-When containers have resource requests specified, the scheduler can make better decisions about which nodes to place pods on, and how to deal with resource contention.
-
-See https://avd.aquasec.com/misconfig/ksv-0015
-────────────────────────────────────────
- charts/victoria-metrics-k8s-stack/charts/victoria-metrics-operator/templates/server.yaml:38-104
-────────────────────────────────────────
-  38 ┌         - name: operator
-  39 │           image: victoriametrics/operator:v0.75.2
-  40 │           imagePullPolicy: IfNotPresent
-  41 │           env:
-  42 │             - name: VM_ANOMALY_VERSION
-  43 │               value: "v1.31.1"
-  44 │             - name: VM_LOGS_VERSION
-  45 │               value: "v1.53.0"
-  46 └             - name: VM_METRICS_VERSION
-  ..   
-────────────────────────────────────────
-
-
-KSV-0016 (LOW): Container 'operator' of Deployment 'lamp-victoria-metrics-victoria-metrics-operator' should set 'resources.requests.memory'
-════════════════════════════════════════
-When containers have memory requests specified, the scheduler can make better decisions about which nodes to place pods on, and how to deal with resource contention.
-
-See https://avd.aquasec.com/misconfig/ksv-0016
-────────────────────────────────────────
- charts/victoria-metrics-k8s-stack/charts/victoria-metrics-operator/templates/server.yaml:38-104
-────────────────────────────────────────
-  38 ┌         - name: operator
-  39 │           image: victoriametrics/operator:v0.75.2
-  40 │           imagePullPolicy: IfNotPresent
-  41 │           env:
-  42 │             - name: VM_ANOMALY_VERSION
-  43 │               value: "v1.31.1"
-  44 │             - name: VM_LOGS_VERSION
-  45 │               value: "v1.53.0"
-  46 └             - name: VM_METRICS_VERSION
-  ..   
-────────────────────────────────────────
-
-
-KSV-0018 (LOW): Container 'operator' of Deployment 'lamp-victoria-metrics-victoria-metrics-operator' should set 'resources.limits.memory'
-════════════════════════════════════════
-Enforcing memory limits prevents DoS via resource exhaustion.
-
-See https://avd.aquasec.com/misconfig/ksv-0018
-────────────────────────────────────────
- charts/victoria-metrics-k8s-stack/charts/victoria-metrics-operator/templates/server.yaml:38-104
-────────────────────────────────────────
-  38 ┌         - name: operator
-  39 │           image: victoriametrics/operator:v0.75.2
-  40 │           imagePullPolicy: IfNotPresent
-  41 │           env:
-  42 │             - name: VM_ANOMALY_VERSION
-  43 │               value: "v1.31.1"
-  44 │             - name: VM_LOGS_VERSION
-  45 │               value: "v1.53.0"
-  46 └             - name: VM_METRICS_VERSION
-  ..   
-────────────────────────────────────────
-
-
-KSV-0020 (LOW): Container 'operator' of Deployment 'lamp-victoria-metrics-victoria-metrics-operator' should set 'securityContext.runAsUser' > 10000
-════════════════════════════════════════
-Force the container to run with user ID > 10000 to avoid conflicts with the host’s user table.
-
-See https://avd.aquasec.com/misconfig/ksv-0020
-────────────────────────────────────────
- charts/victoria-metrics-k8s-stack/charts/victoria-metrics-operator/templates/server.yaml:38-104
-────────────────────────────────────────
-  38 ┌         - name: operator
-  39 │           image: victoriametrics/operator:v0.75.2
-  40 │           imagePullPolicy: IfNotPresent
-  41 │           env:
-  42 │             - name: VM_ANOMALY_VERSION
-  43 │               value: "v1.31.1"
-  44 │             - name: VM_LOGS_VERSION
-  45 │               value: "v1.53.0"
-  46 └             - name: VM_METRICS_VERSION
-  ..   
-────────────────────────────────────────
-
-
-KSV-0021 (LOW): Container 'operator' of Deployment 'lamp-victoria-metrics-victoria-metrics-operator' should set 'securityContext.runAsGroup' > 10000
-════════════════════════════════════════
-Force the container to run with group ID > 10000 to avoid conflicts with the host’s user table.
-
-See https://avd.aquasec.com/misconfig/ksv-0021
-────────────────────────────────────────
- charts/victoria-metrics-k8s-stack/charts/victoria-metrics-operator/templates/server.yaml:38-104
-────────────────────────────────────────
-  38 ┌         - name: operator
-  39 │           image: victoriametrics/operator:v0.75.2
-  40 │           imagePullPolicy: IfNotPresent
-  41 │           env:
-  42 │             - name: VM_ANOMALY_VERSION
-  43 │               value: "v1.31.1"
-  44 │             - name: VM_LOGS_VERSION
-  45 │               value: "v1.53.0"
-  46 └             - name: VM_METRICS_VERSION
-  ..   
-────────────────────────────────────────
-
-
-KSV-0030 (LOW): Either Pod or Container should set 'securityContext.seccompProfile.type' to 'RuntimeDefault'
-════════════════════════════════════════
-According to pod security standard 'Seccomp', the RuntimeDefault seccomp profile must be required, or allow specific additional profiles.
-
-See https://avd.aquasec.com/misconfig/ksv-0030
-────────────────────────────────────────
- charts/victoria-metrics-k8s-stack/charts/victoria-metrics-operator/templates/server.yaml:38-104
-────────────────────────────────────────
-  38 ┌         - name: operator
-  39 │           image: victoriametrics/operator:v0.75.2
-  40 │           imagePullPolicy: IfNotPresent
-  41 │           env:
-  42 │             - name: VM_ANOMALY_VERSION
-  43 │               value: "v1.31.1"
-  44 │             - name: VM_LOGS_VERSION
-  45 │               value: "v1.53.0"
-  46 └             - name: VM_METRICS_VERSION
-  ..   
-────────────────────────────────────────
-
-
-KSV-0104 (MEDIUM): container "operator" of deployment "lamp-victoria-metrics-victoria-metrics-operator" in "null" namespace should specify a seccomp profile
-════════════════════════════════════════
-A program inside the container can bypass Seccomp protection policies.
-
-See https://avd.aquasec.com/misconfig/ksv-0104
-────────────────────────────────────────
- charts/victoria-metrics-k8s-stack/charts/victoria-metrics-operator/templates/server.yaml:38-104
-────────────────────────────────────────
-  38 ┌         - name: operator
-  39 │           image: victoriametrics/operator:v0.75.2
-  40 │           imagePullPolicy: IfNotPresent
-  41 │           env:
-  42 │             - name: VM_ANOMALY_VERSION
-  43 │               value: "v1.31.1"
-  44 │             - name: VM_LOGS_VERSION
-  45 │               value: "v1.53.0"
-  46 └             - name: VM_METRICS_VERSION
-  ..   
-────────────────────────────────────────
-
-
-KSV-0125 (MEDIUM): Container operator in deployment lamp-victoria-metrics-victoria-metrics-operator (namespace: null) uses an image from an untrusted registry.
-════════════════════════════════════════
-Ensure that all containers use images only from trusted registry domains.
-
-See https://avd.aquasec.com/misconfig/ksv-0125
-────────────────────────────────────────
- charts/victoria-metrics-k8s-stack/charts/victoria-metrics-operator/templates/server.yaml:38-104
-────────────────────────────────────────
-  38 ┌         - name: operator
-  39 │           image: victoriametrics/operator:v0.75.2
-  40 │           imagePullPolicy: IfNotPresent
-  41 │           env:
-  42 │             - name: VM_ANOMALY_VERSION
-  43 │               value: "v1.31.1"
-  44 │             - name: VM_LOGS_VERSION
-  45 │               value: "v1.53.0"
-  46 └             - name: VM_METRICS_VERSION
-  ..   
-────────────────────────────────────────
-
-
+### KSV-0015 (LOW): CPU requests not specified
+
+Container 'kube-state-metrics' of Deployment 'lamp-victoria-metrics-kube-state-metrics' should set 'resources.requests.cpu'
+
+- Resolution: Set 'containers[].resources.requests.cpu'.
+- See: https://avd.aquasec.com/misconfig/ksv-0015
+- Location: `charts/victoria-metrics-k8s-stack/charts/kube-state-metrics/templates/deployment.yaml:46-84`
+
+```
+46:       - name: kube-state-metrics
+47:         args:
+48:         - --port=8080
+49:         - --resources=certificatesigningrequests,configmaps,cronjobs,daemonsets,deployments,endpointslices,horizontalpodautoscalers,ingresses,jobs,leases,limitranges,mutatingwebhookconfigurations,namespaces,networkpolicies,nodes,persistentvolumeclaims,persistentvolumes,poddisruptionbudgets,pods,replicasets,replicationcontrollers,resourcequotas,secrets,services,statefulsets,storageclasses,validatingwebhookconfigurations,volumeattachments
+50:         imagePullPolicy: IfNotPresent
+51:         image: registry.k8s.io/kube-state-metrics/kube-state-metrics:v2.20.0
+52:         ports:
+53:         - containerPort: 8080
+54:           name: http
+55:
+```
+
+### KSV-0016 (LOW): Memory requests not specified
+
+Container 'kube-state-metrics' of Deployment 'lamp-victoria-metrics-kube-state-metrics' should set 'resources.requests.memory'
+
+- Resolution: Set 'containers[].resources.requests.memory'.
+- See: https://avd.aquasec.com/misconfig/ksv-0016
+- Location: `charts/victoria-metrics-k8s-stack/charts/kube-state-metrics/templates/deployment.yaml:46-84`
+
+```
+46:       - name: kube-state-metrics
+47:         args:
+48:         - --port=8080
+49:         - --resources=certificatesigningrequests,configmaps,cronjobs,daemonsets,deployments,endpointslices,horizontalpodautoscalers,ingresses,jobs,leases,limitranges,mutatingwebhookconfigurations,namespaces,networkpolicies,nodes,persistentvolumeclaims,persistentvolumes,poddisruptionbudgets,pods,replicasets,replicationcontrollers,resourcequotas,secrets,services,statefulsets,storageclasses,validatingwebhookconfigurations,volumeattachments
+50:         imagePullPolicy: IfNotPresent
+51:         image: registry.k8s.io/kube-state-metrics/kube-state-metrics:v2.20.0
+52:         ports:
+53:         - containerPort: 8080
+54:           name: http
+55:
+```
+
+### KSV-0018 (LOW): Memory not limited
+
+Container 'kube-state-metrics' of Deployment 'lamp-victoria-metrics-kube-state-metrics' should set 'resources.limits.memory'
+
+- Resolution: Set a limit value under 'containers[].resources.limits.memory'.
+- See: https://avd.aquasec.com/misconfig/ksv-0018
+- Location: `charts/victoria-metrics-k8s-stack/charts/kube-state-metrics/templates/deployment.yaml:46-84`
+
+```
+46:       - name: kube-state-metrics
+47:         args:
+48:         - --port=8080
+49:         - --resources=certificatesigningrequests,configmaps,cronjobs,daemonsets,deployments,endpointslices,horizontalpodautoscalers,ingresses,jobs,leases,limitranges,mutatingwebhookconfigurations,namespaces,networkpolicies,nodes,persistentvolumeclaims,persistentvolumes,poddisruptionbudgets,pods,replicasets,replicationcontrollers,resourcequotas,secrets,services,statefulsets,storageclasses,validatingwebhookconfigurations,volumeattachments
+50:         imagePullPolicy: IfNotPresent
+51:         image: registry.k8s.io/kube-state-metrics/kube-state-metrics:v2.20.0
+52:         ports:
+53:         - containerPort: 8080
+54:           name: http
+55:
+```
+
+### KSV-0125 (MEDIUM): Restrict container images to trusted registries
+
+Container kube-state-metrics in deployment lamp-victoria-metrics-kube-state-metrics (namespace: null) uses an image from an untrusted registry.
+
+- Resolution: Use images from trusted registries.
+- See: https://avd.aquasec.com/misconfig/ksv-0125
+- Location: `charts/victoria-metrics-k8s-stack/charts/kube-state-metrics/templates/deployment.yaml:46-84`
+
+```
+46:       - name: kube-state-metrics
+47:         args:
+48:         - --port=8080
+49:         - --resources=certificatesigningrequests,configmaps,cronjobs,daemonsets,deployments,endpointslices,horizontalpodautoscalers,ingresses,jobs,leases,limitranges,mutatingwebhookconfigurations,namespaces,networkpolicies,nodes,persistentvolumeclaims,persistentvolumes,poddisruptionbudgets,pods,replicasets,replicationcontrollers,resourcequotas,secrets,services,statefulsets,storageclasses,validatingwebhookconfigurations,volumeattachments
+50:         imagePullPolicy: IfNotPresent
+51:         image: registry.k8s.io/kube-state-metrics/kube-state-metrics:v2.20.0
+52:         ports:
+53:         - containerPort: 8080
+54:           name: http
+55:
+```
+
+
+## charts/victoria-metrics-k8s-stack/charts/kube-state-metrics/templates/role.yaml
+
+### KSV-0041 (CRITICAL): Manage secrets
+
+ClusterRole 'lamp-victoria-metrics-kube-state-metrics' shouldn't have access to manage resource 'secrets'
+
+- Resolution: Manage secrets are not allowed. Remove resource 'secrets' from cluster role
+- See: https://avd.aquasec.com/misconfig/ksv-0041
+- Location: `charts/victoria-metrics-k8s-stack/charts/kube-state-metrics/templates/role.yaml:126-129`
+
+```
+126: - apiGroups: [""]
+127:   resources:
+128:   - secrets
+129:   verbs: ["list", "watch"]
+```
+
+
+## charts/victoria-metrics-k8s-stack/charts/prometheus-node-exporter/templates/daemonset.yaml
+
+### KSV-0001 (MEDIUM): Can elevate its own privileges
+
+Container 'node-exporter' of DaemonSet 'lamp-victoria-metrics-prometheus-node-exporter' should set 'securityContext.allowPrivilegeEscalation' to false
+
+- Resolution: Set 'set containers[].securityContext.allowPrivilegeEscalation' to 'false'.
+- See: https://avd.aquasec.com/misconfig/ksv-0001
+- Location: `charts/victoria-metrics-k8s-stack/charts/prometheus-node-exporter/templates/daemonset.yaml:45-97`
+
+```
+45:         - name: node-exporter
+46:           image: quay.io/prometheus/node-exporter:v1.12.1
+47:           imagePullPolicy: IfNotPresent
+48:           args:
+49:             - --path.procfs=/host/proc
+50:             - --path.sysfs=/host/sys
+51:             - --path.rootfs=/host/root
+52:             - --path.udev.data=/host/root/run/udev/data
+53:             - --web.listen-address=[$(HOST_IP)]:9100
+54:
+```
+
+### KSV-0003 (LOW): Default capabilities: some containers do not drop all
+
+Container 'node-exporter' of DaemonSet 'lamp-victoria-metrics-prometheus-node-exporter' should add 'ALL' to 'securityContext.capabilities.drop'
+
+- Resolution: Add 'ALL' to containers[].securityContext.capabilities.drop.
+- See: https://avd.aquasec.com/misconfig/ksv-0003
+- Location: `charts/victoria-metrics-k8s-stack/charts/prometheus-node-exporter/templates/daemonset.yaml:45-97`
+
+```
+45:         - name: node-exporter
+46:           image: quay.io/prometheus/node-exporter:v1.12.1
+47:           imagePullPolicy: IfNotPresent
+48:           args:
+49:             - --path.procfs=/host/proc
+50:             - --path.sysfs=/host/sys
+51:             - --path.rootfs=/host/root
+52:             - --path.udev.data=/host/root/run/udev/data
+53:             - --web.listen-address=[$(HOST_IP)]:9100
+54:
+```
+
+### KSV-0004 (LOW): Default capabilities: some containers do not drop any
+
+Container 'node-exporter' of 'daemonset' 'lamp-victoria-metrics-prometheus-node-exporter' in 'null' namespace should set securityContext.capabilities.drop
+
+- Resolution: Specify at least one unneeded capability in 'containers[].securityContext.capabilities.drop'
+- See: https://avd.aquasec.com/misconfig/ksv-0004
+- Location: `charts/victoria-metrics-k8s-stack/charts/prometheus-node-exporter/templates/daemonset.yaml:45-97`
+
+```
+45:         - name: node-exporter
+46:           image: quay.io/prometheus/node-exporter:v1.12.1
+47:           imagePullPolicy: IfNotPresent
+48:           args:
+49:             - --path.procfs=/host/proc
+50:             - --path.sysfs=/host/sys
+51:             - --path.rootfs=/host/root
+52:             - --path.udev.data=/host/root/run/udev/data
+53:             - --web.listen-address=[$(HOST_IP)]:9100
+54:
+```
+
+### KSV-0009 (HIGH): Access to host network
+
+DaemonSet 'lamp-victoria-metrics-prometheus-node-exporter' should not set 'spec.template.spec.hostNetwork' to true
+
+- Resolution: Do not set 'spec.template.spec.hostNetwork' to true.
+- See: https://avd.aquasec.com/misconfig/ksv-0009
+- Location: `charts/victoria-metrics-k8s-stack/charts/prometheus-node-exporter/templates/daemonset.yaml:15-128`
+
+```
+15: spec:
+16:   selector:
+17:     matchLabels:
+18:       app.kubernetes.io/name: prometheus-node-exporter
+19:       app.kubernetes.io/instance: lamp-victoria-metrics
+20:   revisionHistoryLimit: 10
+21:   updateStrategy:
+22:     rollingUpdate:
+23:       maxUnavailable: 1
+24:
+```
+
+### KSV-0010 (HIGH): Access to host PID
+
+DaemonSet 'lamp-victoria-metrics-prometheus-node-exporter' should not set 'spec.template.spec.hostPID' to true
+
+- Resolution: Do not set 'spec.template.spec.hostPID' to true.
+- See: https://avd.aquasec.com/misconfig/ksv-0010
+- Location: `charts/victoria-metrics-k8s-stack/charts/prometheus-node-exporter/templates/daemonset.yaml:15-128`
+
+```
+15: spec:
+16:   selector:
+17:     matchLabels:
+18:       app.kubernetes.io/name: prometheus-node-exporter
+19:       app.kubernetes.io/instance: lamp-victoria-metrics
+20:   revisionHistoryLimit: 10
+21:   updateStrategy:
+22:     rollingUpdate:
+23:       maxUnavailable: 1
+24:
+```
+
+### KSV-0011 (LOW): CPU not limited
+
+Container 'node-exporter' of DaemonSet 'lamp-victoria-metrics-prometheus-node-exporter' should set 'resources.limits.cpu'
+
+- Resolution: Set a limit value under 'containers[].resources.limits.cpu'.
+- See: https://avd.aquasec.com/misconfig/ksv-0011
+- Location: `charts/victoria-metrics-k8s-stack/charts/prometheus-node-exporter/templates/daemonset.yaml:45-97`
+
+```
+45:         - name: node-exporter
+46:           image: quay.io/prometheus/node-exporter:v1.12.1
+47:           imagePullPolicy: IfNotPresent
+48:           args:
+49:             - --path.procfs=/host/proc
+50:             - --path.sysfs=/host/sys
+51:             - --path.rootfs=/host/root
+52:             - --path.udev.data=/host/root/run/udev/data
+53:             - --web.listen-address=[$(HOST_IP)]:9100
+54:
+```
+
+### KSV-0015 (LOW): CPU requests not specified
+
+Container 'node-exporter' of DaemonSet 'lamp-victoria-metrics-prometheus-node-exporter' should set 'resources.requests.cpu'
+
+- Resolution: Set 'containers[].resources.requests.cpu'.
+- See: https://avd.aquasec.com/misconfig/ksv-0015
+- Location: `charts/victoria-metrics-k8s-stack/charts/prometheus-node-exporter/templates/daemonset.yaml:45-97`
+
+```
+45:         - name: node-exporter
+46:           image: quay.io/prometheus/node-exporter:v1.12.1
+47:           imagePullPolicy: IfNotPresent
+48:           args:
+49:             - --path.procfs=/host/proc
+50:             - --path.sysfs=/host/sys
+51:             - --path.rootfs=/host/root
+52:             - --path.udev.data=/host/root/run/udev/data
+53:             - --web.listen-address=[$(HOST_IP)]:9100
+54:
+```
+
+### KSV-0016 (LOW): Memory requests not specified
+
+Container 'node-exporter' of DaemonSet 'lamp-victoria-metrics-prometheus-node-exporter' should set 'resources.requests.memory'
+
+- Resolution: Set 'containers[].resources.requests.memory'.
+- See: https://avd.aquasec.com/misconfig/ksv-0016
+- Location: `charts/victoria-metrics-k8s-stack/charts/prometheus-node-exporter/templates/daemonset.yaml:45-97`
+
+```
+45:         - name: node-exporter
+46:           image: quay.io/prometheus/node-exporter:v1.12.1
+47:           imagePullPolicy: IfNotPresent
+48:           args:
+49:             - --path.procfs=/host/proc
+50:             - --path.sysfs=/host/sys
+51:             - --path.rootfs=/host/root
+52:             - --path.udev.data=/host/root/run/udev/data
+53:             - --web.listen-address=[$(HOST_IP)]:9100
+54:
+```
+
+### KSV-0018 (LOW): Memory not limited
+
+Container 'node-exporter' of DaemonSet 'lamp-victoria-metrics-prometheus-node-exporter' should set 'resources.limits.memory'
+
+- Resolution: Set a limit value under 'containers[].resources.limits.memory'.
+- See: https://avd.aquasec.com/misconfig/ksv-0018
+- Location: `charts/victoria-metrics-k8s-stack/charts/prometheus-node-exporter/templates/daemonset.yaml:45-97`
+
+```
+45:         - name: node-exporter
+46:           image: quay.io/prometheus/node-exporter:v1.12.1
+47:           imagePullPolicy: IfNotPresent
+48:           args:
+49:             - --path.procfs=/host/proc
+50:             - --path.sysfs=/host/sys
+51:             - --path.rootfs=/host/root
+52:             - --path.udev.data=/host/root/run/udev/data
+53:             - --web.listen-address=[$(HOST_IP)]:9100
+54:
+```
+
+### KSV-0023 (MEDIUM): hostPath volumes mounted
+
+DaemonSet 'lamp-victoria-metrics-prometheus-node-exporter' should not set 'spec.template.volumes.hostPath'
+
+- Resolution: Do not set 'spec.volumes[*].hostPath'.
+- See: https://avd.aquasec.com/misconfig/ksv-0023
+- Location: `charts/victoria-metrics-k8s-stack/charts/prometheus-node-exporter/templates/daemonset.yaml:15-128`
+
+```
+15: spec:
+16:   selector:
+17:     matchLabels:
+18:       app.kubernetes.io/name: prometheus-node-exporter
+19:       app.kubernetes.io/instance: lamp-victoria-metrics
+20:   revisionHistoryLimit: 10
+21:   updateStrategy:
+22:     rollingUpdate:
+23:       maxUnavailable: 1
+24:
+```
+
+### KSV-0030 (LOW): Runtime/Default Seccomp profile not set
+
+Either Pod or Container should set 'securityContext.seccompProfile.type' to 'RuntimeDefault'
+
+- Resolution: Set 'spec.securityContext.seccompProfile.type', 'spec.containers[*].securityContext.seccompProfile' and 'spec.initContainers[*].securityContext.seccompProfile' to 'RuntimeDefault' or undefined.
+- See: https://avd.aquasec.com/misconfig/ksv-0030
+- Location: `charts/victoria-metrics-k8s-stack/charts/prometheus-node-exporter/templates/daemonset.yaml:45-97`
+
+```
+45:         - name: node-exporter
+46:           image: quay.io/prometheus/node-exporter:v1.12.1
+47:           imagePullPolicy: IfNotPresent
+48:           args:
+49:             - --path.procfs=/host/proc
+50:             - --path.sysfs=/host/sys
+51:             - --path.rootfs=/host/root
+52:             - --path.udev.data=/host/root/run/udev/data
+53:             - --web.listen-address=[$(HOST_IP)]:9100
+54:
+```
+
+### KSV-0104 (MEDIUM): Seccomp policies disabled
+
+container "node-exporter" of daemonset "lamp-victoria-metrics-prometheus-node-exporter" in "null" namespace should specify a seccomp profile
+
+- Resolution: Specify seccomp either by annotation or by seccomp profile type having allowed values as per pod security standards
+- See: https://avd.aquasec.com/misconfig/ksv-0104
+- Location: `charts/victoria-metrics-k8s-stack/charts/prometheus-node-exporter/templates/daemonset.yaml:45-97`
+
+```
+45:         - name: node-exporter
+46:           image: quay.io/prometheus/node-exporter:v1.12.1
+47:           imagePullPolicy: IfNotPresent
+48:           args:
+49:             - --path.procfs=/host/proc
+50:             - --path.sysfs=/host/sys
+51:             - --path.rootfs=/host/root
+52:             - --path.udev.data=/host/root/run/udev/data
+53:             - --web.listen-address=[$(HOST_IP)]:9100
+54:
+```
+
+### KSV-0106 (LOW): Container capabilities must only include NET_BIND_SERVICE
+
+container should drop all
+
+- Resolution: Set 'spec.containers[*].securityContext.capabilities.drop' to 'ALL' and only add 'NET_BIND_SERVICE' to 'spec.containers[*].securityContext.capabilities.add'.
+- See: https://avd.aquasec.com/misconfig/ksv-0106
+- Location: `charts/victoria-metrics-k8s-stack/charts/prometheus-node-exporter/templates/daemonset.yaml:45-97`
+
+```
+45:         - name: node-exporter
+46:           image: quay.io/prometheus/node-exporter:v1.12.1
+47:           imagePullPolicy: IfNotPresent
+48:           args:
+49:             - --path.procfs=/host/proc
+50:             - --path.sysfs=/host/sys
+51:             - --path.rootfs=/host/root
+52:             - --path.udev.data=/host/root/run/udev/data
+53:             - --web.listen-address=[$(HOST_IP)]:9100
+54:
+```
+
+### KSV-0121 (HIGH): Kubernetes resource with disallowed volumes mounted
+
+daemonset lamp-victoria-metrics-prometheus-node-exporter in null namespace shouldn't have volumes set to {"/", "/proc", "/sys"}
+
+- Resolution: Do not Set 'spec.volumes[*].hostPath.path' to any of the disallowed volumes.
+- See: https://avd.aquasec.com/misconfig/ksv-0121
+- Location: `charts/victoria-metrics-k8s-stack/charts/prometheus-node-exporter/templates/daemonset.yaml:15-128`
+
+```
+15: spec:
+16:   selector:
+17:     matchLabels:
+18:       app.kubernetes.io/name: prometheus-node-exporter
+19:       app.kubernetes.io/instance: lamp-victoria-metrics
+20:   revisionHistoryLimit: 10
+21:   updateStrategy:
+22:     rollingUpdate:
+23:       maxUnavailable: 1
+24:
+```
+
+### KSV-0125 (MEDIUM): Restrict container images to trusted registries
+
+Container node-exporter in daemonset lamp-victoria-metrics-prometheus-node-exporter (namespace: null) uses an image from an untrusted registry.
+
+- Resolution: Use images from trusted registries.
+- See: https://avd.aquasec.com/misconfig/ksv-0125
+- Location: `charts/victoria-metrics-k8s-stack/charts/prometheus-node-exporter/templates/daemonset.yaml:45-97`
+
+```
+45:         - name: node-exporter
+46:           image: quay.io/prometheus/node-exporter:v1.12.1
+47:           imagePullPolicy: IfNotPresent
+48:           args:
+49:             - --path.procfs=/host/proc
+50:             - --path.sysfs=/host/sys
+51:             - --path.rootfs=/host/root
+52:             - --path.udev.data=/host/root/run/udev/data
+53:             - --web.listen-address=[$(HOST_IP)]:9100
+54:
+```
+
+
+## charts/victoria-metrics-k8s-stack/charts/victoria-metrics-operator/templates/role.yaml
+
+### KSV-0041 (CRITICAL): Manage secrets
+
+ClusterRole 'lamp-victoria-metrics-victoria-metrics-operator' shouldn't have access to manage resource 'secrets'
+
+- Resolution: Manage secrets are not allowed. Remove resource 'secrets' from cluster role
+- See: https://avd.aquasec.com/misconfig/ksv-0041
+- Location: `charts/victoria-metrics-k8s-stack/charts/victoria-metrics-operator/templates/role.yaml:21-39`
+
+```
+21: - apiGroups:
+22:   - ""
+23:   resources:
+24:   - configmaps
+25:   - configmaps/finalizers
+26:   - endpoints
+27:   - events
+28:   - persistentvolumeclaims
+29:   - persistentvolumeclaims/finalizers
+30:
+```
+
+### KSV-0045 (CRITICAL): No wildcard verb roles
+
+Role permits wildcard verb on specific resources
+
+- Resolution: Create a role which does not permit wildcard verb on specific resources
+- See: https://avd.aquasec.com/misconfig/ksv-0045
+- Location: `charts/victoria-metrics-k8s-stack/charts/victoria-metrics-operator/templates/role.yaml:21-39`
+
+```
+21: - apiGroups:
+22:   - ""
+23:   resources:
+24:   - configmaps
+25:   - configmaps/finalizers
+26:   - endpoints
+27:   - events
+28:   - persistentvolumeclaims
+29:   - persistentvolumeclaims/finalizers
+30:
+```
+
+### KSV-0045 (CRITICAL): No wildcard verb roles
+
+Role permits wildcard verb on specific resources
+
+- Resolution: Create a role which does not permit wildcard verb on specific resources
+- See: https://avd.aquasec.com/misconfig/ksv-0045
+- Location: `charts/victoria-metrics-k8s-stack/charts/victoria-metrics-operator/templates/role.yaml:51-63`
+
+```
+51: - apiGroups:
+52:   - apps
+53:   resources:
+54:   - daemonsets
+55:   - daemonsets/finalizers
+56:   - deployments
+57:   - deployments/finalizers
+58:   - replicasets
+59:   - statefulsets
+60:
+```
+
+### KSV-0045 (CRITICAL): No wildcard verb roles
+
+Role permits wildcard verb on specific resources
+
+- Resolution: Create a role which does not permit wildcard verb on specific resources
+- See: https://avd.aquasec.com/misconfig/ksv-0045
+- Location: `charts/victoria-metrics-k8s-stack/charts/victoria-metrics-operator/templates/role.yaml:70-80`
+
+```
+70: - apiGroups:
+71:   - rbac.authorization.k8s.io
+72:   resources:
+73:   - clusterrolebindings
+74:   - clusterrolebindings/finalizers
+75:   - clusterroles
+76:   - clusterroles/finalizers
+77:   - roles
+78:   - rolebindings
+79:
+```
+
+### KSV-0046 (CRITICAL): Manage all resources
+
+ClusterRole 'lamp-victoria-metrics-victoria-metrics-operator' shouldn't manage all resources
+
+- Resolution: Remove '*' from 'rules.resources'. Provide specific list of resources to be managed by cluster role
+- See: https://avd.aquasec.com/misconfig/ksv-0046
+- Location: `charts/victoria-metrics-k8s-stack/charts/victoria-metrics-operator/templates/role.yaml:64-69`
+
+```
+64: - apiGroups:
+65:   - monitoring.coreos.com
+66:   resources:
+67:   - "*"
+68:   verbs:
+69:   - "*"
+```
+
+### KSV-0048 (MEDIUM): Manage Kubernetes workloads and pods
+
+ClusterRole 'lamp-victoria-metrics-victoria-metrics-operator' should not have access to resources ["pods", "deployments", "jobs", "cronjobs", "statefulsets", "daemonsets", "replicasets", "replicationcontrollers"] for verbs ["create", "update", "patch", "delete", "deletecollection", "impersonate", "*"]
+
+- Resolution: Kubernetes workloads resources are only allowed for verbs 'list', 'watch', 'get'
+- See: https://avd.aquasec.com/misconfig/ksv-0048
+- Location: `charts/victoria-metrics-k8s-stack/charts/victoria-metrics-operator/templates/role.yaml:21-39`
+
+```
+21: - apiGroups:
+22:   - ""
+23:   resources:
+24:   - configmaps
+25:   - configmaps/finalizers
+26:   - endpoints
+27:   - events
+28:   - persistentvolumeclaims
+29:   - persistentvolumeclaims/finalizers
+30:
+```
+
+### KSV-0048 (MEDIUM): Manage Kubernetes workloads and pods
+
+ClusterRole 'lamp-victoria-metrics-victoria-metrics-operator' should not have access to resources ["pods", "deployments", "jobs", "cronjobs", "statefulsets", "daemonsets", "replicasets", "replicationcontrollers"] for verbs ["create", "update", "patch", "delete", "deletecollection", "impersonate", "*"]
+
+- Resolution: Kubernetes workloads resources are only allowed for verbs 'list', 'watch', 'get'
+- See: https://avd.aquasec.com/misconfig/ksv-0048
+- Location: `charts/victoria-metrics-k8s-stack/charts/victoria-metrics-operator/templates/role.yaml:51-63`
+
+```
+51: - apiGroups:
+52:   - apps
+53:   resources:
+54:   - daemonsets
+55:   - daemonsets/finalizers
+56:   - deployments
+57:   - deployments/finalizers
+58:   - replicasets
+59:   - statefulsets
+60:
+```
+
+### KSV-0049 (MEDIUM): Manage configmaps
+
+ClusterRole 'lamp-victoria-metrics-victoria-metrics-operator' should not have access to resource 'configmaps' for verbs ["create", "update", "patch", "delete", "deletecollection", "impersonate", "*"]
+
+- Resolution: Remove write permission verbs for resource 'configmaps'
+- See: https://avd.aquasec.com/misconfig/ksv-0049
+- Location: `charts/victoria-metrics-k8s-stack/charts/victoria-metrics-operator/templates/role.yaml:21-39`
+
+```
+21: - apiGroups:
+22:   - ""
+23:   resources:
+24:   - configmaps
+25:   - configmaps/finalizers
+26:   - endpoints
+27:   - events
+28:   - persistentvolumeclaims
+29:   - persistentvolumeclaims/finalizers
+30:
+```
+
+### KSV-0050 (CRITICAL): Do not allow privilege escalation via RBAC resources
+
+ClusterRole 'lamp-victoria-metrics-victoria-metrics-operator' should not have access to resources ["roles", "rolebindings"] for verbs ["escalate", "bind", "impersonate", "*"] as they can lead to privilege escalation
+
+- Resolution: Remove permissions for escalate, bind, and impersonate verbs on roles and rolebindings
+- See: https://avd.aquasec.com/misconfig/ksv-0050
+- Location: `charts/victoria-metrics-k8s-stack/charts/victoria-metrics-operator/templates/role.yaml:70-80`
+
+```
+70: - apiGroups:
+71:   - rbac.authorization.k8s.io
+72:   resources:
+73:   - clusterrolebindings
+74:   - clusterrolebindings/finalizers
+75:   - clusterroles
+76:   - clusterroles/finalizers
+77:   - roles
+78:   - rolebindings
+79:
+```
+
+### KSV-0056 (HIGH): Manage Kubernetes networking
+
+ClusterRole 'lamp-victoria-metrics-victoria-metrics-operator' should not have access to resources ["services", "endpoints", "endpointslices", "networkpolicies", "ingresses"] for verbs ["create", "update", "patch", "delete", "deletecollection", "impersonate", "*"]
+
+- Resolution: Networking resources are only allowed for verbs 'list', 'watch', 'get'
+- See: https://avd.aquasec.com/misconfig/ksv-0056
+- Location: `charts/victoria-metrics-k8s-stack/charts/victoria-metrics-operator/templates/role.yaml:21-39`
+
+```
+21: - apiGroups:
+22:   - ""
+23:   resources:
+24:   - configmaps
+25:   - configmaps/finalizers
+26:   - endpoints
+27:   - events
+28:   - persistentvolumeclaims
+29:   - persistentvolumeclaims/finalizers
+30:
+```
+
+### KSV-0056 (HIGH): Manage Kubernetes networking
+
+ClusterRole 'lamp-victoria-metrics-victoria-metrics-operator' should not have access to resources ["services", "endpoints", "endpointslices", "networkpolicies", "ingresses"] for verbs ["create", "update", "patch", "delete", "deletecollection", "impersonate", "*"]
+
+- Resolution: Networking resources are only allowed for verbs 'list', 'watch', 'get'
+- See: https://avd.aquasec.com/misconfig/ksv-0056
+- Location: `charts/victoria-metrics-k8s-stack/charts/victoria-metrics-operator/templates/role.yaml:110-117`
+
+```
+110: - apiGroups:
+111:   - networking.k8s.io
+112:   resources:
+113:   - ingresses
+114:   - ingresses/finalizers
+115:   - networkpolicies
+116:   verbs:
+117:   - "*"
+```
+
+
+## charts/victoria-metrics-k8s-stack/charts/victoria-metrics-operator/templates/server.yaml
+
+### KSV-0011 (LOW): CPU not limited
+
+Container 'operator' of Deployment 'lamp-victoria-metrics-victoria-metrics-operator' should set 'resources.limits.cpu'
+
+- Resolution: Set a limit value under 'containers[].resources.limits.cpu'.
+- See: https://avd.aquasec.com/misconfig/ksv-0011
+- Location: `charts/victoria-metrics-k8s-stack/charts/victoria-metrics-operator/templates/server.yaml:38-104`
+
+```
+38:         - name: operator
+39:           image: victoriametrics/operator:v0.75.2
+40:           imagePullPolicy: IfNotPresent
+41:           env:
+42:             - name: VM_ANOMALY_VERSION
+43:               value: "v1.31.1"
+44:             - name: VM_LOGS_VERSION
+45:               value: "v1.53.0"
+46:             - name: VM_METRICS_VERSION
+47:
+```
+
+### KSV-0015 (LOW): CPU requests not specified
+
+Container 'operator' of Deployment 'lamp-victoria-metrics-victoria-metrics-operator' should set 'resources.requests.cpu'
+
+- Resolution: Set 'containers[].resources.requests.cpu'.
+- See: https://avd.aquasec.com/misconfig/ksv-0015
+- Location: `charts/victoria-metrics-k8s-stack/charts/victoria-metrics-operator/templates/server.yaml:38-104`
+
+```
+38:         - name: operator
+39:           image: victoriametrics/operator:v0.75.2
+40:           imagePullPolicy: IfNotPresent
+41:           env:
+42:             - name: VM_ANOMALY_VERSION
+43:               value: "v1.31.1"
+44:             - name: VM_LOGS_VERSION
+45:               value: "v1.53.0"
+46:             - name: VM_METRICS_VERSION
+47:
+```
+
+### KSV-0016 (LOW): Memory requests not specified
+
+Container 'operator' of Deployment 'lamp-victoria-metrics-victoria-metrics-operator' should set 'resources.requests.memory'
+
+- Resolution: Set 'containers[].resources.requests.memory'.
+- See: https://avd.aquasec.com/misconfig/ksv-0016
+- Location: `charts/victoria-metrics-k8s-stack/charts/victoria-metrics-operator/templates/server.yaml:38-104`
+
+```
+38:         - name: operator
+39:           image: victoriametrics/operator:v0.75.2
+40:           imagePullPolicy: IfNotPresent
+41:           env:
+42:             - name: VM_ANOMALY_VERSION
+43:               value: "v1.31.1"
+44:             - name: VM_LOGS_VERSION
+45:               value: "v1.53.0"
+46:             - name: VM_METRICS_VERSION
+47:
+```
+
+### KSV-0018 (LOW): Memory not limited
+
+Container 'operator' of Deployment 'lamp-victoria-metrics-victoria-metrics-operator' should set 'resources.limits.memory'
+
+- Resolution: Set a limit value under 'containers[].resources.limits.memory'.
+- See: https://avd.aquasec.com/misconfig/ksv-0018
+- Location: `charts/victoria-metrics-k8s-stack/charts/victoria-metrics-operator/templates/server.yaml:38-104`
+
+```
+38:         - name: operator
+39:           image: victoriametrics/operator:v0.75.2
+40:           imagePullPolicy: IfNotPresent
+41:           env:
+42:             - name: VM_ANOMALY_VERSION
+43:               value: "v1.31.1"
+44:             - name: VM_LOGS_VERSION
+45:               value: "v1.53.0"
+46:             - name: VM_METRICS_VERSION
+47:
+```
+
+### KSV-0020 (LOW): Runs with UID <= 10000
+
+Container 'operator' of Deployment 'lamp-victoria-metrics-victoria-metrics-operator' should set 'securityContext.runAsUser' > 10000
+
+- Resolution: Set 'containers[].securityContext.runAsUser' to an integer > 10000.
+- See: https://avd.aquasec.com/misconfig/ksv-0020
+- Location: `charts/victoria-metrics-k8s-stack/charts/victoria-metrics-operator/templates/server.yaml:38-104`
+
+```
+38:         - name: operator
+39:           image: victoriametrics/operator:v0.75.2
+40:           imagePullPolicy: IfNotPresent
+41:           env:
+42:             - name: VM_ANOMALY_VERSION
+43:               value: "v1.31.1"
+44:             - name: VM_LOGS_VERSION
+45:               value: "v1.53.0"
+46:             - name: VM_METRICS_VERSION
+47:
+```
+
+### KSV-0021 (LOW): Runs with GID <= 10000
+
+Container 'operator' of Deployment 'lamp-victoria-metrics-victoria-metrics-operator' should set 'securityContext.runAsGroup' > 10000
+
+- Resolution: Set 'containers[].securityContext.runAsGroup' to an integer > 10000.
+- See: https://avd.aquasec.com/misconfig/ksv-0021
+- Location: `charts/victoria-metrics-k8s-stack/charts/victoria-metrics-operator/templates/server.yaml:38-104`
+
+```
+38:         - name: operator
+39:           image: victoriametrics/operator:v0.75.2
+40:           imagePullPolicy: IfNotPresent
+41:           env:
+42:             - name: VM_ANOMALY_VERSION
+43:               value: "v1.31.1"
+44:             - name: VM_LOGS_VERSION
+45:               value: "v1.53.0"
+46:             - name: VM_METRICS_VERSION
+47:
+```
+
+### KSV-0030 (LOW): Runtime/Default Seccomp profile not set
+
+Either Pod or Container should set 'securityContext.seccompProfile.type' to 'RuntimeDefault'
+
+- Resolution: Set 'spec.securityContext.seccompProfile.type', 'spec.containers[*].securityContext.seccompProfile' and 'spec.initContainers[*].securityContext.seccompProfile' to 'RuntimeDefault' or undefined.
+- See: https://avd.aquasec.com/misconfig/ksv-0030
+- Location: `charts/victoria-metrics-k8s-stack/charts/victoria-metrics-operator/templates/server.yaml:38-104`
+
+```
+38:         - name: operator
+39:           image: victoriametrics/operator:v0.75.2
+40:           imagePullPolicy: IfNotPresent
+41:           env:
+42:             - name: VM_ANOMALY_VERSION
+43:               value: "v1.31.1"
+44:             - name: VM_LOGS_VERSION
+45:               value: "v1.53.0"
+46:             - name: VM_METRICS_VERSION
+47:
+```
+
+### KSV-0104 (MEDIUM): Seccomp policies disabled
+
+container "operator" of deployment "lamp-victoria-metrics-victoria-metrics-operator" in "null" namespace should specify a seccomp profile
+
+- Resolution: Specify seccomp either by annotation or by seccomp profile type having allowed values as per pod security standards
+- See: https://avd.aquasec.com/misconfig/ksv-0104
+- Location: `charts/victoria-metrics-k8s-stack/charts/victoria-metrics-operator/templates/server.yaml:38-104`
+
+```
+38:         - name: operator
+39:           image: victoriametrics/operator:v0.75.2
+40:           imagePullPolicy: IfNotPresent
+41:           env:
+42:             - name: VM_ANOMALY_VERSION
+43:               value: "v1.31.1"
+44:             - name: VM_LOGS_VERSION
+45:               value: "v1.53.0"
+46:             - name: VM_METRICS_VERSION
+47:
+```
+
+### KSV-0125 (MEDIUM): Restrict container images to trusted registries
+
+Container operator in deployment lamp-victoria-metrics-victoria-metrics-operator (namespace: null) uses an image from an untrusted registry.
+
+- Resolution: Use images from trusted registries.
+- See: https://avd.aquasec.com/misconfig/ksv-0125
+- Location: `charts/victoria-metrics-k8s-stack/charts/victoria-metrics-operator/templates/server.yaml:38-104`
+
+```
+38:         - name: operator
+39:           image: victoriametrics/operator:v0.75.2
+40:           imagePullPolicy: IfNotPresent
+41:           env:
+42:             - name: VM_ANOMALY_VERSION
+43:               value: "v1.31.1"
+44:             - name: VM_LOGS_VERSION
+45:               value: "v1.53.0"
+46:             - name: VM_METRICS_VERSION
+47:
 ```

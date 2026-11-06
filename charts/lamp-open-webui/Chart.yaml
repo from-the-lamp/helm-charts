@@ -1,0 +1,9 @@
+apiVersion: v2
+name: lamp-open-webui
+version: 0.1.0
+description: Thin wrapper around the upstream Open WebUI chart
+
+dependencies:
+  - name: open-webui
+    version: 18.0.0
+    repository: https://helm.openwebui.com/

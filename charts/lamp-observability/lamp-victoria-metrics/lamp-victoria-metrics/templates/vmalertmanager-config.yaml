@@ -126,6 +126,12 @@ stringData:
               url: '{{`{{ .CommonAnnotations.link_url }}`}}'
               value: text
       {{- end }}
+      {{- range .Values.alertManagerConfig.webhookReceivers }}
+      - name: {{ .name }}
+        webhook_configs:
+        - url: {{ .url }}
+          send_resolved: {{ .sendResolved | default false }}
+      {{- end }}
     templates:
     - /etc/vm/configs/**/*.tmpl
     - /etc/vm/templates/vmalertmanager-victoria-metrics-monzo-tpl/monzo.tmpl

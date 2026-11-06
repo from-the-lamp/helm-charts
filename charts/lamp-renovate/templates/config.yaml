@@ -21,7 +21,8 @@ spec:
             "autodiscover": {{ .Values.config.autodiscover }},
             "printConfig": {{ .Values.config.printConfig }},
             "repositories": {{ toJson .Values.config.repositories }},
-            "allowedCommands": {{ toJson .Values.config.allowedCommands }}
+            "allowedCommands": {{ toJson .Values.config.allowedCommands }},
+            "allowPostUpgradeCommandTemplating": {{ .Values.config.allowPostUpgradeCommandTemplating }}
           }
   data:
     - secretKey: token
