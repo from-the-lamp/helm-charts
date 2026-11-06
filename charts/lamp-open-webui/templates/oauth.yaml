@@ -6,9 +6,14 @@ metadata:
 data:
   ENABLE_OAUTH_SIGNUP: "true"
   ENABLE_OAUTH_ROLE_MANAGEMENT: "true"
-  # SSO-only: no email/password form, no local password auth at all.
+  # SSO-only: no email/password form, no local password auth at all. Both
+  # are PersistentConfig - the DB wins over env after the very first boot,
+  # so ENABLE_PERSISTENT_CONFIG=false is required to actually make these
+  # (and every other PersistentConfig setting) take effect on every start,
+  # not just the first one.
   ENABLE_LOGIN_FORM: "false"
   ENABLE_PASSWORD_AUTH: "false"
+  ENABLE_PERSISTENT_CONFIG: "false"
   OPENID_PROVIDER_URL: {{ .Values.oauth.providerUrl | quote }}
   OAUTH_PROVIDER_NAME: {{ .Values.oauth.providerName | quote }}
   OAUTH_SCOPES: {{ .Values.oauth.scopes | quote }}
