@@ -1,6 +1,6 @@
 # lamp-renovate
 
-![Version: 1.4.2](https://img.shields.io/badge/Version-1.4.2-informational?style=flat-square)
+![Version: 1.4.3](https://img.shields.io/badge/Version-1.4.3-informational?style=flat-square)
 
 ## Requirements
 
@@ -12,6 +12,7 @@
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
+| config.allowPostUpgradeCommandTemplating | bool | `false` |  |
 | config.allowedCommands | list | `[]` |  |
 | config.autodiscover | bool | `false` |  |
 | config.endpoint | string | `"https://gitlab.com/api/v4"` |  |
@@ -37,17 +38,8 @@
 | renovate.resources.requests.cpu | string | `"50m"` |  |
 | renovate.resources.requests.memory | string | `"512Mi"` |  |
 # Trivy scan - Helm Chart
-```
 
-Report Summary
+## Report Summary
 
-┌────────┬──────┬───────────────────┐
-│ Target │ Type │ Misconfigurations │
-├────────┼──────┼───────────────────┤
-│   -    │  -   │         -         │
-└────────┴──────┴───────────────────┘
-Legend:
-- '-': Not scanned
-- '0': Clean (no security findings detected)
-
-```
+| Target | Type | Misconfigurations |
+| --- | --- | --- |
