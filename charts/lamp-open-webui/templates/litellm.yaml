@@ -1,0 +1,19 @@
+{{- if .Values.litellm.enabled }}
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: open-webui-litellm-secret
+spec:
+  refreshInterval: "{{ .Values.externalSecrets.refreshInterval }}"
+  secretStoreRef:
+    kind: "{{ .Values.externalSecrets.kind }}"
+    name: "{{ .Values.externalSecrets.name }}"
+  target:
+    name: open-webui-litellm-secret
+    creationPolicy: "{{ .Values.externalSecrets.creationPolicy }}"
+  data:
+    - secretKey: api-key
+      remoteRef:
+        key: {{ .Values.litellm.remoteSecretKey }}
+        property: {{ .Values.litellm.apiKeyProperty }}
+{{- end }}

@@ -1,6 +1,6 @@
 # lamp-toolhive-mcps
 
-![Version: 0.0.50](https://img.shields.io/badge/Version-0.0.50-informational?style=flat-square)
+![Version: 0.0.52](https://img.shields.io/badge/Version-0.0.52-informational?style=flat-square)
 
 ## Values
 
@@ -26,6 +26,9 @@
 | mcp.argocd.enabled | bool | `false` |  |
 | mcp.argocd.image | string | `""` |  |
 | mcp.argocd.mcps | list | `[]` |  |
+| mcp.argocd.tokenRefresher.audience | string | `"argocd"` |  |
+| mcp.argocd.tokenRefresher.duration | int | `3600` |  |
+| mcp.argocd.tokenRefresher.schedule | string | `"0 */55 * * *"` |  |
 | mcp.atlassian.enabled | bool | `true` |  |
 | mcp.atlassian.image | string | `"xuanxdev/atlassian-mcp:latest"` |  |
 | mcp.atlassian.mcps[0].domain | string | `"jirasolutions.atlassian.net"` |  |
@@ -235,17 +238,8 @@
 | vmcpTokenRefresher.tokenEndpoint | string | `""` |  |
 | vmcpTokenRefresher.windmillApiBase | string | `""` |  |
 # Trivy scan - Helm Chart
-```
 
-Report Summary
+## Report Summary
 
-┌────────┬──────┬───────────────────┐
-│ Target │ Type │ Misconfigurations │
-├────────┼──────┼───────────────────┤
-│   -    │  -   │         -         │
-└────────┴──────┴───────────────────┘
-Legend:
-- '-': Not scanned
-- '0': Clean (no security findings detected)
-
-```
+| Target | Type | Misconfigurations |
+| --- | --- | --- |

@@ -1,6 +1,6 @@
 # lamp-open-webui
 
-![Version: 0.7.0](https://img.shields.io/badge/Version-0.7.0-informational?style=flat-square)
+![Version: 0.8.0](https://img.shields.io/badge/Version-0.8.0-informational?style=flat-square)
 
 Thin wrapper around the upstream Open WebUI chart
 
@@ -18,6 +18,9 @@ Thin wrapper around the upstream Open WebUI chart
 | externalSecrets.kind | string | `"ClusterSecretStore"` |  |
 | externalSecrets.name | string | `"vault"` |  |
 | externalSecrets.refreshInterval | string | `"1h"` |  |
+| litellm.apiKeyProperty | string | `"master_key"` |  |
+| litellm.enabled | bool | `false` |  |
+| litellm.remoteSecretKey | string | `"litellm"` |  |
 | oauth.adminRoles | string | `""` |  |
 | oauth.allowedRoles | string | `""` |  |
 | oauth.clientIdProperty | string | `"oauth.client-id"` |  |

@@ -1,0 +1,60 @@
+{{- if .Values.mcp.argocd.enabled }}
+{{- range $item := .Values.mcp.argocd.mcps }}
+{{- if $item.serviceAccount }}
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: argocd-token-refresher-{{ $item.name }}
+spec:
+  schedule: {{ $.Values.mcp.argocd.tokenRefresher.schedule | default "0 */55 * * *" | quote }}
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      activeDeadlineSeconds: 60
+      backoffLimit: 2
+      template:
+        spec:
+          restartPolicy: Never
+          serviceAccountName: argocd-token-refresher-{{ $item.name }}
+          containers:
+            - name: refresh
+              image: registry.gitlab.com/from-the-lamp/infra/docker-images/lamp-windmill-mcp-bootstrap:1.0.0
+              securityContext:
+                allowPrivilegeEscalation: false
+                capabilities:
+                  drop: ["ALL"]
+              env:
+                - name: SERVICE_ACCOUNT
+                  value: {{ $item.serviceAccount | quote }}
+                - name: NAMESPACE
+                  value: {{ $.Release.Namespace | quote }}
+                - name: AUDIENCE
+                  value: {{ $.Values.mcp.argocd.tokenRefresher.audience | default "argocd" | quote }}
+                - name: DURATION
+                  value: {{ $.Values.mcp.argocd.tokenRefresher.duration | default 3600 | toString | quote }}
+                - name: SECRET_NAME
+                  value: {{ printf "%s-mcp-secret" $item.name | quote }}
+              command: ["/bin/sh", "-euc"]
+              args:
+                - |
+                  echo "minting K8s SA JWT for ${SERVICE_ACCOUNT} (audience=${AUDIENCE}, duration=${DURATION}s)"
+                  TOKEN=$(kubectl create token "${SERVICE_ACCOUNT}" \
+                    --namespace "${NAMESPACE}" \
+                    --audience "${AUDIENCE}" \
+                    --duration "${DURATION}s")
+                  if [ -z "$TOKEN" ]; then
+                    echo "kubectl create token returned empty output"
+                    exit 1
+                  fi
+                  echo "patching secret ${SECRET_NAME}"
+                  kubectl patch secret "${SECRET_NAME}" \
+                    --namespace "${NAMESPACE}" \
+                    --type=merge \
+                    -p "{\"stringData\":{\"token\":\"${TOKEN}\"}}"
+                  echo "done"
+{{- end }}
+{{- end }}
+{{- end }}

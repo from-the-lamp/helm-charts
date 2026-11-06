@@ -58,6 +58,18 @@ secretKey:
   remoteSecretKey: open-webui
   property: webui-secret-key
 
+# OpenAI-compatible backend pointed at the cluster's own litellm proxy
+# instead of api.openai.com. enabled only creates the ExternalSecret below
+# (open-webui-litellm-secret, key "api-key") - open-webui's own
+# openaiBaseApiUrl/openaiApiKeyExistingSecret/openaiApiKeyExistingSecretKey
+# fields are plain scalar chart values, not env vars, so they can't be
+# derived from this block and a consumer must set them directly (pointing
+# at this same secret) alongside remoteSecretKey/apiKeyProperty here.
+litellm:
+  enabled: false
+  remoteSecretKey: litellm
+  apiKeyProperty: master_key
+
 open-webui:
   # optional: true on all of these - each ConfigMap/ExternalSecret only
   # exists when its own feature flag above is enabled; without it they're

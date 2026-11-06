@@ -25,6 +25,9 @@ spec:
     metadata:
       annotations:
         {{- include "lamp-toolhive-mcps.podAnnotations" . | nindent 8 }}
+        {{- if $item.serviceAccount }}
+        reloader.stakater.com/auto: "true"
+        {{- end }}
     spec:
       containers:
         - name: mcp

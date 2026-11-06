@@ -1,0 +1,36 @@
+{{- if .Values.mcp.argocd.enabled }}
+{{- range $item := .Values.mcp.argocd.mcps }}
+{{- if $item.serviceAccount }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: argocd-token-refresher-{{ $item.name }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+rules:
+  - apiGroups: [""]
+    resources: ["serviceaccounts/token"]
+    resourceNames: [{{ $item.serviceAccount | quote }}]
+    verbs: ["create"]
+  - apiGroups: [""]
+    resources: ["secrets"]
+    resourceNames: [{{ printf "%s-mcp-secret" $item.name | quote }}]
+    verbs: ["get", "patch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: argocd-token-refresher-{{ $item.name }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+subjects:
+  - kind: ServiceAccount
+    name: argocd-token-refresher-{{ $item.name }}
+roleRef:
+  kind: Role
+  name: argocd-token-refresher-{{ $item.name }}
+  apiGroup: rbac.authorization.k8s.io
+{{- end }}
+{{- end }}
+{{- end }}
