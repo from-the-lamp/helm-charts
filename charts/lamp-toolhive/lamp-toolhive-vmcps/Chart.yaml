@@ -7,6 +7,6 @@ dependencies:
 - condition: redis.enabled
   name: redis
   repository: oci://registry-1.docker.io/bitnamicharts
-  version: 28.3.10
+  version: 28.3.12
 name: lamp-toolhive-vmcps
 version: 0.0.19
