@@ -1,6 +1,6 @@
 apiVersion: v2
 name: lamp-postgres-cluster
-version: 0.0.3
+version: 0.0.4
 
 dependencies:
   - name: cluster

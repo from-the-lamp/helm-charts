@@ -9,4 +9,11 @@ spec:
   owner: {{ .owner }}
   cluster:
     name: postgres
+  {{- with .extensions }}
+  extensions:
+  {{- range . }}
+    - name: {{ .name }}
+      ensure: {{ .ensure | default "present" }}
+  {{- end }}
+  {{- end }}
 {{- end }}
