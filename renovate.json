@@ -10,5 +10,28 @@
   "labels": ["dependencies"],
   "schedule": ["every weekend"],
   "timezone": "Europe/Bucharest",
-  "recreateWhen": "always"
+  "recreateWhen": "always",
+  "customManagers": [
+    {
+      "customType": "regex",
+      "description": "values.yaml image refs shaped as image.name/tag - Renovate's helm-values manager only auto-detects image.repository/tag, so these need an explicit marker",
+      "managerFilePatterns": ["/(^|/)values\\.yaml$/"],
+      "matchStrings": [
+        "#\\s*renovate:\\s*datasource=(?<datasource>\\S+)\\s+depName=(?<depName>\\S+)\\s*\\n\\s*tag:\\s*[\"']?(?<currentValue>[^\"'\\s]+)[\"']?"
+      ],
+      "datasourceTemplate": "{{{datasource}}}"
+    },
+    {
+      "customType": "regex",
+      "description": "image refs expressed as a single 'repo:tag' string - in values.yaml (e.g. bankVaultsImage, vault CR image) or hardcoded directly in a template (helm-values never scans templates/, since Go-template syntax there isn't valid YAML on its own) - unparseable by any built-in helm manager either way",
+      "managerFilePatterns": [
+        "/(^|/)values\\.yaml$/",
+        "/(^|/)templates/.+\\.ya?ml$/"
+      ],
+      "matchStrings": [
+        "#\\s*renovate:\\s*datasource=(?<datasource>\\S+)\\s+depName=(?<depName>\\S+)\\s*\\n\\s*[A-Za-z]*[Ii]mage:\\s*[\"']?[^\"'\\s:]+:(?<currentValue>[^\"'\\s]+)[\"']?"
+      ],
+      "datasourceTemplate": "{{{datasource}}}"
+    }
+  ]
 }

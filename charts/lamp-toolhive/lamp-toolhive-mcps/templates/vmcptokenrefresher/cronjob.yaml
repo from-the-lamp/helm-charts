@@ -18,6 +18,7 @@ spec:
           serviceAccountName: vmcp-token-refresher
           containers:
             - name: refresh
+              # renovate: datasource=docker depName=registry.gitlab.com/from-the-lamp/infra/docker-images/lamp-windmill-mcp-bootstrap
               image: registry.gitlab.com/from-the-lamp/infra/docker-images/lamp-windmill-mcp-bootstrap:1.0.0
               securityContext:
                 allowPrivilegeEscalation: false

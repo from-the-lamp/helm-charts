@@ -3,6 +3,7 @@ global:
 
 image:
   name: grafana/grafana
+  # renovate: datasource=docker depName=grafana/grafana
   tag: 10.0.3
 
 domain: grafana.example.infra.cloud

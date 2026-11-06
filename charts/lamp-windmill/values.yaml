@@ -26,6 +26,7 @@ oauth:
 
 bootstrap:
   enabled: false
+  # renovate: datasource=docker depName=alpine
   image: alpine:3.24
   workspace: ""
   serviceUserEmail: toolhive-mcp@windmill.internal

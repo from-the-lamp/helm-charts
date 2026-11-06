@@ -1,6 +1,6 @@
-# vsoft-vault-backup
+# lamp-vault-backup
 
-![Version: 0.1.0](https://img.shields.io/badge/Version-0.1.0-informational?style=flat-square)
+![Version: 0.0.3](https://img.shields.io/badge/Version-0.0.3-informational?style=flat-square)
 
 ## Values
 
@@ -27,6 +27,7 @@
 | backup.s3.accessKey.key | string | `"backup_access_key"` |  |
 | backup.s3.accessKey.path | string | `"platform/vault"` |  |
 | backup.s3.bucket | string | `"backup.vault.stage"` |  |
+| backup.s3.endpoint | string | `""` |  |
 | backup.s3.path | string | `"vault"` |  |
 | backup.s3.region | string | `"eu-central-1"` |  |
 | backup.s3.secretKey.key | string | `"backup_secret_key"` |  |
@@ -49,3 +50,9 @@
 | externalSecrets.refreshInterval | string | `"1h"` |  |
 | global.projectId | string | `""` |  |
 | global.region | string | `""` |  |
+# Trivy scan - Helm Chart
+
+## Report Summary
+
+| Target | Type | Misconfigurations |
+| --- | --- | --- |

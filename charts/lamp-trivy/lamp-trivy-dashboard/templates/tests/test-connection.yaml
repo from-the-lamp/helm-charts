@@ -9,7 +9,8 @@ metadata:
 spec:
   containers:
     - name: wget
-      image: busybox
+      # renovate: datasource=docker depName=busybox
+      image: busybox:1.38.0
       command: ['wget']
       args: ['{{ include "trivy-operator-dashboard.fullname" . }}:{{ .Values.service.port }}']
   restartPolicy: Never

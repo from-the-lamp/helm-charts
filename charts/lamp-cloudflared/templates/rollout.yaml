@@ -14,7 +14,8 @@ spec:
             {{- toYaml .Values.nodeSelector | nindent 12 }}
           containers:
           - name: kubectl
-            image: bitnamilegacy/kubectl:latest
+            # renovate: datasource=docker depName=bitnamilegacy/kubectl
+            image: bitnamilegacy/kubectl:1.33.4
             command:
             - /bin/sh
             - -c

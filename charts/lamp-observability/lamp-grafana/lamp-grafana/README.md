@@ -1,6 +1,6 @@
 # lamp-grafana
 
-![Version: 0.0.24](https://img.shields.io/badge/Version-0.0.24-informational?style=flat-square)
+![Version: 0.0.25](https://img.shields.io/badge/Version-0.0.25-informational?style=flat-square)
 
 ## Values
 

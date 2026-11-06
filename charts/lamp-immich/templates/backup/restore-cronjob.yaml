@@ -17,6 +17,7 @@ spec:
           serviceAccountName: immich-restore
           containers:
             - name: restore
+              # renovate: datasource=docker depName=alpine
               image: alpine:3.22
               envFrom:
                 - configMapRef:
@@ -52,6 +53,7 @@ spec:
                     restartPolicy: Never
                     containers:
                       - name: restore
+                        # renovate: datasource=docker depName=rclone/rclone
                         image: rclone/rclone:1.69
                         securityContext:
                           allowPrivilegeEscalation: false

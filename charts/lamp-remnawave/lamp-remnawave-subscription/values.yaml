@@ -1,6 +1,7 @@
 image:
   name: remnawave/subscription-page
-  tag: latest
+  # renovate: datasource=docker depName=remnawave/subscription-page
+  tag: "8.0.1"
   pullPolicy: IfNotPresent
   pullSecrets: []
 

@@ -1,5 +1,6 @@
 image:
   name: remnawave/backend
+  # renovate: datasource=docker depName=remnawave/backend
   tag: 2.1.9
   pullPolicy: IfNotPresent
   pullSecrets: []
@@ -39,9 +40,9 @@ env:
   TELEGRAM_NOTIFY_NODES_CHAT_ID: change_me
   TELEGRAM_NOTIFY_CRM_CHAT_ID: change_me
   TELEGRAM_OAUTH_ENABLED: false
-  TELEGRAM_NOTIFY_USERS_THREAD_ID: 
-  TELEGRAM_NOTIFY_NODES_THREAD_ID: 
-  TELEGRAM_NOTIFY_CRM_THREAD_ID: 
+  TELEGRAM_NOTIFY_USERS_THREAD_ID:
+  TELEGRAM_NOTIFY_NODES_THREAD_ID:
+  TELEGRAM_NOTIFY_CRM_THREAD_ID:
   JWT_AUTH_SECRET: "" #openssl rand -hex 64
   JWT_API_TOKENS_SECRET: "" #openssl rand -hex 64
   CLOUDFLARE_TOKEN: ""

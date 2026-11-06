@@ -1,6 +1,6 @@
 # lamp-home-assistant
 
-![Version: 0.1.2](https://img.shields.io/badge/Version-0.1.2-informational?style=flat-square)
+![Version: 0.1.3](https://img.shields.io/badge/Version-0.1.3-informational?style=flat-square)
 
 Home Assistant deployment chart
 
@@ -700,7 +700,7 @@ statefulset lamp-home-assistant in default namespace should set metadata.namespa
 6:   annotations:
 7:     reloader.stakater.com/auto: "true"
 8:   labels:
-9:     helm.sh/chart: lamp-home-assistant-0.1.2
+9:     helm.sh/chart: lamp-home-assistant-0.1.3
 10:     app.kubernetes.io/name: lamp-home-assistant
 11:     app.kubernetes.io/instance: lamp-home-assistant
 12:     app.kubernetes.io/managed-by: Helm

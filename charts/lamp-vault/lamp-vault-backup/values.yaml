@@ -10,6 +10,7 @@ backup:
   vault:
     image:
       name: hashicorp/vault
+      # renovate: datasource=docker depName=hashicorp/vault
       tag: 1.21.4
     address: http://vault.vault.svc.cluster.local:8200
     token:
@@ -29,6 +30,7 @@ backup:
   rclone:
     image:
       name: rclone/rclone
+      # renovate: datasource=docker depName=rclone/rclone
       tag: "1.69"
     resources:
       requests:

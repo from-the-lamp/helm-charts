@@ -1,5 +1,6 @@
 image:
   name: remnawave/node
+  # renovate: datasource=docker depName=remnawave/node
   tag: 2.1.6
   pullPolicy: IfNotPresent
   pullSecrets: []

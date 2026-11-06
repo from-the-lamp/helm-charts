@@ -1,6 +1,7 @@
 image:
   name: tailscale/tailscale
-  tag: stable
+  # renovate: datasource=docker depName=tailscale/tailscale
+  tag: v1.104.4
 
 externalSecrets:
   kind: ClusterSecretStore

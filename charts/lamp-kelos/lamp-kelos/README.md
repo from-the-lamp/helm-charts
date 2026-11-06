@@ -1,392 +1,644 @@
-# Kelos Helm Chart
+# lamp-kelos
 
-The Kelos Helm chart is published as an OCI artifact in GHCR:
+![Version: 0.0.2](https://img.shields.io/badge/Version-0.0.2-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
 
-```bash
-oci://ghcr.io/kelos-dev/charts/kelos
+Kelos controller and CRDs
+
+## Values
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| claudeCodeImage | string | `"ghcr.io/kelos-dev/claude-code"` |  |
+| codexAuthRefresher.schedule | string | `"0 */6 * * *"` |  |
+| codexImage | string | `"ghcr.io/kelos-dev/codex"` |  |
+| consoleServer.defaultNamespace | string | `"default"` |  |
+| consoleServer.enabled | bool | `false` |  |
+| consoleServer.image | string | `"ghcr.io/kelos-dev/kelos-console-server"` |  |
+| consoleServer.replicas | int | `1` |  |
+| consoleServer.resources.limits.cpu | string | `"500m"` |  |
+| consoleServer.resources.limits.memory | string | `"256Mi"` |  |
+| consoleServer.resources.requests.cpu | string | `"10m"` |  |
+| consoleServer.resources.requests.memory | string | `"64Mi"` |  |
+| consoleServer.secretName | string | `""` |  |
+| consoleServer.secureCookie | bool | `false` |  |
+| consoleServer.service.port | int | `80` |  |
+| consoleServer.service.type | string | `"ClusterIP"` |  |
+| consoleServer.tokenKey | string | `"token"` |  |
+| controller.resources.limits | object | `{}` |  |
+| controller.resources.requests | object | `{}` |  |
+| controllerImage | string | `"ghcr.io/kelos-dev/kelos-controller"` |  |
+| crds.install | bool | `false` |  |
+| crds.keep | bool | `true` |  |
+| cursorImage | string | `"ghcr.io/kelos-dev/cursor"` |  |
+| geminiImage | string | `"ghcr.io/kelos-dev/gemini"` |  |
+| ghproxy.allowedUpstreams | string | `"https://api.github.com"` |  |
+| ghproxy.cacheTTL | string | `""` |  |
+| ghproxy.image | string | `"ghcr.io/kelos-dev/ghproxy"` |  |
+| ghproxy.resources.limits | string | `""` |  |
+| ghproxy.resources.requests | string | `""` |  |
+| image.pullPolicy | string | `""` |  |
+| image.tag | string | `"v0.58.0"` |  |
+| opencodeImage | string | `"ghcr.io/kelos-dev/opencode"` |  |
+| podMonitor.annotations | object | `{}` |  |
+| podMonitor.enabled | bool | `false` |  |
+| podMonitor.honorLabels | bool | `false` |  |
+| podMonitor.interval | string | `"30s"` |  |
+| podMonitor.labels | object | `{}` |  |
+| podMonitor.scrapeTimeout | string | `"10s"` |  |
+| podMonitor.spawners.enabled | bool | `false` |  |
+| sessionRuntime.image | string | `"ghcr.io/kelos-dev/kelos-session-runtime"` |  |
+| slackServer.denySlackConnectChannels | bool | `false` |  |
+| slackServer.enabled | bool | `false` |  |
+| slackServer.image | string | `"ghcr.io/kelos-dev/kelos-slack-server"` |  |
+| slackServer.joinMessage | string | `""` |  |
+| slackServer.replicas | int | `1` |  |
+| slackServer.resources.limits.cpu | string | `"500m"` |  |
+| slackServer.resources.limits.memory | string | `"128Mi"` |  |
+| slackServer.resources.requests.cpu | string | `"10m"` |  |
+| slackServer.resources.requests.memory | string | `"64Mi"` |  |
+| slackServer.secretName | string | `""` |  |
+| spawner.image | string | `"ghcr.io/kelos-dev/kelos-spawner"` |  |
+| spawner.resources.limits | string | `""` |  |
+| spawner.resources.requests | string | `""` |  |
+| telemetry.enabled | bool | `true` |  |
+| webhookServer.gateway.annotations | object | `{}` |  |
+| webhookServer.gateway.enabled | bool | `false` |  |
+| webhookServer.gateway.gatewayClassName | string | `""` |  |
+| webhookServer.gateway.gatewayName | string | `"kelos-webhook-gateway"` |  |
+| webhookServer.gateway.host | string | `""` |  |
+| webhookServer.gateway.tls.certificateRefs | list | `[]` |  |
+| webhookServer.gateway.tls.enabled | bool | `false` |  |
+| webhookServer.gatewayServer.annotations | object | `{}` |  |
+| webhookServer.gatewayServer.enabled | bool | `false` |  |
+| webhookServer.gatewayServer.labels | object | `{}` |  |
+| webhookServer.gatewayServer.podAnnotations | object | `{}` |  |
+| webhookServer.gatewayServer.podLabels | object | `{}` |  |
+| webhookServer.gatewayServer.replicas | int | `1` |  |
+| webhookServer.gatewayServer.service.type | string | `"ClusterIP"` |  |
+| webhookServer.gatewayServer.serviceAccountName | string | `"kelos-webhook"` |  |
+| webhookServer.image | string | `"ghcr.io/kelos-dev/kelos-webhook-server"` |  |
+| webhookServer.ingress.annotations | object | `{}` |  |
+| webhookServer.ingress.className | string | `""` |  |
+| webhookServer.ingress.enabled | bool | `false` |  |
+| webhookServer.ingress.host | string | `""` |  |
+| webhookServer.ingress.tls.enabled | bool | `false` |  |
+| webhookServer.ingress.tls.secretName | string | `""` |  |
+| webhookServer.resources.limits.cpu | string | `"500m"` |  |
+| webhookServer.resources.limits.memory | string | `"128Mi"` |  |
+| webhookServer.resources.requests.cpu | string | `"10m"` |  |
+| webhookServer.resources.requests.memory | string | `"64Mi"` |  |
+| webhookServer.sources.generic.enabled | bool | `false` |  |
+| webhookServer.sources.generic.replicas | int | `1` |  |
+| webhookServer.sources.generic.secretName | string | `""` |  |
+| webhookServer.sources.generic.service.type | string | `"ClusterIP"` |  |
+| webhookServer.sources.github.enabled | bool | `false` |  |
+| webhookServer.sources.github.githubSecretName | string | `""` |  |
+| webhookServer.sources.github.replicas | int | `1` |  |
+| webhookServer.sources.github.secretName | string | `""` |  |
+| webhookServer.sources.github.service.type | string | `"ClusterIP"` |  |
+| webhookServer.sources.linear.apiKeySecretName | string | `""` |  |
+| webhookServer.sources.linear.enabled | bool | `false` |  |
+| webhookServer.sources.linear.replicas | int | `1` |  |
+| webhookServer.sources.linear.secretName | string | `""` |  |
+| webhookServer.sources.linear.service.type | string | `"ClusterIP"` |  |
+| workerRunner.image | string | `"ghcr.io/kelos-dev/kelos-worker-runner"` |  |
+# Trivy scan - Helm Chart
+
+## Report Summary
+
+| Target | Type | Misconfigurations |
+| --- | --- | --- |
+| templates/cronjob.yaml | helm | 6 |
+| templates/deployment.yaml | helm | 10 |
+| templates/namespace.yaml | kubernetes | 0 |
+| templates/rbac.yaml | helm | 9 |
+| templates/serviceaccount.yaml | helm | 0 |
+| templates/validating-webhook.yaml | kubernetes | 0 |
+| templates/webhook.yaml | kubernetes | 0 |
+
+## templates/cronjob.yaml
+
+### KSV-0014 (HIGH): Root file system is not read-only
+
+Container 'telemetry' of CronJob 'kelos-telemetry' should set 'securityContext.readOnlyRootFilesystem' to true
+
+- Resolution: Change 'containers[].securityContext.readOnlyRootFilesystem' to 'true'.
+- See: https://avd.aquasec.com/misconfig/ksv-0014
+- Location: `templates/cronjob.yaml:26-41`
+
+```
+26:             - name: telemetry
+27:               image: ghcr.io/kelos-dev/kelos-controller:v0.58.0
+28:               args:
+29:                 - --telemetry-report
+30:               securityContext:
+31:                 allowPrivilegeEscalation: false
+32:                 capabilities:
+33:                   drop:
+34:                     - ALL
+35:
 ```
 
-## Requirements
+### KSV-0020 (LOW): Runs with UID <= 10000
 
-[cert-manager](https://cert-manager.io/) must be installed in the cluster before
-installing Kelos. Kelos serves a CRD conversion webhook, and its serving
-certificate is issued by cert-manager. Installing the Kelos CRDs without
-cert-manager present would leave them pointing at a webhook the API server can
-never reach.
-Follow the [cert-manager installation documentation](https://cert-manager.io/docs/installation/)
-for the current recommended installation method.
+Container 'telemetry' of CronJob 'kelos-telemetry' should set 'securityContext.runAsUser' > 10000
 
-`kelos install` checks for cert-manager and fails fast with this guidance if it
-is missing.
+- Resolution: Set 'containers[].securityContext.runAsUser' to an integer > 10000.
+- See: https://avd.aquasec.com/misconfig/ksv-0020
+- Location: `templates/cronjob.yaml:26-41`
 
-## First-Time Install
-
-For most first-time installs, use `kelos install`; it stages the controller,
-certificate, conversion webhook, and CRDs automatically.
-
-If you want Helm to own CRDs on a fresh cluster, render the CRDs during the
-initial Helm install so the controller can start its Kelos resource watches:
-
-```bash
-helm upgrade --install kelos oci://ghcr.io/kelos-dev/charts/kelos \
-  -n kelos-system \
-  --create-namespace \
-  --version <version> \
-  --set crds.install=true
+```
+26:             - name: telemetry
+27:               image: ghcr.io/kelos-dev/kelos-controller:v0.58.0
+28:               args:
+29:                 - --telemetry-report
+30:               securityContext:
+31:                 allowPrivilegeEscalation: false
+32:                 capabilities:
+33:                   drop:
+34:                     - ALL
+35:
 ```
 
-Do not use a controller-only first pass on a fresh cluster; with no Kelos CRDs
-installed, the controller cannot become ready. The chart default is still
-controller-only for clusters where CRDs are managed by `kelos install` or
-another manifest workflow:
+### KSV-0021 (LOW): Runs with GID <= 10000
 
-```yaml
-crds:
-  install: false
-  keep: true
+Container 'telemetry' of CronJob 'kelos-telemetry' should set 'securityContext.runAsGroup' > 10000
+
+- Resolution: Set 'containers[].securityContext.runAsGroup' to an integer > 10000.
+- See: https://avd.aquasec.com/misconfig/ksv-0021
+- Location: `templates/cronjob.yaml:26-41`
+
+```
+26:             - name: telemetry
+27:               image: ghcr.io/kelos-dev/kelos-controller:v0.58.0
+28:               args:
+29:                 - --telemetry-report
+30:               securityContext:
+31:                 allowPrivilegeEscalation: false
+32:                 capabilities:
+33:                   drop:
+34:                     - ALL
+35:
 ```
 
-For existing installations, CRDs use a conversion webhook, so applying upgraded
-conversion-enabled CRDs before the controller Service, certificate, and ready
-webhook exist can make conversion requests fail. `kelos install` handles that
-staging automatically. Helm upgrade and adoption workflows use the two-phase
-controller-first flow below because the CRDs already exist.
+### KSV-0030 (LOW): Runtime/Default Seccomp profile not set
 
-When CRDs are rendered, `crds.keep=true` preserves them during chart uninstall.
-This is the safe default because Tasks and TaskSpawners can have finalizers that
-require the controller to run before custom resources can be deleted. If you
-want Helm uninstall to remove CRDs too, delete all Kelos custom resources while
-the controller is still running, upgrade the release with `crds.install=true`
-and `crds.keep=false`, and then uninstall.
+Either Pod or Container should set 'securityContext.seccompProfile.type' to 'RuntimeDefault'
 
-## Migrating Existing CRDs Into Helm Ownership
+- Resolution: Set 'spec.securityContext.seccompProfile.type', 'spec.containers[*].securityContext.seccompProfile' and 'spec.initContainers[*].securityContext.seccompProfile' to 'RuntimeDefault' or undefined.
+- See: https://avd.aquasec.com/misconfig/ksv-0030
+- Location: `templates/cronjob.yaml:26-41`
 
-If your cluster already has Kelos CRDs from `kelos install` or `kubectl apply`, your first Helm install or upgrade must choose one CRD owner.
-
-### Option 1: Keep CRDs Managed Outside Helm
-
-Use this if you want to continue managing CRDs with `kelos install` or another manifest-based workflow:
-
-```bash
-helm upgrade --install kelos oci://ghcr.io/kelos-dev/charts/kelos \
-  -n kelos-system \
-  --create-namespace \
-  --version <version>
+```
+26:             - name: telemetry
+27:               image: ghcr.io/kelos-dev/kelos-controller:v0.58.0
+28:               args:
+29:                 - --telemetry-report
+30:               securityContext:
+31:                 allowPrivilegeEscalation: false
+32:                 capabilities:
+33:                   drop:
+34:                     - ALL
+35:
 ```
 
-With `crds.install=false`, Helm manages only the controller resources.
-The CRDs are packaged in a conditional subchart, so controller-only releases
-do not store the CRD payload in Helm's release Secret.
+### KSV-0104 (MEDIUM): Seccomp policies disabled
 
-### Option 2: Adopt Existing CRDs Into Helm
+container "telemetry" of cronjob "kelos-telemetry" in "kelos-system" namespace should specify a seccomp profile
 
-Use this if you want Helm to manage future Kelos CRD upgrades by default.
+- Resolution: Specify seccomp either by annotation or by seccomp profile type having allowed values as per pod security standards
+- See: https://avd.aquasec.com/misconfig/ksv-0104
+- Location: `templates/cronjob.yaml:26-41`
 
-```bash
-RELEASE=kelos
-NAMESPACE=kelos-system
-
-for crd in \
-  agentconfigs.kelos.dev \
-  sessions.kelos.dev \
-  sessionspawners.kelos.dev \
-  tasks.kelos.dev \
-  taskbudgets.kelos.dev \
-  taskrecords.kelos.dev \
-  taskspawners.kelos.dev \
-  workerpools.kelos.dev \
-  workspaces.kelos.dev
-do
-  kubectl label crd "$crd" app.kubernetes.io/managed-by=Helm --overwrite
-  kubectl annotate crd "$crd" meta.helm.sh/release-name="$RELEASE" --overwrite
-  kubectl annotate crd "$crd" meta.helm.sh/release-namespace="$NAMESPACE" --overwrite
-done
-
-helm upgrade --install kelos oci://ghcr.io/kelos-dev/charts/kelos \
-  -n kelos-system \
-  --create-namespace \
-  --version <version> \
-  --set crds.install=false
-
-kubectl rollout status deployment/kelos-controller-manager \
-  -n kelos-system --timeout=120s
-
-helm upgrade kelos oci://ghcr.io/kelos-dev/charts/kelos \
-  -n kelos-system \
-  --version <version> \
-  --set crds.install=true
+```
+26:             - name: telemetry
+27:               image: ghcr.io/kelos-dev/kelos-controller:v0.58.0
+28:               args:
+29:                 - --telemetry-report
+30:               securityContext:
+31:                 allowPrivilegeEscalation: false
+32:                 capabilities:
+33:                   drop:
+34:                     - ALL
+35:
 ```
 
-After adoption, stop managing those CRDs with `kelos install` or `kubectl apply`.
+### KSV-0125 (MEDIUM): Restrict container images to trusted registries
 
-## Upgrades
+Container telemetry in cronjob kelos-telemetry (namespace: kelos-system) uses an image from an untrusted registry.
 
-For controller-only Helm upgrades, use the chart defaults:
+- Resolution: Use images from trusted registries.
+- See: https://avd.aquasec.com/misconfig/ksv-0125
+- Location: `templates/cronjob.yaml:26-41`
 
-```bash
-helm upgrade kelos oci://ghcr.io/kelos-dev/charts/kelos \
-  -n kelos-system \
-  --version <version> \
-  --set crds.install=false
+```
+26:             - name: telemetry
+27:               image: ghcr.io/kelos-dev/kelos-controller:v0.58.0
+28:               args:
+29:                 - --telemetry-report
+30:               securityContext:
+31:                 allowPrivilegeEscalation: false
+32:                 capabilities:
+33:                   drop:
+34:                     - ALL
+35:
 ```
 
-The chart passes `image.tag` to the controller through `--version`. The
-controller applies that version to untagged managed image values, including
-`sessionRuntime.image`; tagged and digested values remain explicit overrides.
-When an upgrade changes the resolved runtime image, each existing Session
-runtime stops accepting new turns and finishes all previously accepted turns.
-The desired runtime is recorded immediately, while the existing Pod remains in
-place until its runtime reports that it is drained. Pending user input delays
-the Pod replacement until it is answered or interrupted. A failed Pod is
-replaced immediately so it can start with the desired runtime. Persistent
-Session workspaces survive the replacement, while `emptyDir` workspaces do
-not.
 
-If Helm owns the CRDs and the release includes CRD changes, upgrade in two
-phases so the new webhook is ready before Helm applies conversion-backed CRDs:
+## templates/deployment.yaml
 
-```bash
-helm upgrade kelos oci://ghcr.io/kelos-dev/charts/kelos \
-  -n kelos-system \
-  --version <version> \
-  --set crds.install=false
+### KSV-0011 (LOW): CPU not limited
 
-kubectl rollout status deployment/kelos-controller-manager \
-  -n kelos-system --timeout=120s
+Container 'manager' of Deployment 'kelos-controller-manager' should set 'resources.limits.cpu'
 
-helm upgrade kelos oci://ghcr.io/kelos-dev/charts/kelos \
-  -n kelos-system \
-  --version <version> \
-  --set crds.install=true
+- Resolution: Set a limit value under 'containers[].resources.limits.cpu'.
+- See: https://avd.aquasec.com/misconfig/ksv-0011
+- Location: `templates/deployment.yaml:32-77`
+
+```
+32:         - name: manager
+33:           image: ghcr.io/kelos-dev/kelos-controller:v0.58.0
+34:           args:
+35:             - --leader-elect
+36:             - --version=v0.58.0
+37:             - --claude-code-image=ghcr.io/kelos-dev/claude-code
+38:             - --codex-image=ghcr.io/kelos-dev/codex
+39:             - --gemini-image=ghcr.io/kelos-dev/gemini
+40:             - --opencode-image=ghcr.io/kelos-dev/opencode
+41:
 ```
 
-## Codex OAuth Token Refresh
+### KSV-0014 (HIGH): Root file system is not read-only
 
-Codex OAuth credentials are stored in the `CODEX_AUTH_JSON` key of a credentials Secret. Kelos writes this bundle to `~/.codex/auth.json` and configures Codex to use file-backed credentials (`cli_auth_credentials_store = "file"`), matching OpenAI's CI/CD auth guidance. Agent pods are ephemeral, so refreshed tokens written by the Codex CLI inside a pod are not persisted back to that source Secret.
+Container 'manager' of Deployment 'kelos-controller-manager' should set 'securityContext.readOnlyRootFilesystem' to true
 
-The chart includes a controller that creates one CronJob per labeled Codex OAuth credentials Secret, refreshing each bundle independently of agent activity by posting to OpenAI's OAuth token endpoint:
+- Resolution: Change 'containers[].securityContext.readOnlyRootFilesystem' to 'true'.
+- See: https://avd.aquasec.com/misconfig/ksv-0014
+- Location: `templates/deployment.yaml:32-77`
 
-```yaml
-codexAuthRefresher:
-  schedule: "0 */6 * * *"
+```
+32:         - name: manager
+33:           image: ghcr.io/kelos-dev/kelos-controller:v0.58.0
+34:           args:
+35:             - --leader-elect
+36:             - --version=v0.58.0
+37:             - --claude-code-image=ghcr.io/kelos-dev/claude-code
+38:             - --codex-image=ghcr.io/kelos-dev/codex
+39:             - --gemini-image=ghcr.io/kelos-dev/gemini
+40:             - --opencode-image=ghcr.io/kelos-dev/opencode
+41:
 ```
 
-Label each Secret that should be refreshed:
+### KSV-0015 (LOW): CPU requests not specified
 
-```bash
-kubectl label secret codex-credentials \
-  kelos.dev/codex-oauth-refresh=true \
-  -n <credentials-namespace>
+Container 'manager' of Deployment 'kelos-controller-manager' should set 'resources.requests.cpu'
+
+- Resolution: Set 'containers[].resources.requests.cpu'.
+- See: https://avd.aquasec.com/misconfig/ksv-0015
+- Location: `templates/deployment.yaml:32-77`
+
+```
+32:         - name: manager
+33:           image: ghcr.io/kelos-dev/kelos-controller:v0.58.0
+34:           args:
+35:             - --leader-elect
+36:             - --version=v0.58.0
+37:             - --claude-code-image=ghcr.io/kelos-dev/claude-code
+38:             - --codex-image=ghcr.io/kelos-dev/codex
+39:             - --gemini-image=ghcr.io/kelos-dev/gemini
+40:             - --opencode-image=ghcr.io/kelos-dev/opencode
+41:
 ```
 
-The controller watches Secrets labeled `kelos.dev/codex-oauth-refresh=true` and manages a dedicated CronJob for each Secret that has a non-empty `CODEX_AUTH_JSON` key. Each CronJob runs in the target Secret namespace with access limited to that Secret, refreshes that bundle through the endpoint, and updates only the `CODEX_AUTH_JSON` key. Removing the label or deleting the Secret removes the managed refresh resources. Secrets without `CODEX_AUTH_JSON`, API-key credentials, and OAuth bundles without a `refresh_token` are skipped. Externally managed Secrets, such as ExternalSecrets, Vault-synced Secrets, or sealed-secrets, will overwrite the refreshed value on their next sync and are not supported.
+### KSV-0016 (LOW): Memory requests not specified
 
-If `CODEX_AUTH_JSON` does not include `client_id` (top-level or `tokens.client_id`), Kelos uses OpenAI's public Codex OAuth client id `app_EMoamEEZ73f0CkXaXp7hrann` as the fallback for token refresh.
+Container 'manager' of Deployment 'kelos-controller-manager' should set 'resources.requests.memory'
 
-## Kelos Console
+- Resolution: Set 'containers[].resources.requests.memory'.
+- See: https://avd.aquasec.com/misconfig/ksv-0016
+- Location: `templates/deployment.yaml:32-77`
 
-Sessions use `emptyDir` workspaces unless `spec.volumeClaimTemplate` is set.
-Configure persistent storage on each Session that must preserve provider state,
-repository changes, and chat event history across Pod replacement:
-
-```yaml
-spec:
-  volumeClaimTemplate:
-    accessModes:
-      - ReadWriteOnce
-    storageClassName: standard-rwo
-    resources:
-      requests:
-        storage: 20Gi
+```
+32:         - name: manager
+33:           image: ghcr.io/kelos-dev/kelos-controller:v0.58.0
+34:           args:
+35:             - --leader-elect
+36:             - --version=v0.58.0
+37:             - --claude-code-image=ghcr.io/kelos-dev/claude-code
+38:             - --codex-image=ghcr.io/kelos-dev/codex
+39:             - --gemini-image=ghcr.io/kelos-dev/gemini
+40:             - --opencode-image=ghcr.io/kelos-dev/opencode
+41:
 ```
 
-The selected StorageClass must dynamically provision or otherwise bind a
-matching volume. The claim survives Pod, StatefulSet, and scaling changes and
-is deleted with its owning Session; the StorageClass reclaim policy controls
-the underlying PersistentVolume.
+### KSV-0018 (LOW): Memory not limited
 
-The Console provides an overview and manifest browser for Kelos resources in
-the active namespace. Its Sessions view creates and organizes Sessions, bridges
-each chat to its Session Pod through Kubernetes exec, and can request a
-destructive Session workspace reset after user confirmation. Long conversations
-open at a bounded recent page and load earlier messages on demand. The Console
-is disabled by default and requires a non-empty static token in an existing
-Secret:
+Container 'manager' of Deployment 'kelos-controller-manager' should set 'resources.limits.memory'
 
-```bash
-kubectl create secret generic kelos-console-auth \
-  --from-literal=token='replace-with-a-long-random-token' \
-  -n kelos-system
+- Resolution: Set a limit value under 'containers[].resources.limits.memory'.
+- See: https://avd.aquasec.com/misconfig/ksv-0018
+- Location: `templates/deployment.yaml:32-77`
 
-helm upgrade kelos oci://ghcr.io/kelos-dev/charts/kelos \
-  -n kelos-system \
-  --set consoleServer.enabled=true \
-  --set consoleServer.secretName=kelos-console-auth
+```
+32:         - name: manager
+33:           image: ghcr.io/kelos-dev/kelos-controller:v0.58.0
+34:           args:
+35:             - --leader-elect
+36:             - --version=v0.58.0
+37:             - --claude-code-image=ghcr.io/kelos-dev/claude-code
+38:             - --codex-image=ghcr.io/kelos-dev/codex
+39:             - --gemini-image=ghcr.io/kelos-dev/gemini
+40:             - --opencode-image=ghcr.io/kelos-dev/opencode
+41:
 ```
 
-The default Service is cluster-internal. For local access:
+### KSV-0020 (LOW): Runs with UID <= 10000
 
-```bash
-kubectl port-forward -n kelos-system service/kelos-console-server 8080:80
+Container 'manager' of Deployment 'kelos-controller-manager' should set 'securityContext.runAsUser' > 10000
+
+- Resolution: Set 'containers[].securityContext.runAsUser' to an integer > 10000.
+- See: https://avd.aquasec.com/misconfig/ksv-0020
+- Location: `templates/deployment.yaml:32-77`
+
+```
+32:         - name: manager
+33:           image: ghcr.io/kelos-dev/kelos-controller:v0.58.0
+34:           args:
+35:             - --leader-elect
+36:             - --version=v0.58.0
+37:             - --claude-code-image=ghcr.io/kelos-dev/claude-code
+38:             - --codex-image=ghcr.io/kelos-dev/codex
+39:             - --gemini-image=ghcr.io/kelos-dev/gemini
+40:             - --opencode-image=ghcr.io/kelos-dev/opencode
+41:
 ```
 
-Then open `http://localhost:8080` and enter the token. The token represents one
-shared user that can inspect Kelos resources and create, reset, delete, and
-connect to Sessions in any namespace. It also grants interactive shell access
-to Ready Sessions' agent containers, including their workspaces and mounted
-credentials. Treat it as a credential. For access
-beyond a local port-forward,
-terminate TLS at a trusted proxy, set `consoleServer.secureCookie=true`, and
-restrict access to the endpoint at the network or proxy layer. The Console does
-not provide separate user identities or per-user authorization.
+### KSV-0021 (LOW): Runs with GID <= 10000
 
-The Console operates on one active namespace at a time and can switch it live
-from the sidebar. `consoleServer.defaultNamespace` (`default` unless
-overridden) sets the initial active namespace. The selected namespace must
-already exist. All Console inventory and Session form options are loaded only
-from the active namespace. The creation form and selected Session header can
-assign Sessions to sidebar sections.
-Assignments are stored in the `kelos.dev/session-section` annotation, and
-the controls list existing section names in the active namespace or create a
-section once for later reuse. In the sidebar, Sessions can be dragged between
-sections, and section headings, including **Unsectioned**, can be dragged or
-moved with arrow controls. Each browser stores section order separately for each
-namespace. The selected Session's **Rename** control sets a web-only display
-name without changing the Kubernetes resource name. Display names are stored in
-the `kelos.dev/session-display-name` annotation; clearing the value restores the
-resource name. The creation dialog can generate a new Session from an existing
-Session in that namespace,
-copying its complete `Session.spec` into the form and editable YAML manifest but
-not copying its metadata, conversation, or volume data. The creation form
-accepts provider, credentials, model, Workspace, AgentConfig references, and an
-optional persistent volume claim. In YAML mode, the server applies one
-`kelos.dev/v1alpha2` Session manifest in the active namespace. The manifest may
-also include labels, annotations, the complete `WorkerSpec`, and an optional
-persistent volume claim.
+Container 'manager' of Deployment 'kelos-controller-manager' should set 'securityContext.runAsGroup' > 10000
 
-## Uninstall
+- Resolution: Set 'containers[].securityContext.runAsGroup' to an integer > 10000.
+- See: https://avd.aquasec.com/misconfig/ksv-0021
+- Location: `templates/deployment.yaml:32-77`
 
-To uninstall the Helm release:
-
-```bash
-helm uninstall kelos -n kelos-system
+```
+32:         - name: manager
+33:           image: ghcr.io/kelos-dev/kelos-controller:v0.58.0
+34:           args:
+35:             - --leader-elect
+36:             - --version=v0.58.0
+37:             - --claude-code-image=ghcr.io/kelos-dev/claude-code
+38:             - --codex-image=ghcr.io/kelos-dev/codex
+39:             - --gemini-image=ghcr.io/kelos-dev/gemini
+40:             - --opencode-image=ghcr.io/kelos-dev/opencode
+41:
 ```
 
-By default, Helm preserves the Kelos CRDs and their custom resources during
-uninstall. This avoids deleting conversion-webhook-backed CRDs after Helm has
-already removed the controller that clears custom-resource finalizers.
+### KSV-0030 (LOW): Runtime/Default Seccomp profile not set
 
-For a full cleanup, use `kelos uninstall` instead of `helm uninstall`, or delete
-all Kelos custom resources while the controller is still running, upgrade the
-release with `crds.keep=false`, and then uninstall the chart.
+Either Pod or Container should set 'securityContext.seccompProfile.type' to 'RuntimeDefault'
 
-## Webhook Server Configuration
+- Resolution: Set 'spec.securityContext.seccompProfile.type', 'spec.containers[*].securityContext.seccompProfile' and 'spec.initContainers[*].securityContext.seccompProfile' to 'RuntimeDefault' or undefined.
+- See: https://avd.aquasec.com/misconfig/ksv-0030
+- Location: `templates/deployment.yaml:32-77`
 
-The chart includes an optional webhook server for GitHub integration. It is disabled by default and must be explicitly enabled.
-
-### Prerequisites
-
-1. Create secrets containing webhook signing secrets:
-
-```bash
-# GitHub webhook secret
-kubectl create secret generic github-webhook-secret \
-  --from-literal=WEBHOOK_SECRET=your-github-webhook-secret \
-  -n kelos-system
+```
+32:         - name: manager
+33:           image: ghcr.io/kelos-dev/kelos-controller:v0.58.0
+34:           args:
+35:             - --leader-elect
+36:             - --version=v0.58.0
+37:             - --claude-code-image=ghcr.io/kelos-dev/claude-code
+38:             - --codex-image=ghcr.io/kelos-dev/codex
+39:             - --gemini-image=ghcr.io/kelos-dev/gemini
+40:             - --opencode-image=ghcr.io/kelos-dev/opencode
+41:
 ```
 
-2. Configure webhooks in your GitHub repositories to send events to your webhook endpoints.
+### KSV-0104 (MEDIUM): Seccomp policies disabled
 
-### Enable Webhook Servers
+container "manager" of deployment "kelos-controller-manager" in "kelos-system" namespace should specify a seccomp profile
 
-```bash
-helm upgrade --install kelos oci://ghcr.io/kelos-dev/charts/kelos \
-  -n kelos-system \
-  --create-namespace \
-  --set webhookServer.sources.github.enabled=true \
-  --set webhookServer.sources.github.secretName=github-webhook-secret \
-  --set webhookServer.ingress.enabled=true \
-  --set webhookServer.ingress.host=webhooks.your-domain.com \
-  --set webhookServer.ingress.className=nginx \
-  --set webhookServer.ingress.tls.enabled=true \
-  --set-json 'webhookServer.ingress.annotations={"cert-manager.io/cluster-issuer":"letsencrypt-prod"}'
+- Resolution: Specify seccomp either by annotation or by seccomp profile type having allowed values as per pod security standards
+- See: https://avd.aquasec.com/misconfig/ksv-0104
+- Location: `templates/deployment.yaml:32-77`
+
+```
+32:         - name: manager
+33:           image: ghcr.io/kelos-dev/kelos-controller:v0.58.0
+34:           args:
+35:             - --leader-elect
+36:             - --version=v0.58.0
+37:             - --claude-code-image=ghcr.io/kelos-dev/claude-code
+38:             - --codex-image=ghcr.io/kelos-dev/codex
+39:             - --gemini-image=ghcr.io/kelos-dev/gemini
+40:             - --opencode-image=ghcr.io/kelos-dev/opencode
+41:
 ```
 
-### Webhook Configuration Options
+### KSV-0125 (MEDIUM): Restrict container images to trusted registries
 
-```yaml
-webhookServer:
-  image: ghcr.io/kelos-dev/kelos-webhook-server
-  sources:
-    github:
-      enabled: false          # Enable GitHub webhook server
-      replicas: 1            # Number of replicas
-      secretName: ""         # Secret containing WEBHOOK_SECRET
-  ingress:
-    enabled: false           # Enable ingress for external access
-    className: ""           # Ingress class name (e.g., nginx)
-    host: ""               # Hostname for webhook endpoints
-    annotations: {}        # Additional ingress annotations
-    tls:
-      enabled: false         # Enable TLS for the ingress
-      secretName: ""         # Secret name containing TLS certificate
+Container manager in deployment kelos-controller-manager (namespace: kelos-system) uses an image from an untrusted registry.
+
+- Resolution: Use images from trusted registries.
+- See: https://avd.aquasec.com/misconfig/ksv-0125
+- Location: `templates/deployment.yaml:32-77`
+
+```
+32:         - name: manager
+33:           image: ghcr.io/kelos-dev/kelos-controller:v0.58.0
+34:           args:
+35:             - --leader-elect
+36:             - --version=v0.58.0
+37:             - --claude-code-image=ghcr.io/kelos-dev/claude-code
+38:             - --codex-image=ghcr.io/kelos-dev/codex
+39:             - --gemini-image=ghcr.io/kelos-dev/gemini
+40:             - --opencode-image=ghcr.io/kelos-dev/opencode
+41:
 ```
 
-### TLS Configuration
 
-The webhook ingress supports TLS termination for secure HTTPS connections. TLS is strongly recommended for production deployments.
+## templates/rbac.yaml
 
-#### Option 1: Use cert-manager for automatic certificate management
+### KSV-0041 (CRITICAL): Manage secrets
 
-Install cert-manager first if it is not already present. Follow the
-[cert-manager installation documentation](https://cert-manager.io/docs/installation/)
-for the current recommended installation method.
+ClusterRole 'kelos-controller-role' shouldn't have access to manage resource 'secrets'
 
-```bash
-# Configure with cert-manager annotations
-helm upgrade --install kelos oci://ghcr.io/kelos-dev/charts/kelos \
-  -n kelos-system \
-  --set webhookServer.sources.github.enabled=true \
-  --set webhookServer.sources.github.secretName=github-webhook-secret \
-  --set webhookServer.ingress.enabled=true \
-  --set webhookServer.ingress.host=webhooks.your-domain.com \
-  --set webhookServer.ingress.className=nginx \
-  --set webhookServer.ingress.tls.enabled=true \
-  --set-json 'webhookServer.ingress.annotations={"cert-manager.io/cluster-issuer":"letsencrypt-prod"}'
+- Resolution: Manage secrets are not allowed. Remove resource 'secrets' from cluster role
+- See: https://avd.aquasec.com/misconfig/ksv-0041
+- Location: `templates/rbac.yaml:7-17`
+
+```
+7: - apiGroups:
+8:   - ""
+9:   resources:
+10:   - configmaps
+11:   - secrets
+12:   verbs:
+13:   - create
+14:   - get
+15:   - list
+16:
 ```
 
-#### Option 2: Use existing TLS certificate
+### KSV-0041 (CRITICAL): Manage secrets
 
-```bash
-# Create TLS secret manually
-kubectl create secret tls webhook-tls-secret \
-  --cert=path/to/tls.crt \
-  --key=path/to/tls.key \
-  -n kelos-system
+ClusterRole 'kelos-spawner-role' shouldn't have access to manage resource 'secrets'
 
-# Configure ingress to use the secret
-helm upgrade --install kelos oci://ghcr.io/kelos-dev/charts/kelos \
-  -n kelos-system \
-  --set webhookServer.ingress.enabled=true \
-  --set webhookServer.ingress.host=webhooks.your-domain.com \
-  --set webhookServer.ingress.tls.enabled=true \
-  --set webhookServer.ingress.tls.secretName=webhook-tls-secret
+- Resolution: Manage secrets are not allowed. Remove resource 'secrets' from cluster role
+- See: https://avd.aquasec.com/misconfig/ksv-0041
+- Location: `templates/rbac.yaml:7-12`
+
+```
+7:   - apiGroups:
+8:       - ""
+9:     resources:
+10:       - secrets
+11:     verbs:
+12:       - get
 ```
 
-### Webhook Endpoints
+### KSV-0048 (MEDIUM): Manage Kubernetes workloads and pods
 
-When enabled, the webhook servers expose the following endpoints:
+ClusterRole 'kelos-controller-role' should not have access to resources ["pods", "deployments", "jobs", "cronjobs", "statefulsets", "daemonsets", "replicasets", "replicationcontrollers"] for verbs ["create", "update", "patch", "delete", "deletecollection", "impersonate", "*"]
 
-- **GitHub**: `https://your-host/webhook/github`
+- Resolution: Kubernetes workloads resources are only allowed for verbs 'list', 'watch', 'get'
+- See: https://avd.aquasec.com/misconfig/ksv-0048
+- Location: `templates/rbac.yaml:35-45`
 
-### Example Values File
+```
+35: - apiGroups:
+36:   - ""
+37:   resources:
+38:   - pods
+39:   verbs:
+40:   - delete
+41:   - get
+42:   - list
+43:   - patch
+44:
+```
 
-See `examples/helm-values-webhook.yaml` for a complete example configuration.
+### KSV-0048 (MEDIUM): Manage Kubernetes workloads and pods
 
-### Gateway API (Alternative to Ingress)
+ClusterRole 'kelos-controller-role' should not have access to resources ["pods", "deployments", "jobs", "cronjobs", "statefulsets", "daemonsets", "replicasets", "replicationcontrollers"] for verbs ["create", "update", "patch", "delete", "deletecollection", "impersonate", "*"]
 
-Kelos webhook servers can be exposed via the Kubernetes Gateway API instead of an Ingress. See `examples/gateway-api-webhook.md` for prerequisites, configuration, and a provider comparison (Istio, Envoy Gateway, Kong, Nginx Gateway Fabric). The companion values file is `examples/webhook-gateway-values.yaml`.
+- Resolution: Kubernetes workloads resources are only allowed for verbs 'list', 'watch', 'get'
+- See: https://avd.aquasec.com/misconfig/ksv-0048
+- Location: `templates/rbac.yaml:75-87`
 
-### Concurrency Behavior
+```
+75: - apiGroups:
+76:   - apps
+77:   resources:
+78:   - deployments
+79:   - statefulsets
+80:   verbs:
+81:   - create
+82:   - delete
+83:   - get
+84:
+```
 
-For webhook-driven TaskSpawners, see `examples/webhook-concurrency.md` for how `maxConcurrency` enforcement works (events accepted with HTTP 200 and skipped when at the limit), monitoring tips, and troubleshooting guidance.
+### KSV-0048 (MEDIUM): Manage Kubernetes workloads and pods
+
+ClusterRole 'kelos-controller-role' should not have access to resources ["pods", "deployments", "jobs", "cronjobs", "statefulsets", "daemonsets", "replicasets", "replicationcontrollers"] for verbs ["create", "update", "patch", "delete", "deletecollection", "impersonate", "*"]
+
+- Resolution: Kubernetes workloads resources are only allowed for verbs 'list', 'watch', 'get'
+- See: https://avd.aquasec.com/misconfig/ksv-0048
+- Location: `templates/rbac.yaml:88-100`
+
+```
+88: - apiGroups:
+89:   - batch
+90:   resources:
+91:   - cronjobs
+92:   - jobs
+93:   verbs:
+94:   - create
+95:   - delete
+96:   - get
+97:
+```
+
+### KSV-0048 (MEDIUM): Manage Kubernetes workloads and pods
+
+ClusterRole 'kelos-worker-runner-role' should not have access to resources ["pods", "deployments", "jobs", "cronjobs", "statefulsets", "daemonsets", "replicasets", "replicationcontrollers"] for verbs ["create", "update", "patch", "delete", "deletecollection", "impersonate", "*"]
+
+- Resolution: Kubernetes workloads resources are only allowed for verbs 'list', 'watch', 'get'
+- See: https://avd.aquasec.com/misconfig/ksv-0048
+- Location: `templates/rbac.yaml:7-14`
+
+```
+7:   - apiGroups:
+8:       - ""
+9:     resources:
+10:       - pods
+11:     verbs:
+12:       - get
+13:       - update
+14:       - patch
+```
+
+### KSV-0049 (MEDIUM): Manage configmaps
+
+ClusterRole 'kelos-controller-role' should not have access to resource 'configmaps' for verbs ["create", "update", "patch", "delete", "deletecollection", "impersonate", "*"]
+
+- Resolution: Remove write permission verbs for resource 'configmaps'
+- See: https://avd.aquasec.com/misconfig/ksv-0049
+- Location: `templates/rbac.yaml:7-17`
+
+```
+7: - apiGroups:
+8:   - ""
+9:   resources:
+10:   - configmaps
+11:   - secrets
+12:   verbs:
+13:   - create
+14:   - get
+15:   - list
+16:
+```
+
+### KSV-0049 (MEDIUM): Manage configmaps
+
+Role 'kelos-leader-election-role' should not have access to resource 'configmaps' for verbs ["create", "update", "patch", "delete", "deletecollection", "impersonate", "*"]
+
+- Resolution: Remove write permission verbs for resource 'configmaps'
+- See: https://avd.aquasec.com/misconfig/ksv-0049
+- Location: `templates/rbac.yaml:8-19`
+
+```
+8:   - apiGroups:
+9:       - ""
+10:     resources:
+11:       - configmaps
+12:     verbs:
+13:       - get
+14:       - list
+15:       - watch
+16:       - create
+17:
+```
+
+### KSV-0056 (HIGH): Manage Kubernetes networking
+
+ClusterRole 'kelos-controller-role' should not have access to resources ["services", "endpoints", "endpointslices", "networkpolicies", "ingresses"] for verbs ["create", "update", "patch", "delete", "deletecollection", "impersonate", "*"]
+
+- Resolution: Networking resources are only allowed for verbs 'list', 'watch', 'get'
+- See: https://avd.aquasec.com/misconfig/ksv-0056
+- Location: `templates/rbac.yaml:63-74`
+
+```
+63: - apiGroups:
+64:   - ""
+65:   resources:
+66:   - services
+67:   verbs:
+68:   - create
+69:   - delete
+70:   - get
+71:   - list
+72:
+```

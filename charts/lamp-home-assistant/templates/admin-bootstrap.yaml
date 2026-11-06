@@ -42,6 +42,7 @@ spec:
       restartPolicy: Never
       containers:
         - name: onboarding
+          # renovate: datasource=docker depName=curlimages/curl
           image: curlimages/curl:8.11.0
           securityContext:
             allowPrivilegeEscalation: false
