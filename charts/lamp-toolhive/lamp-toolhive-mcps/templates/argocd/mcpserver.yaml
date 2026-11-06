@@ -25,24 +25,40 @@ spec:
     metadata:
       annotations:
         {{- include "lamp-toolhive-mcps.podAnnotations" . | nindent 8 }}
-        {{- if $item.serviceAccount }}
-        reloader.stakater.com/auto: "true"
-        {{- end }}
     spec:
+      {{- if $item.serviceAccount }}
+      serviceAccountName: {{ $item.serviceAccount }}
+      volumes:
+        - name: argocd-token
+          projected:
+            sources:
+              - serviceAccountToken:
+                  audience: {{ $.Values.mcp.argocd.tokenRefresher.audience | default "argocd" }}
+                  expirationSeconds: {{ $.Values.mcp.argocd.tokenRefresher.duration | default 3600 }}
+                  path: token
+      {{- end }}
       containers:
         - name: mcp
           env:
             - name: ARGOCD_BASE_URL
               value: {{ $item.url }}
+            {{- if $item.token }}
             - name: ARGOCD_API_TOKEN
               valueFrom:
                 secretKeyRef:
                   name: {{ $item.name }}-mcp-secret
                   key: token
+            {{- end }}
             {{- if $item.readOnly }}
             - name: MCP_READ_ONLY
               value: "true"
             {{- end }}
+          {{- if $item.serviceAccount }}
+          volumeMounts:
+            - name: argocd-token
+              mountPath: /var/run/secrets/argocd-token
+              readOnly: true
+          {{- end }}
   {{- with $item.env }}
   env:
     {{- toYaml . | nindent 4 }}

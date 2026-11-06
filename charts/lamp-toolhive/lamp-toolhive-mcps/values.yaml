@@ -169,14 +169,13 @@ mcp:
     enabled: false
     image: ""
     tokenRefresher:
-      schedule: "0 */55 * * *"
       audience: argocd
       duration: 3600
     mcps: []
       # - name: argocd-homelab
       #   url: http://argocd-server.argocd.svc
       #   readOnly: true
-      #   serviceAccount: argocd-mcp   # → CronJob mints K8s SA JWT via TokenRequest
+      #   serviceAccount: argocd-mcp   # projected SA token, wrapper rotates in-process
       #   token:                       # alternative: Vault-backed static token
       #     key: argocd
       #     property: mcp-token
