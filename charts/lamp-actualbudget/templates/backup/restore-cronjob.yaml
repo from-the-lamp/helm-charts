@@ -54,7 +54,7 @@ spec:
                     containers:
                       - name: restore
                         # renovate: datasource=docker depName=rclone/rclone
-                        image: rclone/rclone:1.69
+                        image: rclone/rclone:1.76
                         securityContext:
                           allowPrivilegeEscalation: false
                           capabilities:
