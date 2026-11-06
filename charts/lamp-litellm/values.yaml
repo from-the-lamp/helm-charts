@@ -72,6 +72,15 @@ modelFallbacks:
   claude-sonnet-5:
     - gpt-5.6-terra
 
+# Appended to the END of every fallback chain generated above (both the
+# chatgptModels sibling mesh and modelFallbacks) - a last-resort model tried
+# only once every other configured fallback has already failed. Kept
+# separate from chatgptModels/modelFallbacks rather than listing a local
+# model there directly: chatgptModels' model_list loop assumes a native
+# chatgpt/ provider, so a local-server model listed there would be routed
+# through the wrong provider instead of lmstudioModels' openai/ + api_base.
+fallbackTail: []
+
 # Audio transcription (Whisper) via Groq - same shape as deepseekApiKey/
 # deepseekModels above, each becomes `groq/<model>` in litellm's model_list
 # with model_info.mode: audio_transcription.

@@ -1,6 +1,6 @@
 # lamp-litellm
 
-![Version: 0.4.2](https://img.shields.io/badge/Version-0.4.2-informational?style=flat-square)
+![Version: 0.4.3](https://img.shields.io/badge/Version-0.4.3-informational?style=flat-square)
 
 ## Requirements
 
@@ -32,6 +32,7 @@
 | externalSecrets.kind | string | `"ClusterSecretStore"` |  |
 | externalSecrets.name | string | `"vault"` |  |
 | externalSecrets.refreshInterval | string | `"1h"` |  |
+| fallbackTail | list | `[]` |  |
 | groqApiKey.remoteRef.key | string | `"litellm"` |  |
 | groqApiKey.remoteRef.property | string | `"groq_api_key"` |  |
 | groqApiKey.secretName | string | `"litellm-groq"` |  |

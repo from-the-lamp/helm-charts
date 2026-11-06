@@ -49,11 +49,17 @@ data:
             - {{ $other }}
             {{- end }}
             {{- end }}
+            {{- range $tail := $.Values.fallbackTail }}
+            - {{ $tail }}
+            {{- end }}
         {{- end }}
         {{- range $model, $targets := .Values.modelFallbacks }}
         - {{ $model }}:
             {{- range $target := $targets }}
             - {{ $target }}
+            {{- end }}
+            {{- range $tail := $.Values.fallbackTail }}
+            - {{ $tail }}
             {{- end }}
         {{- end }}
     litellm_settings:
