@@ -14,6 +14,10 @@ data:
   ENABLE_LOGIN_FORM: "false"
   ENABLE_PASSWORD_AUTH: "false"
   ENABLE_PERSISTENT_CONFIG: "false"
+  # Skips the "Continue with GitLab" welcome screen and sends an
+  # unauthenticated visitor straight to the IdP - only works with exactly
+  # one provider and the login form already disabled above.
+  OAUTH_AUTO_REDIRECT: "true"
   OPENID_PROVIDER_URL: {{ .Values.oauth.providerUrl | quote }}
   OAUTH_PROVIDER_NAME: {{ .Values.oauth.providerName | quote }}
   OAUTH_SCOPES: {{ .Values.oauth.scopes | quote }}

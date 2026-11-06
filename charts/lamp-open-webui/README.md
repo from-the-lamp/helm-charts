@@ -1,6 +1,6 @@
 # lamp-open-webui
 
-![Version: 0.6.0](https://img.shields.io/badge/Version-0.6.0-informational?style=flat-square)
+![Version: 0.7.0](https://img.shields.io/badge/Version-0.7.0-informational?style=flat-square)
 
 Thin wrapper around the upstream Open WebUI chart
 
