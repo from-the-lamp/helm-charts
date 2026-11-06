@@ -49,10 +49,6 @@ apps:
     image: registry.gitlab.com/from-the-lamp/infra/docker-images/lamp-book
   - name: general
     image: registry.gitlab.com/from-the-lamp/infra/docker-images/lamp-general
-  - name: openclaw-0
-    image: registry.gitlab.com/from-the-lamp/backend/openclaw
-  - name: openclaw-1
-    image: registry.gitlab.com/from-the-lamp/backend/openclaw
   - name: banking-callback
     image: registry.gitlab.com/from-the-lamp/infra/docker-images/lamp-banking-callback-service
   - name: litellm
