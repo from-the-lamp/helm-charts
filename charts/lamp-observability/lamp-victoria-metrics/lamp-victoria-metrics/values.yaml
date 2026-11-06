@@ -41,6 +41,7 @@ alertManagerConfig:
     # - name: kelos-alertmanager-remediation
     #   url: http://kelos-webhook-generic.kelos-system.svc.cluster.local:8443/webhook/alertmanager
     #   sendResolved: false
+    #   maxAlerts: 1 # optional - forces one alert per delivery, see template comment
   routes: []
     # - continue: false
     #   matchers:

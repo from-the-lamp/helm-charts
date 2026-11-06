@@ -1,6 +1,6 @@
 # lamp-victoria-metrics
 
-![Version: 3.2.0](https://img.shields.io/badge/Version-3.2.0-informational?style=flat-square)
+![Version: 3.3.0](https://img.shields.io/badge/Version-3.3.0-informational?style=flat-square)
 
 ## Requirements
 

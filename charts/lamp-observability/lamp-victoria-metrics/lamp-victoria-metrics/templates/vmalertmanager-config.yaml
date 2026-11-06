@@ -131,6 +131,16 @@ stringData:
         webhook_configs:
         - url: {{ .url }}
           send_resolved: {{ .sendResolved | default false }}
+          {{- if .maxAlerts }}
+          # Alertmanager's webhook payload always carries alerts[] and can batch
+          # several alerts into one delivery when they're grouped together - a
+          # receiver-side consumer that only reads alerts[0] (e.g. Kelos's
+          # TaskSpawner JSONPath mapping, FTL-110) silently drops every alert
+          # after the first in that case. max_alerts: 1 is Alertmanager's own
+          # fix: forces one alert per webhook delivery to this receiver instead
+          # of relying on the consumer to handle a batch correctly.
+          max_alerts: {{ .maxAlerts }}
+          {{- end }}
       {{- end }}
     templates:
     - /etc/vm/configs/**/*.tmpl

@@ -1,9 +1,9 @@
 apiVersion: v2
 name: lamp-victoria-metrics
-version: 3.2.0
+version: 3.3.0
 
 annotations:
-  notes: "VictoriaMetrics v1.131.0, configurable RBAC roles for VMAgent. 3.0.0: alertManagerConfig.cronitor dead man's switch for Watchdog (FTL-83). 3.0.1: fix invalid YAML when alertManagerConfig.routes is empty (bare [] broke the Alertmanager config parse). 3.1.0: alertManagerConfig.slack token now Vault-sourced (credentials_file via its own ExternalSecret) instead of a literal value. 3.2.0: alertManagerConfig.webhookReceivers - plain webhook_configs receivers for in-cluster, unauthenticated-by-design targets (FTL-110), distinct from the slack_configs receivers above."
+  notes: "VictoriaMetrics v1.131.0, configurable RBAC roles for VMAgent. 3.0.0: alertManagerConfig.cronitor dead man's switch for Watchdog (FTL-83). 3.0.1: fix invalid YAML when alertManagerConfig.routes is empty (bare [] broke the Alertmanager config parse). 3.1.0: alertManagerConfig.slack token now Vault-sourced (credentials_file via its own ExternalSecret) instead of a literal value. 3.2.0: alertManagerConfig.webhookReceivers - plain webhook_configs receivers for in-cluster, unauthenticated-by-design targets (FTL-110), distinct from the slack_configs receivers above. 3.3.0: webhookReceivers[].maxAlerts - optional max_alerts passthrough, fixes a receiver only ever seeing alerts[0] of a grouped delivery (FTL-110/FTL-143)."
 
 dependencies:
   - name: prometheus-operator-crds
