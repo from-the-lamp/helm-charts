@@ -1,0 +1,26 @@
+externalSecrets:
+  kind: ClusterSecretStore
+  name: vault
+  refreshInterval: 1h
+  creationPolicy: Orphan
+
+# WEBUI_ADMIN_EMAIL/PASSWORD/NAME: Open WebUI's own headless admin bootstrap
+# (fires only when no users exist yet) - creates the admin account at startup
+# instead of the manual signup form, and disables signup itself independently
+# of ENABLE_SIGNUP. Disabled by default; a consumer turns it on and points
+# remoteSecretKey/*Property at its own Vault entry.
+adminBootstrap:
+  enabled: false
+  remoteSecretKey: open-webui
+  emailProperty: admin-email
+  passwordProperty: admin-password
+  nameProperty: admin-name
+
+open-webui:
+  # optional: true - the ExternalSecret above only exists when adminBootstrap
+  # is enabled; without it the Secret is missing and this must not block pod
+  # startup.
+  extraEnvFrom:
+    - secretRef:
+        name: open-webui-admin-bootstrap
+        optional: true

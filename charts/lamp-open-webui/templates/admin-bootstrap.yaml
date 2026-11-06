@@ -1,0 +1,27 @@
+{{- if .Values.adminBootstrap.enabled }}
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: open-webui-admin-bootstrap
+spec:
+  refreshInterval: "{{ .Values.externalSecrets.refreshInterval }}"
+  secretStoreRef:
+    kind: "{{ .Values.externalSecrets.kind }}"
+    name: "{{ .Values.externalSecrets.name }}"
+  target:
+    name: open-webui-admin-bootstrap
+    creationPolicy: "{{ .Values.externalSecrets.creationPolicy }}"
+  data:
+    - secretKey: WEBUI_ADMIN_EMAIL
+      remoteRef:
+        key: {{ .Values.adminBootstrap.remoteSecretKey }}
+        property: {{ .Values.adminBootstrap.emailProperty }}
+    - secretKey: WEBUI_ADMIN_PASSWORD
+      remoteRef:
+        key: {{ .Values.adminBootstrap.remoteSecretKey }}
+        property: {{ .Values.adminBootstrap.passwordProperty }}
+    - secretKey: WEBUI_ADMIN_NAME
+      remoteRef:
+        key: {{ .Values.adminBootstrap.remoteSecretKey }}
+        property: {{ .Values.adminBootstrap.nameProperty }}
+{{- end }}
