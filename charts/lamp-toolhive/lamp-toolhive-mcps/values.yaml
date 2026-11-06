@@ -170,7 +170,7 @@ mcp:
     image: ""
     tokenRefresher:
       audience: argocd
-      duration: 3600
+      duration: 86400
     mcps: []
       # - name: argocd-homelab
       #   url: http://argocd-server.argocd.svc
