@@ -46,7 +46,7 @@ spec:
       containers:
         - name: admin-sign-up
           # renovate: datasource=docker depName=curlimages/curl
-          image: curlimages/curl:8.11.0
+          image: curlimages/curl:8.23.0
           securityContext:
             allowPrivilegeEscalation: false
             capabilities:
