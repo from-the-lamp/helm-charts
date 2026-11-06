@@ -30,6 +30,13 @@ data:
         model_info:
           mode: audio_transcription
       {{- end }}
+      {{- range $model := .Values.lmstudioModels }}
+      - model_name: {{ $model }}
+        litellm_params:
+          model: openai/{{ $model }}
+          api_base: {{ $.Values.lmstudioApiBase }}
+          api_key: "not-needed"
+      {{- end }}
     router_settings:
       routing_strategy: simple-shuffle
       num_retries: 2

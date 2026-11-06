@@ -1,6 +1,6 @@
 # lamp-litellm
 
-![Version: 0.4.0](https://img.shields.io/badge/Version-0.4.0-informational?style=flat-square)
+![Version: 0.4.2](https://img.shields.io/badge/Version-0.4.2-informational?style=flat-square)
 
 ## Requirements
 
@@ -76,6 +76,8 @@
 | litellm-helm.volumeMounts[0].name | string | `"chatgpt-auth-persistent"` |  |
 | litellm-helm.volumes[0].name | string | `"chatgpt-auth-persistent"` |  |
 | litellm-helm.volumes[0].persistentVolumeClaim.claimName | string | `"litellm-codex-auth-persistent"` |  |
+| lmstudioApiBase | string | `""` |  |
+| lmstudioModels | list | `[]` |  |
 | masterKey.remoteRef.key | string | `"litellm"` |  |
 | masterKey.remoteRef.property | string | `"master_key"` |  |
 | masterKey.secretName | string | `"litellm-masterkey"` |  |
@@ -85,17 +87,8 @@
 | proxyConfigMap.name | string | `"litellm-proxy-config"` |  |
 | whisperModels[0] | string | `"whisper-large-v3"` |  |
 # Trivy scan - Helm Chart
-```
 
-Report Summary
+## Report Summary
 
-┌────────┬──────┬───────────────────┐
-│ Target │ Type │ Misconfigurations │
-├────────┼──────┼───────────────────┤
-│   -    │  -   │         -         │
-└────────┴──────┴───────────────────┘
-Legend:
-- '-': Not scanned
-- '0': Clean (no security findings detected)
-
-```
+| Target | Type | Misconfigurations |
+| --- | --- | --- |

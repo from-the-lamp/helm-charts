@@ -83,6 +83,15 @@ groqApiKey:
 whisperModels:
   - whisper-large-v3
 
+# A local LM Studio instance (OpenAI-compatible server) reached over
+# Tailscale instead of a cloud provider - no API key needed/possible, so
+# unlike deepseekModels/claudeModels this has no *ApiKey sibling. Each
+# entry becomes `openai/<model>` in litellm's model_list with api_base set
+# to lmstudioApiBase. The model id must match exactly what LM Studio's own
+# Local Server tab shows as loaded - litellm forwards it as-is.
+lmstudioApiBase: ""
+lmstudioModels: []
+
 proxyConfigMap:
   name: litellm-proxy-config
   key: config.yaml
