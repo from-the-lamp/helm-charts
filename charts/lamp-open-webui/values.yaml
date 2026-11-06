@@ -4,23 +4,32 @@ externalSecrets:
   refreshInterval: 1h
   creationPolicy: Orphan
 
-# WEBUI_ADMIN_EMAIL/PASSWORD/NAME: Open WebUI's own headless admin bootstrap
-# (fires only when no users exist yet) - creates the admin account at startup
-# instead of the manual signup form, and disables signup itself independently
-# of ENABLE_SIGNUP. Disabled by default; a consumer turns it on and points
-# remoteSecretKey/*Property at its own Vault entry.
-adminBootstrap:
+# Generic OIDC SSO (OAUTH_CLIENT_ID/SECRET, OPENID_PROVIDER_URL - Open WebUI's
+# own native support, no custom auth code). Disabled by default; a consumer
+# turns it on, points providerUrl/remoteSecretKey at its own IdP/Vault entry,
+# and sets allowedRoles/adminRoles to whatever role or group claim its IdP
+# emits - without that restriction ENABLE_OAUTH_SIGNUP lets anyone who can
+# complete the IdP login provision themselves an account.
+oauth:
   enabled: false
   remoteSecretKey: open-webui
-  emailProperty: admin-email
-  passwordProperty: admin-password
-  nameProperty: admin-name
+  clientIdProperty: oauth.client-id
+  clientSecretProperty: oauth.client-secret
+  providerUrl: ""
+  providerName: "SSO"
+  scopes: "openid email profile"
+  rolesClaim: "groups"
+  allowedRoles: ""
+  adminRoles: ""
 
 open-webui:
-  # optional: true - the ExternalSecret above only exists when adminBootstrap
-  # is enabled; without it the Secret is missing and this must not block pod
+  # optional: true - the ConfigMap/ExternalSecret above only exist when oauth
+  # is enabled; without it they're missing and this must not block pod
   # startup.
   extraEnvFrom:
     - secretRef:
-        name: open-webui-admin-bootstrap
+        name: open-webui-oauth-secret
+        optional: true
+    - configMapRef:
+        name: open-webui-oauth-config
         optional: true

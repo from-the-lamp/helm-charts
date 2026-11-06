@@ -1,6 +1,6 @@
 # lamp-open-webui
 
-![Version: 0.2.0](https://img.shields.io/badge/Version-0.2.0-informational?style=flat-square)
+![Version: 0.3.0](https://img.shields.io/badge/Version-0.3.0-informational?style=flat-square)
 
 Thin wrapper around the upstream Open WebUI chart
 
@@ -14,17 +14,24 @@ Thin wrapper around the upstream Open WebUI chart
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| adminBootstrap.emailProperty | string | `"admin-email"` |  |
-| adminBootstrap.enabled | bool | `false` |  |
-| adminBootstrap.nameProperty | string | `"admin-name"` |  |
-| adminBootstrap.passwordProperty | string | `"admin-password"` |  |
-| adminBootstrap.remoteSecretKey | string | `"open-webui"` |  |
 | externalSecrets.creationPolicy | string | `"Orphan"` |  |
 | externalSecrets.kind | string | `"ClusterSecretStore"` |  |
 | externalSecrets.name | string | `"vault"` |  |
 | externalSecrets.refreshInterval | string | `"1h"` |  |
-| open-webui.extraEnvFrom[0].secretRef.name | string | `"open-webui-admin-bootstrap"` |  |
+| oauth.adminRoles | string | `""` |  |
+| oauth.allowedRoles | string | `""` |  |
+| oauth.clientIdProperty | string | `"oauth.client-id"` |  |
+| oauth.clientSecretProperty | string | `"oauth.client-secret"` |  |
+| oauth.enabled | bool | `false` |  |
+| oauth.providerName | string | `"SSO"` |  |
+| oauth.providerUrl | string | `""` |  |
+| oauth.remoteSecretKey | string | `"open-webui"` |  |
+| oauth.rolesClaim | string | `"groups"` |  |
+| oauth.scopes | string | `"openid email profile"` |  |
+| open-webui.extraEnvFrom[0].secretRef.name | string | `"open-webui-oauth-secret"` |  |
 | open-webui.extraEnvFrom[0].secretRef.optional | bool | `true` |  |
+| open-webui.extraEnvFrom[1].configMapRef.name | string | `"open-webui-oauth-config"` |  |
+| open-webui.extraEnvFrom[1].configMapRef.optional | bool | `true` |  |
 # Trivy scan - Helm Chart
 
 ## Report Summary
