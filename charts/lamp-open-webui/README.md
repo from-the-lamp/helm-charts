@@ -1,6 +1,6 @@
 # lamp-open-webui
 
-![Version: 0.5.0](https://img.shields.io/badge/Version-0.5.0-informational?style=flat-square)
+![Version: 0.6.0](https://img.shields.io/badge/Version-0.6.0-informational?style=flat-square)
 
 Thin wrapper around the upstream Open WebUI chart
 
@@ -32,6 +32,34 @@ Thin wrapper around the upstream Open WebUI chart
 | open-webui.extraEnvFrom[0].secretRef.optional | bool | `true` |  |
 | open-webui.extraEnvFrom[1].configMapRef.name | string | `"open-webui-oauth-config"` |  |
 | open-webui.extraEnvFrom[1].configMapRef.optional | bool | `true` |  |
+| open-webui.extraEnvFrom[2].secretRef.name | string | `"open-webui-postgres-secret"` |  |
+| open-webui.extraEnvFrom[2].secretRef.optional | bool | `true` |  |
+| open-webui.extraEnvFrom[3].configMapRef.name | string | `"open-webui-postgres-config"` |  |
+| open-webui.extraEnvFrom[3].configMapRef.optional | bool | `true` |  |
+| open-webui.extraEnvFrom[4].secretRef.name | string | `"open-webui-storage-secret"` |  |
+| open-webui.extraEnvFrom[4].secretRef.optional | bool | `true` |  |
+| open-webui.extraEnvFrom[5].configMapRef.name | string | `"open-webui-storage-config"` |  |
+| open-webui.extraEnvFrom[5].configMapRef.optional | bool | `true` |  |
+| open-webui.extraEnvFrom[6].secretRef.name | string | `"open-webui-secret-key"` |  |
+| open-webui.extraEnvFrom[6].secretRef.optional | bool | `true` |  |
+| postgres.database | string | `"open-webui"` |  |
+| postgres.enabled | bool | `false` |  |
+| postgres.host | string | `"postgres-rw.postgres.svc.cluster.local"` |  |
+| postgres.passwordProperty | string | `"users.open-webui.password"` |  |
+| postgres.port | int | `5432` |  |
+| postgres.remoteSecretKey | string | `"postgres"` |  |
+| postgres.user | string | `"open-webui"` |  |
+| secretKey.enabled | bool | `false` |  |
+| secretKey.property | string | `"webui-secret-key"` |  |
+| secretKey.remoteSecretKey | string | `"open-webui"` |  |
+| storage.accessKeyProperty | string | `""` |  |
+| storage.bucket | string | `""` |  |
+| storage.enabled | bool | `false` |  |
+| storage.endpointUrl | string | `""` |  |
+| storage.keyPrefix | string | `""` |  |
+| storage.region | string | `""` |  |
+| storage.remoteSecretKey | string | `""` |  |
+| storage.secretKeyProperty | string | `""` |  |
 # Trivy scan - Helm Chart
 
 ## Report Summary

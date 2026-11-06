@@ -1,0 +1,33 @@
+{{- if .Values.postgres.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: open-webui-postgres-config
+data:
+  # Same database for relational data and RAG vectors - the vchord image
+  # backing this cluster already carries pgvector (Immich's own vector
+  # search uses it the same way).
+  VECTOR_DB: "pgvector"
+---
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: open-webui-postgres-secret
+spec:
+  refreshInterval: "{{ .Values.externalSecrets.refreshInterval }}"
+  secretStoreRef:
+    kind: "{{ .Values.externalSecrets.kind }}"
+    name: "{{ .Values.externalSecrets.name }}"
+  target:
+    name: open-webui-postgres-secret
+    creationPolicy: "{{ .Values.externalSecrets.creationPolicy }}"
+    template:
+      data:
+        DATABASE_URL: "postgresql://{{ .Values.postgres.user }}:{{`{{ .password }}`}}@{{ .Values.postgres.host }}:{{ .Values.postgres.port }}/{{ .Values.postgres.database }}"
+        PGVECTOR_DB_URL: "postgresql://{{ .Values.postgres.user }}:{{`{{ .password }}`}}@{{ .Values.postgres.host }}:{{ .Values.postgres.port }}/{{ .Values.postgres.database }}"
+  data:
+    - secretKey: password
+      remoteRef:
+        key: {{ .Values.postgres.remoteSecretKey }}
+        property: {{ .Values.postgres.passwordProperty }}
+{{- end }}

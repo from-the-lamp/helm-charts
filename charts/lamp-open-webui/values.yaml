@@ -22,14 +22,65 @@ oauth:
   allowedRoles: ""
   adminRoles: ""
 
+# Relational data (chats/users/config) and RAG vectors in the shared CNPG
+# Postgres instead of local SQLite/Chroma. Disabled by default; a consumer
+# points host/database/user at its own role (created on that shared
+# cluster, not here - see apps/homelab/platform/postgres) and
+# remoteSecretKey/passwordProperty at its own Vault entry.
+postgres:
+  enabled: false
+  host: postgres-rw.postgres.svc.cluster.local
+  port: 5432
+  database: open-webui
+  user: open-webui
+  remoteSecretKey: postgres
+  passwordProperty: users.open-webui.password
+
+# Uploaded files/attachments in S3-compatible storage instead of local
+# disk. Disabled by default; a consumer points bucket/region/endpointUrl
+# and remoteSecretKey/*Property at its own Vault entry.
+storage:
+  enabled: false
+  bucket: ""
+  region: ""
+  endpointUrl: ""
+  keyPrefix: ""
+  remoteSecretKey: ""
+  accessKeyProperty: ""
+  secretKeyProperty: ""
+
+# WEBUI_SECRET_KEY pinned from Vault instead of the chart's own
+# auto-generated-and-written-to-disk default. Needed whenever persistence
+# is disabled (see open-webui.persistence.enabled below) - otherwise every
+# pod restart invalidates every session. Disabled by default.
+secretKey:
+  enabled: false
+  remoteSecretKey: open-webui
+  property: webui-secret-key
+
 open-webui:
-  # optional: true - the ConfigMap/ExternalSecret above only exist when oauth
-  # is enabled; without it they're missing and this must not block pod
-  # startup.
+  # optional: true on all of these - each ConfigMap/ExternalSecret only
+  # exists when its own feature flag above is enabled; without it they're
+  # missing and this must not block pod startup.
   extraEnvFrom:
     - secretRef:
         name: open-webui-oauth-secret
         optional: true
     - configMapRef:
         name: open-webui-oauth-config
+        optional: true
+    - secretRef:
+        name: open-webui-postgres-secret
+        optional: true
+    - configMapRef:
+        name: open-webui-postgres-config
+        optional: true
+    - secretRef:
+        name: open-webui-storage-secret
+        optional: true
+    - configMapRef:
+        name: open-webui-storage-config
+        optional: true
+    - secretRef:
+        name: open-webui-secret-key
         optional: true
