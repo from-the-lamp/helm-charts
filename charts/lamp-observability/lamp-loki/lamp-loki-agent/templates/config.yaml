@@ -59,6 +59,16 @@ data:
         target_label  = "service_name"
         regex         = "(.+)"
       }
+      # FTL-148: makes {namespace="kelos-tasks", kelos_spawned_by="..."} a
+      # valid Loki stream selector for post-incident review of a specific
+      # TaskSpawner's agent runs - only pods carrying the kelos.dev/spawned-by
+      # label get a non-empty value, everything else is unaffected.
+      rule {
+        action        = "replace"
+        source_labels = ["__meta_kubernetes_pod_label_kelos_dev_spawned_by"]
+        target_label  = "kelos_spawned_by"
+        regex         = "(.+)"
+      }
     }
     loki.source.kubernetes "pods" {
       targets    = discovery.relabel.default.output
@@ -66,7 +76,7 @@ data:
     }
     loki.process "pods" {
       stage.label_keep {
-        values = ["namespace","pod","container","service_name"]
+        values = ["namespace","pod","container","service_name","kelos_spawned_by"]
       }
       forward_to = [loki.write.default.receiver]
     }
