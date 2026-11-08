@@ -4,7 +4,7 @@ silent: true
 tasks:
   .readme:
     internal: true
-    dir: '{{.DIR}}'
+    dir: '{{.CHARTS_DIR}}/{{.DIR}}'
     cmds:
       - mkdir -p .output
       # Helm-docs
@@ -51,9 +51,9 @@ tasks:
         done | jq -s '.' > .output/charts.json
       - gomplate -d charts=.output/charts.json -f .tasks/README.md.gotmpl -o README.md
     sources:
-      - charts/lamp-*/**/Chart.yaml
-      - charts/lamp-*/**/NOTES.txt
-      - charts/lamp-*/**/NOTES.md
+      - '{{.CHARTS_DIR}}/lamp-*/**/Chart.yaml'
+      - '{{.CHARTS_DIR}}/lamp-*/**/NOTES.txt'
+      - '{{.CHARTS_DIR}}/lamp-*/**/NOTES.md'
       - README.md.gotmpl
     generates:
       - README.md

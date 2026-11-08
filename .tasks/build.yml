@@ -4,7 +4,7 @@ silent: true
 tasks:
   .build:
     internal: true
-    dir: '{{.DIR}}'
+    dir: '{{.CHARTS_DIR}}/{{.DIR}}'
     cmds:
       - echo -e "\033[36m==>\033[0m {{.DIR}} - removing .output so the push stage only sees this build's package"
       - rm -rf .output
@@ -21,10 +21,10 @@ tasks:
       - echo "Cleanup..."
       - task: cleanup
       - echo "Building..."
-      - task: .build 
+      - task: .build
         vars: { DIR: "{{index .MATCH 0}}" }
       - echo "Pushing..."
-      - task: .push 
+      - task: .push
         vars: { DIR: "{{index .MATCH 0}}" }
 
   build:push:all:
@@ -42,11 +42,11 @@ tasks:
       - task: build:changed
       - echo "Pushing..."
       - task: push:changed
-      
+
   build:*:
     desc: Build specific Chart (ex. task build:dirname)
     cmds:
-      - task: .build 
+      - task: .build
         vars: { DIR: "{{index .MATCH 0}}" }
 
   build:all:
@@ -68,7 +68,7 @@ tasks:
 
   .push:
     internal: true
-    dir: '{{.DIR}}'
+    dir: '{{.CHARTS_DIR}}/{{.DIR}}'
     cmds:
       - echo -e "\033[36m==>\033[0m {{.DIR}} - pushing the package from .output to oci://{{.OCI_REPO}}"
       - helm push $(find .output -type f -name "*.tgz") oci://{{.OCI_REPO}}
@@ -76,7 +76,7 @@ tasks:
   push:*:
     desc: Push specific Chart (ex. task push:dirname)
     cmds:
-      - task: .push 
+      - task: .push
         vars: { DIR: "{{index .MATCH 0}}" }
 
   push:all:

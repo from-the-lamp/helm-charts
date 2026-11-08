@@ -2,8 +2,11 @@ version: '3'
 
 dotenv: [.env]
 vars:
+  # Single source for the container subdirectory charts live under - every consumer below re-adds
+  # it instead of hardcoding "charts" a second time, so a future move only needs this one line.
+  CHARTS_DIR: charts
   CHART_DIRS:
-    sh: find . -type f -name "Chart.yaml" -not -path "./.git/*" -exec dirname {} \; | sed 's|^\./||' | tr '\n' ' '
+    sh: find . -type f -name "Chart.yaml" -not -path "./.git/*" -exec dirname {} \; | sed 's|^\./||' | sed 's|^{{.CHARTS_DIR}}/||' | tr '\n' ' '
   DIFF_BASE:
     sh: |
       if [ -n "${DIFF_BASE:-}" ]; then
@@ -39,7 +42,7 @@ vars:
         echo "$TARGETS"
         exit 0
       fi
-      git diff {{.GIT_DIFF_FLAGS}} --name-only --diff-filter=d {{.DIFF_BASE}} | grep 'Chart.yaml$' | xargs -r -n1 dirname | sort -u | tr '\n' ' '
+      git diff {{.GIT_DIFF_FLAGS}} --name-only --diff-filter=d {{.DIFF_BASE}} | grep 'Chart.yaml$' | xargs -r -n1 dirname | sed 's|^{{.CHARTS_DIR}}/||' | sort -u | tr '\n' ' '
 
 includes:
   init:
@@ -78,7 +81,7 @@ tasks:
           exit 0
         fi
         for d in {{.CHANGED_CHART_DIRS}}; do
-          echo "$d -> oci://${OCI_REPO:-<OCI_REPO>}/$(yq '.name' "$d/Chart.yaml"):$(yq '.version' "$d/Chart.yaml")"
+          echo "$d -> oci://${OCI_REPO:-<OCI_REPO>}/$(yq '.name' "{{.CHARTS_DIR}}/$d/Chart.yaml"):$(yq '.version' "{{.CHARTS_DIR}}/$d/Chart.yaml")"
         done
 
   list:changed:
@@ -95,7 +98,7 @@ tasks:
         set -e
         for d in {{.CHANGED_CHART_DIRS}}; do
           echo "== helm lint: $d =="
-          helm lint "$d"
+          helm lint "{{.CHARTS_DIR}}/$d"
         done
     preconditions:
       - sh: '[ -n "{{.CHANGED_CHART_DIRS}}" ]'
@@ -105,7 +108,7 @@ tasks:
     desc: Remove temporary files
     cmds:
     - find . -type d -name ".output" -prune -exec rm -rf {} \;
-    - find charts -mindepth 2 -type d -name "charts" -prune -exec rm -rf {} \;
+    - find {{.CHARTS_DIR}} -mindepth 2 -type d -name "charts" -prune -exec rm -rf {} \;
     - find . -iname "*tmpcharts*" -delete;
     - find . -iname "Chart.lock" -delete;
 
