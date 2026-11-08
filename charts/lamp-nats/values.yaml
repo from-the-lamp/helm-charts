@@ -1,0 +1,14 @@
+# Single-node homelab - no clustering (cluster.enabled stays false, same
+# single-replica posture as lamp-vault-server). JetStream file storage on
+# local-path, matching every other PVC-backed app on this cluster.
+nats:
+  config:
+    cluster:
+      enabled: false
+    jetstream:
+      enabled: true
+      fileStore:
+        enabled: true
+        pvc:
+          size: 5Gi
+          storageClassName: local-path
