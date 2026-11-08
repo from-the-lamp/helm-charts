@@ -31,7 +31,7 @@ backup:
     image:
       name: rclone/rclone
       # renovate: datasource=docker depName=rclone/rclone
-      tag: "1.69"
+      tag: "1.76"
     resources:
       requests:
         cpu: 50m

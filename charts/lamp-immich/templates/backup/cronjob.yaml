@@ -49,7 +49,7 @@ spec:
           containers:
             - name: upload
               # renovate: datasource=docker depName=rclone/rclone
-              image: rclone/rclone:1.69
+              image: rclone/rclone:1.76
               envFrom:
                 - configMapRef:
                     name: immich-backup
