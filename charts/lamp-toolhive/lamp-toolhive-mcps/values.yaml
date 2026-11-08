@@ -10,7 +10,7 @@ mcp:
 
   github:
     enabled: true
-    image: ghcr.io/github/github-mcp-server:v2.0.3
+    image: ghcr.io/github/github-mcp-server:v2.1.0
     mcps:
       - name: github-xdata
         token:
