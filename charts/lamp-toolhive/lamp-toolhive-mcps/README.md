@@ -1,6 +1,6 @@
 # lamp-toolhive-mcps
 
-![Version: 0.0.58](https://img.shields.io/badge/Version-0.0.58-informational?style=flat-square)
+![Version: 0.0.59](https://img.shields.io/badge/Version-0.0.59-informational?style=flat-square)
 
 ## Values
 
@@ -58,7 +58,7 @@
 | mcp.bitbucket.mcps[0].username | string | `"a.zverev@cx-labs.io"` |  |
 | mcp.bitbucket.mcps[0].workspace | string | `"currencycom"` |  |
 | mcp.clickhouse.enabled | bool | `false` |  |
-| mcp.clickhouse.image | string | `"us-central1-docker.pkg.dev/database-toolbox/toolbox/toolbox:1.15.0"` |  |
+| mcp.clickhouse.image | string | `"us-central1-docker.pkg.dev/database-toolbox/toolbox/toolbox:1.16.0"` |  |
 | mcp.clickhouse.mcps | list | `[]` |  |
 | mcp.coingecko.enabled | bool | `true` |  |
 | mcp.coingecko.image | string | `"registry.gitlab.com/from-the-lamp/infra/docker-images/lamp-coingecko-mcp:1.0.2"` |  |
@@ -85,12 +85,12 @@
 | mcp.gcloud.image | string | `"europe-central2-docker.pkg.dev/common-infra-4585/docker-images/gcloud-mcp:0.1.0"` |  |
 | mcp.gcloud.mcps | list | `[]` |  |
 | mcp.github.enabled | bool | `true` |  |
-| mcp.github.image | string | `"ghcr.io/github/github-mcp-server:v2.0.3"` |  |
+| mcp.github.image | string | `"ghcr.io/github/github-mcp-server:v2.1.0"` |  |
 | mcp.github.mcps[0].name | string | `"github-xdata"` |  |
 | mcp.github.mcps[0].token.key | string | `"toolhive"` |  |
 | mcp.github.mcps[0].token.property | string | `"github_xdata_token"` |  |
 | mcp.gitlab.enabled | bool | `true` |  |
-| mcp.gitlab.image | string | `"zereight050/gitlab-mcp:2.3.20"` |  |
+| mcp.gitlab.image | string | `"zereight050/gitlab-mcp:2.3.22"` |  |
 | mcp.gitlab.mcps[0].apiUrl | string | `"https://gitlab.com/api/v4"` |  |
 | mcp.gitlab.mcps[0].env[0].name | string | `"GITLAB_TOOLSETS"` |  |
 | mcp.gitlab.mcps[0].env[0].value | string | `"core,merge_requests,pipelines,ci,repositories"` |  |
@@ -114,7 +114,7 @@
 | mcp.googlemaps.mcps[0].token.property | string | `"googlemaps_grounding_lite_api_key"` |  |
 | mcp.googlemaps.remoteUrl | string | `"https://mapstools.googleapis.com/mcp"` |  |
 | mcp.grafana.enabled | bool | `false` |  |
-| mcp.grafana.image | string | `"grafana/mcp-grafana:2.1.1"` |  |
+| mcp.grafana.image | string | `"grafana/mcp-grafana:2.2.0"` |  |
 | mcp.grafana.mcps | list | `[]` |  |
 | mcp.immich.baseUrl | string | `"http://immich-server.immich.svc.cluster.local:2283"` |  |
 | mcp.immich.enabled | bool | `true` |  |
@@ -129,8 +129,11 @@
 | mcp.kafka.enabled | bool | `false` |  |
 | mcp.kafka.image | string | `"ghcr.io/tuannvm/kafka-mcp-server:2.0.2"` |  |
 | mcp.kafka.mcps | list | `[]` |  |
+| mcp.kelosConsole.enabled | bool | `false` |  |
+| mcp.kelosConsole.image | string | `""` |  |
+| mcp.kelosConsole.mcps | list | `[]` |  |
 | mcp.kubernetes.enabled | bool | `true` |  |
-| mcp.kubernetes.image | string | `"quay.io/containers/kubernetes_mcp_server:v0.1.1"` |  |
+| mcp.kubernetes.image | string | `"quay.io/containers/kubernetes_mcp_server:v0.1.2"` |  |
 | mcp.kubernetes.mcpPort | int | `8080` |  |
 | mcp.kubernetes.mcps[0].name | string | `"kubernetes"` |  |
 | mcp.kubernetes.mcps[0].serviceAccount | string | `"kubernetes-mcp"` |  |
@@ -170,10 +173,10 @@
 | mcp.playwright.mcpPort | int | `8931` |  |
 | mcp.playwright.mcps | list | `[]` |  |
 | mcp.postgres.enabled | bool | `false` |  |
-| mcp.postgres.image | string | `"us-central1-docker.pkg.dev/database-toolbox/toolbox/toolbox:1.15.0"` |  |
+| mcp.postgres.image | string | `"us-central1-docker.pkg.dev/database-toolbox/toolbox/toolbox:1.16.0"` |  |
 | mcp.postgres.mcps | list | `[]` |  |
 | mcp.redis.enabled | bool | `false` |  |
-| mcp.redis.image | string | `"us-central1-docker.pkg.dev/database-toolbox/toolbox/toolbox:1.15.0"` |  |
+| mcp.redis.image | string | `"us-central1-docker.pkg.dev/database-toolbox/toolbox/toolbox:1.16.0"` |  |
 | mcp.redis.mcps | list | `[]` |  |
 | mcp.remote.enabled | bool | `false` |  |
 | mcp.remote.mcps | list | `[]` |  |

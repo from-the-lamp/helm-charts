@@ -180,6 +180,22 @@ mcp:
       #     key: argocd
       #     property: mcp-token
 
+  # Bridges to Kelos's own console-server REST+WebSocket API
+  # (ghcr.io/kelos-dev/kelos-console-server) instead of raw k8s pods/exec -
+  # list/get/resume Sessions, run a shell command in a Ready Session's agent
+  # container. Custom image (infra/docker-images'
+  # images/lamp-kelos-console-mcp), not a third-party server - no "latest"
+  # upstream to point at.
+  kelosConsole:
+    enabled: false
+    image: ""
+    mcps: []
+      # - name: kelos-console-homelab
+      #   url: http://kelos-console-server.kelos.svc.cluster.local
+      #   token:
+      #     key: kelos
+      #     property: console_token
+
   sheets:
     enabled: true
     image: registry.gitlab.com/from-the-lamp/infra/docker-images/lamp-google-sheets:latest
