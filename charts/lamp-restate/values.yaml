@@ -1,0 +1,23 @@
+# Single-node homelab - same posture as lamp-nats/lamp-vault-server
+# (replicaCount stays at the chart default of 1, nothing overridden here).
+restate:
+  nameOverride: restate
+  version: "1.7.12"
+
+  # Chart default is 64Gi - way more than a homelab single node needs for
+  # this scale. local-path matches every other PVC-backed app on this
+  # cluster (see lamp-nats).
+  storage:
+    size: 10Gi
+    storageClassName: local-path
+
+  # Chart default (1 CPU / 3Gi limit) is sized for a real multi-tenant
+  # workload. Start modest, matching what buildkitd's own OOM lesson
+  # taught - raise the limit if this one gets OOMKilled too, don't
+  # pre-guess higher than needed.
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      memory: 1Gi

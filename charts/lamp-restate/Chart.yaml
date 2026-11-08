@@ -1,0 +1,10 @@
+apiVersion: v2
+name: lamp-restate
+description: Restate - durable execution engine for the monorepo processor (replaces Windmill's suspend/resume for human-in-the-loop approval)
+version: 0.1.0
+
+dependencies:
+  - name: restate-helm
+    alias: restate
+    version: 1.0.0
+    repository: oci://ghcr.io/restatedev
