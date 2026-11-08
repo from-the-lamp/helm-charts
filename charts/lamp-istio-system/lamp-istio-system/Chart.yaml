@@ -4,19 +4,19 @@ version: 0.1.0
 
 dependencies:
   - name: istiod
-    version: 1.30.7
+    version: 1.30.8
     repository: https://istio-release.storage.googleapis.com/charts
 
   - name: base
-    version: 1.30.7
+    version: 1.30.8
     repository: https://istio-release.storage.googleapis.com/charts
 
   - name: ztunnel
-    version: 1.30.7
+    version: 1.30.8
     repository: https://istio-release.storage.googleapis.com/charts
 
   - name: cni
-    version: 1.30.7
+    version: 1.30.8
     repository: https://istio-release.storage.googleapis.com/charts
 
 annotations:
