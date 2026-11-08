@@ -5,12 +5,12 @@ mcp:
 
   grafana:
     enabled: false
-    image: grafana/mcp-grafana:2.1.1
+    image: grafana/mcp-grafana:2.2.0
     mcps: []
 
   github:
     enabled: true
-    image: ghcr.io/github/github-mcp-server:v2.0.3
+    image: ghcr.io/github/github-mcp-server:v2.1.0
     mcps:
       - name: github-xdata
         token:
@@ -19,7 +19,7 @@ mcp:
 
   gitlab:
     enabled: true
-    image: zereight050/gitlab-mcp:2.3.20
+    image: zereight050/gitlab-mcp:2.3.22
     mcps:
       - name: gitlab
         apiUrl: https://gitlab.com/api/v4
@@ -45,7 +45,7 @@ mcp:
 
   kubernetes:
     enabled: true
-    image: quay.io/containers/kubernetes_mcp_server:v0.1.1
+    image: quay.io/containers/kubernetes_mcp_server:v0.1.2
     mcpPort: 8080
     mcps:
       - name: kubernetes
@@ -147,17 +147,17 @@ mcp:
 
   clickhouse:
     enabled: false
-    image: us-central1-docker.pkg.dev/database-toolbox/toolbox/toolbox:1.15.0
+    image: us-central1-docker.pkg.dev/database-toolbox/toolbox/toolbox:1.16.0
     mcps: []
 
   postgres:
     enabled: false
-    image: us-central1-docker.pkg.dev/database-toolbox/toolbox/toolbox:1.15.0
+    image: us-central1-docker.pkg.dev/database-toolbox/toolbox/toolbox:1.16.0
     mcps: []
 
   redis:
     enabled: false
-    image: us-central1-docker.pkg.dev/database-toolbox/toolbox/toolbox:1.15.0
+    image: us-central1-docker.pkg.dev/database-toolbox/toolbox/toolbox:1.16.0
     mcps: []
 
   kafka:
