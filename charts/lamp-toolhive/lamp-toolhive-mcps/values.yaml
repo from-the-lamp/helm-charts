@@ -325,7 +325,7 @@ mcp:
 
   letsfg:
     enabled: true
-    image: registry.gitlab.com/from-the-lamp/infra/docker-images/lamp-letsfg-mcp:1.1.0
+    image: registry.gitlab.com/from-the-lamp/infra/docker-images/lamp-letsfg-mcp:1.1.2
     mcps:
       - name: letsfg
 
