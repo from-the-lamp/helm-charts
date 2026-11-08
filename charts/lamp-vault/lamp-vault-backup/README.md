@@ -1,6 +1,6 @@
 # lamp-vault-backup
 
-![Version: 0.0.3](https://img.shields.io/badge/Version-0.0.3-informational?style=flat-square)
+![Version: 0.0.4](https://img.shields.io/badge/Version-0.0.4-informational?style=flat-square)
 
 ## Values
 
@@ -20,7 +20,7 @@
 | backup.keep | int | `7` |  |
 | backup.provider | string | `"gcs"` |  |
 | backup.rclone.image.name | string | `"rclone/rclone"` |  |
-| backup.rclone.image.tag | string | `"1.69"` |  |
+| backup.rclone.image.tag | string | `"1.76"` |  |
 | backup.rclone.resources.limits.memory | string | `"512Mi"` |  |
 | backup.rclone.resources.requests.cpu | string | `"50m"` |  |
 | backup.rclone.resources.requests.memory | string | `"128Mi"` |  |
@@ -35,7 +35,7 @@
 | backup.schedule | string | `"0 2 * * *"` |  |
 | backup.vault.address | string | `"http://vault.vault.svc.cluster.local:8200"` |  |
 | backup.vault.image.name | string | `"hashicorp/vault"` |  |
-| backup.vault.image.tag | string | `"1.21.4"` |  |
+| backup.vault.image.tag | string | `"2.2.1"` |  |
 | backup.vault.resources.limits.memory | string | `"256Mi"` |  |
 | backup.vault.resources.requests.cpu | string | `"10m"` |  |
 | backup.vault.resources.requests.memory | string | `"128Mi"` |  |

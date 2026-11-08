@@ -3,8 +3,8 @@ rollout: # Sometimes the tunnel (very rarely) stops resolving DNS, so we just do
   cron: "0 3 * * *" # Every night
 
 replicaCount: 1
-# cloudflare:
-#   tunnel_token:
+cloudflare:
+  tunnel_token: "" # real value always comes from the consumer's own values override
 
 image:
   repository: cloudflare/cloudflared
