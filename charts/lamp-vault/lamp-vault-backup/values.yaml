@@ -11,7 +11,7 @@ backup:
     image:
       name: hashicorp/vault
       # renovate: datasource=docker depName=hashicorp/vault
-      tag: 1.21.4
+      tag: 2.2.1
     address: http://vault.vault.svc.cluster.local:8200
     token:
       source: existingSecret
