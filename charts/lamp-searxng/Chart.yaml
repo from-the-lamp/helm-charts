@@ -1,0 +1,7 @@
+apiVersion: v2
+name: lamp-searxng
+description: SearXNG metasearch instance - gives Open WebUI's web search a single configured engine that itself aggregates and fails over across multiple public search backends (no API key for any of them)
+version: 0.1.0
+
+annotations:
+  notes: "Private, in-cluster-only instance - no HTTPRoute, no limiter/bot-protection. Only Open WebUI's backend talks to it, never a browser directly."

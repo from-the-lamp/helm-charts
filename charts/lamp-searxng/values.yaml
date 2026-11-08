@@ -1,0 +1,53 @@
+replicaCount: 1
+
+image:
+  repository: docker.io/searxng/searxng
+  pullPolicy: IfNotPresent
+  tag: "latest"
+
+fullnameOverride: ""
+
+service:
+  type: ClusterIP
+  port: 8080
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 256Mi
+  limits:
+    memory: 512Mi
+
+# Cookie/result-link signing key, not a real external credential - this
+# instance is never reachable outside the cluster (no HTTPRoute, only Open
+# WebUI's backend calls it), so it doesn't go through Vault like every other
+# secret in this repo. The official searxng/searxng image's entrypoint
+# sed-replaces settings.server.secret_key's "ultrasecretkey" placeholder
+# below with this value via the SEARXNG_SECRET env var at container start.
+# Override with any random string in the consumer values.yaml.
+secretKey: "ultrasecretkey"
+
+# Merged under use_default_settings: true, so the full stock engine list
+# (google, bing, duckduckgo, brave, startpage, wikipedia, ...) stays enabled
+# - none of those need an API key, SearXNG scrapes their public HTML search
+# pages directly. This is what gives Open WebUI real multi-engine
+# aggregation/fallback from a single configured RAG_WEB_SEARCH_ENGINE=searxng.
+settings:
+  server:
+    secret_key: "ultrasecretkey"
+    # Single always-the-same-source-IP caller (Open WebUI's own backend, not
+    # end-user browsers) - SearXNG's bot-detection limiter exists for public
+    # instances and would otherwise start throttling that one caller.
+    limiter: false
+    image_proxy: true
+  search:
+    safe_search: 0
+    # json is required - Open WebUI's web search calls SearXNG's
+    # /search?format=json, and SearXNG ships with only html enabled by
+    # default specifically to stop unauthenticated API scraping.
+    formats:
+      - html
+      - json
+  general:
+    instance_name: lamp-searxng
+    donation_url: false

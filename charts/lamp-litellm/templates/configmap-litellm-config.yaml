@@ -37,6 +37,14 @@ data:
           api_base: {{ $.Values.lmstudioApiBase }}
           api_key: "not-needed"
       {{- end }}
+      {{- range $model := .Values.geminiImageModels }}
+      - model_name: {{ $model }}
+        litellm_params:
+          model: gemini/{{ $model }}
+          api_key: os.environ/GEMINI_API_KEY
+        model_info:
+          mode: image_generation
+      {{- end }}
     router_settings:
       routing_strategy: simple-shuffle
       num_retries: 2
