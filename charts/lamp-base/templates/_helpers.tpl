@@ -31,7 +31,21 @@ Create chart name and version.
 {{- end }}
 
 {{/*
-Common labels
+Selector labels - deliberately minimal (name + instance only). These feed
+spec.selector.matchLabels, which is immutable after the first apply, so
+nothing that could ever change release-to-release (version, component,
+part-of) belongs here.
+*/}}
+{{- define "app.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "app.name" . }}
+app.kubernetes.io/instance: {{ .Release.Name }}
+{{- end }}
+
+{{/*
+Full recommended label set (https://kubernetes.io/docs/concepts/overview/working-with-objects/common-labels/),
+safe to put on any object's metadata AND on the Pod template itself -
+nothing here is used as a selector, so it's free to change release to
+release without breaking an existing Rollout/Service.
 */}}
 {{- define "app.labels" -}}
 helm.sh/chart: {{ include "app.chart" . }}
@@ -46,12 +60,36 @@ app.kubernetes.io/version: {{ .Values.image.tag | trimPrefix "v" | quote }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
+{{- with .Values.labels.component }}
+app.kubernetes.io/component: {{ . | quote }}
+{{- end }}
+{{- with .Values.labels.partOf }}
+app.kubernetes.io/part-of: {{ . | quote }}
+{{- end }}
 {{- end }}
 
 {{/*
-Selector labels
+Full image reference - "name:tag" for a semver tag (SemVer Kargo strategy),
+"name@digest" for a digest (Digest Kargo strategy). `@tag` where tag isn't
+a real digest is an invalid OCI reference, so this can't just always use
+`@` like the chart used to.
 */}}
-{{- define "app.selectorLabels" -}}
-app.kubernetes.io/name: {{ include "app.name" . }}
-app.kubernetes.io/instance: {{ .Release.Name }}
+{{- define "app.image" -}}
+{{- if contains "sha256:" (.Values.image.tag | default "") -}}
+{{ .Values.image.name }}@{{ .Values.image.tag }}
+{{- else -}}
+{{ .Values.image.name }}:{{ .Values.image.tag }}
+{{- end -}}
+{{- end }}
+
+{{/*
+ServiceAccount name - the dedicated one this chart creates when
+serviceAccount.create is true, otherwise the namespace default.
+*/}}
+{{- define "app.serviceAccountName" -}}
+{{- if .Values.serviceAccount.create }}
+{{- default (include "app.fullname" .) .Values.serviceAccount.name }}
+{{- else }}
+{{- default "default" .Values.serviceAccount.name }}
+{{- end }}
 {{- end }}

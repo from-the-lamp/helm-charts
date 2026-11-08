@@ -40,6 +40,17 @@ spec:
             - --host
             - "0.0.0.0"
             - --isolated
+            # WORKAROUND for stacklok/toolhive#7069 (vMCP opens a new backend
+            # MCP session per tool call instead of reusing the client's
+            # session, so --isolated's per-session browser context resets
+            # between consecutive tool calls - navigate works, the next
+            # snapshot/screenshot sees about:blank). --shared-browser-context
+            # makes all HTTP connections share one browser context instead of
+            # one per connection, which survives vMCP's reconnects. Trade-off:
+            # no isolation between concurrent users of this backend - fine
+            # here since each playwright backend has exactly one consumer.
+            # Remove once the upstream issue is fixed.
+            - --shared-browser-context
             # DNS-rebinding guard: playwright-mcp checks the request's Host
             # header against this allowlist independently of --host/bind
             # address. vmcp calls in via the cluster service DNS name, so

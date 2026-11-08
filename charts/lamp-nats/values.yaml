@@ -2,6 +2,11 @@
 # single-replica posture as lamp-vault-server). JetStream file storage on
 # local-path, matching every other PVC-backed app on this cluster.
 nats:
+  # Pinned (not left to Release.Name) for the same reason lamp-base
+  # consumers now set fullnameOverride explicitly - a predictable Service
+  # name ("nats", not "<release>-nats") that other services' NATS_URL can
+  # rely on without having to know what release name ArgoCD assigns.
+  fullnameOverride: nats
   config:
     cluster:
       enabled: false

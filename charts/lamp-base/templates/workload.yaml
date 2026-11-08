@@ -1,0 +1,144 @@
+{{- if eq .Values.controller.type "Rollout" }}
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+{{- else }}
+apiVersion: apps/v1
+kind: Deployment
+{{- end }}
+metadata:
+  name: {{ include "app.fullname" . }}
+  labels:
+    {{- include "app.labels" . | nindent 4 }}
+  {{- with .Values.deployment.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  replicas: {{ .Values.deployment.replicas }}
+  selector:
+    matchLabels:
+      {{- include "app.selectorLabels" . | nindent 6 }}
+  {{- if eq .Values.controller.type "Rollout" }}
+  strategy:
+    {{- toYaml .Values.deployment.strategy | nindent 4 }}
+  {{- else if .Values.deployment.deploymentStrategy }}
+  strategy:
+    {{- toYaml .Values.deployment.deploymentStrategy | nindent 4 }}
+  {{- end }}
+  template:
+    metadata:
+      labels:
+        {{- include "app.labels" . | nindent 8 }}
+        {{- with .Values.deployment.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      {{- with .Values.deployment.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    spec:
+      serviceAccountName: {{ include "app.serviceAccountName" . }}
+      {{- if .Values.affinity.enabled }}
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchLabels:
+                  {{- include "app.selectorLabels" . | nindent 18 }}
+              topologyKey: "kubernetes.io/hostname"
+      {{- end }}
+      {{- with .Values.image.pullSecrets }}
+      imagePullSecrets:
+      {{- range . }}
+        - name: {{ include "app.fullname" $ }}-image-pull-secret-{{ .name }}
+      {{- end }}
+      {{- end }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      enableServiceLinks: false
+      containers:
+        - name: app
+          image: "{{ include "app.image" . }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          {{- with .Values.deployment.command }}
+          command: {{- toYaml . | nindent 10 }}
+          {{- end }}
+          {{- with .Values.deployment.args }}
+          args: {{- toYaml . | nindent 10 }}
+          {{- end }}
+          {{- if .Values.deployment.port }}
+          ports:
+            - containerPort: {{ .Values.deployment.port }}
+              protocol: TCP
+          {{- end }}
+          env:
+            - name: "TZ"
+              value: "UTC"
+            {{- with .Values.deployment.env }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          {{- with .Values.deployment.envFrom }}
+          envFrom:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.deployment.probes.liveness }}
+          livenessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.deployment.probes.readiness }}
+          readinessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          securityContext:
+            {{- toYaml .Values.containerSecurityContext | nindent 12 }}
+          resources:
+            {{- toYaml .Values.deployment.resources | nindent 12 }}
+          {{- if or .Values.volumes.secretMounts .Values.volumes.emptyDirMounts .Values.volumes.extraVolumeMounts }}
+          volumeMounts:
+            {{- range .Values.volumes.secretMounts }}
+            - name: {{ .name }}
+              mountPath: {{ .mountPath }}
+              {{- with .subPath }}
+              subPath: {{ . }}
+              {{- end }}
+              readOnly: true
+            {{- end }}
+            {{- range .Values.volumes.emptyDirMounts }}
+            - name: {{ .name }}
+              mountPath: {{ .mountPath }}
+            {{- end }}
+            {{- with .Values.volumes.extraVolumeMounts }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          {{- end }}
+      {{- if or .Values.volumes.secretMounts .Values.volumes.emptyDirMounts .Values.volumes.extra }}
+      volumes:
+        {{- range .Values.volumes.secretMounts }}
+        - name: {{ .name }}
+          secret:
+            secretName: {{ .secretName }}
+            {{- with .defaultMode }}
+            defaultMode: {{ . }}
+            {{- end }}
+            {{- with .items }}
+            items:
+              {{- toYaml . | nindent 14 }}
+            {{- end }}
+        {{- end }}
+        {{- range .Values.volumes.emptyDirMounts }}
+        - name: {{ .name }}
+          emptyDir:
+          {{- if .sizeLimit }}
+            sizeLimit: {{ .sizeLimit }}
+          {{- else }}
+            {}
+          {{- end }}
+        {{- end }}
+        {{- with .Values.volumes.extra }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

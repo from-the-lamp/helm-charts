@@ -1,7 +1,7 @@
 apiVersion: v2
 name: lamp-base
-description: Base platform chart with shared defaults for standardized application deployments
-version: 0.0.5
+description: Base platform chart - standardized Rollout/Service/ServiceAccount/ExternalSecret/PDB/HPA/NetworkPolicy for any from-the-lamp app
+version: 1.0.0
 
 annotations:
   notes: "Base platform components and shared defaults for standardized deployments."
