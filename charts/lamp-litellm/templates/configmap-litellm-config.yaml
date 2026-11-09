@@ -9,6 +9,20 @@ data:
       - model_name: {{ $model }}
         litellm_params:
           model: chatgpt/{{ $model }}
+          # The ChatGPT/Codex OAuth backend rejects any request carrying a
+          # system-role input item (400 "System messages are not allowed")
+          # - a bug in litellm's chatgpt provider, fixed upstream for
+          # plain-string system messages but not yet for Anthropic-style
+          # content-block system prompts (BerriAI/litellm#48562, as of
+          # v1.108.3). Caller-side callers like Claude Code's Anthropic-
+          # messages passthrough always send a system prompt, so without
+          # this override every one of these models 400s on its very
+          # first request. supports_system_message: false makes litellm
+          # fold the system content into a user message instead of a
+          # rejected system/developer input item - a general litellm
+          # model setting, independent of the chatgpt-provider-specific
+          # fix still pending upstream.
+          supports_system_message: false
       {{- end }}
       {{- range $model := .Values.deepseekModels }}
       - model_name: {{ $model }}
