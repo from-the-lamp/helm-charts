@@ -53,6 +53,12 @@ spec:
           configMap:
             name: buildkitd
         - name: state
+          {{- if .Values.buildkitd.persistence.hostPath }}
+          hostPath:
+            path: {{ .Values.buildkitd.persistence.hostPath }}
+            type: DirectoryOrCreate
+          {{- else }}
           persistentVolumeClaim:
             claimName: buildkitd
+          {{- end }}
 {{- end }}

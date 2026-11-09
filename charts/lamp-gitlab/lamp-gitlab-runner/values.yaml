@@ -21,7 +21,7 @@ gitlab-runner:
           image = "ubuntu:latest"
           helper_image = "gitlab/gitlab-runner-helper:arm64-latest"
           privileged = true
-     
+
 externalSecrets:
   kind: ClusterSecretStore
   name: oracle
@@ -38,6 +38,12 @@ buildkitd:
   persistence:
     size: 30Gi
     storageClass: ""
+    # When set, buildkitd's state dir is a hostPath at this path instead
+    # of a local-path-provisioner PVC - needed on nodes where the
+    # provisioner's default path is itself a nested overlay mount (e.g.
+    # Talos' /opt), which the kernel refuses as an overlayfs upperdir and
+    # forces buildkit to fall back to the much slower "native" snapshotter.
+    hostPath: ""
   gc:
     maxUsedSpace: 20GB
   resources: {}

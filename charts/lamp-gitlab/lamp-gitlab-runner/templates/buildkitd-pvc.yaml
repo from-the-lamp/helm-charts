@@ -1,4 +1,4 @@
-{{- if .Values.buildkitd.enabled }}
+{{- if and .Values.buildkitd.enabled (not .Values.buildkitd.persistence.hostPath) }}
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
