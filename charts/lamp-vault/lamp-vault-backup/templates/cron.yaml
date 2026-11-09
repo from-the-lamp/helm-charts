@@ -19,6 +19,16 @@ spec:
       template:
         spec:
           restartPolicy: Never
+          securityContext:
+            # The upload container's image defaults to root, but with ALL
+            # capabilities dropped (below) it loses CAP_DAC_OVERRIDE, so it
+            # can no longer read files it doesn't own. Pin both containers
+            # to the vault image's own uid/gid (100/1000) so the snapshot
+            # file the init container writes to the shared emptyDir is
+            # readable by the same owning uid in the upload container.
+            runAsUser: 100
+            runAsGroup: 1000
+            fsGroup: 1000
           {{- if $ksa }}
           serviceAccountName: {{ $ksa }}
           {{- end }}
