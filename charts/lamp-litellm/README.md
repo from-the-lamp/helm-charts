@@ -1,6 +1,6 @@
 # lamp-litellm
 
-![Version: 0.5.1](https://img.shields.io/badge/Version-0.5.1-informational?style=flat-square)
+![Version: 0.5.2](https://img.shields.io/badge/Version-0.5.2-informational?style=flat-square)
 
 ## Requirements
 
@@ -65,7 +65,7 @@
 | litellm-helm.extraInitContainers[0].volumeMounts[0].name | string | `"chatgpt-auth-persistent"` |  |
 | litellm-helm.image.pullPolicy | string | `"Always"` |  |
 | litellm-helm.image.repository | string | `"registry.gitlab.com/from-the-lamp/infra/docker-images/lamp-litellm"` |  |
-| litellm-helm.image.tag | string | `"1.0.11"` |  |
+| litellm-helm.image.tag | string | `"1.0.14"` |  |
 | litellm-helm.imagePullSecrets[0].name | string | `"litellm-image-pull"` |  |
 | litellm-helm.masterkeySecretKey | string | `"masterkey"` |  |
 | litellm-helm.masterkeySecretName | string | `"litellm-masterkey"` |  |
