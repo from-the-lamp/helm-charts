@@ -8,12 +8,12 @@ annotations:
 dependencies:
   - name: prometheus-operator-crds
     condition: prometheus-operator-crds.enabled
-    version: 33.0.1
+    version: 33.0.2
     repository: https://prometheus-community.github.io/helm-charts
 
   - name: victoria-metrics-k8s-stack
     condition: victoria-metrics-k8s-stack.enabled
-    version: 0.97.1
+    version: 0.98.1
     repository: https://victoriametrics.github.io/helm-charts
 
   - name: prometheus-mysql-exporter
@@ -31,11 +31,11 @@ dependencies:
   - name: prometheus-postgres-exporter
     alias: postgres-exporter
     condition: postgres-exporter.enabled
-    version: 8.2.3
+    version: 8.2.5
     repository: https://prometheus-community.github.io/helm-charts
 
   - name: prometheus-blackbox-exporter
     alias: blackbox-exporter
     condition: blackbox-exporter.enabled
-    version: 11.21.1
+    version: 11.21.3
     repository: https://prometheus-community.github.io/helm-charts

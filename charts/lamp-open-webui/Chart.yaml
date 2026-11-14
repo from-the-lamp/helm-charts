@@ -5,5 +5,5 @@ description: Thin wrapper around the upstream Open WebUI chart
 
 dependencies:
   - name: open-webui
-    version: 18.0.0
+    version: 18.3.0
     repository: https://helm.openwebui.com/

@@ -5,7 +5,7 @@ mcp:
 
   grafana:
     enabled: false
-    image: grafana/mcp-grafana:2.2.0
+    image: grafana/mcp-grafana:2.3.0
     mcps: []
 
   github:
@@ -19,7 +19,7 @@ mcp:
 
   gitlab:
     enabled: true
-    image: zereight050/gitlab-mcp:2.3.22
+    image: zereight050/gitlab-mcp:2.3.27
     mcps:
       - name: gitlab
         apiUrl: https://gitlab.com/api/v4
@@ -45,7 +45,7 @@ mcp:
 
   kubernetes:
     enabled: true
-    image: quay.io/containers/kubernetes_mcp_server:v0.1.2
+    image: quay.io/containers/kubernetes_mcp_server:v0.1.3
     mcpPort: 8080
     mcps:
       - name: kubernetes
@@ -78,7 +78,7 @@ mcp:
 
   jira:
     enabled: false
-    image: ghcr.io/sooperset/mcp-atlassian:0.23.1
+    image: ghcr.io/sooperset/mcp-atlassian:0.24.4
     mcps: []
 
   atlassian:
@@ -141,23 +141,23 @@ mcp:
     address: http://vault.vault:8200
     authMount: kubernetes
     proxy:
-      image: hashicorp/vault:2.2.1
+      image: hashicorp/vault:2.2.2
       port: 8100
     mcps: []
 
   clickhouse:
     enabled: false
-    image: us-central1-docker.pkg.dev/database-toolbox/toolbox/toolbox:1.16.0
+    image: us-central1-docker.pkg.dev/database-toolbox/toolbox/toolbox:1.17.0
     mcps: []
 
   postgres:
     enabled: false
-    image: us-central1-docker.pkg.dev/database-toolbox/toolbox/toolbox:1.16.0
+    image: us-central1-docker.pkg.dev/database-toolbox/toolbox/toolbox:1.17.0
     mcps: []
 
   redis:
     enabled: false
-    image: us-central1-docker.pkg.dev/database-toolbox/toolbox/toolbox:1.16.0
+    image: us-central1-docker.pkg.dev/database-toolbox/toolbox/toolbox:1.17.0
     mcps: []
 
   kafka:
@@ -367,7 +367,7 @@ mcp:
 
   playwright:
     enabled: false
-    image: mcr.microsoft.com/playwright/mcp:v0.0.83
+    image: mcr.microsoft.com/playwright/mcp:v0.0.85
     mcpPort: 8931
     mcps: []
 
