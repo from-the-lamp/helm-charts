@@ -1,13 +1,13 @@
 # lamp-postgres-cluster
 
-![Version: 0.0.4](https://img.shields.io/badge/Version-0.0.4-informational?style=flat-square)
+![Version: 0.0.5](https://img.shields.io/badge/Version-0.0.5-informational?style=flat-square)
 
 ## Requirements
 
 | Repository | Name | Version |
 |------------|------|---------|
 | https://cloudnative-pg.github.io/charts | cluster | 0.9.0 |
-| https://cloudnative-pg.github.io/charts | plugin-barman-cloud | 0.8.1 |
+| https://cloudnative-pg.github.io/charts | plugin-barman-cloud | 0.9.0 |
 
 ## Values
 
@@ -72,6 +72,7 @@
 | externalSecrets.kind | string | `"ClusterSecretStore"` |  |
 | externalSecrets.name | string | `""` |  |
 | externalSecrets.refreshInterval | string | `"1h"` |  |
+| rolePasswordSources | object | `{}` |  |
 # Trivy scan - Helm Chart
 
 ## Report Summary
