@@ -1,6 +1,6 @@
 apiVersion: v2
 name: lamp-litellm
-version: 0.5.4
+version: 0.5.5
 
 dependencies:
   - name: litellm-helm
@@ -8,4 +8,4 @@ dependencies:
     repository: oci://ghcr.io/berriai
 
 annotations:
-  notes: "FTL-174: own Postgres database (spend ledger, virtual keys persist via store_model_in_db) and an otel callback toggle for request-level tracing."
+  notes: "router_settings: allowed_fails: 1 / cooldown_time: 300s, so a deployment that fails on credit exhaustion or a usage-limit window stops being retried on every request and the router goes straight to its fallback, auto-recovering after 5 minutes without a pod restart."

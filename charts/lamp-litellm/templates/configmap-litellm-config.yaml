@@ -63,6 +63,24 @@ data:
       routing_strategy: simple-shuffle
       num_retries: 2
       timeout: 120
+      # 2026-11-14 incident: Anthropic credit exhaustion and the ChatGPT
+      # plan's own usage-limit window are not transient - once a model
+      # starts failing this way it stays broken anywhere from tens of
+      # minutes (observed resets_in_seconds ~3864 on the ChatGPT side) to
+      # indefinitely (Anthropic credits need a manual top-up). Without a
+      # cooldown, every single request pays the full num_retries: 2 cost
+      # against the known-dead model before ever reaching its fallback -
+      # confirmed live: three separate Kelos remediation Jobs each
+      # independently re-discovered the same claude-sonnet-5 failure.
+      # allowed_fails: 1 trips cooldown on the 2nd failure - within the
+      # same request's own retries, so the very next request already
+      # skips straight to the fallback. cooldown_time: 300 (5 min) is a
+      # deliberate middle ground: short enough that a genuinely transient
+      # blip self-heals within minutes without needing a pod restart, long
+      # enough that a real multi-hour outage only costs one wasted call
+      # every 5 minutes instead of on every single request.
+      allowed_fails: 1
+      cooldown_time: 300
       fallbacks:
         {{- range $model := .Values.chatgptModels }}
         - {{ $model }}:
