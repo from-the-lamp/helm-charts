@@ -1,6 +1,6 @@
 # lamp-grafana
 
-![Version: 0.0.25](https://img.shields.io/badge/Version-0.0.25-informational?style=flat-square)
+![Version: 0.0.26](https://img.shields.io/badge/Version-0.0.26-informational?style=flat-square)
 
 ## Values
 
@@ -98,6 +98,7 @@
 | dashboards.redis.enabled | bool | `false` |  |
 | dashboards.redis.exporter | bool | `true` |  |
 | dashboards.smartctl_exporter.enabled | bool | `false` |  |
+| dashboards.tempo.enabled | bool | `false` |  |
 | dashboards.vault.enabled | bool | `false` |  |
 | dashboards.victoria_metrics.enabled | bool | `true` |  |
 | datasources.alertmanager.enabled | bool | `true` |  |
@@ -133,7 +134,7 @@
 | global.projectId | string | `"example-dev"` |  |
 | homeDashboardUid | string | `"loki-logs-by-service"` |  |
 | image.name | string | `"grafana/grafana"` |  |
-| image.tag | string | `"10.0.3"` |  |
+| image.tag | string | `"13.3.1"` |  |
 | ingress.enabled | bool | `false` |  |
 | ingress.ingressClassName | string | `"nginx-internal"` |  |
 # Trivy scan - Helm Chart

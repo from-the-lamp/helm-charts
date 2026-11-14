@@ -1,0 +1,34 @@
+{{- if .Values.dashboards.tempo.enabled }}
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaFolder
+metadata:
+  name: tempo
+spec:
+  instanceSelector:
+    matchLabels:
+      dashboards: "grafana"
+  parentFolderRef: platform
+  title: Tempo
+---
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDashboard
+metadata:
+  name: tempo-service-graph
+spec:
+  folderRef: tempo
+  instanceSelector:
+    matchLabels:
+      dashboards: "grafana"
+  url: https://raw.githubusercontent.com/grafana/tempo/main/operations/tempo-mixin/dashboards/tempo-service-graph.json
+---
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDashboard
+metadata:
+  name: tempo-operational
+spec:
+  folderRef: tempo
+  instanceSelector:
+    matchLabels:
+      dashboards: "grafana"
+  url: https://raw.githubusercontent.com/grafana/tempo/main/operations/tempo-mixin/dashboards/tempo-operational.json
+{{- end }}
