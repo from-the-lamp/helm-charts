@@ -64,22 +64,24 @@ claudeModels:
   - claude-sonnet-5
   - claude-haiku-4-5-20251001
 
-# Google AI Studio (Gemini) API key - free tier, image generation only.
-# litellm's native gemini/ provider (AI-Studio-backed, not vertex_ai/) wires
-# imagen-4.0-generate-001 straight into /v1/images/generations; it is the
-# only configured provider in this chart that can serve an image request -
-# chatgptModels' chatgpt/ provider only exposes /chat/completions and
-# /responses, and none of claudeModels/deepseekModels do image generation at
-# all. Same shape as claudeApiKey/claudeModels, but each entry becomes
-# `gemini/<model>` tagged model_info.mode: image_generation so litellm only
-# ever routes an image request to it, never a chat completion.
+# Google AI Studio (Gemini) API key - image generation only, billing-enabled
+# project (the zero-billing free tier grants no quota for image-capable
+# models). litellm's native gemini/ provider (AI-Studio-backed, not
+# vertex_ai/) wires gemini-2.5-flash-image straight into
+# /v1/images/generations; it is the only configured provider in this chart
+# that can serve an image request - chatgptModels' chatgpt/ provider only
+# exposes /chat/completions and /responses, and none of
+# claudeModels/deepseekModels do image generation at all. Same shape as
+# claudeApiKey/claudeModels, but each entry becomes `gemini/<model>` tagged
+# model_info.mode: image_generation so litellm only ever routes an image
+# request to it, never a chat completion.
 geminiApiKey:
   secretName: litellm-gemini
   remoteRef:
     key: litellm
     property: gemini_api_key
 geminiImageModels:
-  - imagen-4.0-generate-001
+  - gemini-2.5-flash-image
 
 # Explicit cross-provider fallbacks, additive to the chatgptModels sibling
 # fallback below - litellm's router tries each listed target, in order, if
