@@ -235,16 +235,24 @@ mcp:
     image: registry.gitlab.com/from-the-lamp/infra/docker-images/lamp-ssh-mcp:latest
     mcps:
       - name: ssh-oracle-prod-0
-        config:
-          key: toolhive
-          property: ssh_config_oracle_prod_0
+        sshConfig: |
+          Host ssh-oracle-prod-0
+            HostName CHANGEME
+            User ubuntu
+            IdentityFile ~/.ssh/id_ed25519
+            StrictHostKeyChecking accept-new
+        vaultKey: toolhive
         keyFiles:
           - name: id_ed25519
             property: ssh_key_oracle_prod_0
       - name: ssh-oracle-prod-1
-        config:
-          key: toolhive
-          property: ssh_config_oracle_prod_1
+        sshConfig: |
+          Host ssh-oracle-prod-1
+            HostName CHANGEME
+            User ubuntu
+            IdentityFile ~/.ssh/id_ed25519
+            StrictHostKeyChecking accept-new
+        vaultKey: toolhive
         keyFiles:
           - name: id_ed25519
             property: ssh_key_oracle_prod_1

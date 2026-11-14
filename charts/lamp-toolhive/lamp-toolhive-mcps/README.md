@@ -1,6 +1,6 @@
 # lamp-toolhive-mcps
 
-![Version: 0.0.59](https://img.shields.io/badge/Version-0.0.59-informational?style=flat-square)
+![Version: 0.0.60](https://img.shields.io/badge/Version-0.0.60-informational?style=flat-square)
 
 ## Values
 
@@ -201,16 +201,16 @@
 | mcp.slack.mcps[2].token.property | string | `"slack_token_currency"` |  |
 | mcp.ssh.enabled | bool | `true` |  |
 | mcp.ssh.image | string | `"registry.gitlab.com/from-the-lamp/infra/docker-images/lamp-ssh-mcp:latest"` |  |
-| mcp.ssh.mcps[0].config.key | string | `"toolhive"` |  |
-| mcp.ssh.mcps[0].config.property | string | `"ssh_config_oracle_prod_0"` |  |
 | mcp.ssh.mcps[0].keyFiles[0].name | string | `"id_ed25519"` |  |
 | mcp.ssh.mcps[0].keyFiles[0].property | string | `"ssh_key_oracle_prod_0"` |  |
 | mcp.ssh.mcps[0].name | string | `"ssh-oracle-prod-0"` |  |
-| mcp.ssh.mcps[1].config.key | string | `"toolhive"` |  |
-| mcp.ssh.mcps[1].config.property | string | `"ssh_config_oracle_prod_1"` |  |
+| mcp.ssh.mcps[0].sshConfig | string | `"Host ssh-oracle-prod-0\n  HostName CHANGEME\n  User ubuntu\n  IdentityFile ~/.ssh/id_ed25519\n  StrictHostKeyChecking accept-new\n"` |  |
+| mcp.ssh.mcps[0].vaultKey | string | `"toolhive"` |  |
 | mcp.ssh.mcps[1].keyFiles[0].name | string | `"id_ed25519"` |  |
 | mcp.ssh.mcps[1].keyFiles[0].property | string | `"ssh_key_oracle_prod_1"` |  |
 | mcp.ssh.mcps[1].name | string | `"ssh-oracle-prod-1"` |  |
+| mcp.ssh.mcps[1].sshConfig | string | `"Host ssh-oracle-prod-1\n  HostName CHANGEME\n  User ubuntu\n  IdentityFile ~/.ssh/id_ed25519\n  StrictHostKeyChecking accept-new\n"` |  |
+| mcp.ssh.mcps[1].vaultKey | string | `"toolhive"` |  |
 | mcp.thegraph.enabled | bool | `true` |  |
 | mcp.thegraph.image | string | `"registry.gitlab.com/from-the-lamp/infra/docker-images/lamp-thegraph-mcp:latest"` |  |
 | mcp.thegraph.mcps[0].name | string | `"thegraph"` |  |

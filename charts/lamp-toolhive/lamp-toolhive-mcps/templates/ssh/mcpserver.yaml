@@ -28,8 +28,12 @@ spec:
               readOnly: true
       volumes:
         - name: sshconfig
-          secret:
-            secretName: {{ $item.name }}-mcp-secret
+          projected:
             defaultMode: 0400
+            sources:
+              - configMap:
+                  name: {{ $item.name }}-ssh-config
+              - secret:
+                  name: {{ $item.name }}-mcp-secret
 {{- end }}
 {{- end }}

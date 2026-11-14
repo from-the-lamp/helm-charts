@@ -1,0 +1,12 @@
+{{- if .Values.mcp.ssh.enabled }}
+{{- range $item := .Values.mcp.ssh.mcps }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ $item.name }}-ssh-config
+data:
+  config: |
+{{ $item.sshConfig | indent 4 }}
+{{- end }}
+{{- end }}
