@@ -71,11 +71,17 @@ data:
             - {{ $other }}
             {{- end }}
             {{- end }}
+            {{- if hasKey $.Values.modelFallbacks $model }}
+            {{- range $target := index $.Values.modelFallbacks $model }}
+            - {{ $target }}
+            {{- end }}
+            {{- end }}
             {{- range $tail := $.Values.fallbackTail }}
             - {{ $tail }}
             {{- end }}
         {{- end }}
         {{- range $model, $targets := .Values.modelFallbacks }}
+        {{- if not (has $model $.Values.chatgptModels) }}
         - {{ $model }}:
             {{- range $target := $targets }}
             - {{ $target }}
@@ -83,6 +89,7 @@ data:
             {{- range $tail := $.Values.fallbackTail }}
             - {{ $tail }}
             {{- end }}
+        {{- end }}
         {{- end }}
     litellm_settings:
       drop_params: true

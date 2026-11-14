@@ -1,6 +1,6 @@
 # lamp-litellm
 
-![Version: 0.5.3](https://img.shields.io/badge/Version-0.5.3-informational?style=flat-square)
+![Version: 0.5.4](https://img.shields.io/badge/Version-0.5.4-informational?style=flat-square)
 
 ## Requirements
 
