@@ -359,7 +359,7 @@ mcp:
 
   playwright:
     enabled: false
-    image: mcr.microsoft.com/playwright/mcp:v0.0.83
+    image: mcr.microsoft.com/playwright/mcp:v0.0.85
     mcpPort: 8931
     mcps: []
 
