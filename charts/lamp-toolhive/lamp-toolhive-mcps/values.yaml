@@ -196,6 +196,25 @@ mcp:
       #     key: kelos
       #     property: console_token
 
+  # Generates an image from a text prompt via our own lamp-litellm proxy's
+  # /images/generations endpoint (geminiImageModels - gemini-2.5-flash-image).
+  # Custom image (infra/docker-images' images/lamp-image-gen-mcp), not a
+  # third-party server - no "latest" upstream to point at. `token` references
+  # a litellm virtual key scoped to the image model, not the master key -
+  # this MCP has no need for admin-level litellm access. The key itself is
+  # provisioned by Terraform, not a manual vault/curl call - see
+  # terraform/terragrunt/homelab/litellm/image-gen-key.
+  imageGen:
+    enabled: false
+    image: ""
+    mcps: []
+      # - name: image-gen
+      #   baseUrl: https://litellm.from-the-lamp.work/v1
+      #   model: gemini-2.5-flash-image
+      #   token:
+      #     key: litellm
+      #     property: image_gen_api_key
+
   sheets:
     enabled: true
     image: registry.gitlab.com/from-the-lamp/infra/docker-images/lamp-google-sheets:latest

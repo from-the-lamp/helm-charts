@@ -1,4 +1,4 @@
-{{- if or .Values.dashboards.litellm.enabled .Values.dashboards.claude_code.enabled }}
+{{- if or .Values.dashboards.litellm.enabled .Values.dashboards.litellm_spend.enabled .Values.dashboards.claude_code.enabled }}
 apiVersion: grafana.integreatly.org/v1beta1
 kind: GrafanaFolder
 metadata:

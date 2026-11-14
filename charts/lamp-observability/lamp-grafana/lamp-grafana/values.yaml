@@ -178,6 +178,8 @@ dashboards:
     hubble: true
   litellm:
     enabled: false
+  litellm_spend:
+    enabled: false
   tempo:
     enabled: false
   claude_code:

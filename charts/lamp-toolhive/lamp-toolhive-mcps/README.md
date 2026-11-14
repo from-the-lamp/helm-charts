@@ -1,6 +1,6 @@
 # lamp-toolhive-mcps
 
-![Version: 0.0.61](https://img.shields.io/badge/Version-0.0.61-informational?style=flat-square)
+![Version: 0.0.62](https://img.shields.io/badge/Version-0.0.62-informational?style=flat-square)
 
 ## Values
 
@@ -116,6 +116,9 @@
 | mcp.grafana.enabled | bool | `false` |  |
 | mcp.grafana.image | string | `"grafana/mcp-grafana:2.3.0"` |  |
 | mcp.grafana.mcps | list | `[]` |  |
+| mcp.imageGen.enabled | bool | `false` |  |
+| mcp.imageGen.image | string | `""` |  |
+| mcp.imageGen.mcps | list | `[]` |  |
 | mcp.immich.baseUrl | string | `"http://immich-server.immich.svc.cluster.local:2283"` |  |
 | mcp.immich.enabled | bool | `true` |  |
 | mcp.immich.image | string | `"ghcr.io/drolosoft/immich-photo-manager:latest"` |  |

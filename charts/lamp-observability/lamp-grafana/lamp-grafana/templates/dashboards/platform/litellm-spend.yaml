@@ -39,7 +39,6 @@ spec:
           {
             "name": "consumer",
             "type": "query",
-            "datasource": { "type": "prometheus", "uid": "$datasource" },
             "query": "label_values(litellm_spend_metric_total, api_key_alias)",
             "includeAll": true,
             "multi": true,

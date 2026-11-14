@@ -1,6 +1,6 @@
 # lamp-grafana
 
-![Version: 0.0.26](https://img.shields.io/badge/Version-0.0.26-informational?style=flat-square)
+![Version: 0.0.27](https://img.shields.io/badge/Version-0.0.27-informational?style=flat-square)
 
 ## Values
 
@@ -82,6 +82,7 @@
 | dashboards.kubernetes.nodes | bool | `true` |  |
 | dashboards.kubernetes.pods | bool | `true` |  |
 | dashboards.litellm.enabled | bool | `false` |  |
+| dashboards.litellm_spend.enabled | bool | `false` |  |
 | dashboards.loki.enabled | bool | `true` |  |
 | dashboards.loki.logs-by-service | bool | `true` |  |
 | dashboards.mongodb.enabled | bool | `false` |  |
