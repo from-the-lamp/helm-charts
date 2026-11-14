@@ -1,6 +1,6 @@
 apiVersion: v2
 name: lamp-litellm
-version: 0.4.6
+version: 0.5.0
 
 dependencies:
   - name: litellm-helm
@@ -8,4 +8,4 @@ dependencies:
     repository: oci://ghcr.io/berriai
 
 annotations:
-  notes: "Fix geminiImageModels to the real Gemini image-generation model id (gemini-2.5-flash-image); imagen-4.0-generate-001 doesn't exist for this API version and 404s."
+  notes: "FTL-174: own Postgres database (spend ledger, virtual keys persist via store_model_in_db) and an otel callback toggle for request-level tracing."

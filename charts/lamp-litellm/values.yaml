@@ -120,6 +120,28 @@ whisperModels:
 lmstudioApiBase: ""
 lmstudioModels: []
 
+# Own database (FTL-174) - gives litellm a spend ledger and lets
+# general_settings.store_model_in_db persist virtual keys/budgets instead of
+# every consumer sharing masterKey. Same shape as lamp-open-webui's own
+# postgres block: one Vault-backed role password, templated into a full
+# DATABASE_URL (litellm's Prisma client reads that env var directly, no
+# general_settings.database_url entry needed).
+postgres:
+  enabled: true
+  host: postgres-rw.postgres.svc.cluster.local
+  port: 5432
+  database: litellm
+  user: litellm
+  remoteSecretKey: postgres
+  passwordProperty: users.litellm.password
+  secretName: litellm-postgres-secret
+
+# Request-level tracing (FTL-174) - litellm's native "otel" callback,
+# exporting to apps/homelab/platform/tempo (OTEL_EXPORTER_OTLP_ENDPOINT
+# below, in litellm-helm.envVars).
+otel:
+  enabled: true
+
 proxyConfigMap:
   name: litellm-proxy-config
   key: config.yaml
@@ -130,6 +152,7 @@ litellm-helm:
     - litellm-groq
     - litellm-claude
     - litellm-gemini
+    - litellm-postgres-secret
 
   image:
     repository: registry.gitlab.com/from-the-lamp/infra/docker-images/lamp-litellm
@@ -164,6 +187,10 @@ litellm-helm:
   envVars:
     CHATGPT_TOKEN_DIR: /var/lib/litellm/chatgpt-auth
     CHATGPT_AUTH_FILE: chatgpt-auth.json
+    # Only read when litellm_settings.callbacks includes "otel" (otel.enabled
+    # above) - harmless to always set otherwise, same as the chatgpt vars
+    # above being set regardless of whether chatgptModels is non-empty.
+    OTEL_EXPORTER_OTLP_ENDPOINT: http://tempo-distributor.tempo.svc.cluster.local:4317
 
   # One-time, idempotent migration of the already-authenticated OAuth
   # session from the previous custom bridge's nested auth.json shape

@@ -1,0 +1,22 @@
+{{- if .Values.postgres.enabled }}
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: {{ .Values.postgres.secretName }}
+spec:
+  refreshInterval: "{{ .Values.externalSecrets.refreshInterval }}"
+  secretStoreRef:
+    kind: "{{ .Values.externalSecrets.kind }}"
+    name: "{{ .Values.externalSecrets.name }}"
+  target:
+    name: {{ .Values.postgres.secretName }}
+    creationPolicy: "{{ .Values.externalSecrets.creationPolicy }}"
+    template:
+      data:
+        DATABASE_URL: "postgresql://{{ .Values.postgres.user }}:{{`{{ .password }}`}}@{{ .Values.postgres.host }}:{{ .Values.postgres.port }}/{{ .Values.postgres.database }}"
+  data:
+    - secretKey: password
+      remoteRef:
+        key: {{ .Values.postgres.remoteSecretKey }}
+        property: {{ .Values.postgres.passwordProperty }}
+{{- end }}

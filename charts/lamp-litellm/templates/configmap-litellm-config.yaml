@@ -86,10 +86,22 @@ data:
         {{- end }}
     litellm_settings:
       drop_params: true
+      {{- $callbacks := list }}
       {{- if .Values.metrics.enabled }}
-      callbacks: ["prometheus"]
+      {{- $callbacks = append $callbacks "prometheus" }}
+      {{- end }}
+      {{- if .Values.otel.enabled }}
+      {{- $callbacks = append $callbacks "otel" }}
+      {{- end }}
+      {{- if $callbacks }}
+      callbacks: {{ $callbacks | toJson }}
+      {{- end }}
+      {{- if .Values.metrics.enabled }}
       service_callback: ["prometheus_system"]
       require_auth_for_metrics_endpoint: false
       {{- end }}
     general_settings:
       master_key: os.environ/PROXY_MASTER_KEY
+      {{- if .Values.postgres.enabled }}
+      store_model_in_db: true
+      {{- end }}
