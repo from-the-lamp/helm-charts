@@ -1,6 +1,6 @@
 # lamp-toolhive-mcps
 
-![Version: 0.0.60](https://img.shields.io/badge/Version-0.0.60-informational?style=flat-square)
+![Version: 0.0.61](https://img.shields.io/badge/Version-0.0.61-informational?style=flat-square)
 
 ## Values
 
@@ -58,7 +58,7 @@
 | mcp.bitbucket.mcps[0].username | string | `"a.zverev@cx-labs.io"` |  |
 | mcp.bitbucket.mcps[0].workspace | string | `"currencycom"` |  |
 | mcp.clickhouse.enabled | bool | `false` |  |
-| mcp.clickhouse.image | string | `"us-central1-docker.pkg.dev/database-toolbox/toolbox/toolbox:1.16.0"` |  |
+| mcp.clickhouse.image | string | `"us-central1-docker.pkg.dev/database-toolbox/toolbox/toolbox:1.17.0"` |  |
 | mcp.clickhouse.mcps | list | `[]` |  |
 | mcp.coingecko.enabled | bool | `true` |  |
 | mcp.coingecko.image | string | `"registry.gitlab.com/from-the-lamp/infra/docker-images/lamp-coingecko-mcp:1.0.2"` |  |
@@ -90,7 +90,7 @@
 | mcp.github.mcps[0].token.key | string | `"toolhive"` |  |
 | mcp.github.mcps[0].token.property | string | `"github_xdata_token"` |  |
 | mcp.gitlab.enabled | bool | `true` |  |
-| mcp.gitlab.image | string | `"zereight050/gitlab-mcp:2.3.22"` |  |
+| mcp.gitlab.image | string | `"zereight050/gitlab-mcp:2.3.27"` |  |
 | mcp.gitlab.mcps[0].apiUrl | string | `"https://gitlab.com/api/v4"` |  |
 | mcp.gitlab.mcps[0].env[0].name | string | `"GITLAB_TOOLSETS"` |  |
 | mcp.gitlab.mcps[0].env[0].value | string | `"core,merge_requests,pipelines,ci,repositories"` |  |
@@ -114,7 +114,7 @@
 | mcp.googlemaps.mcps[0].token.property | string | `"googlemaps_grounding_lite_api_key"` |  |
 | mcp.googlemaps.remoteUrl | string | `"https://mapstools.googleapis.com/mcp"` |  |
 | mcp.grafana.enabled | bool | `false` |  |
-| mcp.grafana.image | string | `"grafana/mcp-grafana:2.2.0"` |  |
+| mcp.grafana.image | string | `"grafana/mcp-grafana:2.3.0"` |  |
 | mcp.grafana.mcps | list | `[]` |  |
 | mcp.immich.baseUrl | string | `"http://immich-server.immich.svc.cluster.local:2283"` |  |
 | mcp.immich.enabled | bool | `true` |  |
@@ -124,7 +124,7 @@
 | mcp.immich.mcps[0].token.key | string | `"toolhive"` |  |
 | mcp.immich.mcps[0].token.property | string | `"immich_api_key"` |  |
 | mcp.jira.enabled | bool | `false` |  |
-| mcp.jira.image | string | `"ghcr.io/sooperset/mcp-atlassian:0.23.1"` |  |
+| mcp.jira.image | string | `"ghcr.io/sooperset/mcp-atlassian:0.24.4"` |  |
 | mcp.jira.mcps | list | `[]` |  |
 | mcp.kafka.enabled | bool | `false` |  |
 | mcp.kafka.image | string | `"ghcr.io/tuannvm/kafka-mcp-server:2.0.2"` |  |
@@ -133,7 +133,7 @@
 | mcp.kelosConsole.image | string | `""` |  |
 | mcp.kelosConsole.mcps | list | `[]` |  |
 | mcp.kubernetes.enabled | bool | `true` |  |
-| mcp.kubernetes.image | string | `"quay.io/containers/kubernetes_mcp_server:v0.1.2"` |  |
+| mcp.kubernetes.image | string | `"quay.io/containers/kubernetes_mcp_server:v0.1.3"` |  |
 | mcp.kubernetes.mcpPort | int | `8080` |  |
 | mcp.kubernetes.mcps[0].name | string | `"kubernetes"` |  |
 | mcp.kubernetes.mcps[0].serviceAccount | string | `"kubernetes-mcp"` |  |
@@ -169,14 +169,14 @@
 | mcp.oracle.mcps[1].name | string | `"oracle-prod-1"` |  |
 | mcp.oracle.mcps[1].profile | string | `"lamp-prod-1"` |  |
 | mcp.playwright.enabled | bool | `false` |  |
-| mcp.playwright.image | string | `"mcr.microsoft.com/playwright/mcp:v0.0.83"` |  |
+| mcp.playwright.image | string | `"mcr.microsoft.com/playwright/mcp:v0.0.85"` |  |
 | mcp.playwright.mcpPort | int | `8931` |  |
 | mcp.playwright.mcps | list | `[]` |  |
 | mcp.postgres.enabled | bool | `false` |  |
-| mcp.postgres.image | string | `"us-central1-docker.pkg.dev/database-toolbox/toolbox/toolbox:1.16.0"` |  |
+| mcp.postgres.image | string | `"us-central1-docker.pkg.dev/database-toolbox/toolbox/toolbox:1.17.0"` |  |
 | mcp.postgres.mcps | list | `[]` |  |
 | mcp.redis.enabled | bool | `false` |  |
-| mcp.redis.image | string | `"us-central1-docker.pkg.dev/database-toolbox/toolbox/toolbox:1.16.0"` |  |
+| mcp.redis.image | string | `"us-central1-docker.pkg.dev/database-toolbox/toolbox/toolbox:1.17.0"` |  |
 | mcp.redis.mcps | list | `[]` |  |
 | mcp.remote.enabled | bool | `false` |  |
 | mcp.remote.mcps | list | `[]` |  |
@@ -221,27 +221,53 @@
 | mcp.vault.enabled | bool | `false` |  |
 | mcp.vault.image | string | `"hashicorp/vault-mcp-server:0.2.0"` |  |
 | mcp.vault.mcps | list | `[]` |  |
-| mcp.vault.proxy.image | string | `"hashicorp/vault:2.2.1"` |  |
+| mcp.vault.proxy.image | string | `"hashicorp/vault:2.2.2"` |  |
 | mcp.vault.proxy.port | int | `8100` |  |
 | mcp.victoriametrics.enabled | bool | `false` |  |
 | mcp.victoriametrics.image | string | `"ghcr.io/victoriametrics/mcp-victoriametrics:v1.120.1"` |  |
 | mcp.victoriametrics.mcps | list | `[]` |  |
-| mcp.windmill.bootstrap.serviceUserEmail | string | `"toolhive-mcp@windmill.internal"` |  |
-| mcp.windmill.bootstrap.superadminSecret.key | string | `"secret"` |  |
-| mcp.windmill.bootstrap.superadminSecret.name | string | `"windmill-superadmin-secret"` |  |
-| mcp.windmill.bootstrap.superadminSecret.namespace | string | `"windmill"` |  |
-| mcp.windmill.bootstrap.windmillBaseUrl | string | `""` |  |
-| mcp.windmill.bootstrap.workspaceId | string | `"djinn"` |  |
-| mcp.windmill.enabled | bool | `true` |  |
-| mcp.windmill.remoteUrl | string | `""` |  |
-| vmcpTokenRefresher.enabled | bool | `false` |  |
-| vmcpTokenRefresher.resourceAudience | string | `""` |  |
-| vmcpTokenRefresher.schedule | string | `"*/5 * * * *"` |  |
-| vmcpTokenRefresher.tokenEndpoint | string | `""` |  |
-| vmcpTokenRefresher.windmillApiBase | string | `""` |  |
 # Trivy scan - Helm Chart
 
 ## Report Summary
 
 | Target | Type | Misconfigurations |
 | --- | --- | --- |
+| templates/aave/mcpremoteproxy.yaml | helm | 0 |
+| templates/alchemy/externalsecret.yaml | helm | 0 |
+| templates/alchemy/mcpserver.yaml | helm | 0 |
+| templates/alphavantage/externalsecret.yaml | helm | 0 |
+| templates/alphavantage/mcpserver.yaml | helm | 0 |
+| templates/atlassian/externalsecret.yaml | helm | 0 |
+| templates/atlassian/mcpserver.yaml | helm | 0 |
+| templates/bitbucket/externalsecret.yaml | helm | 0 |
+| templates/bitbucket/mcpserver.yaml | helm | 0 |
+| templates/coingecko/externalsecret.yaml | helm | 0 |
+| templates/coingecko/mcpserver.yaml | helm | 0 |
+| templates/defilama-free-api/mcpserver.yaml | helm | 0 |
+| templates/defilama-yields/mcpserver.yaml | helm | 0 |
+| templates/etherscan/externalsecret.yaml | helm | 0 |
+| templates/etherscan/mcpserver.yaml | helm | 0 |
+| templates/github/externalsecret.yaml | helm | 0 |
+| templates/github/mcpserver.yaml | helm | 0 |
+| templates/gitlab/externalsecret.yaml | helm | 0 |
+| templates/gitlab/mcpserver.yaml | helm | 0 |
+| templates/googlemaps/externalsecret.yaml | helm | 0 |
+| templates/googlemaps/mcpremoteproxy.yaml | helm | 0 |
+| templates/immich/externalsecret.yaml | helm | 0 |
+| templates/immich/mcpserver.yaml | helm | 0 |
+| templates/kubernetes/externalsecret.yaml | helm | 0 |
+| templates/kubernetes/mcpserver.yaml | helm | 0 |
+| templates/kubernetes/rbac.yaml | helm | 0 |
+| templates/letsfg/mcpserver.yaml | helm | 0 |
+| templates/linkedin/mcpserver.yaml | helm | 0 |
+| templates/oracle/externalsecret.yaml | helm | 0 |
+| templates/oracle/mcpserver.yaml | helm | 0 |
+| templates/sheets/externalsecret.yaml | helm | 0 |
+| templates/sheets/mcpserver.yaml | helm | 0 |
+| templates/slack/externalsecret.yaml | helm | 0 |
+| templates/slack/mcpserver.yaml | helm | 0 |
+| templates/ssh/configmap.yaml | helm | 0 |
+| templates/ssh/externalsecret.yaml | helm | 0 |
+| templates/ssh/mcpserver.yaml | helm | 0 |
+| templates/thegraph/externalsecret.yaml | helm | 0 |
+| templates/thegraph/mcpserver.yaml | helm | 0 |

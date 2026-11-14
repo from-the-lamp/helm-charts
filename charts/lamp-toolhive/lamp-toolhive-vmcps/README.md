@@ -1,13 +1,13 @@
 # lamp-toolhive-vmcps
 
-![Version: 0.0.19](https://img.shields.io/badge/Version-0.0.19-informational?style=flat-square)
+![Version: 0.0.20](https://img.shields.io/badge/Version-0.0.20-informational?style=flat-square)
 
 ## Requirements
 
 | Repository | Name | Version |
 |------------|------|---------|
 | https://charts.dexidp.io | dex | 0.26.0 |
-| oci://registry-1.docker.io/bitnamicharts | redis | 28.3.10 |
+| oci://registry-1.docker.io/bitnamicharts | redis | 28.3.12 |
 
 ## Values
 
@@ -17,10 +17,6 @@
 | authzConfigs[0].allowedGroups[0] | string | `"from-the-lamp"` |  |
 | authzConfigs[0].name | string | `"mcp-tools-authz"` |  |
 | authzConfigs[0].rawPolicies[0] | string | `"forbid(principal, action, resource) when { resource.name like \"mcp-oracle-0_*\" || resource.name like \"mcp-oracle-1_*\" };"` |  |
-| authzConfigs[0].rawPolicies[1] | string | `"permit(\n  principal,\n  action,\n  resource\n)\nwhen {\n  principal has claim_client_id &&\n  principal.claim_client_id == \"windmill-delegate\" &&\n  (resource.name == \"mcp-jira-xdata_jira_get_issue\" ||\n   resource.name == \"mcp-jira-xdata_jira_search_issues\" ||\n   resource.name == \"mcp-jira-xdata_jira_transition_issue\" ||\n   resource.name == \"mcp-jira-xdata_jira_get_transitions\" ||\n   resource.name == \"mcp-jira-xdata_jira_get_issue_link_types\" ||\n   resource.name == \"mcp-jira-xdata_jira_get_project_issues\" ||\n   resource.name == \"mcp-jira-xdata_jira_get_user_profile\")\n};\n"` |  |
-| authzConfigs[0].rawPolicies[2] | string | `"permit(\n  principal,\n  action,\n  resource\n)\nwhen {\n  principal has claim_client_id &&\n  principal.claim_client_id == \"windmill-delegate\" &&\n  (resource.name == \"mcp-jira-cas_jira_get_issue\" ||\n   resource.name == \"mcp-jira-cas_jira_search_issues\" ||\n   resource.name == \"mcp-jira-cas_jira_get_transitions\" ||\n   resource.name == \"mcp-jira-cas_jira_get_issue_link_types\" ||\n   resource.name == \"mcp-jira-cas_jira_get_project_issues\" ||\n   resource.name == \"mcp-jira-cas_jira_get_user_profile\" ||\n   resource.name == \"mcp-jira-cas_jira_transition_issue\")\n};\n"` |  |
-| authzConfigs[0].rawPolicies[3] | string | `"permit(\n  principal,\n  action,\n  resource\n)\nwhen {\n  principal has claim_client_id &&\n  principal.claim_client_id == \"windmill-delegate\" &&\n  (resource.name == \"mcp-jira-currency_jira_get_issue\" ||\n   resource.name == \"mcp-jira-currency_jira_search_issues\" ||\n   resource.name == \"mcp-jira-currency_jira_transition_issue\" ||\n   resource.name == \"mcp-jira-currency_jira_get_transitions\" ||\n   resource.name == \"mcp-jira-currency_jira_get_issue_link_types\" ||\n   resource.name == \"mcp-jira-currency_jira_get_project_issues\" ||\n   resource.name == \"mcp-jira-currency_jira_get_user_profile\")\n};\n"` |  |
-| authzConfigs[0].rawPolicies[4] | string | `"permit(\n  principal,\n  action,\n  resource\n)\nwhen {\n  principal has claim_client_id &&\n  principal.claim_client_id == \"windmill-delegate\" &&\n  (resource.name == \"mcp-jira-from-the-lamp_jira_get_issue\" ||\n   resource.name == \"mcp-jira-from-the-lamp_jira_search_issues\" ||\n   resource.name == \"mcp-jira-from-the-lamp_jira_transition_issue\" ||\n   resource.name == \"mcp-jira-from-the-lamp_jira_get_transitions\" ||\n   resource.name == \"mcp-jira-from-the-lamp_jira_get_issue_link_types\" ||\n   resource.name == \"mcp-jira-from-the-lamp_jira_get_project_issues\" ||\n   resource.name == \"mcp-jira-from-the-lamp_jira_get_user_profile\")\n};\n"` |  |
 | dex.clientSecrets[0].envName | string | `"HERMES_CLIENT_SECRET"` |  |
 | dex.clientSecrets[0].secretName | string | `"toolhive-hermes-client-secret"` |  |
 | dex.clientSecrets[0].vaultKey | string | `"toolhive"` |  |
@@ -105,16 +101,6 @@
 | virtualMcpServers[0].authServerConfig.baselineClientScopes[1] | string | `"offline_access"` |  |
 | virtualMcpServers[0].authServerConfig.hmacSecretRefs[0].key | string | `"hmac"` |  |
 | virtualMcpServers[0].authServerConfig.hmacSecretRefs[0].name | string | `"toolhive-authserver-secrets"` |  |
-| virtualMcpServers[0].authServerConfig.inboundGrants.tokenExchange.delegateClients[0].audiences[0] | string | `"https://mcp.internal.from-the-lamp.work/mcp"` |  |
-| virtualMcpServers[0].authServerConfig.inboundGrants.tokenExchange.delegateClients[0].clientId | string | `"windmill-delegate"` |  |
-| virtualMcpServers[0].authServerConfig.inboundGrants.tokenExchange.delegateClients[0].clientSecretRef.key | string | `"WINDMILL_DELEGATE_CLIENT_SECRET"` |  |
-| virtualMcpServers[0].authServerConfig.inboundGrants.tokenExchange.delegateClients[0].clientSecretRef.name | string | `"toolhive-windmill-delegate-secret"` |  |
-| virtualMcpServers[0].authServerConfig.inboundGrants.tokenExchange.delegateClients[0].scopes[0] | string | `"openid"` |  |
-| virtualMcpServers[0].authServerConfig.inboundGrants.tokenExchange.delegateClients[0].scopes[1] | string | `"offline_access"` |  |
-| virtualMcpServers[0].authServerConfig.inboundGrants.tokenExchange.issuerPolicies[0].actorMatcher | string | `"claims.sub == \"system:serviceaccount:windmill:windmill\""` |  |
-| virtualMcpServers[0].authServerConfig.inboundGrants.tokenExchange.issuerPolicies[0].allowedDelegateClients[0] | string | `"windmill-delegate"` |  |
-| virtualMcpServers[0].authServerConfig.inboundGrants.tokenExchange.issuerPolicies[0].expectedAudience | string | `"https://mcp.internal.from-the-lamp.work/mcp"` |  |
-| virtualMcpServers[0].authServerConfig.inboundGrants.tokenExchange.issuerPolicies[0].issuerRef | string | `"k8s-apiserver"` |  |
 | virtualMcpServers[0].authServerConfig.issuer | string | `"https://mcp.internal.from-the-lamp.work"` |  |
 | virtualMcpServers[0].authServerConfig.signingKeySecretRefs[0].key | string | `"signing"` |  |
 | virtualMcpServers[0].authServerConfig.signingKeySecretRefs[0].name | string | `"toolhive-authserver-secrets"` |  |
@@ -156,17 +142,8 @@
 | virtualMcpServers[0].podTemplateSpec.spec.containers[0].resources.requests.cpu | string | `"5m"` |  |
 | virtualMcpServers[0].podTemplateSpec.spec.containers[0].resources.requests.memory | string | `"128Mi"` |  |
 # Trivy scan - Helm Chart
-```
 
-Report Summary
+## Report Summary
 
-┌────────┬──────┬───────────────────┐
-│ Target │ Type │ Misconfigurations │
-├────────┼──────┼───────────────────┤
-│   -    │  -   │         -         │
-└────────┴──────┴───────────────────┘
-Legend:
-- '-': Not scanned
-- '0': Clean (no security findings detected)
-
-```
+| Target | Type | Misconfigurations |
+| --- | --- | --- |

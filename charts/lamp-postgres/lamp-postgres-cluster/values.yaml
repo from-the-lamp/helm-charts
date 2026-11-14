@@ -44,6 +44,16 @@ cluster:
       #     enabled: true
       #     allTables: true
 
+    # Only real CNPG Role CRD fields belong here - passwordSecret.name must
+    # match a key in rolePasswordSources below (enforced by
+    # templates/passwords.yaml, which generates the ExternalSecret from
+    # there instead). Previously this list also carried
+    # passwordSecret.remoteSecretKey/remoteSecretProperty directly - those
+    # aren't part of CNPG's schema, and toYaml-ing this list straight into
+    # the live Cluster CR made every server-side-diff dry-run fail with
+    # "field not declared in schema", stuck at ArgoCD Sync Status: Unknown
+    # for the whole app (confirmed live 2026-11-14, FTL - postgres/hindsight
+    # rollout).
     roles: []
       # - name: example
       #   ensure: present
@@ -53,9 +63,6 @@ cluster:
       #   inherit: true
       #   passwordSecret:
       #     name: postgres-example-password
-      #     remoteSecret:
-      #       key: postgres-example-password
-      #       property: password
 
   poolers:
     - name: rw
@@ -98,6 +105,14 @@ backupCredentials:
   remoteSecretKey: s3
   accessKeyProperty: backblaze.from-the-lamp.id
   secretKeyProperty: backblaze.from-the-lamp.secret
+
+# Vault source for each cluster.cluster.roles[].passwordSecret, keyed by
+# role name - kept out of the roles list itself so it never reaches the
+# live Cluster CR (see the comment on roles: above).
+rolePasswordSources: {}
+  # example:
+  #   key: postgres-example-password
+  #   property: password
 
 externalSecrets:
   kind: ClusterSecretStore

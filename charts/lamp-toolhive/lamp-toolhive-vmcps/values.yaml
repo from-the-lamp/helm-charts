@@ -204,20 +204,6 @@ authzConfigs:
   - name: mcp-tools-authz
     allowedGroups:
       - from-the-lamp
-    # windmill-delegate's real consumers are f/sources/collect_context's
-    # read-only Jira tool set (see that flow's include_tools - exactly the 6
-    # tool names below, per tenant) and, as of ADR-012,
-    # f/tasks/transition_merged_cas_kcl_tickets's one write call
-    # (jira_transition_issue). A plain "jira-<tenant>_*" server wildcard
-    # would silently also grant every *other* Jira/Confluence write tool
-    # (create/delete/update/...) under the same "read-only" label - these
-    # rawPolicies replace that wildcard with an explicit allowlist instead,
-    # so a new write call anywhere in this pipeline has to be a deliberate
-    # policy change here, not something that already worked by accident.
-    # Write permit now covers every tenant's jira_transition_issue, matching
-    # f/tasks/transition_merged_kelos_tickets's generalization across all
-    # SCM providers (GitLab/GitHub/Bitbucket) - see docs/adr/015.
-    #
     # oracle-0/oracle-1 (raw kubectl against both prod
     # clusters - pods_exec/pods_delete/resources_delete included) are
     # explicitly forbidden too, mirroring mcp-tools-djinn-authz/
@@ -229,74 +215,6 @@ authzConfigs:
     # this list.
     rawPolicies:
       - 'forbid(principal, action, resource) when { resource.name like "mcp-oracle-0_*" || resource.name like "mcp-oracle-1_*" };'
-      - |
-        permit(
-          principal,
-          action,
-          resource
-        )
-        when {
-          principal has claim_client_id &&
-          principal.claim_client_id == "windmill-delegate" &&
-          (resource.name == "mcp-jira-xdata_jira_get_issue" ||
-           resource.name == "mcp-jira-xdata_jira_search_issues" ||
-           resource.name == "mcp-jira-xdata_jira_transition_issue" ||
-           resource.name == "mcp-jira-xdata_jira_get_transitions" ||
-           resource.name == "mcp-jira-xdata_jira_get_issue_link_types" ||
-           resource.name == "mcp-jira-xdata_jira_get_project_issues" ||
-           resource.name == "mcp-jira-xdata_jira_get_user_profile")
-        };
-      - |
-        permit(
-          principal,
-          action,
-          resource
-        )
-        when {
-          principal has claim_client_id &&
-          principal.claim_client_id == "windmill-delegate" &&
-          (resource.name == "mcp-jira-cas_jira_get_issue" ||
-           resource.name == "mcp-jira-cas_jira_search_issues" ||
-           resource.name == "mcp-jira-cas_jira_get_transitions" ||
-           resource.name == "mcp-jira-cas_jira_get_issue_link_types" ||
-           resource.name == "mcp-jira-cas_jira_get_project_issues" ||
-           resource.name == "mcp-jira-cas_jira_get_user_profile" ||
-           resource.name == "mcp-jira-cas_jira_transition_issue")
-        };
-      - |
-        permit(
-          principal,
-          action,
-          resource
-        )
-        when {
-          principal has claim_client_id &&
-          principal.claim_client_id == "windmill-delegate" &&
-          (resource.name == "mcp-jira-currency_jira_get_issue" ||
-           resource.name == "mcp-jira-currency_jira_search_issues" ||
-           resource.name == "mcp-jira-currency_jira_transition_issue" ||
-           resource.name == "mcp-jira-currency_jira_get_transitions" ||
-           resource.name == "mcp-jira-currency_jira_get_issue_link_types" ||
-           resource.name == "mcp-jira-currency_jira_get_project_issues" ||
-           resource.name == "mcp-jira-currency_jira_get_user_profile")
-        };
-      - |
-        permit(
-          principal,
-          action,
-          resource
-        )
-        when {
-          principal has claim_client_id &&
-          principal.claim_client_id == "windmill-delegate" &&
-          (resource.name == "mcp-jira-from-the-lamp_jira_get_issue" ||
-           resource.name == "mcp-jira-from-the-lamp_jira_search_issues" ||
-           resource.name == "mcp-jira-from-the-lamp_jira_transition_issue" ||
-           resource.name == "mcp-jira-from-the-lamp_jira_get_transitions" ||
-           resource.name == "mcp-jira-from-the-lamp_jira_get_issue_link_types" ||
-           resource.name == "mcp-jira-from-the-lamp_jira_get_project_issues" ||
-           resource.name == "mcp-jira-from-the-lamp_jira_get_user_profile")
-        };
 
 mcpGroups:
   - name: mcp-tools
@@ -334,24 +252,6 @@ virtualMcpServers:
             configMapRef:
               name: kube-root-ca.crt
               key: ca.crt
-      inboundGrants:
-        tokenExchange:
-          issuerPolicies:
-            - issuerRef: k8s-apiserver
-              expectedAudience: https://mcp.internal.from-the-lamp.work/mcp
-              allowedDelegateClients:
-                - windmill-delegate
-              actorMatcher: 'claims.sub == "system:serviceaccount:windmill:windmill"'
-          delegateClients:
-            - clientId: windmill-delegate
-              clientSecretRef:
-                name: toolhive-windmill-delegate-secret
-                key: WINDMILL_DELEGATE_CLIENT_SECRET
-              audiences:
-                - https://mcp.internal.from-the-lamp.work/mcp
-              scopes:
-                - openid
-                - offline_access
       upstreamProviders:
         - name: gitlab
           type: oidc
