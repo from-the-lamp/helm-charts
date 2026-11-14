@@ -1,0 +1,8 @@
+apiVersion: v2
+name: lamp-hindsight
+version: 0.0.1
+
+dependencies:
+  - name: hindsight
+    version: 1.2.1
+    repository: oci://ghcr.io/vectorize-io/charts/hindsight

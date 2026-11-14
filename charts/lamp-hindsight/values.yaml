@@ -1,0 +1,20 @@
+externalSecrets:
+  kind: ClusterSecretStore
+  name: vault
+  refreshInterval: 1h
+  creationPolicy: Orphan
+
+# Vault property Hindsight reads its secrets from. One ExternalSecret
+# (templates/externalsecret.yaml) builds the single K8s Secret the
+# upstream chart's existingSecret envFrom's wholesale, so every key below
+# ends up as a plain env var in the api/controlPlane pods, plus the
+# literal `postgres-password` key the upstream chart's own templates read
+# to build HINDSIGHT_API_DATABASE_URL (see templates/secret.yaml and
+# api-deployment.yaml in the vendored hindsight subchart).
+secrets:
+  postgres-password:
+    key: postgres
+    property: users.hindsight.password
+  HINDSIGHT_API_LLM_API_KEY:
+    key: litellm
+    property: hindsight_api_key
