@@ -15,6 +15,12 @@ masterKey:
     key: litellm
     property: master_key
 
+saltKey:
+  secretName: litellm-salt
+  remoteRef:
+    key: litellm
+    property: salt_key
+
 # Backs litellm's native chatgpt/ provider (litellm/llms/chatgpt, in-tree
 # since v1.105.0 - no custom provider code needed). The PVC name is kept
 # identical to the previous custom-bridge setup's PVC on purpose: the
@@ -119,6 +125,7 @@ whisperModels:
 # Local Server tab shows as loaded - litellm forwards it as-is.
 lmstudioApiBase: ""
 lmstudioModels: []
+lmstudioMaxInputTokens: 0
 
 # Own database (FTL-174) - gives litellm a spend ledger and lets
 # general_settings.store_model_in_db persist virtual keys/budgets instead of
@@ -153,6 +160,7 @@ litellm-helm:
     - litellm-claude
     - litellm-gemini
     - litellm-postgres-secret
+    - litellm-salt
 
   image:
     repository: registry.gitlab.com/from-the-lamp/infra/docker-images/lamp-litellm
@@ -199,6 +207,9 @@ litellm-helm:
     # above) - harmless to always set otherwise, same as the chatgpt vars
     # above being set regardless of whether chatgptModels is non-empty.
     OTEL_EXPORTER_OTLP_ENDPOINT: http://tempo-distributor.tempo.svc.cluster.local:4318
+    LITELLM_MODE: PRODUCTION
+    LITELLM_LOG: WARNING
+    JSON_LOGS: "true"
 
   # One-time, idempotent migration of the already-authenticated OAuth
   # session from the previous custom bridge's nested auth.json shape

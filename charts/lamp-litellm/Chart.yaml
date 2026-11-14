@@ -1,6 +1,6 @@
 apiVersion: v2
 name: lamp-litellm
-version: 0.5.6
+version: 0.5.7
 
 dependencies:
   - name: litellm-helm
@@ -8,4 +8,4 @@ dependencies:
     repository: oci://ghcr.io/berriai
 
 annotations:
-  notes: "Claude deployments cool down on repeated 400s (allowed_fails_policy.BadRequestErrorAllowedFails: 2), which is how Anthropic reports exhausted credit; rolling update instead of Recreate, 5s liveness/readiness probe timeouts, allow_requests_on_db_unavailable, OTLP traces over HTTP (4318), and the chatgpt auth init container hands the token dir to uid 10001 so the non-root image can read it."
+  notes: "LITELLM_SALT_KEY from Vault (saltKey, property salt_key - must exist before upgrading), LITELLM_MODE=PRODUCTION, JSON logs at WARNING level, router enable_pre_call_checks, and lmstudioMaxInputTokens to declare the local model's context window."

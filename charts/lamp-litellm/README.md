@@ -1,6 +1,6 @@
 # lamp-litellm
 
-![Version: 0.5.6](https://img.shields.io/badge/Version-0.5.6-informational?style=flat-square)
+![Version: 0.5.7](https://img.shields.io/badge/Version-0.5.7-informational?style=flat-square)
 
 ## Requirements
 
@@ -50,12 +50,16 @@
 | litellm-helm.deploymentAnnotations."reloader.stakater.com/auto" | string | `"true"` |  |
 | litellm-helm.envVars.CHATGPT_AUTH_FILE | string | `"chatgpt-auth.json"` |  |
 | litellm-helm.envVars.CHATGPT_TOKEN_DIR | string | `"/var/lib/litellm/chatgpt-auth"` |  |
+| litellm-helm.envVars.JSON_LOGS | string | `"true"` |  |
+| litellm-helm.envVars.LITELLM_LOG | string | `"WARNING"` |  |
+| litellm-helm.envVars.LITELLM_MODE | string | `"PRODUCTION"` |  |
 | litellm-helm.envVars.OTEL_EXPORTER_OTLP_ENDPOINT | string | `"http://tempo-distributor.tempo.svc.cluster.local:4318"` |  |
 | litellm-helm.environmentSecrets[0] | string | `"litellm-deepseek"` |  |
 | litellm-helm.environmentSecrets[1] | string | `"litellm-groq"` |  |
 | litellm-helm.environmentSecrets[2] | string | `"litellm-claude"` |  |
 | litellm-helm.environmentSecrets[3] | string | `"litellm-gemini"` |  |
 | litellm-helm.environmentSecrets[4] | string | `"litellm-postgres-secret"` |  |
+| litellm-helm.environmentSecrets[5] | string | `"litellm-salt"` |  |
 | litellm-helm.extraInitContainers[0].command[0] | string | `"python3"` |  |
 | litellm-helm.extraInitContainers[0].command[1] | string | `"-c"` |  |
 | litellm-helm.extraInitContainers[0].command[2] | string | `"import json, os\n\ntoken_dir = \"/var/lib/litellm/chatgpt-auth\"\nold_file = os.path.join(token_dir, \"auth.json\")\nnew_file = os.path.join(token_dir, \"chatgpt-auth.json\")\n\nif os.path.exists(new_file):\n    print(\"chatgpt-auth.json already present, nothing to migrate\")\nelif os.path.exists(old_file):\n    with open(old_file) as f:\n        nested = json.load(f)\n    tokens = nested.get(\"tokens\", {})\n    flat = {\n        \"access_token\": tokens.get(\"access_token\"),\n        \"refresh_token\": tokens.get(\"refresh_token\"),\n        \"id_token\": tokens.get(\"id_token\"),\n    }\n    if flat[\"access_token\"] and flat[\"refresh_token\"]:\n        with open(new_file, \"w\") as f:\n            json.dump(flat, f)\n        os.chmod(new_file, 0o600)\n        print(\"migrated nested auth.json -> flat chatgpt-auth.json\")\n    else:\n        print(\"old auth.json missing required fields, skipping migration\")\nelse:\n    print(\"no existing session found, native provider will require a device-code login\")\n\nos.chown(token_dir, 10001, 10001)\nfor entry in os.scandir(token_dir):\n    os.chown(entry.path, 10001, 10001)\nprint(\"token dir owned by 10001:10001\")\n"` |  |
@@ -89,6 +93,7 @@
 | litellm-helm.volumes[0].name | string | `"chatgpt-auth-persistent"` |  |
 | litellm-helm.volumes[0].persistentVolumeClaim.claimName | string | `"litellm-codex-auth-persistent"` |  |
 | lmstudioApiBase | string | `""` |  |
+| lmstudioMaxInputTokens | int | `0` |  |
 | lmstudioModels | list | `[]` |  |
 | masterKey.remoteRef.key | string | `"litellm"` |  |
 | masterKey.remoteRef.property | string | `"master_key"` |  |
@@ -106,6 +111,9 @@
 | postgres.user | string | `"litellm"` |  |
 | proxyConfigMap.key | string | `"config.yaml"` |  |
 | proxyConfigMap.name | string | `"litellm-proxy-config"` |  |
+| saltKey.remoteRef.key | string | `"litellm"` |  |
+| saltKey.remoteRef.property | string | `"salt_key"` |  |
+| saltKey.secretName | string | `"litellm-salt"` |  |
 | whisperModels[0] | string | `"whisper-large-v3"` |  |
 # Trivy scan - Helm Chart
 

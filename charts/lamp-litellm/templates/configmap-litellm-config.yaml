@@ -53,6 +53,10 @@ data:
           model: openai/{{ $model }}
           api_base: {{ $.Values.lmstudioApiBase }}
           api_key: "not-needed"
+        {{- if $.Values.lmstudioMaxInputTokens }}
+        model_info:
+          max_input_tokens: {{ $.Values.lmstudioMaxInputTokens }}
+        {{- end }}
       {{- end }}
       {{- range $model := .Values.geminiImageModels }}
       - model_name: {{ $model }}
@@ -84,6 +88,7 @@ data:
       # every 5 minutes instead of on every single request.
       allowed_fails: 1
       cooldown_time: 300
+      enable_pre_call_checks: true
       fallbacks:
         {{- range $model := .Values.chatgptModels }}
         - {{ $model }}:
