@@ -1,0 +1,8 @@
+apiVersion: v2
+name: lamp-zot
+version: 0.0.1
+
+dependencies:
+  - name: zot
+    version: 0.1.134
+    repository: https://zotregistry.dev/helm-charts
