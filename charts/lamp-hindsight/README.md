@@ -6,7 +6,7 @@
 
 | Repository | Name | Version |
 |------------|------|---------|
-| oci://ghcr.io/vectorize-io/charts/hindsight | hindsight | 1.2.1 |
+| oci://ghcr.io/vectorize-io/charts | hindsight | 1.2.1 |
 
 ## Values
 
