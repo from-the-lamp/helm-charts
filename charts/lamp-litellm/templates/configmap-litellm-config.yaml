@@ -35,6 +35,9 @@ data:
         litellm_params:
           model: anthropic/{{ $model }}
           api_key: os.environ/ANTHROPIC_API_KEY
+        model_info:
+          allowed_fails_policy:
+            BadRequestErrorAllowedFails: 2
       {{- end }}
       {{- range $model := .Values.whisperModels }}
       - model_name: {{ $model }}
@@ -129,4 +132,5 @@ data:
       master_key: os.environ/PROXY_MASTER_KEY
       {{- if .Values.postgres.enabled }}
       store_model_in_db: true
+      allow_requests_on_db_unavailable: true
       {{- end }}

@@ -165,7 +165,15 @@ litellm-helm:
   replicaCount: 1
 
   strategy:
-    type: Recreate
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+
+  livenessProbe:
+    timeoutSeconds: 5
+  readinessProbe:
+    timeoutSeconds: 5
 
   deploymentAnnotations:
     reloader.stakater.com/auto: "true"
@@ -190,7 +198,7 @@ litellm-helm:
     # Only read when litellm_settings.callbacks includes "otel" (otel.enabled
     # above) - harmless to always set otherwise, same as the chatgpt vars
     # above being set regardless of whether chatgptModels is non-empty.
-    OTEL_EXPORTER_OTLP_ENDPOINT: http://tempo-distributor.tempo.svc.cluster.local:4317
+    OTEL_EXPORTER_OTLP_ENDPOINT: http://tempo-distributor.tempo.svc.cluster.local:4318
 
   # One-time, idempotent migration of the already-authenticated OAuth
   # session from the previous custom bridge's nested auth.json shape
@@ -231,6 +239,11 @@ litellm-helm:
                   print("old auth.json missing required fields, skipping migration")
           else:
               print("no existing session found, native provider will require a device-code login")
+
+          os.chown(token_dir, 10001, 10001)
+          for entry in os.scandir(token_dir):
+              os.chown(entry.path, 10001, 10001)
+          print("token dir owned by 10001:10001")
       volumeMounts:
         - name: chatgpt-auth-persistent
           mountPath: /var/lib/litellm/chatgpt-auth

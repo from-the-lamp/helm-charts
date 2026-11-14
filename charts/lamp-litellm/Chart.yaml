@@ -1,6 +1,6 @@
 apiVersion: v2
 name: lamp-litellm
-version: 0.5.5
+version: 0.5.6
 
 dependencies:
   - name: litellm-helm
@@ -8,4 +8,4 @@ dependencies:
     repository: oci://ghcr.io/berriai
 
 annotations:
-  notes: "router_settings: allowed_fails: 1 / cooldown_time: 300s, so a deployment that fails on credit exhaustion or a usage-limit window stops being retried on every request and the router goes straight to its fallback, auto-recovering after 5 minutes without a pod restart."
+  notes: "Claude deployments cool down on repeated 400s (allowed_fails_policy.BadRequestErrorAllowedFails: 2), which is how Anthropic reports exhausted credit; rolling update instead of Recreate, 5s liveness/readiness probe timeouts, allow_requests_on_db_unavailable, OTLP traces over HTTP (4318), and the chatgpt auth init container hands the token dir to uid 10001 so the non-root image can read it."
