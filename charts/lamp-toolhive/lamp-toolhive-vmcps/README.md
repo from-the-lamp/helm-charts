@@ -1,6 +1,6 @@
 # lamp-toolhive-vmcps
 
-![Version: 0.0.20](https://img.shields.io/badge/Version-0.0.20-informational?style=flat-square)
+![Version: 0.0.21](https://img.shields.io/badge/Version-0.0.21-informational?style=flat-square)
 
 ## Requirements
 
@@ -13,6 +13,9 @@
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
+| authServerSecret.issuerRef.group | string | `"cert-manager.io"` |  |
+| authServerSecret.issuerRef.kind | string | `"ClusterIssuer"` |  |
+| authServerSecret.issuerRef.name | string | `"selfsigned-cluster-issuer"` |  |
 | authServerSecret.strategy | string | `"selfGenerated"` |  |
 | authzConfigs[0].allowedGroups[0] | string | `"from-the-lamp"` |  |
 | authzConfigs[0].name | string | `"mcp-tools-authz"` |  |
@@ -99,11 +102,11 @@
 | tailscaleExpose.tags[0] | string | `"tag:exit"` |  |
 | virtualMcpServers[0].authServerConfig.baselineClientScopes[0] | string | `"openid"` |  |
 | virtualMcpServers[0].authServerConfig.baselineClientScopes[1] | string | `"offline_access"` |  |
-| virtualMcpServers[0].authServerConfig.hmacSecretRefs[0].key | string | `"hmac"` |  |
-| virtualMcpServers[0].authServerConfig.hmacSecretRefs[0].name | string | `"toolhive-authserver-secrets"` |  |
+| virtualMcpServers[0].authServerConfig.hmacSecretRefs[0].key | string | `"password"` |  |
+| virtualMcpServers[0].authServerConfig.hmacSecretRefs[0].name | string | `"toolhive-authserver-hmac"` |  |
 | virtualMcpServers[0].authServerConfig.issuer | string | `"https://mcp.internal.from-the-lamp.work"` |  |
-| virtualMcpServers[0].authServerConfig.signingKeySecretRefs[0].key | string | `"signing"` |  |
-| virtualMcpServers[0].authServerConfig.signingKeySecretRefs[0].name | string | `"toolhive-authserver-secrets"` |  |
+| virtualMcpServers[0].authServerConfig.signingKeySecretRefs[0].key | string | `"tls.key"` |  |
+| virtualMcpServers[0].authServerConfig.signingKeySecretRefs[0].name | string | `"toolhive-authserver-signing"` |  |
 | virtualMcpServers[0].authServerConfig.storage.redis.aclUserConfig.passwordSecretRef.key | string | `"password"` |  |
 | virtualMcpServers[0].authServerConfig.storage.redis.aclUserConfig.passwordSecretRef.name | string | `"toolhive-redis-password"` |  |
 | virtualMcpServers[0].authServerConfig.storage.redis.addr | string | `"toolhive-redis-master.toolhive.svc.cluster.local:6379"` |  |

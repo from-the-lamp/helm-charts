@@ -146,13 +146,19 @@ dex:
 authServerSecret:
   # vault: pull hmac/signing from the ClusterSecretStore below (key "toolhive",
   #        properties authserver-hmac/authserver-signing) via ExternalSecret.
-  # selfGenerated: generate random values on first install and preserve them across
-  #        upgrades via `lookup` - no external secret store required.
+  # selfGenerated: generate both in-cluster exactly once - the signing key by a
+  #        cert-manager Certificate (rotationPolicy: Never), the hmac by an ESO
+  #        Password generator (refreshPolicy: CreatedOnce) - no external secret
+  #        store required.
   # Forced to selfGenerated: the vault-sourced signing key was corrupted ("invalid
   # CRT coefficient" on PKCS#8 parse), crash-looping the vmcp pod and taking down
   # the whole mcp-tools group (chicken-and-egg - no cluster/Vault access to fix the
   # vault secret while the only access path goes through the crashed vmcp itself).
   strategy: selfGenerated
+  issuerRef:
+    name: selfsigned-cluster-issuer
+    kind: ClusterIssuer
+    group: cert-manager.io
 
 redis:
   enabled: true
@@ -239,11 +245,11 @@ virtualMcpServers:
         - openid
         - offline_access
       hmacSecretRefs:
-        - name: toolhive-authserver-secrets
-          key: hmac
+        - name: toolhive-authserver-hmac
+          key: password
       signingKeySecretRefs:
-        - name: toolhive-authserver-secrets
-          key: signing
+        - name: toolhive-authserver-signing
+          key: tls.key
       trustedIssuers:
         - name: k8s-apiserver
           issuerUrl: https://91.98.221.117:6443
