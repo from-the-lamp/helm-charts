@@ -1,6 +1,6 @@
 # lamp-litellm
 
-![Version: 0.5.0](https://img.shields.io/badge/Version-0.5.0-informational?style=flat-square)
+![Version: 0.5.1](https://img.shields.io/badge/Version-0.5.1-informational?style=flat-square)
 
 ## Requirements
 
@@ -59,7 +59,7 @@
 | litellm-helm.extraInitContainers[0].command[0] | string | `"python3"` |  |
 | litellm-helm.extraInitContainers[0].command[1] | string | `"-c"` |  |
 | litellm-helm.extraInitContainers[0].command[2] | string | `"import json, os\n\ntoken_dir = \"/var/lib/litellm/chatgpt-auth\"\nold_file = os.path.join(token_dir, \"auth.json\")\nnew_file = os.path.join(token_dir, \"chatgpt-auth.json\")\n\nif os.path.exists(new_file):\n    print(\"chatgpt-auth.json already present, nothing to migrate\")\nelif os.path.exists(old_file):\n    with open(old_file) as f:\n        nested = json.load(f)\n    tokens = nested.get(\"tokens\", {})\n    flat = {\n        \"access_token\": tokens.get(\"access_token\"),\n        \"refresh_token\": tokens.get(\"refresh_token\"),\n        \"id_token\": tokens.get(\"id_token\"),\n    }\n    if flat[\"access_token\"] and flat[\"refresh_token\"]:\n        with open(new_file, \"w\") as f:\n            json.dump(flat, f)\n        os.chmod(new_file, 0o600)\n        print(\"migrated nested auth.json -> flat chatgpt-auth.json\")\n    else:\n        print(\"old auth.json missing required fields, skipping migration\")\nelse:\n    print(\"no existing session found, native provider will require a device-code login\")\n"` |  |
-| litellm-helm.extraInitContainers[0].image | string | `"ghcr.io/berriai/litellm:v1.109.1"` |  |
+| litellm-helm.extraInitContainers[0].image | string | `"ghcr.io/berriai/litellm@sha256:11175975a3093e05e92faee2fe2fe3412a3ae2fcaa849eb0fe25d5f0d8bcb2e9"` |  |
 | litellm-helm.extraInitContainers[0].name | string | `"migrate-chatgpt-auth"` |  |
 | litellm-helm.extraInitContainers[0].volumeMounts[0].mountPath | string | `"/var/lib/litellm/chatgpt-auth"` |  |
 | litellm-helm.extraInitContainers[0].volumeMounts[0].name | string | `"chatgpt-auth-persistent"` |  |
