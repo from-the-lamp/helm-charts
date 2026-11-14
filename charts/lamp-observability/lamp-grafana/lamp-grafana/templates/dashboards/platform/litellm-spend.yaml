@@ -1,0 +1,295 @@
+# FTL-174: per-consumer/per-model spend, token and budget visibility, now
+# that every consumer has its own litellm virtual key (api_key_alias label)
+# instead of the shared master_key. The generic community dashboard
+# (dashboards/platform/litellm.yaml) and the incident-focused one
+# (apps/homelab/platform/litellm/templates/litellm-dashboard.yaml) don't
+# cover this - neither groups by api_key_alias or breaks down spend/tokens
+# per model. Styled after claude-code.yaml's own dashboard (stat overview ->
+# cost/token timeseries -> leaderboards) rather than invented from scratch.
+# No datasource is set on any panel so it uses the cluster's default
+# (VictoriaMetrics, isDefault: true) rather than hardcoding a uid.
+# litellm_spend_metric_total/litellm_total_tokens_metric_total (not the
+# "_metric"-suffixed, no-"_total" names some older litellm dashboards use -
+# confirmed live, those return zero series on this proxy version) are
+# counters, so every panel reads them through increase()/rate(), never as a
+# raw value. Grafana's own double-curly-brace legendFormat/variable syntax
+# is escaped with Helm's quoted-literal trick, since Helm templates this
+# whole file as Go text before YAML/JSON parsing.
+{{- if .Values.dashboards.litellm_spend.enabled }}
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDashboard
+metadata:
+  name: litellm-spend
+spec:
+  folderRef: ai
+  instanceSelector:
+    matchLabels:
+      dashboards: "grafana"
+  json: |
+    {
+      "title": "LiteLLM - spend & budgets",
+      "uid": "litellm-spend",
+      "tags": ["litellm", "ftl-174"],
+      "timezone": "browser",
+      "editable": true,
+      "time": { "from": "now-7d", "to": "now" },
+      "refresh": "5m",
+      "templating": {
+        "list": [
+          {
+            "name": "consumer",
+            "type": "query",
+            "datasource": { "type": "prometheus", "uid": "$datasource" },
+            "query": "label_values(litellm_spend_metric_total, api_key_alias)",
+            "includeAll": true,
+            "multi": true,
+            "current": { "text": "All", "value": ["$__all"] }
+          }
+        ]
+      },
+      "panels": [
+        {
+          "id": 1,
+          "title": "Overview",
+          "type": "row",
+          "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 }
+        },
+        {
+          "id": 2,
+          "title": "Total spend (24h)",
+          "type": "stat",
+          "gridPos": { "h": 4, "w": 4, "x": 0, "y": 1 },
+          "targets": [
+            {
+              "refId": "A",
+              "expr": "sum(increase(litellm_spend_metric_total{api_key_alias=~\"${consumer:regex}\"}[24h]))"
+            }
+          ],
+          "fieldConfig": { "defaults": { "unit": "currencyUSD" } }
+        },
+        {
+          "id": 3,
+          "title": "Total spend (7d)",
+          "type": "stat",
+          "gridPos": { "h": 4, "w": 4, "x": 4, "y": 1 },
+          "targets": [
+            {
+              "refId": "A",
+              "expr": "sum(increase(litellm_spend_metric_total{api_key_alias=~\"${consumer:regex}\"}[7d]))"
+            }
+          ],
+          "fieldConfig": { "defaults": { "unit": "currencyUSD" } }
+        },
+        {
+          "id": 4,
+          "title": "Requests (24h)",
+          "type": "stat",
+          "gridPos": { "h": 4, "w": 4, "x": 8, "y": 1 },
+          "targets": [
+            {
+              "refId": "A",
+              "expr": "sum(increase(litellm_proxy_total_requests_metric_total{api_key_alias=~\"${consumer:regex}\"}[24h]))"
+            }
+          ],
+          "fieldConfig": { "defaults": { "unit": "short" } }
+        },
+        {
+          "id": 5,
+          "title": "Tokens (24h)",
+          "type": "stat",
+          "gridPos": { "h": 4, "w": 4, "x": 12, "y": 1 },
+          "targets": [
+            {
+              "refId": "A",
+              "expr": "sum(increase(litellm_total_tokens_metric_total{api_key_alias=~\"${consumer:regex}\"}[24h]))"
+            }
+          ],
+          "fieldConfig": { "defaults": { "unit": "short" } }
+        },
+        {
+          "id": 6,
+          "title": "Active consumers",
+          "type": "stat",
+          "gridPos": { "h": 4, "w": 4, "x": 16, "y": 1 },
+          "targets": [
+            {
+              "refId": "A",
+              "expr": "count(count by (api_key_alias) (litellm_spend_metric_total{api_key_alias=~\"${consumer:regex}\"}))"
+            }
+          ],
+          "fieldConfig": { "defaults": { "unit": "short" } }
+        },
+        {
+          "id": 7,
+          "title": "Lowest budget remaining",
+          "type": "stat",
+          "description": "Minimum across every key that has a max_budget set (kelos's shared key deliberately has none - see terragrunt/homelab/litellm/kelos-key).",
+          "gridPos": { "h": 4, "w": 4, "x": 20, "y": 1 },
+          "targets": [
+            {
+              "refId": "A",
+              "expr": "min(litellm_remaining_api_key_budget_metric)"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "currencyUSD",
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  { "color": "green", "value": null },
+                  { "color": "yellow", "value": 5 },
+                  { "color": "red", "value": 2 }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "id": 8,
+          "title": "Cost & Tokens",
+          "type": "row",
+          "gridPos": { "h": 1, "w": 24, "x": 0, "y": 5 }
+        },
+        {
+          "id": 9,
+          "title": "Spend over time by consumer",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 6 },
+          "targets": [
+            {
+              "refId": "A",
+              "expr": "sum by (api_key_alias) (increase(litellm_spend_metric_total{api_key_alias=~\"${consumer:regex}\"}[$__interval]))",
+              "legendFormat": "{{ "{{" }}api_key_alias{{ "}}" }}"
+            }
+          ],
+          "fieldConfig": { "defaults": { "unit": "currencyUSD" } }
+        },
+        {
+          "id": 10,
+          "title": "Spend over time by model",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 12, "x": 12, "y": 6 },
+          "targets": [
+            {
+              "refId": "A",
+              "expr": "sum by (model) (increase(litellm_spend_metric_total{api_key_alias=~\"${consumer:regex}\"}[$__interval]))",
+              "legendFormat": "{{ "{{" }}model{{ "}}" }}"
+            }
+          ],
+          "fieldConfig": { "defaults": { "unit": "currencyUSD" } }
+        },
+        {
+          "id": 11,
+          "title": "Tokens over time by type",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 14 },
+          "targets": [
+            {
+              "refId": "A",
+              "expr": "sum(increase(litellm_input_tokens_metric_total{api_key_alias=~\"${consumer:regex}\"}[$__interval]))",
+              "legendFormat": "input"
+            },
+            {
+              "refId": "B",
+              "expr": "sum(increase(litellm_output_tokens_metric_total{api_key_alias=~\"${consumer:regex}\"}[$__interval]))",
+              "legendFormat": "output"
+            }
+          ],
+          "fieldConfig": { "defaults": { "unit": "short" } }
+        },
+        {
+          "id": 12,
+          "title": "Tokens over time by model",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 12, "x": 12, "y": 14 },
+          "targets": [
+            {
+              "refId": "A",
+              "expr": "sum by (model) (increase(litellm_total_tokens_metric_total{api_key_alias=~\"${consumer:regex}\"}[$__interval]))",
+              "legendFormat": "{{ "{{" }}model{{ "}}" }}"
+            }
+          ],
+          "fieldConfig": { "defaults": { "unit": "short" } }
+        },
+        {
+          "id": 13,
+          "title": "Leaderboards",
+          "type": "row",
+          "gridPos": { "h": 1, "w": 24, "x": 0, "y": 22 }
+        },
+        {
+          "id": 14,
+          "title": "Top consumers by spend (range)",
+          "type": "bargauge",
+          "gridPos": { "h": 9, "w": 8, "x": 0, "y": 23 },
+          "targets": [
+            {
+              "refId": "A",
+              "expr": "topk(10, sum by (api_key_alias) (increase(litellm_spend_metric_total{api_key_alias=~\"${consumer:regex}\"}[$__range])))",
+              "legendFormat": "{{ "{{" }}api_key_alias{{ "}}" }}"
+            }
+          ],
+          "fieldConfig": { "defaults": { "unit": "currencyUSD" } },
+          "options": { "orientation": "horizontal", "displayMode": "gradient" }
+        },
+        {
+          "id": 15,
+          "title": "Spend by model (range)",
+          "type": "piechart",
+          "gridPos": { "h": 9, "w": 8, "x": 8, "y": 23 },
+          "targets": [
+            {
+              "refId": "A",
+              "expr": "sum by (model) (increase(litellm_spend_metric_total{api_key_alias=~\"${consumer:regex}\"}[$__range]))",
+              "legendFormat": "{{ "{{" }}model{{ "}}" }}"
+            }
+          ],
+          "fieldConfig": { "defaults": { "unit": "currencyUSD" } }
+        },
+        {
+          "id": 16,
+          "title": "Budget remaining by key",
+          "type": "bargauge",
+          "description": "Keys with no max_budget (kelos) report no series here, not zero.",
+          "gridPos": { "h": 9, "w": 8, "x": 16, "y": 23 },
+          "targets": [
+            {
+              "refId": "A",
+              "expr": "litellm_remaining_api_key_budget_metric",
+              "legendFormat": "{{ "{{" }}api_key_alias{{ "}}" }}"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "currencyUSD",
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  { "color": "red", "value": null },
+                  { "color": "yellow", "value": 2 },
+                  { "color": "green", "value": 5 }
+                ]
+              }
+            }
+          },
+          "options": { "orientation": "horizontal", "displayMode": "gradient" }
+        },
+        {
+          "id": 17,
+          "title": "Top consumers by tokens (range)",
+          "type": "bargauge",
+          "gridPos": { "h": 8, "w": 24, "x": 0, "y": 32 },
+          "targets": [
+            {
+              "refId": "A",
+              "expr": "topk(10, sum by (api_key_alias) (increase(litellm_total_tokens_metric_total{api_key_alias=~\"${consumer:regex}\"}[$__range])))",
+              "legendFormat": "{{ "{{" }}api_key_alias{{ "}}" }}"
+            }
+          ],
+          "fieldConfig": { "defaults": { "unit": "short" } },
+          "options": { "orientation": "horizontal", "displayMode": "gradient" }
+        }
+      ]
+    }
+{{- end }}
