@@ -78,7 +78,7 @@ mcp:
 
   jira:
     enabled: false
-    image: ghcr.io/sooperset/mcp-atlassian:0.23.1
+    image: ghcr.io/sooperset/mcp-atlassian:0.24.4
     mcps: []
 
   atlassian:
