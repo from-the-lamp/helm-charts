@@ -1,7 +1,7 @@
 image:
   name: remnawave/backend
   # renovate: datasource=docker depName=remnawave/backend
-  tag: 3.4.8
+  tag: 3.4.11
   pullPolicy: IfNotPresent
   pullSecrets: []
 
