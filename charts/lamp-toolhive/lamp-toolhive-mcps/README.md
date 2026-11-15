@@ -1,6 +1,6 @@
 # lamp-toolhive-mcps
 
-![Version: 0.0.62](https://img.shields.io/badge/Version-0.0.62-informational?style=flat-square)
+![Version: 0.0.63](https://img.shields.io/badge/Version-0.0.63-informational?style=flat-square)
 
 ## Values
 
@@ -235,42 +235,3 @@
 
 | Target | Type | Misconfigurations |
 | --- | --- | --- |
-| templates/aave/mcpremoteproxy.yaml | helm | 0 |
-| templates/alchemy/externalsecret.yaml | helm | 0 |
-| templates/alchemy/mcpserver.yaml | helm | 0 |
-| templates/alphavantage/externalsecret.yaml | helm | 0 |
-| templates/alphavantage/mcpserver.yaml | helm | 0 |
-| templates/atlassian/externalsecret.yaml | helm | 0 |
-| templates/atlassian/mcpserver.yaml | helm | 0 |
-| templates/bitbucket/externalsecret.yaml | helm | 0 |
-| templates/bitbucket/mcpserver.yaml | helm | 0 |
-| templates/coingecko/externalsecret.yaml | helm | 0 |
-| templates/coingecko/mcpserver.yaml | helm | 0 |
-| templates/defilama-free-api/mcpserver.yaml | helm | 0 |
-| templates/defilama-yields/mcpserver.yaml | helm | 0 |
-| templates/etherscan/externalsecret.yaml | helm | 0 |
-| templates/etherscan/mcpserver.yaml | helm | 0 |
-| templates/github/externalsecret.yaml | helm | 0 |
-| templates/github/mcpserver.yaml | helm | 0 |
-| templates/gitlab/externalsecret.yaml | helm | 0 |
-| templates/gitlab/mcpserver.yaml | helm | 0 |
-| templates/googlemaps/externalsecret.yaml | helm | 0 |
-| templates/googlemaps/mcpremoteproxy.yaml | helm | 0 |
-| templates/immich/externalsecret.yaml | helm | 0 |
-| templates/immich/mcpserver.yaml | helm | 0 |
-| templates/kubernetes/externalsecret.yaml | helm | 0 |
-| templates/kubernetes/mcpserver.yaml | helm | 0 |
-| templates/kubernetes/rbac.yaml | helm | 0 |
-| templates/letsfg/mcpserver.yaml | helm | 0 |
-| templates/linkedin/mcpserver.yaml | helm | 0 |
-| templates/oracle/externalsecret.yaml | helm | 0 |
-| templates/oracle/mcpserver.yaml | helm | 0 |
-| templates/sheets/externalsecret.yaml | helm | 0 |
-| templates/sheets/mcpserver.yaml | helm | 0 |
-| templates/slack/externalsecret.yaml | helm | 0 |
-| templates/slack/mcpserver.yaml | helm | 0 |
-| templates/ssh/configmap.yaml | helm | 0 |
-| templates/ssh/externalsecret.yaml | helm | 0 |
-| templates/ssh/mcpserver.yaml | helm | 0 |
-| templates/thegraph/externalsecret.yaml | helm | 0 |
-| templates/thegraph/mcpserver.yaml | helm | 0 |

@@ -1,0 +1,41 @@
+{{- if .Values.mcp.s3.enabled }}
+{{- range $item := .Values.mcp.s3.mcps }}
+---
+apiVersion: toolhive.stacklok.dev/v1beta1
+kind: MCPServer
+metadata:
+  name: mcp-{{ $item.name }}
+spec:
+  image: {{ $.Values.mcp.s3.image }}
+  transport: stdio
+  groupRef:
+    name: {{ $item.groupRef | default $.Values.mcp.defaults.groupRef }}
+  permissionProfile:
+    type: builtin
+    name: {{ $.Values.mcp.defaults.permissionProfile }}
+  audit:
+    enabled: true
+  podTemplateSpec:
+    metadata:
+      annotations:
+        {{- include "lamp-toolhive-mcps.podAnnotations" . | nindent 8 }}
+  env:
+    - name: S3_ENDPOINT_URL
+      value: {{ $item.endpoint }}
+    - name: S3_REGION
+      value: {{ $item.region }}
+    - name: S3_BUCKET
+      value: {{ $item.bucket }}
+  secrets:
+    - name: {{ $item.name }}-mcp-secret
+      key: access-key-id
+      targetEnvName: AWS_ACCESS_KEY_ID
+    - name: {{ $item.name }}-mcp-secret
+      key: secret-access-key
+      targetEnvName: AWS_SECRET_ACCESS_KEY
+  {{- with $item.resources }}
+  resources:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+{{- end }}
+{{- end }}
