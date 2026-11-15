@@ -22,6 +22,10 @@ spec:
   env:
     - name: COINGECKO_ENVIRONMENT
       value: demo
+  {{- with $item.resources }}
+  resources:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
   podTemplateSpec:
     metadata:
       annotations:

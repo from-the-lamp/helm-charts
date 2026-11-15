@@ -31,6 +31,10 @@ spec:
   env:
     {{- toYaml . | nindent 4 }}
   {{- end }}
+  {{- with $item.resources }}
+  resources:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
   {{- with $item.toolConfig }}
 ---
 apiVersion: toolhive.stacklok.dev/v1beta1
