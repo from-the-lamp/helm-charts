@@ -1,4 +1,4 @@
-{{- if or .Values.dashboards.node_exporter.enabled .Values.dashboards.smartctl_exporter.enabled }}
+{{- if or .Values.dashboards.node_exporter.enabled .Values.dashboards.smartctl_exporter.enabled .Values.dashboards.windows_exporter.enabled }}
 apiVersion: grafana.integreatly.org/v1beta1
 kind: GrafanaFolder
 metadata:

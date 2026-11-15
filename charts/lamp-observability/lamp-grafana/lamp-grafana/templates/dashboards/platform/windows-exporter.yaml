@@ -1,0 +1,1722 @@
+# Custom dashboard (no usable upstream exists on grafana.com - every
+# community "windows_exporter" dashboard checked still uses the pre-0.20
+# metric names like windows_cpu_time_total/windows_cs_hostname, renamed
+# years ago; see git history for the research). Shares the "nodes"
+# GrafanaFolder with node_exporter/smartctl_exporter (node-exporter.yaml's
+# folder guard includes this toggle too) since it's the same kind of
+# per-host system dashboard, just for Windows instead of Linux.
+{{- if .Values.dashboards.windows_exporter.enabled }}
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDashboard
+metadata:
+  name: windows-exporter
+spec:
+  folderRef: nodes
+  instanceSelector:
+    matchLabels:
+      dashboards: "grafana"
+  json: |
+    {
+      "uid": "dg4etjm87kohsd",
+      "title": "Windows Exporter",
+      "tags": [
+        "windows",
+        "windows_exporter"
+      ],
+      "schemaVersion": 39,
+      "timezone": "browser",
+      "refresh": "1m",
+      "time": {
+        "from": "now-6h",
+        "to": "now"
+      },
+      "templating": {
+        "list": [
+          {
+            "name": "host",
+            "label": "Host",
+            "type": "query",
+            "datasource": "VictoriaMetrics",
+            "query": {
+              "query": "label_values(windows_os_info, host)",
+              "refId": "StandardVariableQuery"
+            },
+            "refresh": 1,
+            "sort": 1,
+            "multi": false,
+            "includeAll": false,
+            "current": {}
+          }
+        ]
+      },
+      "panels": [
+        {
+          "id": 101,
+          "type": "row",
+          "title": "Overview",
+          "gridPos": {
+            "h": 1,
+            "w": 24,
+            "x": 0,
+            "y": 0
+          },
+          "collapsed": false,
+          "panels": []
+        },
+        {
+          "id": 102,
+          "type": "stat",
+          "title": "CPU Usage",
+          "gridPos": {
+            "h": 4,
+            "w": 4,
+            "x": 0,
+            "y": 1
+          },
+          "datasource": "VictoriaMetrics",
+          "targets": [
+            {
+              "expr": "100 * (1 - avg(rate(windows_cpu_time_seconds_total{mode=\"idle\", host=\"$host\"}[5m])))",
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "percent",
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "orange",
+                    "value": 70
+                  },
+                  {
+                    "color": "red",
+                    "value": 90
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ]
+            },
+            "graphMode": "area",
+            "colorMode": "value",
+            "textMode": "auto"
+          }
+        },
+        {
+          "id": 103,
+          "type": "stat",
+          "title": "Memory Usage",
+          "gridPos": {
+            "h": 4,
+            "w": 4,
+            "x": 4,
+            "y": 1
+          },
+          "datasource": "VictoriaMetrics",
+          "targets": [
+            {
+              "expr": "100 * (1 - windows_memory_physical_free_bytes{host=\"$host\"} / windows_memory_physical_total_bytes{host=\"$host\"})",
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "percent",
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "orange",
+                    "value": 80
+                  },
+                  {
+                    "color": "red",
+                    "value": 92
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ]
+            },
+            "graphMode": "area",
+            "colorMode": "value",
+            "textMode": "auto"
+          }
+        },
+        {
+          "id": 104,
+          "type": "stat",
+          "title": "Busiest Disk",
+          "gridPos": {
+            "h": 4,
+            "w": 4,
+            "x": 8,
+            "y": 1
+          },
+          "datasource": "VictoriaMetrics",
+          "targets": [
+            {
+              "expr": "max(100 * (1 - windows_logical_disk_free_bytes{host=\"$host\"} / windows_logical_disk_size_bytes{host=\"$host\"}))",
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "percent",
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "orange",
+                    "value": 80
+                  },
+                  {
+                    "color": "red",
+                    "value": 90
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ]
+            },
+            "graphMode": "area",
+            "colorMode": "value",
+            "textMode": "auto"
+          }
+        },
+        {
+          "id": 105,
+          "type": "stat",
+          "title": "Processor Queue",
+          "gridPos": {
+            "h": 4,
+            "w": 4,
+            "x": 12,
+            "y": 1
+          },
+          "datasource": "VictoriaMetrics",
+          "targets": [
+            {
+              "expr": "windows_system_processor_queue_length{host=\"$host\"}",
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short",
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "orange",
+                    "value": 2
+                  },
+                  {
+                    "color": "red",
+                    "value": 4
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ]
+            },
+            "graphMode": "none",
+            "colorMode": "value",
+            "textMode": "auto"
+          }
+        },
+        {
+          "id": 106,
+          "type": "stat",
+          "title": "Uptime",
+          "gridPos": {
+            "h": 4,
+            "w": 4,
+            "x": 16,
+            "y": 1
+          },
+          "datasource": "VictoriaMetrics",
+          "targets": [
+            {
+              "expr": "time() - windows_system_boot_time_timestamp{host=\"$host\"}",
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "s",
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ]
+            },
+            "graphMode": "none",
+            "colorMode": "value",
+            "textMode": "auto"
+          }
+        },
+        {
+          "id": 107,
+          "type": "stat",
+          "title": "Total RAM",
+          "gridPos": {
+            "h": 4,
+            "w": 4,
+            "x": 20,
+            "y": 1
+          },
+          "datasource": "VictoriaMetrics",
+          "targets": [
+            {
+              "expr": "windows_memory_physical_total_bytes{host=\"$host\"}",
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "bytes",
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ]
+            },
+            "graphMode": "none",
+            "colorMode": "value",
+            "textMode": "auto"
+          }
+        },
+        {
+          "id": 108,
+          "type": "stat",
+          "title": "Collectors Healthy",
+          "gridPos": {
+            "h": 4,
+            "w": 4,
+            "x": 0,
+            "y": 5
+          },
+          "datasource": "VictoriaMetrics",
+          "targets": [
+            {
+              "expr": "min(windows_exporter_collector_success{host=\"$host\"})",
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short",
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "red",
+                    "value": null
+                  },
+                  {
+                    "color": "green",
+                    "value": 1
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ]
+            },
+            "graphMode": "none",
+            "colorMode": "value",
+            "textMode": "value"
+          }
+        },
+        {
+          "id": 109,
+          "type": "row",
+          "title": "CPU",
+          "gridPos": {
+            "h": 1,
+            "w": 24,
+            "x": 0,
+            "y": 9
+          },
+          "collapsed": false,
+          "panels": []
+        },
+        {
+          "id": 110,
+          "type": "timeseries",
+          "title": "CPU Usage by Mode",
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 0,
+            "y": 10
+          },
+          "datasource": "VictoriaMetrics",
+          "targets": [
+            {
+              "expr": "avg by (mode) (rate(windows_cpu_time_seconds_total{host=\"$host\"}[5m])) * 100",
+              "legendFormat": "{{`{{mode}}`}}",
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "percent",
+              "min": 0,
+              "custom": {
+                "stacking": {
+                  "mode": "normal",
+                  "group": "A"
+                },
+                "fillOpacity": 30
+              }
+            },
+            "overrides": []
+          }
+        },
+        {
+          "id": 111,
+          "type": "timeseries",
+          "title": "CPU Usage (Total)",
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 12,
+            "y": 10
+          },
+          "datasource": "VictoriaMetrics",
+          "targets": [
+            {
+              "expr": "100 * (1 - avg(rate(windows_cpu_time_seconds_total{mode=\"idle\", host=\"$host\"}[5m])))",
+              "legendFormat": "CPU %",
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "percent",
+              "min": 0
+            },
+            "overrides": []
+          }
+        },
+        {
+          "id": 112,
+          "type": "timeseries",
+          "title": "Core Frequency",
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 0,
+            "y": 18
+          },
+          "datasource": "VictoriaMetrics",
+          "targets": [
+            {
+              "expr": "windows_cpu_core_frequency_hertz{host=\"$host\"}",
+              "legendFormat": "core {{`{{core}}`}}",
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "hertz"
+            },
+            "overrides": []
+          }
+        },
+        {
+          "id": 113,
+          "type": "timeseries",
+          "title": "Interrupts & DPCs /sec",
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 12,
+            "y": 18
+          },
+          "datasource": "VictoriaMetrics",
+          "targets": [
+            {
+              "expr": "rate(windows_cpu_interrupts_total{host=\"$host\"}[5m])",
+              "legendFormat": "interrupts",
+              "refId": "A"
+            },
+            {
+              "expr": "rate(windows_cpu_dpcs_total{host=\"$host\"}[5m])",
+              "legendFormat": "DPCs",
+              "refId": "B"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "ops"
+            },
+            "overrides": []
+          }
+        },
+        {
+          "id": 114,
+          "type": "row",
+          "title": "Memory",
+          "gridPos": {
+            "h": 1,
+            "w": 24,
+            "x": 0,
+            "y": 26
+          },
+          "collapsed": false,
+          "panels": []
+        },
+        {
+          "id": 115,
+          "type": "timeseries",
+          "title": "Physical Memory",
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 0,
+            "y": 27
+          },
+          "datasource": "VictoriaMetrics",
+          "targets": [
+            {
+              "expr": "windows_memory_physical_total_bytes{host=\"$host\"}",
+              "legendFormat": "Total",
+              "refId": "A"
+            },
+            {
+              "expr": "windows_memory_physical_total_bytes{host=\"$host\"} - windows_memory_physical_free_bytes{host=\"$host\"}",
+              "legendFormat": "Used",
+              "refId": "B"
+            },
+            {
+              "expr": "windows_memory_physical_free_bytes{host=\"$host\"}",
+              "legendFormat": "Free",
+              "refId": "C"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "bytes",
+              "min": 0
+            },
+            "overrides": []
+          }
+        },
+        {
+          "id": 116,
+          "type": "bargauge",
+          "title": "Commit Charge",
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 12,
+            "y": 27
+          },
+          "datasource": "VictoriaMetrics",
+          "targets": [
+            {
+              "expr": "100 * windows_memory_committed_bytes{host=\"$host\"} / windows_memory_commit_limit_bytes{host=\"$host\"}",
+              "legendFormat": "commit %",
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "percent",
+              "min": 0,
+              "max": 100,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "orange",
+                    "value": 80
+                  },
+                  {
+                    "color": "red",
+                    "value": 92
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "displayMode": "gradient",
+            "orientation": "vertical",
+            "showUnfilled": true,
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ]
+            }
+          }
+        },
+        {
+          "id": 117,
+          "type": "timeseries",
+          "title": "Committed vs Commit Limit",
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 0,
+            "y": 35
+          },
+          "datasource": "VictoriaMetrics",
+          "targets": [
+            {
+              "expr": "windows_memory_committed_bytes{host=\"$host\"}",
+              "legendFormat": "Committed",
+              "refId": "A"
+            },
+            {
+              "expr": "windows_memory_commit_limit_bytes{host=\"$host\"}",
+              "legendFormat": "Commit Limit",
+              "refId": "B"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "bytes",
+              "min": 0
+            },
+            "overrides": []
+          }
+        },
+        {
+          "id": 118,
+          "type": "timeseries",
+          "title": "Available & Cache Bytes",
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 12,
+            "y": 35
+          },
+          "datasource": "VictoriaMetrics",
+          "targets": [
+            {
+              "expr": "windows_memory_available_bytes{host=\"$host\"}",
+              "legendFormat": "Available",
+              "refId": "A"
+            },
+            {
+              "expr": "windows_memory_cache_bytes{host=\"$host\"}",
+              "legendFormat": "Cache",
+              "refId": "B"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "bytes",
+              "min": 0
+            },
+            "overrides": []
+          }
+        },
+        {
+          "id": 119,
+          "type": "timeseries",
+          "title": "Kernel Pool Usage",
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 0,
+            "y": 43
+          },
+          "datasource": "VictoriaMetrics",
+          "targets": [
+            {
+              "expr": "windows_memory_pool_paged_bytes{host=\"$host\"}",
+              "legendFormat": "Paged Pool",
+              "refId": "A"
+            },
+            {
+              "expr": "windows_memory_pool_nonpaged_bytes{host=\"$host\"}",
+              "legendFormat": "Nonpaged Pool",
+              "refId": "B"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "bytes",
+              "min": 0
+            },
+            "overrides": []
+          }
+        },
+        {
+          "id": 120,
+          "type": "timeseries",
+          "title": "Page Faults /sec",
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 12,
+            "y": 43
+          },
+          "datasource": "VictoriaMetrics",
+          "targets": [
+            {
+              "expr": "rate(windows_memory_page_faults_total{host=\"$host\"}[5m])",
+              "legendFormat": "page faults",
+              "refId": "A"
+            },
+            {
+              "expr": "rate(windows_memory_cache_faults_total{host=\"$host\"}[5m])",
+              "legendFormat": "cache faults",
+              "refId": "B"
+            },
+            {
+              "expr": "rate(windows_memory_demand_zero_faults_total{host=\"$host\"}[5m])",
+              "legendFormat": "demand-zero faults",
+              "refId": "C"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "ops"
+            },
+            "overrides": []
+          }
+        },
+        {
+          "id": 121,
+          "type": "timeseries",
+          "title": "Pagefile I/O /sec",
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 0,
+            "y": 51
+          },
+          "datasource": "VictoriaMetrics",
+          "targets": [
+            {
+              "expr": "rate(windows_memory_swap_page_reads_total{host=\"$host\"}[5m])",
+              "legendFormat": "reads",
+              "refId": "A"
+            },
+            {
+              "expr": "rate(windows_memory_swap_page_writes_total{host=\"$host\"}[5m])",
+              "legendFormat": "writes",
+              "refId": "B"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "ops"
+            },
+            "overrides": []
+          }
+        },
+        {
+          "id": 122,
+          "type": "row",
+          "title": "Disk \u2014 Logical",
+          "gridPos": {
+            "h": 1,
+            "w": 24,
+            "x": 0,
+            "y": 59
+          },
+          "collapsed": false,
+          "panels": []
+        },
+        {
+          "id": 123,
+          "type": "bargauge",
+          "title": "Disk Usage by Volume",
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 0,
+            "y": 60
+          },
+          "datasource": "VictoriaMetrics",
+          "targets": [
+            {
+              "expr": "100 * (1 - windows_logical_disk_free_bytes{host=\"$host\"} / windows_logical_disk_size_bytes{host=\"$host\"})",
+              "legendFormat": "{{`{{volume}}`}}",
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "percent",
+              "min": 0,
+              "max": 100,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "orange",
+                    "value": 80
+                  },
+                  {
+                    "color": "red",
+                    "value": 90
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "displayMode": "gradient",
+            "orientation": "horizontal",
+            "showUnfilled": true,
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ]
+            }
+          }
+        },
+        {
+          "id": 124,
+          "type": "table",
+          "title": "Disk Space by Volume (GB)",
+          "gridPos": {
+            "h": 7,
+            "w": 24,
+            "x": 0,
+            "y": 68
+          },
+          "datasource": "VictoriaMetrics",
+          "targets": [
+            {
+              "expr": "windows_logical_disk_size_bytes{host=\"$host\"}",
+              "refId": "A",
+              "format": "table",
+              "instant": true
+            },
+            {
+              "expr": "windows_logical_disk_free_bytes{host=\"$host\"}",
+              "refId": "B",
+              "format": "table",
+              "instant": true
+            }
+          ],
+          "transformations": [
+            {
+              "id": "joinByField",
+              "options": {
+                "byField": "volume",
+                "mode": "outer"
+              }
+            },
+            {
+              "id": "calculateField",
+              "options": {
+                "mode": "binary",
+                "binary": {
+                  "left": "Value #A",
+                  "operator": "-",
+                  "right": "Value #B"
+                },
+                "alias": "Used",
+                "replaceFields": false
+              }
+            },
+            {
+              "id": "organize",
+              "options": {
+                "excludeByName": {
+                  "Time": true,
+                  "instance": true,
+                  "job": true,
+                  "cluster": true,
+                  "host": true,
+                  "prometheus": true,
+                  "__name__": true
+                },
+                "renameByName": {
+                  "Value #A": "Total",
+                  "Value #B": "Free",
+                  "volume": "Volume"
+                },
+                "indexByName": {
+                  "Volume": 0,
+                  "Total": 1,
+                  "Used": 2,
+                  "Free": 3
+                }
+              }
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {},
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Total"
+                },
+                "properties": [
+                  {
+                    "id": "unit",
+                    "value": "bytes"
+                  },
+                  {
+                    "id": "decimals",
+                    "value": 1
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Used"
+                },
+                "properties": [
+                  {
+                    "id": "unit",
+                    "value": "bytes"
+                  },
+                  {
+                    "id": "decimals",
+                    "value": 1
+                  },
+                  {
+                    "id": "custom.cellOptions",
+                    "value": {
+                      "type": "color-background",
+                      "mode": "gradient"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Free"
+                },
+                "properties": [
+                  {
+                    "id": "unit",
+                    "value": "bytes"
+                  },
+                  {
+                    "id": "decimals",
+                    "value": 1
+                  }
+                ]
+              }
+            ]
+          },
+          "options": {
+            "showHeader": true
+          }
+        },
+        {
+          "id": 125,
+          "type": "timeseries",
+          "title": "Logical Disk Throughput",
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 0,
+            "y": 75
+          },
+          "datasource": "VictoriaMetrics",
+          "targets": [
+            {
+              "expr": "rate(windows_logical_disk_read_bytes_total{host=\"$host\"}[5m])",
+              "legendFormat": "{{`{{volume}}`}} read",
+              "refId": "A"
+            },
+            {
+              "expr": "-rate(windows_logical_disk_write_bytes_total{host=\"$host\"}[5m])",
+              "legendFormat": "{{`{{volume}}`}} write",
+              "refId": "B"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "Bps"
+            },
+            "overrides": []
+          }
+        },
+        {
+          "id": 126,
+          "type": "timeseries",
+          "title": "Logical Disk IOPS",
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 12,
+            "y": 75
+          },
+          "datasource": "VictoriaMetrics",
+          "targets": [
+            {
+              "expr": "rate(windows_logical_disk_reads_total{host=\"$host\"}[5m])",
+              "legendFormat": "{{`{{volume}}`}} reads/s",
+              "refId": "A"
+            },
+            {
+              "expr": "-rate(windows_logical_disk_writes_total{host=\"$host\"}[5m])",
+              "legendFormat": "{{`{{volume}}`}} writes/s",
+              "refId": "B"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "iops"
+            },
+            "overrides": []
+          }
+        },
+        {
+          "id": 127,
+          "type": "timeseries",
+          "title": "Logical Disk Queue Length",
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 0,
+            "y": 83
+          },
+          "datasource": "VictoriaMetrics",
+          "targets": [
+            {
+              "expr": "windows_logical_disk_requests_queued{host=\"$host\"}",
+              "legendFormat": "{{`{{volume}}`}}",
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short",
+              "min": 0
+            },
+            "overrides": []
+          }
+        },
+        {
+          "id": 128,
+          "type": "timeseries",
+          "title": "Logical Disk Busy %",
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 12,
+            "y": 83
+          },
+          "datasource": "VictoriaMetrics",
+          "targets": [
+            {
+              "expr": "100 * (1 - rate(windows_logical_disk_idle_seconds_total{host=\"$host\"}[5m]))",
+              "legendFormat": "{{`{{volume}}`}}",
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "percent",
+              "min": 0
+            },
+            "overrides": []
+          }
+        },
+        {
+          "id": 129,
+          "type": "row",
+          "title": "Disk \u2014 Physical",
+          "gridPos": {
+            "h": 1,
+            "w": 24,
+            "x": 0,
+            "y": 91
+          },
+          "collapsed": false,
+          "panels": []
+        },
+        {
+          "id": 130,
+          "type": "timeseries",
+          "title": "Physical Disk Throughput",
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 0,
+            "y": 92
+          },
+          "datasource": "VictoriaMetrics",
+          "targets": [
+            {
+              "expr": "rate(windows_physical_disk_read_bytes_total{host=\"$host\"}[5m])",
+              "legendFormat": "disk {{`{{instance}}`}} read",
+              "refId": "A"
+            },
+            {
+              "expr": "-rate(windows_physical_disk_write_bytes_total{host=\"$host\"}[5m])",
+              "legendFormat": "disk {{`{{instance}}`}} write",
+              "refId": "B"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "Bps"
+            },
+            "overrides": []
+          }
+        },
+        {
+          "id": 131,
+          "type": "timeseries",
+          "title": "Physical Disk Avg Latency",
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 12,
+            "y": 92
+          },
+          "datasource": "VictoriaMetrics",
+          "targets": [
+            {
+              "expr": "rate(windows_physical_disk_read_latency_seconds_total{host=\"$host\"}[5m]) / rate(windows_physical_disk_reads_total{host=\"$host\"}[5m])",
+              "legendFormat": "disk {{`{{instance}}`}} read",
+              "refId": "A"
+            },
+            {
+              "expr": "rate(windows_physical_disk_write_latency_seconds_total{host=\"$host\"}[5m]) / rate(windows_physical_disk_writes_total{host=\"$host\"}[5m])",
+              "legendFormat": "disk {{`{{instance}}`}} write",
+              "refId": "B"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "s",
+              "min": 0
+            },
+            "overrides": []
+          }
+        },
+        {
+          "id": 132,
+          "type": "timeseries",
+          "title": "Physical Disk Queue Length",
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 0,
+            "y": 100
+          },
+          "datasource": "VictoriaMetrics",
+          "targets": [
+            {
+              "expr": "windows_physical_disk_requests_queued{host=\"$host\"}",
+              "legendFormat": "disk {{`{{instance}}`}}",
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short",
+              "min": 0
+            },
+            "overrides": []
+          }
+        },
+        {
+          "id": 133,
+          "type": "row",
+          "title": "Network",
+          "gridPos": {
+            "h": 1,
+            "w": 24,
+            "x": 0,
+            "y": 108
+          },
+          "collapsed": false,
+          "panels": []
+        },
+        {
+          "id": 134,
+          "type": "timeseries",
+          "title": "Network Throughput",
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 0,
+            "y": 109
+          },
+          "datasource": "VictoriaMetrics",
+          "targets": [
+            {
+              "expr": "rate(windows_net_bytes_received_total{host=\"$host\"}[5m])",
+              "legendFormat": "{{`{{nic}}`}} rx",
+              "refId": "A"
+            },
+            {
+              "expr": "-rate(windows_net_bytes_sent_total{host=\"$host\"}[5m])",
+              "legendFormat": "{{`{{nic}}`}} tx",
+              "refId": "B"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "Bps"
+            },
+            "overrides": []
+          }
+        },
+        {
+          "id": 135,
+          "type": "timeseries",
+          "title": "Network Packets /sec",
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 12,
+            "y": 109
+          },
+          "datasource": "VictoriaMetrics",
+          "targets": [
+            {
+              "expr": "rate(windows_net_packets_received_total{host=\"$host\"}[5m])",
+              "legendFormat": "{{`{{nic}}`}} rx",
+              "refId": "A"
+            },
+            {
+              "expr": "-rate(windows_net_packets_sent_total{host=\"$host\"}[5m])",
+              "legendFormat": "{{`{{nic}}`}} tx",
+              "refId": "B"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "pps"
+            },
+            "overrides": []
+          }
+        },
+        {
+          "id": 136,
+          "type": "timeseries",
+          "title": "Network Errors & Discards /sec",
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 0,
+            "y": 117
+          },
+          "datasource": "VictoriaMetrics",
+          "targets": [
+            {
+              "expr": "rate(windows_net_packets_received_errors_total{host=\"$host\"}[5m])",
+              "legendFormat": "{{`{{nic}}`}} rx errors",
+              "refId": "A"
+            },
+            {
+              "expr": "rate(windows_net_packets_outbound_errors_total{host=\"$host\"}[5m])",
+              "legendFormat": "{{`{{nic}}`}} tx errors",
+              "refId": "B"
+            },
+            {
+              "expr": "rate(windows_net_packets_received_discarded_total{host=\"$host\"}[5m])",
+              "legendFormat": "{{`{{nic}}`}} rx discards",
+              "refId": "C"
+            },
+            {
+              "expr": "rate(windows_net_packets_outbound_discarded_total{host=\"$host\"}[5m])",
+              "legendFormat": "{{`{{nic}}`}} tx discards",
+              "refId": "D"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "ops"
+            },
+            "overrides": []
+          }
+        },
+        {
+          "id": 137,
+          "type": "stat",
+          "title": "Link Speed",
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 12,
+            "y": 117
+          },
+          "datasource": "VictoriaMetrics",
+          "targets": [
+            {
+              "expr": "windows_net_current_bandwidth_bytes{host=\"$host\"} * 8",
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "bps",
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ]
+            },
+            "graphMode": "none",
+            "colorMode": "value",
+            "textMode": "value_and_name"
+          }
+        },
+        {
+          "id": 138,
+          "type": "row",
+          "title": "System",
+          "gridPos": {
+            "h": 1,
+            "w": 24,
+            "x": 0,
+            "y": 125
+          },
+          "collapsed": false,
+          "panels": []
+        },
+        {
+          "id": 139,
+          "type": "timeseries",
+          "title": "Processes & Threads",
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 0,
+            "y": 126
+          },
+          "datasource": "VictoriaMetrics",
+          "targets": [
+            {
+              "expr": "windows_system_processes{host=\"$host\"}",
+              "legendFormat": "processes",
+              "refId": "A"
+            },
+            {
+              "expr": "windows_system_threads{host=\"$host\"}",
+              "legendFormat": "threads",
+              "refId": "B"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short",
+              "min": 0
+            },
+            "overrides": []
+          }
+        },
+        {
+          "id": 140,
+          "type": "timeseries",
+          "title": "Context Switches & Syscalls /sec",
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 12,
+            "y": 126
+          },
+          "datasource": "VictoriaMetrics",
+          "targets": [
+            {
+              "expr": "rate(windows_system_context_switches_total{host=\"$host\"}[5m])",
+              "legendFormat": "context switches",
+              "refId": "A"
+            },
+            {
+              "expr": "rate(windows_system_system_calls_total{host=\"$host\"}[5m])",
+              "legendFormat": "syscalls",
+              "refId": "B"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "ops"
+            },
+            "overrides": []
+          }
+        },
+        {
+          "id": 141,
+          "type": "timeseries",
+          "title": "Processor Queue Length",
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 0,
+            "y": 134
+          },
+          "datasource": "VictoriaMetrics",
+          "targets": [
+            {
+              "expr": "windows_system_processor_queue_length{host=\"$host\"}",
+              "legendFormat": "queue length",
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short",
+              "min": 0
+            },
+            "overrides": []
+          }
+        },
+        {
+          "id": 142,
+          "type": "timeseries",
+          "title": "Exception Dispatches /sec",
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 12,
+            "y": 134
+          },
+          "datasource": "VictoriaMetrics",
+          "targets": [
+            {
+              "expr": "rate(windows_system_exception_dispatches_total{host=\"$host\"}[5m])",
+              "legendFormat": "exceptions",
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "ops"
+            },
+            "overrides": []
+          }
+        },
+        {
+          "id": 143,
+          "type": "row",
+          "title": "Services",
+          "gridPos": {
+            "h": 1,
+            "w": 24,
+            "x": 0,
+            "y": 142
+          },
+          "collapsed": false,
+          "panels": []
+        },
+        {
+          "id": 144,
+          "type": "timeseries",
+          "title": "Services by State",
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 0,
+            "y": 143
+          },
+          "datasource": "VictoriaMetrics",
+          "targets": [
+            {
+              "expr": "sum by (state) (windows_service_state{host=\"$host\"})",
+              "legendFormat": "{{`{{state}}`}}",
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short",
+              "min": 0
+            },
+            "overrides": []
+          }
+        },
+        {
+          "id": 145,
+          "type": "piechart",
+          "title": "Services by Start Mode",
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 12,
+            "y": 143
+          },
+          "datasource": "VictoriaMetrics",
+          "targets": [
+            {
+              "expr": "sum by (start_mode) (windows_service_start_mode{host=\"$host\"})",
+              "legendFormat": "{{`{{start_mode}}`}}",
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {},
+            "overrides": []
+          },
+          "options": {
+            "legend": {
+              "displayMode": "list",
+              "placement": "right"
+            },
+            "pieType": "donut",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ]
+            }
+          }
+        },
+        {
+          "id": 146,
+          "type": "table",
+          "title": "Service Inventory",
+          "gridPos": {
+            "h": 8,
+            "w": 24,
+            "x": 0,
+            "y": 151
+          },
+          "datasource": "VictoriaMetrics",
+          "targets": [
+            {
+              "expr": "windows_service_info{host=\"$host\"}",
+              "refId": "A",
+              "format": "table",
+              "instant": true
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {},
+            "overrides": []
+          },
+          "options": {
+            "showHeader": true
+          }
+        },
+        {
+          "id": 147,
+          "type": "row",
+          "title": "Exporter Health",
+          "gridPos": {
+            "h": 1,
+            "w": 24,
+            "x": 0,
+            "y": 159
+          },
+          "collapsed": false,
+          "panels": []
+        },
+        {
+          "id": 148,
+          "type": "bargauge",
+          "title": "Collector Success (1=ok)",
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 0,
+            "y": 160
+          },
+          "datasource": "VictoriaMetrics",
+          "targets": [
+            {
+              "expr": "windows_exporter_collector_success{host=\"$host\"}",
+              "legendFormat": "{{`{{collector}}`}}",
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short",
+              "min": 0,
+              "max": 1,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "red",
+                    "value": null
+                  },
+                  {
+                    "color": "green",
+                    "value": 1
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "displayMode": "gradient",
+            "orientation": "horizontal",
+            "showUnfilled": true,
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ]
+            }
+          }
+        },
+        {
+          "id": 149,
+          "type": "timeseries",
+          "title": "Collector Scrape Duration",
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 12,
+            "y": 160
+          },
+          "datasource": "VictoriaMetrics",
+          "targets": [
+            {
+              "expr": "windows_exporter_collector_duration_seconds{host=\"$host\"}",
+              "legendFormat": "{{`{{collector}}`}}",
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "s",
+              "min": 0
+            },
+            "overrides": []
+          }
+        },
+        {
+          "id": 150,
+          "type": "stat",
+          "title": "Exporter Version",
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 0,
+            "y": 168
+          },
+          "datasource": "VictoriaMetrics",
+          "targets": [
+            {
+              "expr": "windows_exporter_build_info{host=\"$host\"}",
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short",
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ]
+            },
+            "graphMode": "none",
+            "colorMode": "value",
+            "textMode": "name"
+          }
+        }
+      ]
+    }
+{{- end }}

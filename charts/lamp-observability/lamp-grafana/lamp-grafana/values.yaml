@@ -161,6 +161,8 @@ dashboards:
     enabled: false
   smartctl_exporter:
     enabled: false
+  windows_exporter:
+    enabled: false
   argo_rollouts:
     enabled: false
   vault:

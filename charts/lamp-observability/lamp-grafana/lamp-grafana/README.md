@@ -1,6 +1,6 @@
 # lamp-grafana
 
-![Version: 0.0.27](https://img.shields.io/badge/Version-0.0.27-informational?style=flat-square)
+![Version: 0.0.28](https://img.shields.io/badge/Version-0.0.28-informational?style=flat-square)
 
 ## Values
 
@@ -102,6 +102,7 @@
 | dashboards.tempo.enabled | bool | `false` |  |
 | dashboards.vault.enabled | bool | `false` |  |
 | dashboards.victoria_metrics.enabled | bool | `true` |  |
+| dashboards.windows_exporter.enabled | bool | `false` |  |
 | datasources.alertmanager.enabled | bool | `true` |  |
 | datasources.alertmanager.url | string | `"http://vmalertmanager-victoria-metrics-0.vmalertmanager-victoria-metrics.victoria-metrics.svc.cluster.local.:9093"` |  |
 | datasources.google.defaultProject | string | `"example-infra"` |  |
