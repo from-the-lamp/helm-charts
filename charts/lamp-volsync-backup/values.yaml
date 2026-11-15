@@ -12,13 +12,19 @@ retain:
   weekly: 4
   monthly: 6
 pruneIntervalDays: 7
+unlock: ""
 
 cache:
   capacity: 1Gi
   storageClassName: local-path
 
 moverSecurityContext: {}
-moverResources: {}
+moverResources:
+  requests:
+    cpu: 50m
+    memory: 128Mi
+  limits:
+    memory: 1Gi
 
 vault:
   s3:

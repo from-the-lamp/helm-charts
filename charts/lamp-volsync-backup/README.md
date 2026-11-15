@@ -1,6 +1,6 @@
 # lamp-volsync-backup
 
-![Version: 0.0.1](https://img.shields.io/badge/Version-0.0.1-informational?style=flat-square)
+![Version: 0.0.2](https://img.shields.io/badge/Version-0.0.2-informational?style=flat-square)
 
 ## Values
 
@@ -12,7 +12,9 @@
 | externalSecrets.kind | string | `"ClusterSecretStore"` |  |
 | externalSecrets.name | string | `"vault"` |  |
 | externalSecrets.refreshInterval | string | `"1h"` |  |
-| moverResources | object | `{}` |  |
+| moverResources.limits.memory | string | `"1Gi"` |  |
+| moverResources.requests.cpu | string | `"50m"` |  |
+| moverResources.requests.memory | string | `"128Mi"` |  |
 | moverSecurityContext | object | `{}` |  |
 | name | string | `""` |  |
 | pruneIntervalDays | int | `7` |  |
@@ -32,6 +34,7 @@
 | retain.weekly | int | `4` |  |
 | schedule | string | `"0 */6 * * *"` |  |
 | sourcePVC | string | `""` |  |
+| unlock | string | `""` |  |
 | vault.restic.passwordProperty | string | `"password"` |  |
 | vault.restic.remoteSecretKey | string | `"restic"` |  |
 | vault.s3.accessKeyProperty | string | `""` |  |

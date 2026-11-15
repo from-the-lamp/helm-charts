@@ -11,6 +11,9 @@ spec:
     repository: {{ include "lamp-volsync-backup.secretName" . }}
     copyMethod: Direct
     pruneIntervalDays: {{ .Values.pruneIntervalDays }}
+    {{- with .Values.unlock }}
+    unlock: {{ . | quote }}
+    {{- end }}
     retain:
       {{- toYaml .Values.retain | nindent 6 }}
     cacheCapacity: {{ .Values.cache.capacity }}
