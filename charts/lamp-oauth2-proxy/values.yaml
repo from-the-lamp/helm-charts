@@ -1,4 +1,6 @@
 oauth2-proxy:
+  deploymentAnnotations:
+    reloader.stakater.com/auto: "true"
   config:
     cookieName: "eikooc"
   extraArgs:

@@ -1,0 +1,3 @@
+holmes:
+  commonAnnotations:
+    reloader.stakater.com/auto: "true"

@@ -1,6 +1,6 @@
 # lamp-open-webui
 
-![Version: 0.8.0](https://img.shields.io/badge/Version-0.8.0-informational?style=flat-square)
+![Version: 0.8.1](https://img.shields.io/badge/Version-0.8.1-informational?style=flat-square)
 
 Thin wrapper around the upstream Open WebUI chart
 
@@ -8,7 +8,7 @@ Thin wrapper around the upstream Open WebUI chart
 
 | Repository | Name | Version |
 |------------|------|---------|
-| https://helm.openwebui.com/ | open-webui | 18.0.0 |
+| https://helm.openwebui.com/ | open-webui | 18.3.0 |
 
 ## Values
 
@@ -31,6 +31,7 @@ Thin wrapper around the upstream Open WebUI chart
 | oauth.remoteSecretKey | string | `"open-webui"` |  |
 | oauth.rolesClaim | string | `"groups"` |  |
 | oauth.scopes | string | `"openid email profile"` |  |
+| open-webui.annotations."reloader.stakater.com/auto" | string | `"true"` |  |
 | open-webui.extraEnvFrom[0].secretRef.name | string | `"open-webui-oauth-secret"` |  |
 | open-webui.extraEnvFrom[0].secretRef.optional | bool | `true` |  |
 | open-webui.extraEnvFrom[1].configMapRef.name | string | `"open-webui-oauth-config"` |  |

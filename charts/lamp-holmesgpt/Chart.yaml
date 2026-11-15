@@ -1,6 +1,6 @@
 apiVersion: v2
 name: lamp-holmesgpt
-version: 0.0.1
+version: 0.0.2
 description: Thin wrapper around the upstream HolmesGPT chart (read-only alert/incident investigation agent)
 
 dependencies:

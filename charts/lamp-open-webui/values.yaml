@@ -71,6 +71,8 @@ litellm:
   apiKeyProperty: master_key
 
 open-webui:
+  annotations:
+    reloader.stakater.com/auto: "true"
   # optional: true on all of these - each ConfigMap/ExternalSecret only
   # exists when its own feature flag above is enabled; without it they're
   # missing and this must not block pod startup.

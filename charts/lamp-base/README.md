@@ -1,6 +1,6 @@
 # lamp-base
 
-![Version: 1.0.0](https://img.shields.io/badge/Version-1.0.0-informational?style=flat-square)
+![Version: 1.1.0](https://img.shields.io/badge/Version-1.1.0-informational?style=flat-square)
 
 Base platform chart - standardized Rollout/Service/ServiceAccount/ExternalSecret/PDB/HPA/NetworkPolicy for any from-the-lamp app
 

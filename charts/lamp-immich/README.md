@@ -1,6 +1,6 @@
 # lamp-immich
 
-![Version: 0.1.2](https://img.shields.io/badge/Version-0.1.2-informational?style=flat-square)
+![Version: 0.1.3](https://img.shields.io/badge/Version-0.1.3-informational?style=flat-square)
 
 ## Requirements
 
@@ -56,6 +56,7 @@
 | immich.machine-learning.persistence.cache.size | string | `"10Gi"` |  |
 | immich.machine-learning.persistence.cache.storageClass | string | `"hcloud-volumes"` |  |
 | immich.machine-learning.persistence.cache.type | string | `"persistentVolumeClaim"` |  |
+| immich.server.controllers.main.annotations."reloader.stakater.com/auto" | string | `"true"` |  |
 | immich.server.controllers.main.containers.main.resources.limits.memory | string | `"1Gi"` |  |
 | immich.server.controllers.main.containers.main.resources.requests.cpu | string | `"20m"` |  |
 | immich.server.controllers.main.containers.main.resources.requests.memory | string | `"256Mi"` |  |
