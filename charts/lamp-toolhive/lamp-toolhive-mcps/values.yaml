@@ -303,6 +303,18 @@ mcp:
           key: toolhive
           property: coingecko_demo_api_key
 
+  s3:
+    enabled: true
+    image: registry.gitlab.com/from-the-lamp/infra/docker-images/lamp-s3-mcp:1.0.0
+    mcps:
+      - name: s3
+        endpoint: https://s3.amazonaws.com
+        region: us-east-1
+        bucket: example
+        vaultKey: toolhive
+        accessKeyProperty: s3_access_key_id
+        secretKeyProperty: s3_secret_access_key
+
   alphavantage:
     enabled: true
     image: registry.gitlab.com/from-the-lamp/infra/docker-images/lamp-alphavantage-mcp:1.0.3

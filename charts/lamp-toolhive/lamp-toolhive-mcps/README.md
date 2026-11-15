@@ -1,6 +1,6 @@
 # lamp-toolhive-mcps
 
-![Version: 0.0.63](https://img.shields.io/badge/Version-0.0.63-informational?style=flat-square)
+![Version: 0.0.64](https://img.shields.io/badge/Version-0.0.64-informational?style=flat-square)
 
 ## Values
 
@@ -183,6 +183,15 @@
 | mcp.redis.mcps | list | `[]` |  |
 | mcp.remote.enabled | bool | `false` |  |
 | mcp.remote.mcps | list | `[]` |  |
+| mcp.s3.enabled | bool | `true` |  |
+| mcp.s3.image | string | `"registry.gitlab.com/from-the-lamp/infra/docker-images/lamp-s3-mcp:1.0.0"` |  |
+| mcp.s3.mcps[0].accessKeyProperty | string | `"s3_access_key_id"` |  |
+| mcp.s3.mcps[0].bucket | string | `"example"` |  |
+| mcp.s3.mcps[0].endpoint | string | `"https://s3.amazonaws.com"` |  |
+| mcp.s3.mcps[0].name | string | `"s3"` |  |
+| mcp.s3.mcps[0].region | string | `"us-east-1"` |  |
+| mcp.s3.mcps[0].secretKeyProperty | string | `"s3_secret_access_key"` |  |
+| mcp.s3.mcps[0].vaultKey | string | `"toolhive"` |  |
 | mcp.sentry.enabled | bool | `true` |  |
 | mcp.sentry.image | string | `"ghcr.io/stacklok/dockyard/npx/sentry-mcp-server:0.42.0"` |  |
 | mcp.sentry.mcps | list | `[]` |  |
@@ -235,3 +244,44 @@
 
 | Target | Type | Misconfigurations |
 | --- | --- | --- |
+| templates/aave/mcpremoteproxy.yaml | helm | 0 |
+| templates/alchemy/externalsecret.yaml | helm | 0 |
+| templates/alchemy/mcpserver.yaml | helm | 0 |
+| templates/alphavantage/externalsecret.yaml | helm | 0 |
+| templates/alphavantage/mcpserver.yaml | helm | 0 |
+| templates/atlassian/externalsecret.yaml | helm | 0 |
+| templates/atlassian/mcpserver.yaml | helm | 0 |
+| templates/bitbucket/externalsecret.yaml | helm | 0 |
+| templates/bitbucket/mcpserver.yaml | helm | 0 |
+| templates/coingecko/externalsecret.yaml | helm | 0 |
+| templates/coingecko/mcpserver.yaml | helm | 0 |
+| templates/defilama-free-api/mcpserver.yaml | helm | 0 |
+| templates/defilama-yields/mcpserver.yaml | helm | 0 |
+| templates/etherscan/externalsecret.yaml | helm | 0 |
+| templates/etherscan/mcpserver.yaml | helm | 0 |
+| templates/github/externalsecret.yaml | helm | 0 |
+| templates/github/mcpserver.yaml | helm | 0 |
+| templates/gitlab/externalsecret.yaml | helm | 0 |
+| templates/gitlab/mcpserver.yaml | helm | 0 |
+| templates/googlemaps/externalsecret.yaml | helm | 0 |
+| templates/googlemaps/mcpremoteproxy.yaml | helm | 0 |
+| templates/immich/externalsecret.yaml | helm | 0 |
+| templates/immich/mcpserver.yaml | helm | 0 |
+| templates/kubernetes/externalsecret.yaml | helm | 0 |
+| templates/kubernetes/mcpserver.yaml | helm | 0 |
+| templates/kubernetes/rbac.yaml | helm | 0 |
+| templates/letsfg/mcpserver.yaml | helm | 0 |
+| templates/linkedin/mcpserver.yaml | helm | 0 |
+| templates/oracle/externalsecret.yaml | helm | 0 |
+| templates/oracle/mcpserver.yaml | helm | 0 |
+| templates/s3/externalsecret.yaml | helm | 0 |
+| templates/s3/mcpserver.yaml | helm | 0 |
+| templates/sheets/externalsecret.yaml | helm | 0 |
+| templates/sheets/mcpserver.yaml | helm | 0 |
+| templates/slack/externalsecret.yaml | helm | 0 |
+| templates/slack/mcpserver.yaml | helm | 0 |
+| templates/ssh/configmap.yaml | helm | 0 |
+| templates/ssh/externalsecret.yaml | helm | 0 |
+| templates/ssh/mcpserver.yaml | helm | 0 |
+| templates/thegraph/externalsecret.yaml | helm | 0 |
+| templates/thegraph/mcpserver.yaml | helm | 0 |
