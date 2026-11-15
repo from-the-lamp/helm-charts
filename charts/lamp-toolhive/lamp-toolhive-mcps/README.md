@@ -1,6 +1,6 @@
 # lamp-toolhive-mcps
 
-![Version: 0.0.64](https://img.shields.io/badge/Version-0.0.64-informational?style=flat-square)
+![Version: 0.0.65](https://img.shields.io/badge/Version-0.0.65-informational?style=flat-square)
 
 ## Values
 

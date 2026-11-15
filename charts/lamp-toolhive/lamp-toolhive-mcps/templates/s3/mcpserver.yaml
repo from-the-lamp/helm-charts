@@ -27,10 +27,10 @@ spec:
     - name: S3_BUCKET
       value: {{ $item.bucket }}
   secrets:
-    - name: {{ $item.name }}-mcp-secret
+    - name: {{ $item.name }}-access-key-mcp-secret
       key: access-key-id
       targetEnvName: AWS_ACCESS_KEY_ID
-    - name: {{ $item.name }}-mcp-secret
+    - name: {{ $item.name }}-secret-key-mcp-secret
       key: secret-access-key
       targetEnvName: AWS_SECRET_ACCESS_KEY
   {{- with $item.resources }}
