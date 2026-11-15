@@ -21,3 +21,11 @@ restate:
       memory: 256Mi
     limits:
       memory: 1Gi
+
+  env:
+    - name: RESTATE_LOG_FORMAT
+      value: json
+    - name: RESTATE_CLUSTER_NAME
+      value: localcluster
+    - name: RESTATE_ROCKSDB_TOTAL_MEMORY_SIZE
+      value: 512MB
