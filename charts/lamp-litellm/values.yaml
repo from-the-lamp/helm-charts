@@ -88,6 +88,7 @@ geminiApiKey:
     property: gemini_api_key
 geminiImageModels:
   - gemini-2.5-flash-image
+  - gemini-3-pro-image
 
 # Explicit cross-provider fallbacks, additive to the chatgptModels sibling
 # fallback below - litellm's router tries each listed target, in order, if

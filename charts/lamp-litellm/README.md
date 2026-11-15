@@ -1,6 +1,6 @@
 # lamp-litellm
 
-![Version: 0.5.7](https://img.shields.io/badge/Version-0.5.7-informational?style=flat-square)
+![Version: 0.5.8](https://img.shields.io/badge/Version-0.5.8-informational?style=flat-square)
 
 ## Requirements
 
@@ -37,6 +37,7 @@
 | geminiApiKey.remoteRef.property | string | `"gemini_api_key"` |  |
 | geminiApiKey.secretName | string | `"litellm-gemini"` |  |
 | geminiImageModels[0] | string | `"gemini-2.5-flash-image"` |  |
+| geminiImageModels[1] | string | `"gemini-3-pro-image"` |  |
 | groqApiKey.remoteRef.key | string | `"litellm"` |  |
 | groqApiKey.remoteRef.property | string | `"groq_api_key"` |  |
 | groqApiKey.secretName | string | `"litellm-groq"` |  |

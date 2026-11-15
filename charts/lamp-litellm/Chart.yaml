@@ -1,6 +1,6 @@
 apiVersion: v2
 name: lamp-litellm
-version: 0.5.7
+version: 0.5.8
 
 dependencies:
   - name: litellm-helm
