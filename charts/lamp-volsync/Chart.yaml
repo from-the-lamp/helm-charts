@@ -1,0 +1,8 @@
+apiVersion: v2
+name: lamp-volsync
+version: 0.0.1
+
+dependencies:
+  - name: volsync
+    version: 0.17.0
+    repository: https://backube.github.io/helm-charts/

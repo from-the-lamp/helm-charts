@@ -1,0 +1,47 @@
+name: ""
+sourcePVC: ""
+schedule: "0 */6 * * *"
+
+repository:
+  endpoint: s3.eu-central-003.backblazeb2.com
+  bucket: ""
+  path: ""
+
+retain:
+  daily: 7
+  weekly: 4
+  monthly: 6
+pruneIntervalDays: 7
+
+cache:
+  capacity: 1Gi
+  storageClassName: local-path
+
+moverSecurityContext: {}
+moverResources: {}
+
+vault:
+  s3:
+    remoteSecretKey: s3
+    accessKeyProperty: ""
+    secretKeyProperty: ""
+  restic:
+    remoteSecretKey: restic
+    passwordProperty: password
+
+externalSecrets:
+  kind: ClusterSecretStore
+  name: vault
+  refreshInterval: 1h
+  creationPolicy: Orphan
+
+restore:
+  enabled: false
+  trigger: restore-once
+  destinationPVC: ""
+  capacity: ""
+  storageClassName: local-path
+  accessModes:
+    - ReadWriteOnce
+  restoreAsOf: ""
+  previous: 0

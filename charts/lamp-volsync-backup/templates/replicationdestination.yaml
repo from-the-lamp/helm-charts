@@ -1,0 +1,36 @@
+{{- if and .Values.sourcePVC .Values.restore.enabled }}
+apiVersion: volsync.backube/v1alpha1
+kind: ReplicationDestination
+metadata:
+  name: {{ include "lamp-volsync-backup.name" . }}-restore
+spec:
+  trigger:
+    manual: {{ .Values.restore.trigger | quote }}
+  restic:
+    repository: {{ include "lamp-volsync-backup.secretName" . }}
+    copyMethod: Direct
+    {{- if .Values.restore.destinationPVC }}
+    destinationPVC: {{ .Values.restore.destinationPVC }}
+    {{- else }}
+    capacity: {{ required "restore.capacity is required when restore.destinationPVC is empty" .Values.restore.capacity }}
+    storageClassName: {{ .Values.restore.storageClassName }}
+    accessModes:
+      {{- toYaml .Values.restore.accessModes | nindent 6 }}
+    {{- end }}
+    cacheCapacity: {{ .Values.cache.capacity }}
+    cacheStorageClassName: {{ .Values.cache.storageClassName }}
+    {{- with .Values.restore.restoreAsOf }}
+    restoreAsOf: {{ . | quote }}
+    {{- end }}
+    {{- if .Values.restore.previous }}
+    previous: {{ .Values.restore.previous }}
+    {{- end }}
+    {{- with .Values.moverSecurityContext }}
+    moverSecurityContext:
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
+    {{- with .Values.moverResources }}
+    moverResources:
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
+{{- end }}

@@ -1,0 +1,26 @@
+{{- if .Values.sourcePVC }}
+apiVersion: volsync.backube/v1alpha1
+kind: ReplicationSource
+metadata:
+  name: {{ include "lamp-volsync-backup.name" . }}
+spec:
+  sourcePVC: {{ .Values.sourcePVC }}
+  trigger:
+    schedule: {{ .Values.schedule | quote }}
+  restic:
+    repository: {{ include "lamp-volsync-backup.secretName" . }}
+    copyMethod: Direct
+    pruneIntervalDays: {{ .Values.pruneIntervalDays }}
+    retain:
+      {{- toYaml .Values.retain | nindent 6 }}
+    cacheCapacity: {{ .Values.cache.capacity }}
+    cacheStorageClassName: {{ .Values.cache.storageClassName }}
+    {{- with .Values.moverSecurityContext }}
+    moverSecurityContext:
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
+    {{- with .Values.moverResources }}
+    moverResources:
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
+{{- end }}
