@@ -9,6 +9,11 @@ spec:
       dashboards: "grafana"
   datasource:
     name: VictoriaMetrics
+    # Pinned, same as loki/tempo/pyroscope in this chart - without an
+    # explicit uid, Grafana auto-generates a random one, and this Grafana
+    # instance has no PVC (ephemeral SQLite), so every dashboard hardcoding
+    # that random uid breaks on the next pod restart that recreates it.
+    uid: victoria-metrics
     type: prometheus
     access: proxy
     url: {{ .Values.datasources.victoria_metrics.url }}
