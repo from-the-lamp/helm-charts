@@ -36,7 +36,7 @@ spec:
             "name": "host",
             "label": "Host",
             "type": "query",
-            "datasource": "VictoriaMetrics",
+            "datasource": { "uid": "VictoriaMetrics", "type": "prometheus" },
             "query": {
               "query": "label_values(windows_os_info, host)",
               "refId": "StandardVariableQuery"
@@ -73,7 +73,7 @@ spec:
             "x": 0,
             "y": 1
           },
-          "datasource": "VictoriaMetrics",
+          "datasource": { "uid": "VictoriaMetrics", "type": "prometheus" },
           "targets": [
             {
               "expr": "100 * (1 - avg(rate(windows_cpu_time_seconds_total{mode=\"idle\", host=\"$host\"}[5m])))",
@@ -124,7 +124,7 @@ spec:
             "x": 4,
             "y": 1
           },
-          "datasource": "VictoriaMetrics",
+          "datasource": { "uid": "VictoriaMetrics", "type": "prometheus" },
           "targets": [
             {
               "expr": "100 * (1 - windows_memory_physical_free_bytes{host=\"$host\"} / windows_memory_physical_total_bytes{host=\"$host\"})",
@@ -175,7 +175,7 @@ spec:
             "x": 8,
             "y": 1
           },
-          "datasource": "VictoriaMetrics",
+          "datasource": { "uid": "VictoriaMetrics", "type": "prometheus" },
           "targets": [
             {
               "expr": "max(100 * (1 - windows_logical_disk_free_bytes{host=\"$host\"} / windows_logical_disk_size_bytes{host=\"$host\"}))",
@@ -226,7 +226,7 @@ spec:
             "x": 12,
             "y": 1
           },
-          "datasource": "VictoriaMetrics",
+          "datasource": { "uid": "VictoriaMetrics", "type": "prometheus" },
           "targets": [
             {
               "expr": "windows_system_processor_queue_length{host=\"$host\"}",
@@ -277,7 +277,7 @@ spec:
             "x": 16,
             "y": 1
           },
-          "datasource": "VictoriaMetrics",
+          "datasource": { "uid": "VictoriaMetrics", "type": "prometheus" },
           "targets": [
             {
               "expr": "time() - windows_system_boot_time_timestamp{host=\"$host\"}",
@@ -320,7 +320,7 @@ spec:
             "x": 20,
             "y": 1
           },
-          "datasource": "VictoriaMetrics",
+          "datasource": { "uid": "VictoriaMetrics", "type": "prometheus" },
           "targets": [
             {
               "expr": "windows_memory_physical_total_bytes{host=\"$host\"}",
@@ -363,7 +363,7 @@ spec:
             "x": 0,
             "y": 5
           },
-          "datasource": "VictoriaMetrics",
+          "datasource": { "uid": "VictoriaMetrics", "type": "prometheus" },
           "targets": [
             {
               "expr": "min(windows_exporter_collector_success{host=\"$host\"})",
@@ -423,7 +423,7 @@ spec:
             "x": 0,
             "y": 10
           },
-          "datasource": "VictoriaMetrics",
+          "datasource": { "uid": "VictoriaMetrics", "type": "prometheus" },
           "targets": [
             {
               "expr": "avg by (mode) (rate(windows_cpu_time_seconds_total{host=\"$host\"}[5m])) * 100",
@@ -456,7 +456,7 @@ spec:
             "x": 12,
             "y": 10
           },
-          "datasource": "VictoriaMetrics",
+          "datasource": { "uid": "VictoriaMetrics", "type": "prometheus" },
           "targets": [
             {
               "expr": "100 * (1 - avg(rate(windows_cpu_time_seconds_total{mode=\"idle\", host=\"$host\"}[5m])))",
@@ -482,7 +482,7 @@ spec:
             "x": 0,
             "y": 18
           },
-          "datasource": "VictoriaMetrics",
+          "datasource": { "uid": "VictoriaMetrics", "type": "prometheus" },
           "targets": [
             {
               "expr": "windows_cpu_core_frequency_hertz{host=\"$host\"}",
@@ -507,7 +507,7 @@ spec:
             "x": 12,
             "y": 18
           },
-          "datasource": "VictoriaMetrics",
+          "datasource": { "uid": "VictoriaMetrics", "type": "prometheus" },
           "targets": [
             {
               "expr": "rate(windows_cpu_interrupts_total{host=\"$host\"}[5m])",
@@ -550,7 +550,7 @@ spec:
             "x": 0,
             "y": 27
           },
-          "datasource": "VictoriaMetrics",
+          "datasource": { "uid": "VictoriaMetrics", "type": "prometheus" },
           "targets": [
             {
               "expr": "windows_memory_physical_total_bytes{host=\"$host\"}",
@@ -586,7 +586,7 @@ spec:
             "x": 12,
             "y": 27
           },
-          "datasource": "VictoriaMetrics",
+          "datasource": { "uid": "VictoriaMetrics", "type": "prometheus" },
           "targets": [
             {
               "expr": "100 * windows_memory_committed_bytes{host=\"$host\"} / windows_memory_commit_limit_bytes{host=\"$host\"}",
@@ -640,7 +640,7 @@ spec:
             "x": 0,
             "y": 35
           },
-          "datasource": "VictoriaMetrics",
+          "datasource": { "uid": "VictoriaMetrics", "type": "prometheus" },
           "targets": [
             {
               "expr": "windows_memory_committed_bytes{host=\"$host\"}",
@@ -671,7 +671,7 @@ spec:
             "x": 12,
             "y": 35
           },
-          "datasource": "VictoriaMetrics",
+          "datasource": { "uid": "VictoriaMetrics", "type": "prometheus" },
           "targets": [
             {
               "expr": "windows_memory_available_bytes{host=\"$host\"}",
@@ -702,7 +702,7 @@ spec:
             "x": 0,
             "y": 43
           },
-          "datasource": "VictoriaMetrics",
+          "datasource": { "uid": "VictoriaMetrics", "type": "prometheus" },
           "targets": [
             {
               "expr": "windows_memory_pool_paged_bytes{host=\"$host\"}",
@@ -733,7 +733,7 @@ spec:
             "x": 12,
             "y": 43
           },
-          "datasource": "VictoriaMetrics",
+          "datasource": { "uid": "VictoriaMetrics", "type": "prometheus" },
           "targets": [
             {
               "expr": "rate(windows_memory_page_faults_total{host=\"$host\"}[5m])",
@@ -768,7 +768,7 @@ spec:
             "x": 0,
             "y": 51
           },
-          "datasource": "VictoriaMetrics",
+          "datasource": { "uid": "VictoriaMetrics", "type": "prometheus" },
           "targets": [
             {
               "expr": "rate(windows_memory_swap_page_reads_total{host=\"$host\"}[5m])",
@@ -811,7 +811,7 @@ spec:
             "x": 0,
             "y": 60
           },
-          "datasource": "VictoriaMetrics",
+          "datasource": { "uid": "VictoriaMetrics", "type": "prometheus" },
           "targets": [
             {
               "expr": "100 * (1 - windows_logical_disk_free_bytes{host=\"$host\"} / windows_logical_disk_size_bytes{host=\"$host\"})",
@@ -865,7 +865,7 @@ spec:
             "x": 0,
             "y": 68
           },
-          "datasource": "VictoriaMetrics",
+          "datasource": { "uid": "VictoriaMetrics", "type": "prometheus" },
           "targets": [
             {
               "expr": "windows_logical_disk_size_bytes{host=\"$host\"}",
@@ -1001,7 +1001,7 @@ spec:
             "x": 0,
             "y": 75
           },
-          "datasource": "VictoriaMetrics",
+          "datasource": { "uid": "VictoriaMetrics", "type": "prometheus" },
           "targets": [
             {
               "expr": "rate(windows_logical_disk_read_bytes_total{host=\"$host\"}[5m])",
@@ -1031,7 +1031,7 @@ spec:
             "x": 12,
             "y": 75
           },
-          "datasource": "VictoriaMetrics",
+          "datasource": { "uid": "VictoriaMetrics", "type": "prometheus" },
           "targets": [
             {
               "expr": "rate(windows_logical_disk_reads_total{host=\"$host\"}[5m])",
@@ -1061,7 +1061,7 @@ spec:
             "x": 0,
             "y": 83
           },
-          "datasource": "VictoriaMetrics",
+          "datasource": { "uid": "VictoriaMetrics", "type": "prometheus" },
           "targets": [
             {
               "expr": "windows_logical_disk_requests_queued{host=\"$host\"}",
@@ -1087,7 +1087,7 @@ spec:
             "x": 12,
             "y": 83
           },
-          "datasource": "VictoriaMetrics",
+          "datasource": { "uid": "VictoriaMetrics", "type": "prometheus" },
           "targets": [
             {
               "expr": "100 * (1 - rate(windows_logical_disk_idle_seconds_total{host=\"$host\"}[5m]))",
@@ -1126,7 +1126,7 @@ spec:
             "x": 0,
             "y": 92
           },
-          "datasource": "VictoriaMetrics",
+          "datasource": { "uid": "VictoriaMetrics", "type": "prometheus" },
           "targets": [
             {
               "expr": "rate(windows_physical_disk_read_bytes_total{host=\"$host\"}[5m])",
@@ -1156,7 +1156,7 @@ spec:
             "x": 12,
             "y": 92
           },
-          "datasource": "VictoriaMetrics",
+          "datasource": { "uid": "VictoriaMetrics", "type": "prometheus" },
           "targets": [
             {
               "expr": "rate(windows_physical_disk_read_latency_seconds_total{host=\"$host\"}[5m]) / rate(windows_physical_disk_reads_total{host=\"$host\"}[5m])",
@@ -1187,7 +1187,7 @@ spec:
             "x": 0,
             "y": 100
           },
-          "datasource": "VictoriaMetrics",
+          "datasource": { "uid": "VictoriaMetrics", "type": "prometheus" },
           "targets": [
             {
               "expr": "windows_physical_disk_requests_queued{host=\"$host\"}",
@@ -1226,7 +1226,7 @@ spec:
             "x": 0,
             "y": 109
           },
-          "datasource": "VictoriaMetrics",
+          "datasource": { "uid": "VictoriaMetrics", "type": "prometheus" },
           "targets": [
             {
               "expr": "rate(windows_net_bytes_received_total{host=\"$host\"}[5m])",
@@ -1256,7 +1256,7 @@ spec:
             "x": 12,
             "y": 109
           },
-          "datasource": "VictoriaMetrics",
+          "datasource": { "uid": "VictoriaMetrics", "type": "prometheus" },
           "targets": [
             {
               "expr": "rate(windows_net_packets_received_total{host=\"$host\"}[5m])",
@@ -1286,7 +1286,7 @@ spec:
             "x": 0,
             "y": 117
           },
-          "datasource": "VictoriaMetrics",
+          "datasource": { "uid": "VictoriaMetrics", "type": "prometheus" },
           "targets": [
             {
               "expr": "rate(windows_net_packets_received_errors_total{host=\"$host\"}[5m])",
@@ -1326,7 +1326,7 @@ spec:
             "x": 12,
             "y": 117
           },
-          "datasource": "VictoriaMetrics",
+          "datasource": { "uid": "VictoriaMetrics", "type": "prometheus" },
           "targets": [
             {
               "expr": "windows_net_current_bandwidth_bytes{host=\"$host\"} * 8",
@@ -1382,7 +1382,7 @@ spec:
             "x": 0,
             "y": 126
           },
-          "datasource": "VictoriaMetrics",
+          "datasource": { "uid": "VictoriaMetrics", "type": "prometheus" },
           "targets": [
             {
               "expr": "windows_system_processes{host=\"$host\"}",
@@ -1413,7 +1413,7 @@ spec:
             "x": 12,
             "y": 126
           },
-          "datasource": "VictoriaMetrics",
+          "datasource": { "uid": "VictoriaMetrics", "type": "prometheus" },
           "targets": [
             {
               "expr": "rate(windows_system_context_switches_total{host=\"$host\"}[5m])",
@@ -1443,7 +1443,7 @@ spec:
             "x": 0,
             "y": 134
           },
-          "datasource": "VictoriaMetrics",
+          "datasource": { "uid": "VictoriaMetrics", "type": "prometheus" },
           "targets": [
             {
               "expr": "windows_system_processor_queue_length{host=\"$host\"}",
@@ -1469,7 +1469,7 @@ spec:
             "x": 12,
             "y": 134
           },
-          "datasource": "VictoriaMetrics",
+          "datasource": { "uid": "VictoriaMetrics", "type": "prometheus" },
           "targets": [
             {
               "expr": "rate(windows_system_exception_dispatches_total{host=\"$host\"}[5m])",
@@ -1507,7 +1507,7 @@ spec:
             "x": 0,
             "y": 143
           },
-          "datasource": "VictoriaMetrics",
+          "datasource": { "uid": "VictoriaMetrics", "type": "prometheus" },
           "targets": [
             {
               "expr": "sum by (state) (windows_service_state{host=\"$host\"})",
@@ -1533,7 +1533,7 @@ spec:
             "x": 12,
             "y": 143
           },
-          "datasource": "VictoriaMetrics",
+          "datasource": { "uid": "VictoriaMetrics", "type": "prometheus" },
           "targets": [
             {
               "expr": "sum by (start_mode) (windows_service_start_mode{host=\"$host\"})",
@@ -1568,7 +1568,7 @@ spec:
             "x": 0,
             "y": 151
           },
-          "datasource": "VictoriaMetrics",
+          "datasource": { "uid": "VictoriaMetrics", "type": "prometheus" },
           "targets": [
             {
               "expr": "windows_service_info{host=\"$host\"}",
@@ -1608,7 +1608,7 @@ spec:
             "x": 0,
             "y": 160
           },
-          "datasource": "VictoriaMetrics",
+          "datasource": { "uid": "VictoriaMetrics", "type": "prometheus" },
           "targets": [
             {
               "expr": "windows_exporter_collector_success{host=\"$host\"}",
@@ -1658,7 +1658,7 @@ spec:
             "x": 12,
             "y": 160
           },
-          "datasource": "VictoriaMetrics",
+          "datasource": { "uid": "VictoriaMetrics", "type": "prometheus" },
           "targets": [
             {
               "expr": "windows_exporter_collector_duration_seconds{host=\"$host\"}",
@@ -1684,7 +1684,7 @@ spec:
             "x": 0,
             "y": 168
           },
-          "datasource": "VictoriaMetrics",
+          "datasource": { "uid": "VictoriaMetrics", "type": "prometheus" },
           "targets": [
             {
               "expr": "windows_exporter_build_info{host=\"$host\"}",

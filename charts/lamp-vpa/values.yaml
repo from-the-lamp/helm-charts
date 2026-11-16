@@ -1,0 +1,20 @@
+# Safe-by-default: only the recommender runs, so VPA computes and
+# exposes recommendations (`kubectl describe vpa ...`) without ever
+# touching a running pod. A consumer must deliberately opt into
+# updater.enabled/admissionController.enabled (both apply changes -
+# updater evicts pods to resize them, admissionController mutates pod
+# specs on (re)create) to get actual auto-resize.
+vpa:
+  # Already deployed cluster-wide via apps/homelab/platform/kube-system -
+  # this chart's own metrics-server subchart would otherwise double it up.
+  metrics-server:
+    enabled: false
+
+  recommender:
+    enabled: true
+
+  updater:
+    enabled: false
+
+  admissionController:
+    enabled: false

@@ -1,0 +1,9 @@
+apiVersion: v2
+name: lamp-vpa
+description: Vertical Pod Autoscaler controller (recommender-only by default - no auto-resize, no admission webhook)
+version: 0.1.0
+
+dependencies:
+  - name: vpa
+    version: 5.2.0
+    repository: https://charts.fairwinds.com/stable

@@ -95,6 +95,19 @@ nodeSelector: {}
 affinity: {}
 tolerations: []
 
+# Recommendation-only VerticalPodAutoscaler (see templates/vpa.yaml) -
+# requires apps/homelab/platform/vpa (the VPA recommender) to actually be
+# deployed; the CRD alone being absent would just leave this resource
+# unreconciled, not break anything else. updateMode "Off" never touches
+# the running pod - it only gives a live, continuously-updated answer to
+# "what should requests/memory actually be" instead of the one-time
+# static guess in resources.requests.memory above, without needing the
+# updater/admission-controller components (both left disabled cluster-
+# wide) that would be required to act on it automatically.
+vpa:
+  enabled: true
+  updateMode: "Off"
+
 # Single-node cluster, no dedicated GPU scheduling tier: this is the
 # cheap, already-established substitute for workload-aware memory
 # management (see lamp-hermes's own priorityclass.yaml, mirrored here
