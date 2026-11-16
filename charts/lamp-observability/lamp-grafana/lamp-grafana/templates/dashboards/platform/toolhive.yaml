@@ -8,11 +8,32 @@ spec:
   instanceSelector:
     matchLabels:
       dashboards: "grafana"
-  # Stacklok's "starter" dashboard from the ToolHive repo, not an official
-  # upstream one - hardcodes job="toolhive-system/mcp-fetch-server" on every
-  # panel, so it needs its queries repointed at this stand's actual job
-  # (namespace/MCPServer-name pairs, toolhive namespace, ~30+ backends) before
-  # it says anything useful. Values gate (dashboards.toolhive.enabled) is off
-  # until that's done.
-  url: https://raw.githubusercontent.com/stacklok/toolhive/main/examples/otel/grafana-dashboards/toolhive-mcp-grafana-dashboard-otel-scrape.json
+  configMapRef:
+    name: dashboard-toolhive-mcp
+    key: json
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dashboard-toolhive-mcp
+  annotations:
+    argocd.argoproj.io/sync-options: ServerSideApply=true
+data:
+  # Adapted from Stacklok's own "starter" dashboard
+  # (github.com/stacklok/toolhive examples/otel/grafana-dashboards), not an
+  # official upstream one. Their version hardcodes job="toolhive-system/
+  # mcp-fetch-server" with no template variable, and its Memory/CPU panels
+  # query k8s_pod_memory_usage_bytes/k8s_pod_cpu_usage - OTel kubeletstats
+  # receiver metrics from their otel-collector architecture, which this
+  # stand doesn't run (direct VMPodScrape instead, see argo-apps toolhive
+  # app's templates/monitoring/podscrape.yaml). Rewired here to
+  # job="toolhive/toolhive" with a $pod template variable (every backend
+  # shares one job), and the Memory/CPU panels to the cAdvisor metrics this
+  # cluster already collects (container_memory_working_set_bytes,
+  # container_cpu_usage_seconds_total) filtered to the toolhive namespace's
+  # proxyrunner/vmcp containers. Also fixed go_goroutine_count (not a real
+  # client_golang metric name) to go_goroutines - confirmed live which
+  # metric names and labels this cluster's own backends actually export.
+  json: >
+    {{- .Files.Get "files/toolhive/mcp.json" | nindent 4 }}
 {{- end }}
