@@ -8,6 +8,12 @@ spec:
   instanceSelector:
     matchLabels:
       dashboards: "grafana"
+  # Without this, every panel's hardcoded "${DS_PROMETHEUS}" stays
+  # unresolved and the dashboard shows no data (confirmed live) - this
+  # dashboard had no datasources[] mapping at all before.
+  datasources:
+    - inputName: "DS_PROMETHEUS"
+      datasourceName: "VictoriaMetrics"
   # grafanaCom id 25541 (previous source) queries litellm_proxy_requests_metric_total,
   # litellm_deployment_requests_total, litellm_cache_hits_metric_total /
   # litellm_cache_misses_metric_total and litellm_api_key_max_budget_metric - all

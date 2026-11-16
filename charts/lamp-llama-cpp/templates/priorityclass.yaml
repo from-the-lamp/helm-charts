@@ -1,0 +1,14 @@
+{{- if .Values.priorityClassName }}
+apiVersion: scheduling.k8s.io/v1
+kind: PriorityClass
+metadata:
+  name: {{ .Values.priorityClassName }}
+value: -1000000
+# Never: this workload has no business preempting anything else to get
+# scheduled - the low value above only needs to make it the first
+# candidate kubelet picks when the node is under memory pressure, not
+# grant it any right to bump something else out of the way itself.
+preemptionPolicy: Never
+globalDefault: false
+description: Lets kubelet evict the llama.cpp inference pod ahead of every default-priority workload on the same node under memory pressure, instead of OOM-killing something load-bearing.
+{{- end }}

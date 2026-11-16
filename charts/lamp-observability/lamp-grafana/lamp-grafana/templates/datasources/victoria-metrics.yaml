@@ -13,7 +13,16 @@ spec:
     # explicit uid, Grafana auto-generates a random one, and this Grafana
     # instance has no PVC (ephemeral SQLite), so every dashboard hardcoding
     # that random uid breaks on the next pod restart that recreates it.
-    uid: victoria-metrics
+    # Matches "VictoriaMetrics" exactly (not a lowercase/kebab slug like
+    # loki/tempo/pyroscope use) because that's the literal string several
+    # existing dashboards in this chart already get baked in as their
+    # datasource uid - either via spec.datasources[].datasourceName
+    # substitution (hubble, claude-code, k8s-argo-rollout), which inserts the
+    # datasourceName string verbatim rather than resolving it to a real uid,
+    # or hardcoded directly in the dashboard JSON (k8s-argo-rollout again).
+    # Confirmed live: querying with uid "VictoriaMetrics" failed before this
+    # (not a real datasource), and all of those dashboards showed no data.
+    uid: VictoriaMetrics
     type: prometheus
     access: proxy
     url: {{ .Values.datasources.victoria_metrics.url }}

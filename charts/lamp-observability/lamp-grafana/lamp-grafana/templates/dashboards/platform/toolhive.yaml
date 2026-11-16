@@ -36,21 +36,17 @@ data:
   # metric names and labels this cluster's own backends actually export.
   # Every panel's datasource also hardcoded a literal uid "prometheus" - not
   # a real datasource here, so the dashboard showed no data (confirmed live).
-  # Tried the ${DS_PROMETHEUS} + spec.datasources[] input-substitution
-  # convention this chart's other configMapRef dashboards (mongodb,
-  # litellm, etc.) use next - confirmed live that this grafana-operator
-  # version never actually performs that substitution for configMapRef-
-  # sourced dashboards (the saved model, and a direct query, both still show
-  # the literal "${DS_PROMETHEUS}" string - a pre-existing bug affecting
-  # every dashboard in this chart that uses that pattern, not something this
-  # change introduced). Fixed properly instead: templates/datasources/
-  # victoria-metrics.yaml now pins uid: victoria-metrics (same reasoning as
-  # the loki/tempo/pyroscope datasources already do in this chart - without
-  # a pinned uid, Grafana generates a random one, and this Grafana has no
-  # PVC, so a pod restart that recreates the datasource would silently
-  # reassign it and break every dashboard hardcoding the old value). Every
-  # panel here references that stable "victoria-metrics" uid directly -
-  # confirmed live this returns real data.
+  # Fixed by pinning templates/datasources/victoria-metrics.yaml's uid to
+  # "VictoriaMetrics" (same reasoning as the loki/tempo/pyroscope datasources
+  # already do in this chart - without a pinned uid, Grafana generates a
+  # random one, and this Grafana has no PVC, so a pod restart that recreates
+  # the datasource would silently reassign it and break every dashboard
+  # hardcoding the old value) and pointing every panel here at that uid
+  # directly. "VictoriaMetrics" (not a lowercase slug) because that's the
+  # exact string several other dashboards in this chart already carry as
+  # their datasource uid - confirmed live this was previously unresolved
+  # (the literal datasource-name string, not a real uid) and broke them too;
+  # see victoria-metrics.yaml's own comment for the full list.
   json: >
     {{- .Files.Get "files/toolhive/mcp.json" | nindent 4 }}
 {{- end }}

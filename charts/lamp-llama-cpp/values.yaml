@@ -1,0 +1,108 @@
+replicaCount: 1
+
+image:
+  repository: ghcr.io/ggml-org/llama.cpp
+  tag: server-vulkan
+  pullPolicy: IfNotPresent
+
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""
+
+podAnnotations: {}
+
+# fsGroup (not supplementalGroups) - applies to every mounted volume's
+# ownership regardless of which non-root UID a container image happens to
+# run as, so the model-fetch init container (ghcr.io/curlimages/curl runs
+# as its own "curl_user", confirmed via that image's config blob - no
+# `User` override needed) can always write the downloaded GGUF onto the
+# PVC. Picked once, here, not derived from anything node-specific - no
+# live lookup required.
+podSecurityContext:
+  fsGroup: 1000
+
+# Not privileged, and no supplementalGroups/device-group guesswork either:
+# ghcr.io/ggml-org/llama.cpp:server-vulkan ships no `User` directive
+# (confirmed via its image config blob), so it runs as UID 0 by default,
+# and root's CAP_DAC_OVERRIDE (part of the default, non-dropped capability
+# set below) already grants read/write on /dev/dri/renderD* regardless of
+# that device's group ownership - no need to know the host's "render"
+# group GID at all. privileged stays false: the hostPath mount plus this
+# default capability is already enough, kubelet derives the cgroup
+# device-allow rule from the hostPath mount itself.
+securityContext:
+  privileged: false
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: false
+  runAsNonRoot: false
+
+gpu:
+  enabled: true
+  # Vulkan/RADV talks to the render node, not the display/control node -
+  # renderD* is the only one a headless server container needs.
+  renderDevicePath: /dev/dri
+
+# GGUF model fetched once into the PVC by the init container below and
+# reused across restarts - never re-downloaded unless the file is
+# missing or fails the sha256 check. Revision is a pinned HF git commit
+# (not a mutable "main" ref) so the content a given chart version
+# downloads cannot silently change later.
+model:
+  repo: bartowski/Qwen2.5-7B-Instruct-GGUF
+  revision: 8911e8a47f92bac19d6f5c64a2e2095bd2f7d031
+  file: Qwen2.5-7B-Instruct-Q4_K_M.gguf
+  sha256: 65b8fcd92af6b4fefa935c625d1ac27ea29dcb6ee14589c55a8f115ceaaa1423
+  fetchImage:
+    repository: curlimages/curl
+    tag: 8.12.1
+
+server:
+  contextSize: 8192
+  # 99 = "offload as many layers as fit" (llama.cpp clamps to the model's
+  # real layer count); Radeon 780M's RADV Vulkan heap is shared system
+  # RAM, not dedicated VRAM, so this is a request, not a guaranteed full
+  # offload - the smoke test checks the actual offloaded-layer count in
+  # the server's own startup log, not this value.
+  gpuLayers: 99
+  extraArgs: []
+
+service:
+  type: ClusterIP
+  port: 8080
+
+persistence:
+  accessMode: ReadWriteOnce
+  size: 20Gi
+  storageClass: local-path
+
+# Single biggest memory consumer on the node once scheduled (see
+# apps/homelab/platform/llama-cpp's values.yaml comment for the sizing
+# rationale against the node's free headroom). No CPU limit: llama.cpp
+# falls back to CPU layers for whatever Vulkan can't hold, and capping
+# CPU would silently slow that fallback path instead of making it visible.
+resources:
+  requests:
+    cpu: "2"
+    memory: 6Gi
+  limits:
+    memory: 9Gi
+
+nodeSelector: {}
+affinity: {}
+tolerations: []
+
+# Single-node cluster, no dedicated GPU scheduling tier: this is the
+# cheap, already-established substitute for workload-aware memory
+# management (see lamp-hermes's own priorityclass.yaml, mirrored here
+# with the opposite sign). Under real node memory pressure, kubelet's
+# eviction manager ranks same-QoS pods by priority as a tiebreaker - a
+# negative value here means llama-cpp is evicted before every
+# default-priority (0) pod on the node, protecting kube-apiserver/vault/
+# etc. without any new controller. Empty disables the PriorityClass.
+priorityClassName: llama-cpp-low-priority
+
+terminationGracePeriodSeconds: 30

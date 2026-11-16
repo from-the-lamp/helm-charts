@@ -1,0 +1,5 @@
+apiVersion: v2
+name: lamp-llama-cpp
+description: llama.cpp OpenAI-compatible inference server (Vulkan GPU backend)
+version: 0.1.0
+appVersion: server-vulkan

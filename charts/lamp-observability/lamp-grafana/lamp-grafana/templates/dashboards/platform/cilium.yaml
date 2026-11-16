@@ -20,6 +20,12 @@ spec:
   instanceSelector:
     matchLabels:
       dashboards: "grafana"
+  # Without this, every panel's hardcoded "${DS_PROMETHEUS}" stays
+  # unresolved and the dashboard shows no data (confirmed live) - same fix
+  # as hubble below, just missing here before.
+  datasources:
+    - inputName: "DS_PROMETHEUS"
+      datasourceName: "VictoriaMetrics"
   configMapRef:
     name: dashboard-cilium-agent
     key: json
@@ -45,6 +51,10 @@ spec:
   instanceSelector:
     matchLabels:
       dashboards: "grafana"
+  # Same fix as cilium-agent above.
+  datasources:
+    - inputName: "DS_PROMETHEUS"
+      datasourceName: "VictoriaMetrics"
   configMapRef:
     name: dashboard-cilium-operator
     key: json

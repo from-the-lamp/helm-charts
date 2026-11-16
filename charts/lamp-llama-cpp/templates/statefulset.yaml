@@ -1,0 +1,154 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "llama-cpp.fullname" . }}
+  labels:
+    {{- include "llama-cpp.labels" . | nindent 4 }}
+spec:
+  serviceName: {{ include "llama-cpp.fullname" . }}
+  # Must stay 1: the model PVC is ReadWriteOnce and the init container's
+  # download-then-verify is not safe for two pods to race against the
+  # same file at once. A single-node cluster has nowhere else to put a
+  # second replica anyway.
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "llama-cpp.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "llama-cpp.selectorLabels" . | nindent 8 }}
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    spec:
+      serviceAccountName: {{ include "llama-cpp.serviceAccountName" . }}
+      {{- with .Values.priorityClassName }}
+      priorityClassName: {{ . }}
+      {{- end }}
+      terminationGracePeriodSeconds: {{ .Values.terminationGracePeriodSeconds }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      initContainers:
+        - name: model-fetch
+          image: "{{ .Values.model.fetchImage.repository }}:{{ .Values.model.fetchImage.tag }}"
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          env:
+            - name: MODEL_PATH
+              value: {{ include "llama-cpp.modelPath" . | quote }}
+            - name: MODEL_SHA256
+              value: {{ .Values.model.sha256 | quote }}
+            - name: MODEL_URL
+              value: "https://huggingface.co/{{ .Values.model.repo }}/resolve/{{ .Values.model.revision }}/{{ .Values.model.file }}"
+          command: ["sh", "-c"]
+          args:
+            - |
+              set -eu
+              if [ -f "$MODEL_PATH" ] && echo "$MODEL_SHA256  $MODEL_PATH" | sha256sum -c - >/dev/null 2>&1; then
+                echo "model already present on the PVC and checksum verified - skipping download"
+                exit 0
+              fi
+              echo "fetching model from $MODEL_URL"
+              rm -f "$MODEL_PATH.part"
+              curl -fL --retry 5 --retry-delay 5 --retry-connrefused -o "$MODEL_PATH.part" "$MODEL_URL"
+              echo "$MODEL_SHA256  $MODEL_PATH.part" | sha256sum -c -
+              mv "$MODEL_PATH.part" "$MODEL_PATH"
+              echo "model downloaded and checksum-verified"
+          volumeMounts:
+            - name: models
+              mountPath: /models
+      containers:
+        - name: llama-cpp
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          args:
+            - --model
+            - {{ include "llama-cpp.modelPath" . }}
+            - --host
+            - "0.0.0.0"
+            - --port
+            - "8080"
+            - --ctx-size
+            - {{ .Values.server.contextSize | quote }}
+            - --n-gpu-layers
+            - {{ .Values.server.gpuLayers | quote }}
+            {{- range .Values.server.extraArgs }}
+            - {{ . | quote }}
+            {{- end }}
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          # llama.cpp's own /health only turns "ok" once the model is
+          # fully loaded and the server is accepting requests - no
+          # separate readiness signal exists, so startup/readiness both
+          # key off it. Model load (disk read + Vulkan upload) can take
+          # several minutes cold, hence the generous startupProbe budget;
+          # liveness is looser still so a slow request never looks like a
+          # hang mid-inference.
+          startupProbe:
+            httpGet:
+              path: /health
+              port: http
+            periodSeconds: 10
+            failureThreshold: 60
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            periodSeconds: 10
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            periodSeconds: 30
+            failureThreshold: 5
+            timeoutSeconds: 10
+          {{- with .Values.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          volumeMounts:
+            - name: models
+              mountPath: /models
+            {{- if .Values.gpu.enabled }}
+            - name: dri
+              mountPath: {{ .Values.gpu.renderDevicePath }}
+            {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- if .Values.gpu.enabled }}
+      volumes:
+        - name: dri
+          hostPath:
+            path: {{ .Values.gpu.renderDevicePath }}
+            type: Directory
+      {{- end }}
+  volumeClaimTemplates:
+    - metadata:
+        name: models
+      spec:
+        accessModes:
+          - {{ .Values.persistence.accessMode }}
+        resources:
+          requests:
+            storage: {{ .Values.persistence.size }}
+        {{- if .Values.persistence.storageClass }}
+        storageClassName: {{ .Values.persistence.storageClass }}
+        {{- end }}
