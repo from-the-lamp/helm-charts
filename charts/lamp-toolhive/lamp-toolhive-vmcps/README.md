@@ -1,6 +1,6 @@
 # lamp-toolhive-vmcps
 
-![Version: 0.0.21](https://img.shields.io/badge/Version-0.0.21-informational?style=flat-square)
+![Version: 0.0.22](https://img.shields.io/badge/Version-0.0.22-informational?style=flat-square)
 
 ## Requirements
 
@@ -100,6 +100,8 @@
 | tailscaleExpose.enabled | bool | `false` |  |
 | tailscaleExpose.hostname | string | `"mcp-tools"` |  |
 | tailscaleExpose.tags[0] | string | `"tag:exit"` |  |
+| telemetry.configName | string | `"toolhive-prometheus"` |  |
+| telemetry.enabled | bool | `false` |  |
 | virtualMcpServers[0].authServerConfig.baselineClientScopes[0] | string | `"openid"` |  |
 | virtualMcpServers[0].authServerConfig.baselineClientScopes[1] | string | `"offline_access"` |  |
 | virtualMcpServers[0].authServerConfig.hmacSecretRefs[0].key | string | `"password"` |  |

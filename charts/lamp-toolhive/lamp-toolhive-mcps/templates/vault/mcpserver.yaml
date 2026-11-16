@@ -14,6 +14,7 @@ spec:
   permissionProfile:
     type: builtin
     name: {{ $.Values.mcp.defaults.permissionProfile }}
+  {{- include "lamp-toolhive-mcps.telemetryConfigRef" $ | nindent 2 }}
   audit:
     enabled: true
   {{- with $item.toolConfig }}

@@ -1,6 +1,6 @@
 # lamp-grafana
 
-![Version: 0.0.28](https://img.shields.io/badge/Version-0.0.28-informational?style=flat-square)
+![Version: 0.0.29](https://img.shields.io/badge/Version-0.0.29-informational?style=flat-square)
 
 ## Values
 
@@ -100,6 +100,7 @@
 | dashboards.redis.exporter | bool | `true` |  |
 | dashboards.smartctl_exporter.enabled | bool | `false` |  |
 | dashboards.tempo.enabled | bool | `false` |  |
+| dashboards.toolhive.enabled | bool | `false` |  |
 | dashboards.vault.enabled | bool | `false` |  |
 | dashboards.victoria_metrics.enabled | bool | `true` |  |
 | dashboards.windows_exporter.enabled | bool | `false` |  |

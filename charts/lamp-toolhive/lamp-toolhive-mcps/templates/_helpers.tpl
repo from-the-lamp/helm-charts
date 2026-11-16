@@ -12,3 +12,17 @@ closes this gap for them.
 {{- define "lamp-toolhive-mcps.podAnnotations" -}}
 reloader.stakater.com/auto: "true"
 {{- end -}}
+
+{{/*
+telemetryConfigRef applied to every MCPServer this chart renders, pointing at
+the single shared MCPTelemetryConfig (templates/telemetry/mcptelemetryconfig.yaml)
+so all backends expose Prometheus metrics on the toolhive-operator's diagnostics
+port (9464) without an OTel collector in between. No-op when telemetry.enabled
+is false.
+*/}}
+{{- define "lamp-toolhive-mcps.telemetryConfigRef" -}}
+{{- if .Values.telemetry.enabled -}}
+telemetryConfigRef:
+  name: {{ .Values.telemetry.configName }}
+{{- end -}}
+{{- end -}}

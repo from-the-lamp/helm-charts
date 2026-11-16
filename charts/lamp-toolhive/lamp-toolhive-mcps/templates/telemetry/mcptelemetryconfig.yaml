@@ -1,0 +1,9 @@
+{{- if .Values.telemetry.enabled }}
+apiVersion: toolhive.stacklok.dev/v1beta1
+kind: MCPTelemetryConfig
+metadata:
+  name: {{ .Values.telemetry.configName }}
+spec:
+  prometheus:
+    enabled: true
+{{- end }}

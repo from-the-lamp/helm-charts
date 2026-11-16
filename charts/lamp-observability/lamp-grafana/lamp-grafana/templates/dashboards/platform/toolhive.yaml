@@ -1,0 +1,18 @@
+{{- if .Values.dashboards.toolhive.enabled }}
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDashboard
+metadata:
+  name: toolhive
+spec:
+  folderRef: ai
+  instanceSelector:
+    matchLabels:
+      dashboards: "grafana"
+  # Stacklok's "starter" dashboard from the ToolHive repo, not an official
+  # upstream one - hardcodes job="toolhive-system/mcp-fetch-server" on every
+  # panel, so it needs its queries repointed at this stand's actual job
+  # (namespace/MCPServer-name pairs, toolhive namespace, ~30+ backends) before
+  # it says anything useful. Values gate (dashboards.toolhive.enabled) is off
+  # until that's done.
+  url: https://raw.githubusercontent.com/stacklok/toolhive/main/examples/otel/grafana-dashboards/toolhive-mcp-grafana-dashboard-otel-scrape.json
+{{- end }}

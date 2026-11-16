@@ -1,6 +1,15 @@
 global:
   projectId: example-project
 
+# Points every VirtualMCPServer at the same MCPTelemetryConfig the
+# lamp-toolhive-mcps chart creates (templates/telemetry/mcptelemetryconfig.yaml
+# there) - both charts land in the same namespace at the consumer layer, so
+# referencing it by name alone is enough. Keep configName in sync with that
+# chart's telemetry.configName if either changes.
+telemetry:
+  enabled: false
+  configName: toolhive-prometheus
+
 dex:
   enabled: true
 

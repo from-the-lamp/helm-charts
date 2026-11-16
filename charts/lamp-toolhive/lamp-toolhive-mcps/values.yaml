@@ -1,3 +1,13 @@
+# Prometheus metrics for every MCPServer backend, via the toolhive-operator's
+# own diagnostics listener (port 9464) - no OTel collector in this stand, so
+# openTelemetry stays off on the shared MCPTelemetryConfig this creates
+# (templates/telemetry/mcptelemetryconfig.yaml); only spec.prometheus.enabled
+# is set. The scrape config itself (VMPodScrape) lives at the argo-apps
+# consumer layer, next to the namespace it targets.
+telemetry:
+  enabled: false
+  configName: toolhive-prometheus
+
 mcp:
   defaults:
     groupRef: mcp-tools

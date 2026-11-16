@@ -7,6 +7,10 @@ metadata:
 spec:
   groupRef:
     name: {{ .groupRef }}
+  {{- if $.Values.telemetry.enabled }}
+  telemetryConfigRef:
+    name: {{ $.Values.telemetry.configName }}
+  {{- end }}
   {{- with .authServerConfig }}
   authServerConfig:
     {{- toYaml . | nindent 4 }}

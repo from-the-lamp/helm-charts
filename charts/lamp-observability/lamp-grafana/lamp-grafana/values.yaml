@@ -188,6 +188,13 @@ dashboards:
     enabled: false
   openwrt:
     enabled: false
+  # ToolHive's own "starter" dashboard (not an official upstream one) - its
+  # panels hardcode a single backend's job label
+  # (job="toolhive-system/mcp-fetch-server"), not a wildcard across every
+  # MCPServer this stand runs, so it needs adapting before it's actually
+  # useful here. Off by default until that's done.
+  toolhive:
+    enabled: false
 
 externalSecrets:
   kind: ClusterSecretStore

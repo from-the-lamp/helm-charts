@@ -1,6 +1,6 @@
 # lamp-toolhive-mcps
 
-![Version: 0.0.65](https://img.shields.io/badge/Version-0.0.65-informational?style=flat-square)
+![Version: 0.0.66](https://img.shields.io/badge/Version-0.0.66-informational?style=flat-square)
 
 ## Values
 
@@ -238,6 +238,8 @@
 | mcp.victoriametrics.enabled | bool | `false` |  |
 | mcp.victoriametrics.image | string | `"ghcr.io/victoriametrics/mcp-victoriametrics:v1.120.1"` |  |
 | mcp.victoriametrics.mcps | list | `[]` |  |
+| telemetry.configName | string | `"toolhive-prometheus"` |  |
+| telemetry.enabled | bool | `false` |  |
 # Trivy scan - Helm Chart
 
 ## Report Summary
