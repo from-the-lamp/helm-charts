@@ -8,6 +8,9 @@ spec:
   instanceSelector:
     matchLabels:
       dashboards: "grafana"
+  datasources:
+    - inputName: DS_PROMETHEUS
+      datasourceName: VictoriaMetrics
   configMapRef:
     name: dashboard-toolhive-mcp
     key: json
@@ -34,6 +37,12 @@ data:
   # proxyrunner/vmcp containers. Also fixed go_goroutine_count (not a real
   # client_golang metric name) to go_goroutines - confirmed live which
   # metric names and labels this cluster's own backends actually export.
+  # Every panel's datasource also hardcoded a literal uid "prometheus" (not
+  # our actual datasource uid, and not the ${DS_PROMETHEUS} input-variable
+  # convention grafana-operator's datasources[] substitution expects) -
+  # confirmed live that this left the dashboard showing no data at all.
+  # Rewritten to ${DS_PROMETHEUS} to match the convention already used by
+  # mongodb/claude-code/etc. in this same chart.
   json: >
     {{- .Files.Get "files/toolhive/mcp.json" | nindent 4 }}
 {{- end }}
