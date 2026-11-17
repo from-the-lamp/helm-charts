@@ -56,13 +56,14 @@ modelFetchSecurityContext:
 # kubernetes/kubernetes#89939, which asks for exactly that feature and
 # confirms it doesn't exist. The only declarative alternatives are a GPU
 # device-plugin DaemonSet (its own cluster-wide component, not justified
-# for one single-node consumer) or privileged: true. allowPrivilegeEscalation
-# stays false - privileged already implies the kernel-level device access
-# this needs, that flag is about ptrace/setuid-style escalation, a
-# separate concern.
+# for one single-node consumer) or privileged: true. No
+# allowPrivilegeEscalation field here - the Kubernetes API rejects
+# privileged: true combined with allowPrivilegeEscalation: false outright
+# ("cannot set allowPrivilegeEscalation to false and privileged to true",
+# confirmed live as a SyncFailed admission error) since privileged already
+# implies it; leaving the field unset is the only valid combination.
 securityContext:
   privileged: true
-  allowPrivilegeEscalation: false
   readOnlyRootFilesystem: false
   runAsNonRoot: false
 

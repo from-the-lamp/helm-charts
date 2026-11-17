@@ -1,6 +1,6 @@
 # lamp-llama-cpp
 
-![Version: 0.1.3](https://img.shields.io/badge/Version-0.1.3-informational?style=flat-square) ![AppVersion: server-vulkan](https://img.shields.io/badge/AppVersion-server--vulkan-informational?style=flat-square)
+![Version: 0.1.4](https://img.shields.io/badge/Version-0.1.4-informational?style=flat-square) ![AppVersion: server-vulkan](https://img.shields.io/badge/AppVersion-server--vulkan-informational?style=flat-square)
 
 llama.cpp OpenAI-compatible inference server (Vulkan GPU backend)
 
@@ -37,7 +37,6 @@ llama.cpp OpenAI-compatible inference server (Vulkan GPU backend)
 | resources.limits.memory | string | `"9Gi"` |  |
 | resources.requests.cpu | string | `"2"` |  |
 | resources.requests.memory | string | `"6Gi"` |  |
-| securityContext.allowPrivilegeEscalation | bool | `false` |  |
 | securityContext.privileged | bool | `true` |  |
 | securityContext.readOnlyRootFilesystem | bool | `false` |  |
 | securityContext.runAsNonRoot | bool | `false` |  |
@@ -62,10 +61,31 @@ llama.cpp OpenAI-compatible inference server (Vulkan GPU backend)
 | templates/priorityclass.yaml | helm | 0 |
 | templates/service.yaml | helm | 0 |
 | templates/serviceaccount.yaml | helm | 0 |
-| templates/statefulset.yaml | helm | 28 |
+| templates/statefulset.yaml | helm | 29 |
 | templates/vpa.yaml | helm | 0 |
 
 ## templates/statefulset.yaml
+
+### KSV-0001 (MEDIUM): Can elevate its own privileges
+
+Container 'llama-cpp' of StatefulSet 'lamp-llama-cpp' should set 'securityContext.allowPrivilegeEscalation' to false
+
+- Resolution: Set 'set containers[].securityContext.allowPrivilegeEscalation' to 'false'.
+- See: https://avd.aquasec.com/misconfig/ksv-0001
+- Location: `templates/statefulset.yaml:68-126`
+
+```
+68:         - name: llama-cpp
+69:           image: "ghcr.io/ggml-org/llama.cpp:server-vulkan-b12429"
+70:           imagePullPolicy: IfNotPresent
+71:           securityContext:
+72:             privileged: true
+73:             readOnlyRootFilesystem: false
+74:             runAsNonRoot: false
+75:           args:
+76:             - --model
+77:
+```
 
 ### KSV-0003 (LOW): Default capabilities: some containers do not drop all
 
@@ -73,18 +93,18 @@ Container 'llama-cpp' of StatefulSet 'lamp-llama-cpp' should add 'ALL' to 'secur
 
 - Resolution: Add 'ALL' to containers[].securityContext.capabilities.drop.
 - See: https://avd.aquasec.com/misconfig/ksv-0003
-- Location: `templates/statefulset.yaml:68-127`
+- Location: `templates/statefulset.yaml:68-126`
 
 ```
 68:         - name: llama-cpp
 69:           image: "ghcr.io/ggml-org/llama.cpp:server-vulkan-b12429"
 70:           imagePullPolicy: IfNotPresent
 71:           securityContext:
-72:             allowPrivilegeEscalation: false
-73:             privileged: true
-74:             readOnlyRootFilesystem: false
-75:             runAsNonRoot: false
-76:           args:
+72:             privileged: true
+73:             readOnlyRootFilesystem: false
+74:             runAsNonRoot: false
+75:           args:
+76:             - --model
 77:
 ```
 
@@ -115,18 +135,18 @@ Container 'llama-cpp' of 'statefulset' 'lamp-llama-cpp' in 'default' namespace s
 
 - Resolution: Specify at least one unneeded capability in 'containers[].securityContext.capabilities.drop'
 - See: https://avd.aquasec.com/misconfig/ksv-0004
-- Location: `templates/statefulset.yaml:68-127`
+- Location: `templates/statefulset.yaml:68-126`
 
 ```
 68:         - name: llama-cpp
 69:           image: "ghcr.io/ggml-org/llama.cpp:server-vulkan-b12429"
 70:           imagePullPolicy: IfNotPresent
 71:           securityContext:
-72:             allowPrivilegeEscalation: false
-73:             privileged: true
-74:             readOnlyRootFilesystem: false
-75:             runAsNonRoot: false
-76:           args:
+72:             privileged: true
+73:             readOnlyRootFilesystem: false
+74:             runAsNonRoot: false
+75:           args:
+76:             - --model
 77:
 ```
 
@@ -157,18 +177,18 @@ Container 'llama-cpp' of StatefulSet 'lamp-llama-cpp' should set 'resources.limi
 
 - Resolution: Set a limit value under 'containers[].resources.limits.cpu'.
 - See: https://avd.aquasec.com/misconfig/ksv-0011
-- Location: `templates/statefulset.yaml:68-127`
+- Location: `templates/statefulset.yaml:68-126`
 
 ```
 68:         - name: llama-cpp
 69:           image: "ghcr.io/ggml-org/llama.cpp:server-vulkan-b12429"
 70:           imagePullPolicy: IfNotPresent
 71:           securityContext:
-72:             allowPrivilegeEscalation: false
-73:             privileged: true
-74:             readOnlyRootFilesystem: false
-75:             runAsNonRoot: false
-76:           args:
+72:             privileged: true
+73:             readOnlyRootFilesystem: false
+74:             runAsNonRoot: false
+75:           args:
+76:             - --model
 77:
 ```
 
@@ -199,18 +219,18 @@ Container 'llama-cpp' of StatefulSet 'lamp-llama-cpp' should set 'securityContex
 
 - Resolution: Set 'containers[].securityContext.runAsNonRoot' to true.
 - See: https://avd.aquasec.com/misconfig/ksv-0012
-- Location: `templates/statefulset.yaml:68-127`
+- Location: `templates/statefulset.yaml:68-126`
 
 ```
 68:         - name: llama-cpp
 69:           image: "ghcr.io/ggml-org/llama.cpp:server-vulkan-b12429"
 70:           imagePullPolicy: IfNotPresent
 71:           securityContext:
-72:             allowPrivilegeEscalation: false
-73:             privileged: true
-74:             readOnlyRootFilesystem: false
-75:             runAsNonRoot: false
-76:           args:
+72:             privileged: true
+73:             readOnlyRootFilesystem: false
+74:             runAsNonRoot: false
+75:           args:
+76:             - --model
 77:
 ```
 
@@ -241,18 +261,18 @@ Container 'llama-cpp' of StatefulSet 'lamp-llama-cpp' should set 'securityContex
 
 - Resolution: Change 'containers[].securityContext.readOnlyRootFilesystem' to 'true'.
 - See: https://avd.aquasec.com/misconfig/ksv-0014
-- Location: `templates/statefulset.yaml:68-127`
+- Location: `templates/statefulset.yaml:68-126`
 
 ```
 68:         - name: llama-cpp
 69:           image: "ghcr.io/ggml-org/llama.cpp:server-vulkan-b12429"
 70:           imagePullPolicy: IfNotPresent
 71:           securityContext:
-72:             allowPrivilegeEscalation: false
-73:             privileged: true
-74:             readOnlyRootFilesystem: false
-75:             runAsNonRoot: false
-76:           args:
+72:             privileged: true
+73:             readOnlyRootFilesystem: false
+74:             runAsNonRoot: false
+75:           args:
+76:             - --model
 77:
 ```
 
@@ -325,18 +345,18 @@ Container 'llama-cpp' of StatefulSet 'lamp-llama-cpp' should set 'securityContex
 
 - Resolution: Change 'containers[].securityContext.privileged' to 'false'.
 - See: https://avd.aquasec.com/misconfig/ksv-0017
-- Location: `templates/statefulset.yaml:68-127`
+- Location: `templates/statefulset.yaml:68-126`
 
 ```
 68:         - name: llama-cpp
 69:           image: "ghcr.io/ggml-org/llama.cpp:server-vulkan-b12429"
 70:           imagePullPolicy: IfNotPresent
 71:           securityContext:
-72:             allowPrivilegeEscalation: false
-73:             privileged: true
-74:             readOnlyRootFilesystem: false
-75:             runAsNonRoot: false
-76:           args:
+72:             privileged: true
+73:             readOnlyRootFilesystem: false
+74:             runAsNonRoot: false
+75:           args:
+76:             - --model
 77:
 ```
 
@@ -367,18 +387,18 @@ Container 'llama-cpp' of StatefulSet 'lamp-llama-cpp' should set 'securityContex
 
 - Resolution: Set 'containers[].securityContext.runAsUser' to an integer > 10000.
 - See: https://avd.aquasec.com/misconfig/ksv-0020
-- Location: `templates/statefulset.yaml:68-127`
+- Location: `templates/statefulset.yaml:68-126`
 
 ```
 68:         - name: llama-cpp
 69:           image: "ghcr.io/ggml-org/llama.cpp:server-vulkan-b12429"
 70:           imagePullPolicy: IfNotPresent
 71:           securityContext:
-72:             allowPrivilegeEscalation: false
-73:             privileged: true
-74:             readOnlyRootFilesystem: false
-75:             runAsNonRoot: false
-76:           args:
+72:             privileged: true
+73:             readOnlyRootFilesystem: false
+74:             runAsNonRoot: false
+75:           args:
+76:             - --model
 77:
 ```
 
@@ -409,18 +429,18 @@ Container 'llama-cpp' of StatefulSet 'lamp-llama-cpp' should set 'securityContex
 
 - Resolution: Set 'containers[].securityContext.runAsGroup' to an integer > 10000.
 - See: https://avd.aquasec.com/misconfig/ksv-0021
-- Location: `templates/statefulset.yaml:68-127`
+- Location: `templates/statefulset.yaml:68-126`
 
 ```
 68:         - name: llama-cpp
 69:           image: "ghcr.io/ggml-org/llama.cpp:server-vulkan-b12429"
 70:           imagePullPolicy: IfNotPresent
 71:           securityContext:
-72:             allowPrivilegeEscalation: false
-73:             privileged: true
-74:             readOnlyRootFilesystem: false
-75:             runAsNonRoot: false
-76:           args:
+72:             privileged: true
+73:             readOnlyRootFilesystem: false
+74:             runAsNonRoot: false
+75:           args:
+76:             - --model
 77:
 ```
 
@@ -451,7 +471,7 @@ StatefulSet 'lamp-llama-cpp' should not set 'spec.template.volumes.hostPath'
 
 - Resolution: Do not set 'spec.volumes[*].hostPath'.
 - See: https://avd.aquasec.com/misconfig/ksv-0023
-- Location: `templates/statefulset.yaml:12-142`
+- Location: `templates/statefulset.yaml:12-141`
 
 ```
 12: spec:
@@ -493,18 +513,18 @@ Either Pod or Container should set 'securityContext.seccompProfile.type' to 'Run
 
 - Resolution: Set 'spec.securityContext.seccompProfile.type', 'spec.containers[*].securityContext.seccompProfile' and 'spec.initContainers[*].securityContext.seccompProfile' to 'RuntimeDefault' or undefined.
 - See: https://avd.aquasec.com/misconfig/ksv-0030
-- Location: `templates/statefulset.yaml:68-127`
+- Location: `templates/statefulset.yaml:68-126`
 
 ```
 68:         - name: llama-cpp
 69:           image: "ghcr.io/ggml-org/llama.cpp:server-vulkan-b12429"
 70:           imagePullPolicy: IfNotPresent
 71:           securityContext:
-72:             allowPrivilegeEscalation: false
-73:             privileged: true
-74:             readOnlyRootFilesystem: false
-75:             runAsNonRoot: false
-76:           args:
+72:             privileged: true
+73:             readOnlyRootFilesystem: false
+74:             runAsNonRoot: false
+75:           args:
+76:             - --model
 77:
 ```
 
@@ -514,18 +534,18 @@ container "llama-cpp" of statefulset "lamp-llama-cpp" in "default" namespace sho
 
 - Resolution: Specify seccomp either by annotation or by seccomp profile type having allowed values as per pod security standards
 - See: https://avd.aquasec.com/misconfig/ksv-0104
-- Location: `templates/statefulset.yaml:68-127`
+- Location: `templates/statefulset.yaml:68-126`
 
 ```
 68:         - name: llama-cpp
 69:           image: "ghcr.io/ggml-org/llama.cpp:server-vulkan-b12429"
 70:           imagePullPolicy: IfNotPresent
 71:           securityContext:
-72:             allowPrivilegeEscalation: false
-73:             privileged: true
-74:             readOnlyRootFilesystem: false
-75:             runAsNonRoot: false
-76:           args:
+72:             privileged: true
+73:             readOnlyRootFilesystem: false
+74:             runAsNonRoot: false
+75:           args:
+76:             - --model
 77:
 ```
 
@@ -577,18 +597,18 @@ container should drop all
 
 - Resolution: Set 'spec.containers[*].securityContext.capabilities.drop' to 'ALL' and only add 'NET_BIND_SERVICE' to 'spec.containers[*].securityContext.capabilities.add'.
 - See: https://avd.aquasec.com/misconfig/ksv-0106
-- Location: `templates/statefulset.yaml:68-127`
+- Location: `templates/statefulset.yaml:68-126`
 
 ```
 68:         - name: llama-cpp
 69:           image: "ghcr.io/ggml-org/llama.cpp:server-vulkan-b12429"
 70:           imagePullPolicy: IfNotPresent
 71:           securityContext:
-72:             allowPrivilegeEscalation: false
-73:             privileged: true
-74:             readOnlyRootFilesystem: false
-75:             runAsNonRoot: false
-76:           args:
+72:             privileged: true
+73:             readOnlyRootFilesystem: false
+74:             runAsNonRoot: false
+75:           args:
+76:             - --model
 77:
 ```
 
@@ -604,7 +624,7 @@ statefulset lamp-llama-cpp in default namespace should set metadata.namespace to
 4: metadata:
 5:   name: lamp-llama-cpp
 6:   labels:
-7:     helm.sh/chart: lamp-llama-cpp-0.1.3
+7:     helm.sh/chart: lamp-llama-cpp-0.1.4
 8:     app.kubernetes.io/name: lamp-llama-cpp
 9:     app.kubernetes.io/instance: lamp-llama-cpp
 10:     app.kubernetes.io/version: "server-vulkan"
@@ -617,18 +637,18 @@ Container llama-cpp in statefulset lamp-llama-cpp (namespace: default) uses an i
 
 - Resolution: Use images from trusted registries.
 - See: https://avd.aquasec.com/misconfig/ksv-0125
-- Location: `templates/statefulset.yaml:68-127`
+- Location: `templates/statefulset.yaml:68-126`
 
 ```
 68:         - name: llama-cpp
 69:           image: "ghcr.io/ggml-org/llama.cpp:server-vulkan-b12429"
 70:           imagePullPolicy: IfNotPresent
 71:           securityContext:
-72:             allowPrivilegeEscalation: false
-73:             privileged: true
-74:             readOnlyRootFilesystem: false
-75:             runAsNonRoot: false
-76:           args:
+72:             privileged: true
+73:             readOnlyRootFilesystem: false
+74:             runAsNonRoot: false
+75:           args:
+76:             - --model
 77:
 ```
 
