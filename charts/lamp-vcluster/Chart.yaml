@@ -1,8 +1,11 @@
 apiVersion: v2
 name: lamp-vcluster
-version: 0.2.0
+version: 0.2.1
 
 dependencies:
   - name: vcluster
     version: 0.37.7
-    repository: oci://ghcr.io/loft-sh/vcluster
+    # Published to the classic Helm repo protocol, not OCI - confirmed
+    # against charts.loft.sh's own index.yaml. oci://ghcr.io/loft-sh/vcluster
+    # does not host this chart (CI failed with a 403/denied pulling it).
+    repository: https://charts.loft.sh

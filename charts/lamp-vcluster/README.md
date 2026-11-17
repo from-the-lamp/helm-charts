@@ -1,12 +1,12 @@
 # lamp-vcluster
 
-![Version: 0.2.0](https://img.shields.io/badge/Version-0.2.0-informational?style=flat-square)
+![Version: 0.2.1](https://img.shields.io/badge/Version-0.2.1-informational?style=flat-square)
 
 ## Requirements
 
 | Repository | Name | Version |
 |------------|------|---------|
-| oci://ghcr.io/loft-sh/vcluster | vcluster | 0.37.7 |
+| https://charts.loft.sh | vcluster | 0.37.7 |
 
 ## Values
 
