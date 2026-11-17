@@ -1,6 +1,6 @@
 apiVersion: v2
 name: lamp-litellm
-version: 0.5.8
+version: 0.5.9
 
 dependencies:
   - name: litellm-helm
@@ -8,4 +8,4 @@ dependencies:
     repository: oci://ghcr.io/berriai
 
 annotations:
-  notes: "LITELLM_SALT_KEY from Vault (saltKey, property salt_key - must exist before upgrading), LITELLM_MODE=PRODUCTION, JSON logs at WARNING level, router enable_pre_call_checks, and lmstudioMaxInputTokens to declare the local model's context window."
+  notes: "LITELLM_SALT_KEY from Vault (saltKey, property salt_key - must exist before upgrading), LITELLM_MODE=PRODUCTION, JSON logs at WARNING level, router enable_pre_call_checks, and localOpenAICompatibleServers[].maxInputTokens to declare each local server's context window."

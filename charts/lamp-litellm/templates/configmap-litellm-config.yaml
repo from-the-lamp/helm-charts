@@ -47,16 +47,18 @@ data:
         model_info:
           mode: audio_transcription
       {{- end }}
-      {{- range $model := .Values.lmstudioModels }}
+      {{- range $server := .Values.localOpenAICompatibleServers }}
+      {{- range $model := $server.models }}
       - model_name: {{ $model }}
         litellm_params:
           model: openai/{{ $model }}
-          api_base: {{ $.Values.lmstudioApiBase }}
+          api_base: {{ $server.apiBase }}
           api_key: "not-needed"
-        {{- if $.Values.lmstudioMaxInputTokens }}
+        {{- if $server.maxInputTokens }}
         model_info:
-          max_input_tokens: {{ $.Values.lmstudioMaxInputTokens }}
+          max_input_tokens: {{ $server.maxInputTokens }}
         {{- end }}
+      {{- end }}
       {{- end }}
       {{- range $model := .Values.geminiImageModels }}
       - model_name: {{ $model }}

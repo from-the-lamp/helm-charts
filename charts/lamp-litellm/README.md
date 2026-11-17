@@ -1,6 +1,6 @@
 # lamp-litellm
 
-![Version: 0.5.8](https://img.shields.io/badge/Version-0.5.8-informational?style=flat-square)
+![Version: 0.5.9](https://img.shields.io/badge/Version-0.5.9-informational?style=flat-square)
 
 ## Requirements
 
@@ -93,9 +93,7 @@
 | litellm-helm.volumeMounts[0].name | string | `"chatgpt-auth-persistent"` |  |
 | litellm-helm.volumes[0].name | string | `"chatgpt-auth-persistent"` |  |
 | litellm-helm.volumes[0].persistentVolumeClaim.claimName | string | `"litellm-codex-auth-persistent"` |  |
-| lmstudioApiBase | string | `""` |  |
-| lmstudioMaxInputTokens | int | `0` |  |
-| lmstudioModels | list | `[]` |  |
+| localOpenAICompatibleServers | list | `[]` |  |
 | masterKey.remoteRef.key | string | `"litellm"` |  |
 | masterKey.remoteRef.property | string | `"master_key"` |  |
 | masterKey.secretName | string | `"litellm-masterkey"` |  |

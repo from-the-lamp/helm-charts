@@ -104,7 +104,8 @@ modelFallbacks:
 # separate from chatgptModels/modelFallbacks rather than listing a local
 # model there directly: chatgptModels' model_list loop assumes a native
 # chatgpt/ provider, so a local-server model listed there would be routed
-# through the wrong provider instead of lmstudioModels' openai/ + api_base.
+# through the wrong provider instead of localOpenAICompatibleServers'
+# openai/ + api_base.
 fallbackTail: []
 
 # Audio transcription (Whisper) via Groq - same shape as deepseekApiKey/
@@ -118,15 +119,23 @@ groqApiKey:
 whisperModels:
   - whisper-large-v3
 
-# A local LM Studio instance (OpenAI-compatible server) reached over
-# Tailscale instead of a cloud provider - no API key needed/possible, so
-# unlike deepseekModels/claudeModels this has no *ApiKey sibling. Each
-# entry becomes `openai/<model>` in litellm's model_list with api_base set
-# to lmstudioApiBase. The model id must match exactly what LM Studio's own
-# Local Server tab shows as loaded - litellm forwards it as-is.
-lmstudioApiBase: ""
-lmstudioModels: []
-lmstudioMaxInputTokens: 0
+# Local OpenAI-compatible inference servers (LM Studio over Tailscale,
+# an in-cluster llama.cpp Service, etc) - no API key needed/possible, so
+# unlike deepseekModels/claudeModels these have no *ApiKey sibling.
+# Generalized from a single hardcoded "lmstudio" slot so a second local
+# server doesn't need its own chart template change -
+# each server is just one more list entry of the same shape. Each
+# server's models become `openai/<model>` in litellm's model_list with
+# api_base set to that server's apiBase. The model id must match exactly
+# what the server itself reports as loaded (LM Studio's Local Server tab;
+# llama.cpp ignores the model id in the request and serves whatever GGUF
+# it loaded, so any id works there, but keep it descriptive).
+localOpenAICompatibleServers: []
+# - name: lmstudio
+#   apiBase: "http://lmstudio.tailscale.svc.cluster.local:1234/v1"
+#   models:
+#     - gemma-4-26b-a4b-it
+#   maxInputTokens: 30720
 
 # Own database (FTL-174) - gives litellm a spend ledger and lets
 # general_settings.store_model_in_db persist virtual keys/budgets instead of
