@@ -1,6 +1,6 @@
 # lamp-vcluster
 
-![Version: 0.1.0](https://img.shields.io/badge/Version-0.1.0-informational?style=flat-square)
+![Version: 0.2.0](https://img.shields.io/badge/Version-0.2.0-informational?style=flat-square)
 
 ## Requirements
 
@@ -12,6 +12,9 @@
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
+| kubeconfigExport.enabled | bool | `false` |  |
+| kubeconfigExport.namespace | string | `""` |  |
+| kubeconfigExport.secretName | string | `""` |  |
 | vcluster.controlPlane.statefulSet.image.repository | string | `"loft-sh/vcluster-oss"` |  |
 | vcluster.telemetry.enabled | bool | `false` |  |
 # Trivy scan - Helm Chart

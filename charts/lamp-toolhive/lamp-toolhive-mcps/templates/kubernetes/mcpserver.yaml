@@ -56,9 +56,9 @@ spec:
       volumes:
         - name: kubeconfig
           secret:
-            secretName: {{ $item.name }}-mcp-secret
+            secretName: {{ $item.kubeconfig.secretName | default (printf "%s-mcp-secret" $item.name) }}
             items:
-              - key: kubeconfig
+              - key: {{ $item.kubeconfig.secretKey | default "kubeconfig" }}
                 path: config
         - name: mcp-config
           configMap:

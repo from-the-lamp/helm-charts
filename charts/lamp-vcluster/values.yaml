@@ -1,3 +1,10 @@
+# Off by default - the consumer app turns it on and names the target
+# namespace/secret once it actually wires up exportKubeConfig.additionalSecrets.
+kubeconfigExport:
+  enabled: false
+  namespace: ""
+  secretName: ""
+
 vcluster:
   telemetry:
     enabled: false
