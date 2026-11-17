@@ -138,7 +138,7 @@ spec:
         - name: dri
           hostPath:
             path: {{ .Values.gpu.renderDevicePath }}
-            type: Directory
+            type: CharDevice
       {{- end }}
   volumeClaimTemplates:
     - metadata:

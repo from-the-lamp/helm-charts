@@ -1,6 +1,6 @@
 # lamp-llama-cpp
 
-![Version: 0.1.1](https://img.shields.io/badge/Version-0.1.1-informational?style=flat-square) ![AppVersion: server-vulkan](https://img.shields.io/badge/AppVersion-server--vulkan-informational?style=flat-square)
+![Version: 0.1.2](https://img.shields.io/badge/Version-0.1.2-informational?style=flat-square) ![AppVersion: server-vulkan](https://img.shields.io/badge/AppVersion-server--vulkan-informational?style=flat-square)
 
 llama.cpp OpenAI-compatible inference server (Vulkan GPU backend)
 
@@ -11,7 +11,7 @@ llama.cpp OpenAI-compatible inference server (Vulkan GPU backend)
 | affinity | object | `{}` |  |
 | fullnameOverride | string | `""` |  |
 | gpu.enabled | bool | `true` |  |
-| gpu.renderDevicePath | string | `"/dev/dri"` |  |
+| gpu.renderDevicePath | string | `"/dev/dri/renderD128"` |  |
 | image.pullPolicy | string | `"IfNotPresent"` |  |
 | image.repository | string | `"ghcr.io/ggml-org/llama.cpp"` |  |
 | image.tag | string | `"server-vulkan-b12429"` |  |
@@ -579,7 +579,7 @@ statefulset lamp-llama-cpp in default namespace should set metadata.namespace to
 4: metadata:
 5:   name: lamp-llama-cpp
 6:   labels:
-7:     helm.sh/chart: lamp-llama-cpp-0.1.1
+7:     helm.sh/chart: lamp-llama-cpp-0.1.2
 8:     app.kubernetes.io/name: lamp-llama-cpp
 9:     app.kubernetes.io/instance: lamp-llama-cpp
 10:     app.kubernetes.io/version: "server-vulkan"

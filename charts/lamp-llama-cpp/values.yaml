@@ -42,9 +42,11 @@ podSecurityContext:
 # and root's CAP_DAC_OVERRIDE (part of the default, non-dropped capability
 # set below) already grants read/write on /dev/dri/renderD* regardless of
 # that device's group ownership - no need to know the host's "render"
-# group GID at all. privileged stays false: the hostPath mount plus this
-# default capability is already enough, kubelet derives the cgroup
-# device-allow rule from the hostPath mount itself.
+# group GID at all. privileged stays false: kubelet auto-derives the
+# cgroup device-allow rule from the gpu.renderDevicePath hostPath volume
+# because it's typed CharDevice (a single device node) - the same mount
+# as a Directory gets no such rule, which is what originally caused
+# "no usable GPU found" at runtime despite the file being visible.
 securityContext:
   privileged: false
   allowPrivilegeEscalation: false
@@ -54,8 +56,16 @@ securityContext:
 gpu:
   enabled: true
   # Vulkan/RADV talks to the render node, not the display/control node -
-  # renderD* is the only one a headless server container needs.
-  renderDevicePath: /dev/dri
+  # renderD* is the only one a headless server container needs. Must be
+  # the specific device file, not the /dev/dri directory: kubelet only
+  # auto-derives a cgroup device-allow rule for a hostPath volume typed
+  # CharDevice/BlockDevice (a single device node) - a Directory-typed
+  # hostPath over /dev/dri makes the file visible in the container but
+  # grants no cgroup access to it, so Vulkan's own enumerate finds the
+  # ICD but can't open the device and falls back to "no usable GPU
+  # found" (confirmed live: llama-server logged exactly that with the
+  # directory mount). CharDevice fixes it without privileged: true.
+  renderDevicePath: /dev/dri/renderD128
 
 # GGUF model fetched once into the PVC by the init container below and
 # reused across restarts - never re-downloaded unless the file is
