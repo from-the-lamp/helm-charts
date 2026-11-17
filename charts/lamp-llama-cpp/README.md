@@ -1,6 +1,6 @@
 # lamp-llama-cpp
 
-![Version: 0.1.2](https://img.shields.io/badge/Version-0.1.2-informational?style=flat-square) ![AppVersion: server-vulkan](https://img.shields.io/badge/AppVersion-server--vulkan-informational?style=flat-square)
+![Version: 0.1.3](https://img.shields.io/badge/Version-0.1.3-informational?style=flat-square) ![AppVersion: server-vulkan](https://img.shields.io/badge/AppVersion-server--vulkan-informational?style=flat-square)
 
 llama.cpp OpenAI-compatible inference server (Vulkan GPU backend)
 
@@ -11,7 +11,7 @@ llama.cpp OpenAI-compatible inference server (Vulkan GPU backend)
 | affinity | object | `{}` |  |
 | fullnameOverride | string | `""` |  |
 | gpu.enabled | bool | `true` |  |
-| gpu.renderDevicePath | string | `"/dev/dri/renderD128"` |  |
+| gpu.renderDevicePath | string | `"/dev/dri"` |  |
 | image.pullPolicy | string | `"IfNotPresent"` |  |
 | image.repository | string | `"ghcr.io/ggml-org/llama.cpp"` |  |
 | image.tag | string | `"server-vulkan-b12429"` |  |
@@ -21,6 +21,10 @@ llama.cpp OpenAI-compatible inference server (Vulkan GPU backend)
 | model.repo | string | `"bartowski/Qwen2.5-7B-Instruct-GGUF"` |  |
 | model.revision | string | `"8911e8a47f92bac19d6f5c64a2e2095bd2f7d031"` |  |
 | model.sha256 | string | `"65b8fcd92af6b4fefa935c625d1ac27ea29dcb6ee14589c55a8f115ceaaa1423"` |  |
+| modelFetchSecurityContext.allowPrivilegeEscalation | bool | `false` |  |
+| modelFetchSecurityContext.privileged | bool | `false` |  |
+| modelFetchSecurityContext.readOnlyRootFilesystem | bool | `false` |  |
+| modelFetchSecurityContext.runAsNonRoot | bool | `false` |  |
 | nameOverride | string | `""` |  |
 | nodeSelector | object | `{}` |  |
 | persistence.accessMode | string | `"ReadWriteOnce"` |  |
@@ -34,7 +38,7 @@ llama.cpp OpenAI-compatible inference server (Vulkan GPU backend)
 | resources.requests.cpu | string | `"2"` |  |
 | resources.requests.memory | string | `"6Gi"` |  |
 | securityContext.allowPrivilegeEscalation | bool | `false` |  |
-| securityContext.privileged | bool | `false` |  |
+| securityContext.privileged | bool | `true` |  |
 | securityContext.readOnlyRootFilesystem | bool | `false` |  |
 | securityContext.runAsNonRoot | bool | `false` |  |
 | server.contextSize | int | `8192` |  |
@@ -58,7 +62,7 @@ llama.cpp OpenAI-compatible inference server (Vulkan GPU backend)
 | templates/priorityclass.yaml | helm | 0 |
 | templates/service.yaml | helm | 0 |
 | templates/serviceaccount.yaml | helm | 0 |
-| templates/statefulset.yaml | helm | 27 |
+| templates/statefulset.yaml | helm | 28 |
 | templates/vpa.yaml | helm | 0 |
 
 ## templates/statefulset.yaml
@@ -77,7 +81,7 @@ Container 'llama-cpp' of StatefulSet 'lamp-llama-cpp' should add 'ALL' to 'secur
 70:           imagePullPolicy: IfNotPresent
 71:           securityContext:
 72:             allowPrivilegeEscalation: false
-73:             privileged: false
+73:             privileged: true
 74:             readOnlyRootFilesystem: false
 75:             runAsNonRoot: false
 76:           args:
@@ -119,7 +123,7 @@ Container 'llama-cpp' of 'statefulset' 'lamp-llama-cpp' in 'default' namespace s
 70:           imagePullPolicy: IfNotPresent
 71:           securityContext:
 72:             allowPrivilegeEscalation: false
-73:             privileged: false
+73:             privileged: true
 74:             readOnlyRootFilesystem: false
 75:             runAsNonRoot: false
 76:           args:
@@ -161,7 +165,7 @@ Container 'llama-cpp' of StatefulSet 'lamp-llama-cpp' should set 'resources.limi
 70:           imagePullPolicy: IfNotPresent
 71:           securityContext:
 72:             allowPrivilegeEscalation: false
-73:             privileged: false
+73:             privileged: true
 74:             readOnlyRootFilesystem: false
 75:             runAsNonRoot: false
 76:           args:
@@ -203,7 +207,7 @@ Container 'llama-cpp' of StatefulSet 'lamp-llama-cpp' should set 'securityContex
 70:           imagePullPolicy: IfNotPresent
 71:           securityContext:
 72:             allowPrivilegeEscalation: false
-73:             privileged: false
+73:             privileged: true
 74:             readOnlyRootFilesystem: false
 75:             runAsNonRoot: false
 76:           args:
@@ -245,7 +249,7 @@ Container 'llama-cpp' of StatefulSet 'lamp-llama-cpp' should set 'securityContex
 70:           imagePullPolicy: IfNotPresent
 71:           securityContext:
 72:             allowPrivilegeEscalation: false
-73:             privileged: false
+73:             privileged: true
 74:             readOnlyRootFilesystem: false
 75:             runAsNonRoot: false
 76:           args:
@@ -315,6 +319,27 @@ Container 'model-fetch' of StatefulSet 'lamp-llama-cpp' should set 'resources.re
 44:
 ```
 
+### KSV-0017 (HIGH): Privileged
+
+Container 'llama-cpp' of StatefulSet 'lamp-llama-cpp' should set 'securityContext.privileged' to false
+
+- Resolution: Change 'containers[].securityContext.privileged' to 'false'.
+- See: https://avd.aquasec.com/misconfig/ksv-0017
+- Location: `templates/statefulset.yaml:68-127`
+
+```
+68:         - name: llama-cpp
+69:           image: "ghcr.io/ggml-org/llama.cpp:server-vulkan-b12429"
+70:           imagePullPolicy: IfNotPresent
+71:           securityContext:
+72:             allowPrivilegeEscalation: false
+73:             privileged: true
+74:             readOnlyRootFilesystem: false
+75:             runAsNonRoot: false
+76:           args:
+77:
+```
+
 ### KSV-0018 (LOW): Memory not limited
 
 Container 'model-fetch' of StatefulSet 'lamp-llama-cpp' should set 'resources.limits.memory'
@@ -350,7 +375,7 @@ Container 'llama-cpp' of StatefulSet 'lamp-llama-cpp' should set 'securityContex
 70:           imagePullPolicy: IfNotPresent
 71:           securityContext:
 72:             allowPrivilegeEscalation: false
-73:             privileged: false
+73:             privileged: true
 74:             readOnlyRootFilesystem: false
 75:             runAsNonRoot: false
 76:           args:
@@ -392,7 +417,7 @@ Container 'llama-cpp' of StatefulSet 'lamp-llama-cpp' should set 'securityContex
 70:           imagePullPolicy: IfNotPresent
 71:           securityContext:
 72:             allowPrivilegeEscalation: false
-73:             privileged: false
+73:             privileged: true
 74:             readOnlyRootFilesystem: false
 75:             runAsNonRoot: false
 76:           args:
@@ -476,7 +501,7 @@ Either Pod or Container should set 'securityContext.seccompProfile.type' to 'Run
 70:           imagePullPolicy: IfNotPresent
 71:           securityContext:
 72:             allowPrivilegeEscalation: false
-73:             privileged: false
+73:             privileged: true
 74:             readOnlyRootFilesystem: false
 75:             runAsNonRoot: false
 76:           args:
@@ -497,7 +522,7 @@ container "llama-cpp" of statefulset "lamp-llama-cpp" in "default" namespace sho
 70:           imagePullPolicy: IfNotPresent
 71:           securityContext:
 72:             allowPrivilegeEscalation: false
-73:             privileged: false
+73:             privileged: true
 74:             readOnlyRootFilesystem: false
 75:             runAsNonRoot: false
 76:           args:
@@ -560,7 +585,7 @@ container should drop all
 70:           imagePullPolicy: IfNotPresent
 71:           securityContext:
 72:             allowPrivilegeEscalation: false
-73:             privileged: false
+73:             privileged: true
 74:             readOnlyRootFilesystem: false
 75:             runAsNonRoot: false
 76:           args:
@@ -579,7 +604,7 @@ statefulset lamp-llama-cpp in default namespace should set metadata.namespace to
 4: metadata:
 5:   name: lamp-llama-cpp
 6:   labels:
-7:     helm.sh/chart: lamp-llama-cpp-0.1.2
+7:     helm.sh/chart: lamp-llama-cpp-0.1.3
 8:     app.kubernetes.io/name: lamp-llama-cpp
 9:     app.kubernetes.io/instance: lamp-llama-cpp
 10:     app.kubernetes.io/version: "server-vulkan"
@@ -600,7 +625,7 @@ Container llama-cpp in statefulset lamp-llama-cpp (namespace: default) uses an i
 70:           imagePullPolicy: IfNotPresent
 71:           securityContext:
 72:             allowPrivilegeEscalation: false
-73:             privileged: false
+73:             privileged: true
 74:             readOnlyRootFilesystem: false
 75:             runAsNonRoot: false
 76:           args:
