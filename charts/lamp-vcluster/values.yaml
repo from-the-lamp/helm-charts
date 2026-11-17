@@ -1,0 +1,10 @@
+vcluster:
+  telemetry:
+    enabled: false
+
+  controlPlane:
+    statefulSet:
+      image:
+        # Pure OSS build instead of the chart default vcluster-pro image -
+        # no licensed/pro features needed.
+        repository: "loft-sh/vcluster-oss"

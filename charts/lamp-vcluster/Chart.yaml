@@ -1,0 +1,8 @@
+apiVersion: v2
+name: lamp-vcluster
+version: 0.1.0
+
+dependencies:
+  - name: vcluster
+    version: 0.37.7
+    repository: oci://ghcr.io/loft-sh/vcluster
