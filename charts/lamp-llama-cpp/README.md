@@ -1,6 +1,6 @@
 # lamp-llama-cpp
 
-![Version: 0.1.0](https://img.shields.io/badge/Version-0.1.0-informational?style=flat-square) ![AppVersion: server-vulkan](https://img.shields.io/badge/AppVersion-server--vulkan-informational?style=flat-square)
+![Version: 0.1.1](https://img.shields.io/badge/Version-0.1.1-informational?style=flat-square) ![AppVersion: server-vulkan](https://img.shields.io/badge/AppVersion-server--vulkan-informational?style=flat-square)
 
 llama.cpp OpenAI-compatible inference server (Vulkan GPU backend)
 
@@ -14,7 +14,7 @@ llama.cpp OpenAI-compatible inference server (Vulkan GPU backend)
 | gpu.renderDevicePath | string | `"/dev/dri"` |  |
 | image.pullPolicy | string | `"IfNotPresent"` |  |
 | image.repository | string | `"ghcr.io/ggml-org/llama.cpp"` |  |
-| image.tag | string | `"server-vulkan"` |  |
+| image.tag | string | `"server-vulkan-b12429"` |  |
 | model.fetchImage.repository | string | `"curlimages/curl"` |  |
 | model.fetchImage.tag | string | `"8.12.1"` |  |
 | model.file | string | `"Qwen2.5-7B-Instruct-Q4_K_M.gguf"` |  |
@@ -47,6 +47,8 @@ llama.cpp OpenAI-compatible inference server (Vulkan GPU backend)
 | serviceAccount.name | string | `""` |  |
 | terminationGracePeriodSeconds | int | `30` |  |
 | tolerations | list | `[]` |  |
+| vpa.enabled | bool | `true` |  |
+| vpa.updateMode | string | `"Off"` |  |
 # Trivy scan - Helm Chart
 
 ## Report Summary
@@ -57,6 +59,7 @@ llama.cpp OpenAI-compatible inference server (Vulkan GPU backend)
 | templates/service.yaml | helm | 0 |
 | templates/serviceaccount.yaml | helm | 0 |
 | templates/statefulset.yaml | helm | 27 |
+| templates/vpa.yaml | helm | 0 |
 
 ## templates/statefulset.yaml
 
@@ -70,7 +73,7 @@ Container 'llama-cpp' of StatefulSet 'lamp-llama-cpp' should add 'ALL' to 'secur
 
 ```
 68:         - name: llama-cpp
-69:           image: "ghcr.io/ggml-org/llama.cpp:server-vulkan"
+69:           image: "ghcr.io/ggml-org/llama.cpp:server-vulkan-b12429"
 70:           imagePullPolicy: IfNotPresent
 71:           securityContext:
 72:             allowPrivilegeEscalation: false
@@ -112,7 +115,7 @@ Container 'llama-cpp' of 'statefulset' 'lamp-llama-cpp' in 'default' namespace s
 
 ```
 68:         - name: llama-cpp
-69:           image: "ghcr.io/ggml-org/llama.cpp:server-vulkan"
+69:           image: "ghcr.io/ggml-org/llama.cpp:server-vulkan-b12429"
 70:           imagePullPolicy: IfNotPresent
 71:           securityContext:
 72:             allowPrivilegeEscalation: false
@@ -154,7 +157,7 @@ Container 'llama-cpp' of StatefulSet 'lamp-llama-cpp' should set 'resources.limi
 
 ```
 68:         - name: llama-cpp
-69:           image: "ghcr.io/ggml-org/llama.cpp:server-vulkan"
+69:           image: "ghcr.io/ggml-org/llama.cpp:server-vulkan-b12429"
 70:           imagePullPolicy: IfNotPresent
 71:           securityContext:
 72:             allowPrivilegeEscalation: false
@@ -196,7 +199,7 @@ Container 'llama-cpp' of StatefulSet 'lamp-llama-cpp' should set 'securityContex
 
 ```
 68:         - name: llama-cpp
-69:           image: "ghcr.io/ggml-org/llama.cpp:server-vulkan"
+69:           image: "ghcr.io/ggml-org/llama.cpp:server-vulkan-b12429"
 70:           imagePullPolicy: IfNotPresent
 71:           securityContext:
 72:             allowPrivilegeEscalation: false
@@ -238,7 +241,7 @@ Container 'llama-cpp' of StatefulSet 'lamp-llama-cpp' should set 'securityContex
 
 ```
 68:         - name: llama-cpp
-69:           image: "ghcr.io/ggml-org/llama.cpp:server-vulkan"
+69:           image: "ghcr.io/ggml-org/llama.cpp:server-vulkan-b12429"
 70:           imagePullPolicy: IfNotPresent
 71:           securityContext:
 72:             allowPrivilegeEscalation: false
@@ -343,7 +346,7 @@ Container 'llama-cpp' of StatefulSet 'lamp-llama-cpp' should set 'securityContex
 
 ```
 68:         - name: llama-cpp
-69:           image: "ghcr.io/ggml-org/llama.cpp:server-vulkan"
+69:           image: "ghcr.io/ggml-org/llama.cpp:server-vulkan-b12429"
 70:           imagePullPolicy: IfNotPresent
 71:           securityContext:
 72:             allowPrivilegeEscalation: false
@@ -385,7 +388,7 @@ Container 'llama-cpp' of StatefulSet 'lamp-llama-cpp' should set 'securityContex
 
 ```
 68:         - name: llama-cpp
-69:           image: "ghcr.io/ggml-org/llama.cpp:server-vulkan"
+69:           image: "ghcr.io/ggml-org/llama.cpp:server-vulkan-b12429"
 70:           imagePullPolicy: IfNotPresent
 71:           securityContext:
 72:             allowPrivilegeEscalation: false
@@ -469,7 +472,7 @@ Either Pod or Container should set 'securityContext.seccompProfile.type' to 'Run
 
 ```
 68:         - name: llama-cpp
-69:           image: "ghcr.io/ggml-org/llama.cpp:server-vulkan"
+69:           image: "ghcr.io/ggml-org/llama.cpp:server-vulkan-b12429"
 70:           imagePullPolicy: IfNotPresent
 71:           securityContext:
 72:             allowPrivilegeEscalation: false
@@ -490,7 +493,7 @@ container "llama-cpp" of statefulset "lamp-llama-cpp" in "default" namespace sho
 
 ```
 68:         - name: llama-cpp
-69:           image: "ghcr.io/ggml-org/llama.cpp:server-vulkan"
+69:           image: "ghcr.io/ggml-org/llama.cpp:server-vulkan-b12429"
 70:           imagePullPolicy: IfNotPresent
 71:           securityContext:
 72:             allowPrivilegeEscalation: false
@@ -553,7 +556,7 @@ container should drop all
 
 ```
 68:         - name: llama-cpp
-69:           image: "ghcr.io/ggml-org/llama.cpp:server-vulkan"
+69:           image: "ghcr.io/ggml-org/llama.cpp:server-vulkan-b12429"
 70:           imagePullPolicy: IfNotPresent
 71:           securityContext:
 72:             allowPrivilegeEscalation: false
@@ -576,7 +579,7 @@ statefulset lamp-llama-cpp in default namespace should set metadata.namespace to
 4: metadata:
 5:   name: lamp-llama-cpp
 6:   labels:
-7:     helm.sh/chart: lamp-llama-cpp-0.1.0
+7:     helm.sh/chart: lamp-llama-cpp-0.1.1
 8:     app.kubernetes.io/name: lamp-llama-cpp
 9:     app.kubernetes.io/instance: lamp-llama-cpp
 10:     app.kubernetes.io/version: "server-vulkan"
@@ -593,7 +596,7 @@ Container llama-cpp in statefulset lamp-llama-cpp (namespace: default) uses an i
 
 ```
 68:         - name: llama-cpp
-69:           image: "ghcr.io/ggml-org/llama.cpp:server-vulkan"
+69:           image: "ghcr.io/ggml-org/llama.cpp:server-vulkan-b12429"
 70:           imagePullPolicy: IfNotPresent
 71:           securityContext:
 72:             allowPrivilegeEscalation: false
