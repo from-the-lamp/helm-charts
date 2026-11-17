@@ -1,9 +1,17 @@
-# Off by default - the consumer app turns it on and names the target
-# namespace/secret once it actually wires up exportKubeConfig.additionalSecrets.
-kubeconfigExport:
+# Off by default - the consumer app turns it on once it actually wires up
+# exportKubeConfig.additionalSecrets (same namespace as this release) and
+# wants that secret mirrored into another namespace. See
+# templates/kubeconfig-copier.yaml for why this is a narrowly-RBAC'd copy
+# job instead of granting vcluster's own controller cross-namespace access.
+kubeconfigCopier:
   enabled: false
-  namespace: ""
-  secretName: ""
+  sourceSecretName: ""
+  targetNamespace: ""
+  targetSecretName: ""
+  schedule: "*/10 * * * *"
+  image:
+    repository: bitnamilegacy/kubectl
+    tag: "1.33.4"
 
 vcluster:
   telemetry:
