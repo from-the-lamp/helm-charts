@@ -70,15 +70,15 @@ spec:
               # Signing up elects the first user of an empty instance as
               # Master Admin server-side (UserService.createUserOnSignup, an
               # atomic "is the User table empty?" check) - there is no
-              # separate "create admin" endpoint to call instead. Confirmed
-              # against the server source (Identity/API/Authentication.ts):
-              # a second call against an email that already has a password
-              # returns a BadDataException (400), which is the idempotent
-              # "already bootstrapped" case below, same as lamp-immich's
-              # admin-sign-up (400 there too) and unlike lamp-home-assistant's
-              # onboarding API (403 there).
+              # separate "create admin" endpoint to call instead. The route
+              # is bare /signup (Identity/Index.ts mounts AuthenticationAPI
+              # at ["/${APP_NAME}", "/"], and APP_NAME does not resolve to
+              # "identity" in this combined self-hosted deployment -
+              # confirmed live: exec into oneuptime-app and wget localhost
+              # directly, /identity/signup 404s, /signup 400s on an empty
+              # body, meaning it's the one that's actually mounted).
               code=$(curl -s -o /tmp/resp.json -w '%{http_code}' -X POST \
-                "${base_url}/identity/signup" \
+                "${base_url}/signup" \
                 -H 'Content-Type: application/json' \
                 -d "{\"data\":{\"email\":\"${email}\",\"name\":\"${name}\",\"password\":\"${password}\"},\"miscDataProps\":{}}")
               cat /tmp/resp.json
@@ -87,7 +87,12 @@ spec:
                 echo "admin created"
                 exit 0
               fi
-              if [ "$code" = "400" ]; then
+              # A 400 is also what an actual validation error returns (bad
+              # password, missing field), so only the specific "already
+              # exists" message (Common/Types/Accounts/SignInMessages.ts'
+              # getAccountAlreadyExistsMessage) counts as the idempotent
+              # "already bootstrapped" case - not every 400.
+              if [ "$code" = "400" ] && grep -q "already exists" /tmp/resp.json; then
                 echo "signup returned 400 (already bootstrapped), treating as success"
                 exit 0
               fi
