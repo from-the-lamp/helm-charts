@@ -1,6 +1,24 @@
 alloy:
   fullnameOverride: alloy-logs
+  # cilium-run gives the alloy container read access to Cilium's hostPath
+  # (every node running Cilium already has it) so loki.source.file can
+  # tail the Hubble flow export file from config.hubble.path below. Kept
+  # mounted unconditionally rather than toggled with config.hubble.enabled
+  # - values.yaml isn't templated, so it can't be made conditional on
+  # another value here, and a read-only mount of an already-local
+  # directory is harmless when hubble export is off.
+  controller:
+    volumes:
+      extra:
+        - name: cilium-run
+          hostPath:
+            path: /var/run/cilium
   alloy:
+    mounts:
+      extra:
+        - name: cilium-run
+          mountPath: /var/run/cilium
+          readOnly: true
     configMap:
       create: false
       name: alloy-logs-config
@@ -23,3 +41,11 @@ alloy:
         enabled: false
         namespaces:
           - example-ns
+    # FTL-206: tails the JSON flow log Cilium's Hubble export writes to a
+    # hostPath file on each node (hubble.export.static in the Cilium
+    # release) and ships it to Loki alongside pod logs. Disabled by
+    # default since it requires the matching hostPath volume/mount below
+    # and only makes sense where that Cilium export is actually enabled.
+    hubble:
+      enabled: false
+      path: /var/run/cilium/hubble/events.log

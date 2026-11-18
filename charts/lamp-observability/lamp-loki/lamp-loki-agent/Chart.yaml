@@ -1,6 +1,6 @@
 apiVersion: v2
 name: lamp-loki-agent
-version: 0.5.1
+version: 0.6.0
 
 dependencies:
   - name: alloy

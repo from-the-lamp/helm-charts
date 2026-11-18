@@ -80,6 +80,38 @@ data:
       }
       forward_to = [loki.write.default.receiver]
     }
+    {{- if .Values.alloy.config.hubble.enabled }}
+    // FTL-206: tails Cilium's Hubble flow export file (written to the
+    // cilium-run hostPath mounted above) and ships it to Loki alongside
+    // pod logs. Only "verdict" and "node" are kept as labels - every
+    // other flow field (IPs, ports, identities) stays in the log line to
+    // keep stream cardinality low.
+    local.file_match "hubble_flows" {
+      path_targets = [{
+        __path__ = "{{ .Values.alloy.config.hubble.path }}",
+        job       = "hubble-flows",
+      }]
+    }
+    loki.source.file "hubble_flows" {
+      targets    = local.file_match.hubble_flows.targets
+      forward_to = [loki.process.hubble_flows.receiver]
+    }
+    loki.process "hubble_flows" {
+      stage.json {
+        expressions = {
+          verdict = "flow.verdict",
+          node    = "node_name",
+        }
+      }
+      stage.labels {
+        values = {
+          verdict = "",
+          node    = "",
+        }
+      }
+      forward_to = [loki.write.default.receiver]
+    }
+    {{- end }}
     loki.write "default" {
       endpoint {
         url = "{{ .Values.alloy.config.endpoint.url }}"
