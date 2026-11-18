@@ -1,6 +1,6 @@
 # lamp-oneuptime
 
-![Version: 0.4.3](https://img.shields.io/badge/Version-0.4.3-informational?style=flat-square)
+![Version: 0.5.0](https://img.shields.io/badge/Version-0.5.0-informational?style=flat-square)
 
 ## Requirements
 
@@ -24,6 +24,22 @@
 | externalSecrets.kind | string | `"ClusterSecretStore"` |  |
 | externalSecrets.name | string | `"vault"` |  |
 | externalSecrets.refreshInterval | string | `"1h"` |  |
+| globalConfig.disableSignup | bool | `true` |  |
+| globalConfig.requireSsoForLogin | bool | `true` |  |
+| globalOidcBootstrap.clientIdProperty | string | `"client-id"` |  |
+| globalOidcBootstrap.clientSecretProperty | string | `"client-secret"` |  |
+| globalOidcBootstrap.description | string | `"GitLab OIDC SSO for homelab OneUptime, group from-the-lamp"` |  |
+| globalOidcBootstrap.disableSignUpWithSso | bool | `false` |  |
+| globalOidcBootstrap.discoveryURL | string | `"https://gitlab.com/.well-known/openid-configuration"` |  |
+| globalOidcBootstrap.emailClaimName | string | `"email"` |  |
+| globalOidcBootstrap.enabled | bool | `true` |  |
+| globalOidcBootstrap.isEnabled | bool | `true` |  |
+| globalOidcBootstrap.issuerURL | string | `"https://gitlab.com"` |  |
+| globalOidcBootstrap.name | string | `"GitLab (from-the-lamp)"` |  |
+| globalOidcBootstrap.nameClaimName | string | `"name"` |  |
+| globalOidcBootstrap.remoteSecretKey | string | `"platform/oneuptime"` |  |
+| globalOidcBootstrap.restrictToAttachedProjects | bool | `false` |  |
+| globalOidcBootstrap.scopes | string | `"openid email profile"` |  |
 | oneuptime.clickhouse.auth.password | string | `"bb1988aaef49bfd2fb43066466d0971bb34033beb12261c6"` |  |
 | oneuptime.encryptionSecret | string | `"5a7b269f475bbc0ecffbb28b5a0ae8509c78fd17715e91ef"` |  |
 | oneuptime.externalPostgres.database | string | `"oneuptime"` |  |

@@ -142,6 +142,31 @@ adminBootstrap:
   nameProperty: admin-name
   passwordProperty: admin-password
 
+# templates/global-oidc-bootstrap.yaml: creates the GitLab OIDC GlobalOidc
+# provider (if a provider of this name doesn't already exist) and sets
+# GlobalConfig.requireSsoForLogin/disableSignup, the same way
+# adminBootstrap creates the first user - all through the already-running
+# oneuptime-app's own API, idempotently, instead of a one-off manual change.
+globalOidcBootstrap:
+  enabled: true
+  name: "GitLab (from-the-lamp)"
+  description: "GitLab OIDC SSO for homelab OneUptime, group from-the-lamp"
+  discoveryURL: "https://gitlab.com/.well-known/openid-configuration"
+  issuerURL: "https://gitlab.com"
+  scopes: "openid email profile"
+  emailClaimName: "email"
+  nameClaimName: "name"
+  disableSignUpWithSso: false
+  restrictToAttachedProjects: false
+  isEnabled: true
+  remoteSecretKey: platform/oneuptime
+  clientIdProperty: client-id
+  clientSecretProperty: client-secret
+
+globalConfig:
+  requireSsoForLogin: true
+  disableSignup: true
+
 externalSecrets:
   kind: ClusterSecretStore
   name: vault

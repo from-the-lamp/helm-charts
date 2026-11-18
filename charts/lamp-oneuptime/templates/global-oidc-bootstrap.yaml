@@ -1,0 +1,113 @@
+{{- if .Values.globalOidcBootstrap.enabled }}
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: oneuptime-global-oidc-bootstrap
+spec:
+  refreshInterval: "{{ .Values.externalSecrets.refreshInterval }}"
+  secretStoreRef:
+    kind: "{{ .Values.externalSecrets.kind }}"
+    name: "{{ .Values.externalSecrets.name }}"
+  target:
+    name: oneuptime-global-oidc-bootstrap
+    creationPolicy: "{{ .Values.externalSecrets.creationPolicy }}"
+  data:
+    - secretKey: client-id
+      remoteRef:
+        key: {{ .Values.globalOidcBootstrap.remoteSecretKey }}
+        property: {{ .Values.globalOidcBootstrap.clientIdProperty }}
+    - secretKey: client-secret
+      remoteRef:
+        key: {{ .Values.globalOidcBootstrap.remoteSecretKey }}
+        property: {{ .Values.globalOidcBootstrap.clientSecretProperty }}
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: oneuptime-global-oidc-bootstrap
+  annotations:
+    argocd.argoproj.io/sync-options: Replace=true,Force=true
+spec:
+  backoffLimit: 3
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: global-oidc-bootstrap
+          # renovate: datasource=docker depName=curlimages/curl
+          image: curlimages/curl:8.23.0
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+          envFrom:
+            - secretRef:
+                name: oneuptime-admin-bootstrap
+            - secretRef:
+                name: oneuptime-global-oidc-bootstrap
+          env:
+            - name: PROVIDER_NAME
+              value: {{ .Values.globalOidcBootstrap.name | quote }}
+            - name: PROVIDER_DESCRIPTION
+              value: {{ .Values.globalOidcBootstrap.description | quote }}
+            - name: DISCOVERY_URL
+              value: {{ .Values.globalOidcBootstrap.discoveryURL | quote }}
+            - name: ISSUER_URL
+              value: {{ .Values.globalOidcBootstrap.issuerURL | quote }}
+            - name: SCOPES
+              value: {{ .Values.globalOidcBootstrap.scopes | quote }}
+            - name: EMAIL_CLAIM_NAME
+              value: {{ .Values.globalOidcBootstrap.emailClaimName | quote }}
+            - name: NAME_CLAIM_NAME
+              value: {{ .Values.globalOidcBootstrap.nameClaimName | quote }}
+            - name: DISABLE_SIGN_UP_WITH_SSO
+              value: {{ .Values.globalOidcBootstrap.disableSignUpWithSso | quote }}
+            - name: RESTRICT_TO_ATTACHED_PROJECTS
+              value: {{ .Values.globalOidcBootstrap.restrictToAttachedProjects | quote }}
+            - name: PROVIDER_ENABLED
+              value: {{ .Values.globalOidcBootstrap.isEnabled | quote }}
+            - name: REQUIRE_SSO_FOR_LOGIN
+              value: {{ .Values.globalConfig.requireSsoForLogin | quote }}
+            - name: DISABLE_SIGNUP
+              value: {{ .Values.globalConfig.disableSignup | quote }}
+          command: ["/bin/sh", "-euc"]
+          args:
+            - |
+              base_url="http://{{ .Release.Name }}-app:3002"
+              cookie_jar="$(mktemp)"
+
+              for i in $(seq 1 60); do
+                curl -sf "${base_url}/status/ready" >/dev/null 2>&1 && break
+                sleep 5
+              done
+
+              curl -sf -c "${cookie_jar}" -o /dev/null -X POST \
+                "${base_url}/login" \
+                -H 'Content-Type: application/json' \
+                -d "{\"data\":{\"email\":\"${email}\",\"password\":\"${password}\"}}"
+
+              existing=$(curl -s -b "${cookie_jar}" -X POST \
+                "${base_url}/api/global-oidc/get-list" \
+                -H 'Content-Type: application/json' \
+                -d "{\"query\":{\"name\":\"${PROVIDER_NAME}\"},\"select\":{\"_id\":true},\"limit\":1}")
+
+              if echo "${existing}" | grep -q '"_id"'; then
+                echo "global oidc provider already exists"
+              else
+                code=$(curl -s -o /tmp/oidc.json -w '%{http_code}' -b "${cookie_jar}" -X POST \
+                  "${base_url}/api/global-oidc" \
+                  -H 'Content-Type: application/json' \
+                  -d "{\"data\":{\"name\":\"${PROVIDER_NAME}\",\"description\":\"${PROVIDER_DESCRIPTION}\",\"discoveryURL\":\"${DISCOVERY_URL}\",\"issuerURL\":\"${ISSUER_URL}\",\"clientId\":\"${client_id}\",\"clientSecret\":\"${client_secret}\",\"scopes\":\"${SCOPES}\",\"emailClaimName\":\"${EMAIL_CLAIM_NAME}\",\"nameClaimName\":\"${NAME_CLAIM_NAME}\",\"disableSignUpWithSso\":${DISABLE_SIGN_UP_WITH_SSO},\"restrictToAttachedProjects\":${RESTRICT_TO_ATTACHED_PROJECTS},\"isEnabled\":${PROVIDER_ENABLED}}}")
+                cat /tmp/oidc.json
+                echo
+                if [ "$code" != "200" ] && [ "$code" != "201" ]; then
+                  echo "unexpected response code creating global oidc provider: $code"
+                  exit 1
+                fi
+              fi
+
+              curl -sf -b "${cookie_jar}" -o /dev/null -X PUT \
+                "${base_url}/api/global-config/00000000-0000-0000-0000-000000000000" \
+                -H 'Content-Type: application/json' \
+                -d "{\"data\":{\"requireSsoForLogin\":${REQUIRE_SSO_FOR_LOGIN},\"disableSignup\":${DISABLE_SIGNUP}}}"
+{{- end }}
