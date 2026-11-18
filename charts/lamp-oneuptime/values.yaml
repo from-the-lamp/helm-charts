@@ -48,7 +48,17 @@
 #   FTL-223 if Vault-backing these specifically is wanted later.
 oneuptime:
   host: oneuptime.from-the-lamp.work
-  httpProtocol: http
+  # TLS terminates at istio-gateway-internal, not at this pod (same as
+  # every other app here) - the pod itself still only ever speaks plain
+  # http. But OneUptime bakes HTTP_PROTOCOL+HOST into absolute URLs/CORS
+  # checks the frontend uses, and real browser access is over https -
+  # confirmed live: the dashboard's every fetch failed with the generic
+  # "OneUptime could not be reached" (Common/Types/Exception/
+  # UnexplainedError.ts's wording for a fetch() that got no answer at all,
+  # which is indistinguishable in JS from a browser-blocked mixed-content/
+  # CORS request). httpProtocol only changes what URLs/cookies/Origin
+  # checks the app builds, not the pod's actual listener.
+  httpProtocol: https
 
   global:
     storageClass: local-path
