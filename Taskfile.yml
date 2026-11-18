@@ -60,6 +60,9 @@ includes:
   template:
     taskfile: .tasks/template.yml
     flatten: true
+  validate:
+    taskfile: .tasks/validate.yml
+    flatten: true
 
 silent: true
 tasks:

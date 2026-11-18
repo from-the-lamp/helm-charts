@@ -1,0 +1,17 @@
+version: '3'
+
+silent: true
+tasks:
+  amtool:alertmanager:
+    desc: Validate lamp-observability's rendered Alertmanager config with amtool check-config
+    dir: '{{.CHARTS_DIR}}/lamp-observability/lamp-victoria-metrics/lamp-victoria-metrics'
+    cmds:
+      - echo -e "\033[36m==>\033[0m rendering the vmalertmanager-config Secret"
+      - helm dependency update
+      - |
+        RENDERED="$(mktemp)"
+        helm template . --show-only templates/vmalertmanager-config.yaml \
+          | yq '.stringData["alertmanager.yaml"]' > "$RENDERED"
+        echo -e "\033[36m==>\033[0m checking it with amtool (vmalertmanager is Alertmanager-config-schema-compatible)"
+        amtool check-config "$RENDERED"
+        rm -f "$RENDERED"
