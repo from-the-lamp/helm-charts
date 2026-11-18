@@ -9,10 +9,21 @@ stringData:
       slack_api_url: {{ .Values.alertManagerConfig.slack.apiUrl }}
     route:
       receiver: blackhole
+      # `service` never exists as an alert label here (confirmed by audit -
+      # no VMRule sets it), so it silently degraded grouping to
+      # [alertname, cluster]. `namespace` is the real stand-in for service
+      # identity (kube_state_metrics already joins it onto every namespaced
+      # alert). `severity` is added deliberately, not just swapped in: it
+      # guarantees every webhook batch sent to a receiver holds alerts of a
+      # single severity value, which is what lets the oneuptime monitor's
+      # criteria (infra/terragrunt/_modules/oneuptime/alertmanager_monitor)
+      # branch on commonLabels.severity alone instead of having to inspect
+      # every alert in the body.
       group_by:
         - alertname
+        - severity
         - cluster
-        - service
+        - namespace
       routes:
       {{- if .Values.alertManagerConfig.cronitor.enabled }}
       # Dead man's switch (FTL-83): Watchdog (vector(1), always firing) pings
