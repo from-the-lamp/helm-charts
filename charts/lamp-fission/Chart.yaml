@@ -5,4 +5,4 @@ version: 0.0.1
 dependencies:
   - name: fission-all
     version: 1.27.0
-    repository: https://fission-charts.storage.googleapis.com
+    repository: https://fission.github.io/fission-charts/

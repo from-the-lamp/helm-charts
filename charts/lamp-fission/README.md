@@ -6,7 +6,7 @@
 
 | Repository | Name | Version |
 |------------|------|---------|
-| https://fission-charts.storage.googleapis.com | fission-all | 1.27.0 |
+| https://fission.github.io/fission-charts/ | fission-all | 1.27.0 |
 
 # Trivy scan - Helm Chart
 

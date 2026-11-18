@@ -145,6 +145,12 @@ oneuptime:
     port: 8123
     username: oneuptime
     database: oneuptime
+    # Must match the central cluster's actual cluster name (cluster.name in
+    # lamp-clickhouse-cluster, "default" there) - the chart's own default
+    # here is the Helm release name ("oneuptime"), which doesn't exist as a
+    # ClickHouse cluster, so every ON CLUSTER DDL in the migrate Job failed
+    # with "Requested cluster 'oneuptime' not found" until this was set.
+    clusterName: default
     existingSecret:
       name: clickhouse-oneuptime-password
       passwordKey: password

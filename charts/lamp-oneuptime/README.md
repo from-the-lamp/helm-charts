@@ -1,6 +1,6 @@
 # lamp-oneuptime
 
-![Version: 0.7.0](https://img.shields.io/badge/Version-0.7.0-informational?style=flat-square)
+![Version: 0.7.1](https://img.shields.io/badge/Version-0.7.1-informational?style=flat-square)
 
 ## Requirements
 
@@ -58,6 +58,7 @@
 | oneuptime.email.smtp.requireTls | bool | `true` |  |
 | oneuptime.email.smtp.username | string | `"c40526001@smtp-brevo.com"` |  |
 | oneuptime.encryptionSecret | string | `"5a7b269f475bbc0ecffbb28b5a0ae8509c78fd17715e91ef"` |  |
+| oneuptime.externalClickhouse.clusterName | string | `"default"` |  |
 | oneuptime.externalClickhouse.database | string | `"oneuptime"` |  |
 | oneuptime.externalClickhouse.existingSecret.name | string | `"clickhouse-oneuptime-password"` |  |
 | oneuptime.externalClickhouse.existingSecret.passwordKey | string | `"password"` |  |
