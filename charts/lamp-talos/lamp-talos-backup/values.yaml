@@ -43,3 +43,16 @@ resources:
     # 256Mi OOMKilled on a real run - the etcd snapshot gets buffered in
     # memory for compression+encryption before upload, not streamed.
     memory: 768Mi
+
+prune:
+  minAge: 720h
+  image:
+    name: rclone/rclone
+    # renovate: datasource=docker depName=rclone/rclone
+    tag: "1.76"
+  resources:
+    requests:
+      cpu: 10m
+      memory: 64Mi
+    limits:
+      memory: 128Mi

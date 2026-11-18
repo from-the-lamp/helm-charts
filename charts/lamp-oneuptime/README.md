@@ -1,6 +1,6 @@
 # lamp-oneuptime
 
-![Version: 0.7.2](https://img.shields.io/badge/Version-0.7.2-informational?style=flat-square)
+![Version: 0.7.3](https://img.shields.io/badge/Version-0.7.3-informational?style=flat-square)
 
 ## Requirements
 
@@ -50,6 +50,9 @@
 | globalOidcBootstrap.scopes | string | `"openid email profile"` |  |
 | oneuptime.app.extraEnv[0].name | string | `"INCOMING_REQUEST_INGEST_COALESCE_ENABLED"` |  |
 | oneuptime.app.extraEnv[0].value | string | `"false"` |  |
+| oneuptime.app.resources.limits.memory | string | `"1792Mi"` |  |
+| oneuptime.app.resources.requests.cpu | string | `"200m"` |  |
+| oneuptime.app.resources.requests.memory | string | `"896Mi"` |  |
 | oneuptime.clickhouse.enabled | bool | `false` |  |
 | oneuptime.email.existingSecret.name | string | `"oneuptime-email"` |  |
 | oneuptime.email.fromEmail | string | `"artyom.zverev@proton.me"` |  |
@@ -78,8 +81,16 @@
 | oneuptime.global.storageClass | string | `"local-path"` |  |
 | oneuptime.host | string | `"oneuptime.from-the-lamp.work"` |  |
 | oneuptime.httpProtocol | string | `"https"` |  |
+| oneuptime.image.pullPolicy | string | `"IfNotPresent"` |  |
+| oneuptime.image.tag | string | `"15.0.0"` |  |
 | oneuptime.image.type | string | `"community-edition"` |  |
 | oneuptime.migrate.annotations."argocd.argoproj.io/sync-options" | string | `"Replace=true,Force=true"` |  |
+| oneuptime.migrate.resources.limits.memory | string | `"512Mi"` |  |
+| oneuptime.migrate.resources.requests.cpu | string | `"50m"` |  |
+| oneuptime.migrate.resources.requests.memory | string | `"256Mi"` |  |
+| oneuptime.nginx.resources.limits.memory | string | `"768Mi"` |  |
+| oneuptime.nginx.resources.requests.cpu | string | `"10m"` |  |
+| oneuptime.nginx.resources.requests.memory | string | `"448Mi"` |  |
 | oneuptime.nginx.service.type | string | `"ClusterIP"` |  |
 | oneuptime.oneuptimeSecret | string | `"aae773dc92ab56adaed5572c19f7da561da0391320f14227"` |  |
 | oneuptime.postgresql.enabled | bool | `false` |  |
@@ -88,13 +99,21 @@
 | oneuptime.probeContainerSecurityContext.capabilities.add[2] | string | `"KILL"` |  |
 | oneuptime.probeContainerSecurityContext.capabilities.add[3] | string | `"SETGID"` |  |
 | oneuptime.probeContainerSecurityContext.capabilities.add[4] | string | `"SETUID"` |  |
+| oneuptime.probes.one.resources.limits.memory | string | `"512Mi"` |  |
+| oneuptime.probes.one.resources.requests.cpu | string | `"50m"` |  |
+| oneuptime.probes.one.resources.requests.memory | string | `"256Mi"` |  |
+| oneuptime.products.onThisServer | string | `"incident-response"` |  |
 | oneuptime.registerProbeKey | string | `"48524500951e237d50a49f38227552ecf7308135572a8f38"` |  |
 | oneuptime.slackApp.clientId | string | `"6547522206593.12639247996437"` |  |
 | oneuptime.slackApp.existingSecret.clientIdKey | string | `"clientId"` |  |
 | oneuptime.slackApp.existingSecret.clientSecretKey | string | `"clientSecret"` |  |
 | oneuptime.slackApp.existingSecret.name | string | `"oneuptime-slack"` |  |
 | oneuptime.slackApp.existingSecret.signingSecretKey | string | `"signingSecret"` |  |
+| oneuptime.telemetry.disableIngestion | bool | `true` |  |
 | oneuptime.valkey.auth.password | string | `"52756b121de34e5f052b36168ecf58d5000209d73d5571d4"` |  |
+| oneuptime.valkey.master.resources.limits.memory | string | `"128Mi"` |  |
+| oneuptime.valkey.master.resources.requests.cpu | string | `"10m"` |  |
+| oneuptime.valkey.master.resources.requests.memory | string | `"32Mi"` |  |
 | slackSecret.clientIdProperty | string | `"oneuptime.client-id"` |  |
 | slackSecret.clientSecretProperty | string | `"oneuptime.client-secret"` |  |
 | slackSecret.enabled | bool | `true` |  |

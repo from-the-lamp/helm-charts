@@ -13,7 +13,7 @@ spec:
       template:
         spec:
           restartPolicy: OnFailure
-          containers:
+          initContainers:
             - name: talos-backup
               image: "{{ .Values.image.name }}:{{ .Values.image.tag }}"
               workingDir: /tmp
@@ -76,6 +76,48 @@ spec:
                   name: talos
                 - mountPath: /var/run/secrets/talos.dev
                   name: talos-secrets
+          containers:
+            - name: prune
+              image: "{{ .Values.prune.image.name }}:{{ .Values.prune.image.tag }}"
+              imagePullPolicy: IfNotPresent
+              command: ['/bin/sh', '-eu', '-c']
+              args:
+                - |
+                  rclone delete "default:${BUCKET}/${S3_PREFIX}" --min-age "${PRUNE_MIN_AGE}"
+              env:
+                - name: BUCKET
+                  value: "{{ .Values.s3.bucket }}"
+                - name: S3_PREFIX
+                  value: "{{ .Values.s3Prefix }}"
+                - name: PRUNE_MIN_AGE
+                  value: "{{ .Values.prune.minAge }}"
+                - name: RCLONE_CONFIG_DEFAULT_TYPE
+                  value: s3
+                - name: RCLONE_S3_PROVIDER
+                  value: Other
+                - name: RCLONE_S3_NO_CHECK_BUCKET
+                  value: "true"
+                - name: RCLONE_S3_REGION
+                  value: "{{ .Values.s3.region }}"
+                - name: RCLONE_S3_ENDPOINT
+                  value: "{{ .Values.s3.endpoint }}"
+                - name: RCLONE_S3_ACCESS_KEY_ID
+                  valueFrom:
+                    secretKeyRef:
+                      name: talos-backup-s3-creds
+                      key: access_key_id
+                - name: RCLONE_S3_SECRET_ACCESS_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      name: talos-backup-s3-creds
+                      key: secret_access_key
+              securityContext:
+                allowPrivilegeEscalation: false
+                capabilities:
+                  drop:
+                    - ALL
+              resources:
+                {{- toYaml .Values.prune.resources | nindent 16 }}
           volumes:
             - emptyDir: {}
               name: tmp

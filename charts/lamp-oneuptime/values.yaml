@@ -65,6 +65,14 @@ oneuptime:
 
   image:
     type: community-edition
+    # Chart default is the floating "release" tag + pullPolicy Always - a
+    # pod recreate can silently pull a newer app release. Pinned to the
+    # version actually running today (confirmed live: the running image's
+    # digest matches this tag on Docker Hub, and the app's own /version
+    # endpoint reports 15.0.0 too) so a version bump is a deliberate tag
+    # change here, not a side effect of a restart.
+    tag: "15.0.0"
+    pullPolicy: IfNotPresent
 
   email:
     serverType: custom-smtp
@@ -101,6 +109,14 @@ oneuptime:
   migrate:
     annotations:
       argocd.argoproj.io/sync-options: Replace=true,Force=true
+    # Chart default {} - the migrate Job runs briefly on every sync; sized
+    # generously rather than measured, since it's not a steady-state pod.
+    resources:
+      requests:
+        cpu: 50m
+        memory: 256Mi
+      limits:
+        memory: 512Mi
 
   # "oneuptime" role/database created on the shared cluster by
   # apps/homelab/platform/postgres's values.yaml (databases/roles lists).
@@ -120,6 +136,15 @@ oneuptime:
   nginx:
     service:
       type: ClusterIP
+    # Chart default {} - live pods_top shows nginx at ~405Mi RSS, higher
+    # than a bare reverse-proxy would suggest; sized with headroom rather
+    # than trimmed tight.
+    resources:
+      requests:
+        cpu: 10m
+        memory: 448Mi
+      limits:
+        memory: 768Mi
 
   # By default an Incoming Request monitor evaluates only the NEWEST request
   # when several arrive before the previous one is processed, and silently
@@ -133,6 +158,26 @@ oneuptime:
     extraEnv:
       - name: INCOMING_REQUEST_INGEST_COALESCE_ENABLED
         value: "false"
+    # Chart default is {} on every component - the app ran with an
+    # unbounded Node.js heap (the chart sizes it off resources.limits.memory
+    # itself). Sized from live pods_top (app ~775Mi RSS today) with
+    # headroom for the restart spike measured upstream.
+    resources:
+      requests:
+        cpu: 200m
+        memory: 896Mi
+      limits:
+        memory: 1792Mi
+
+  probes:
+    one:
+      # Chart default {} - live pods_top shows probe-one at ~220Mi RSS.
+      resources:
+        requests:
+          cpu: 50m
+          memory: 256Mi
+        limits:
+          memory: 512Mi
 
   # Hex only, deliberately - clickhouse's init container does
   # `sed -i "s/PLACEHOLDER/$CLICKHOUSE_PASSWORD/g"` against its config
@@ -143,6 +188,15 @@ oneuptime:
   valkey:
     auth:
       password: "52756b121de34e5f052b36168ecf58d5000209d73d5571d4"
+    # Chart default {} - live pods_top shows this at a few MiB; capped
+    # modestly rather than left fully unbounded.
+    master:
+      resources:
+        requests:
+          cpu: 10m
+          memory: 32Mi
+        limits:
+          memory: 128Mi
 
   # Moved off the bundled StatefulSet onto the shared central ClickHouse
   # (apps/homelab/platform/clickhouse, lamp-clickhouse-cluster) - same
@@ -169,6 +223,18 @@ oneuptime:
       passwordKey: password
     tls:
       enabled: false
+
+  # Chart default is "everything". Logs/metrics/traces live in Loki/
+  # VictoriaMetrics/Tempo, not here - this instance only consumes alerts
+  # and manages incidents, so "incident-response" matches actual usage.
+  # Helm-apply-time seed only: Settings -> Products in the admin UI
+  # overrides this after the first save, so changing it here again later
+  # has no visible effect unless that UI setting is also changed.
+  products:
+    onThisServer: incident-response
+
+  telemetry:
+    disableIngestion: true
 
   oneuptimeSecret: "aae773dc92ab56adaed5572c19f7da561da0391320f14227"
   registerProbeKey: "48524500951e237d50a49f38227552ecf7308135572a8f38"
