@@ -89,6 +89,19 @@ oneuptime:
   postgresql:
     enabled: false
 
+  # migrate-job.yaml's name (`{{ .Release.Name }}-migrate-{{ .Release.Revision }}`)
+  # never changes under ArgoCD - Release.Revision stays "1" forever there - so
+  # any values change that touches this Job's pod spec (new env vars, like the
+  # email/Slack ones added here) makes ArgoCD's sync fail with "field is
+  # immutable" on the next sync, since Jobs can't be patched in place. Same
+  # annotation as our own admin-bootstrap/global-oidc-bootstrap Jobs, but
+  # passed through the chart's own supported migrate.annotations (confirmed in
+  # its migrate-job.yaml: merged in as-is, only helm.sh/hook is refused) so
+  # ArgoCD deletes and recreates it instead of erroring, on every sync.
+  migrate:
+    annotations:
+      argocd.argoproj.io/sync-options: Replace=true,Force=true
+
   # "oneuptime" role/database created on the shared cluster by
   # apps/homelab/platform/postgres's values.yaml (databases/roles lists).
   # postgres-rw is that cluster's Service, in the "postgres" namespace -

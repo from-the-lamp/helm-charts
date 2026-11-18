@@ -1,6 +1,6 @@
 # lamp-oneuptime
 
-![Version: 0.6.3](https://img.shields.io/badge/Version-0.6.3-informational?style=flat-square)
+![Version: 0.6.4](https://img.shields.io/badge/Version-0.6.4-informational?style=flat-square)
 
 ## Requirements
 
@@ -65,6 +65,7 @@
 | oneuptime.host | string | `"oneuptime.from-the-lamp.work"` |  |
 | oneuptime.httpProtocol | string | `"https"` |  |
 | oneuptime.image.type | string | `"community-edition"` |  |
+| oneuptime.migrate.annotations."argocd.argoproj.io/sync-options" | string | `"Replace=true,Force=true"` |  |
 | oneuptime.nginx.service.type | string | `"ClusterIP"` |  |
 | oneuptime.oneuptimeSecret | string | `"aae773dc92ab56adaed5572c19f7da561da0391320f14227"` |  |
 | oneuptime.postgresql.enabled | bool | `false` |  |
