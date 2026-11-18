@@ -26,6 +26,12 @@ alertManagerConfig:
     urlSecret:
       key: cronitor
       property: alertmanager_watchdog_url
+  oneuptime:
+    enabled: false
+    secretName: vmalertmanager-oneuptime-secret
+    urlSecret:
+      key: oneuptime
+      property: alertmanager_heartbeat_url
   receivers: []
     # - name: slack-dev-product
     #   channel: alerts-dev-product

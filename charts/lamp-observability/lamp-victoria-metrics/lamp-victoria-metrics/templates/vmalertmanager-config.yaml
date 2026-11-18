@@ -76,6 +76,12 @@ stringData:
         - url_file: /etc/vm/secrets/{{ .Values.alertManagerConfig.cronitor.secretName }}/url
           send_resolved: false
       {{- end }}
+      {{- if .Values.alertManagerConfig.oneuptime.enabled }}
+      - name: oneuptime
+        webhook_configs:
+        - url_file: /etc/vm/secrets/{{ .Values.alertManagerConfig.oneuptime.secretName }}/url
+          send_resolved: true
+      {{- end }}
       {{- range .Values.alertManagerConfig.receivers }}
       - name: {{ .name }}
         slack_configs:
