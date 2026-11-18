@@ -1,6 +1,6 @@
 # lamp-oneuptime
 
-![Version: 0.7.1](https://img.shields.io/badge/Version-0.7.1-informational?style=flat-square)
+![Version: 0.7.2](https://img.shields.io/badge/Version-0.7.2-informational?style=flat-square)
 
 ## Requirements
 
@@ -48,6 +48,8 @@
 | globalOidcBootstrap.remoteSecretKey | string | `"platform/oneuptime"` |  |
 | globalOidcBootstrap.restrictToAttachedProjects | bool | `false` |  |
 | globalOidcBootstrap.scopes | string | `"openid email profile"` |  |
+| oneuptime.app.extraEnv[0].name | string | `"INCOMING_REQUEST_INGEST_COALESCE_ENABLED"` |  |
+| oneuptime.app.extraEnv[0].value | string | `"false"` |  |
 | oneuptime.clickhouse.enabled | bool | `false` |  |
 | oneuptime.email.existingSecret.name | string | `"oneuptime-email"` |  |
 | oneuptime.email.fromEmail | string | `"artyom.zverev@proton.me"` |  |

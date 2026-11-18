@@ -121,6 +121,19 @@ oneuptime:
     service:
       type: ClusterIP
 
+  # By default an Incoming Request monitor evaluates only the NEWEST request
+  # when several arrive before the previous one is processed, and silently
+  # skips the ones in between (upstream docs, monitor/incoming-request-
+  # monitor.md). Alertmanager sends one webhook per alert group to the same
+  # URL, so a burst loses firing alerts, and a skipped "resolved" leaves its
+  # incident open forever - Alertmanager never repeats a recovery. With this
+  # off every request is evaluated on its own. app.extraEnv is the upstream
+  # chart's own passthrough (templates/app.yaml).
+  app:
+    extraEnv:
+      - name: INCOMING_REQUEST_INGEST_COALESCE_ENABLED
+        value: "false"
+
   # Hex only, deliberately - clickhouse's init container does
   # `sed -i "s/PLACEHOLDER/$CLICKHOUSE_PASSWORD/g"` against its config
   # (confirmed live: clickhouse-config-init crash-looped, "sed: couldn't
