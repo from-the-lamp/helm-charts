@@ -1,45 +1,139 @@
-clickhouse:
-  shardsCount: 1
-  replicasCount: 1
-  image: clickhouse/clickhouse-server:26.2.3
+cluster:
+  name: default
+  image:
+    name: clickhouse/clickhouse-server
+    tag: 26.2.3
+  shards: 1
+  pools:
+    - name: default
+      replicas: 2
+      resources: {}
+      affinity: {}
+      tolerations: []
+      # storage: {name, mode, size}   — свой volumeClaimTemplate, иначе cluster.storage
+      # image: {name, tag}            — иначе cluster.image
+      # profiles: {<profile>: {...}}  — свои users.d-настройки для реплик группы
+      # service: {enabled: bool, name: string}
+      # replicaNamePrefix: string  — реплики зовутся <prefix>-N вместо сквозного индекса
+  mountCerts: true
+  restartEnv: randomValue
+  replicatedAccess:
+    enabled: true
+    zookeeperPath: /clickhouse/access/
+    keepLocalDirectory: true
+  profiles:
+    default/postgresql_connection_pool_size: 64
+  systemLogs:
+    disable:
+      - text_log
+      - query_views_log
+      - background_schedule_pool_log
+    retention:
+      - table: metric_log
+        ttlDays: 3
+        partitionBy: event_date
+        orderBy: (event_date, event_time)
+      - table: asynchronous_metric_log
+        ttlDays: 3
+        partitionBy: event_date
+        orderBy: (metric, event_date, event_time)
+      - table: trace_log
+        ttlDays: 7
+        partitionBy: event_date
+        orderBy: event_time
+      - table: part_log
+        ttlDays: 7
+        partitionBy: event_date
+        orderBy: event_time
+      - table: query_log
+        ttlDays: 14
+        partitionBy: event_date
+        orderBy: (event_time)
+  users:
+    - name: backup
+      access: 0.0.0.0/0
+      remoteSecret:
+        path: example/path
+        key: example_key
+    - name: admin
+      access: 0.0.0.0/0
+      remoteSecret:
+        path: example/path
+        key: example_key
   storage:
+    name: local-path
+    mode: ReadWriteOnce
     size: 10Gi
-    storageClass: local-path
+  backup:
+    enabled: true
+    user: backup
+    resources:
+      requests:
+        cpu: 50m
+        memory: 64Mi
+      limits:
+        memory: 768Mi
+    provider: s3
+    s3:
+      # endpoint: example-endpoint
+      region: example-region
+      bucket: example-bucket
+      path: clickhouse
+      accessKey:
+        path: example/path
+        key: example-key
+      secretKey:
+        path: example/path
+        key: example-key
+    gcs:
+      auth: workloadIdentity
+      path: clickhouse
+      bucket:
+        create: true
+        name: ""
+        location: ""
+        storageClass: STANDARD
+      serviceAccount:
+        create: true
+        name: clickhouse-backup
+      credentialsJson:
+        path: example/path
+        key: example-key
+    logLevel: debug
+    keep: 3
+  namedCollections: {}
+  # namedCollections:
+  #   gcs_ga4:
+  #     fields:
+  #       url: https://storage.googleapis.com/caswino-ga4-exports/ga4/raw/
+  #       format: Parquet
+  #     secretFields:
+  #       access_key_id:
+  #         path: example/path
+  #         key: access_key_id
+  #       secret_access_key:
+  #         path: example/path
+  #         key: secret_access_key
+
+keeper:
+  replicas: 1
+  restartEnv: randomValue
+  image:
+    name: clickhouse/clickhouse-keeper
+    tag: 25.4
+  storage:
+    name: local-path
+    mode: ReadWriteOnce
+    size: 10Gi
   resources: {}
+  affinity: {}
 
-  # Named settings profiles, referenced by users[].profile.
-  profiles: {}
-    # analytics:
-    #   max_memory_usage: 8589934592
-
-  users: []
-    # - name: admin
-    #   accessManagement: true
-    #   passwordSecret:
-    #     name: clickhouse-admin-password
-    # - name: agent-readonly
-    #   profile: readonly
-    #   grants:
-    #     - "GRANT SELECT ON *.*"
-    #   passwordSecret:
-    #     name: clickhouse-agent-readonly-password
-
-  # Logical databases to create on first start, via a ConfigMap mounted at
-  # /docker-entrypoint-initdb.d/ - the operator has no Database CRD like
-  # CNPG's, so this is the ClickHouse-native equivalent.
-  databases: []
-    # - name: example
-
-# Vault source for each clickhouse.users[].passwordSecret, keyed by user
-# name - kept out of that list so it never reaches the live CHI CR (same
-# reasoning as lamp-postgres-cluster's rolePasswordSources).
-userPasswordSources: {}
-  # admin:
-  #   key: clickhouse
-  #   property: users.admin.password
+global:
+  projectId: ""
+  region: ""
 
 externalSecrets:
   kind: ClusterSecretStore
-  name: ""
+  name: vault
   refreshInterval: 1h
   creationPolicy: Orphan

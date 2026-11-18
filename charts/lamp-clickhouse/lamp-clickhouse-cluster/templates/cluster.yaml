@@ -1,0 +1,190 @@
+{{- $pools := include "vsoft-clickhouse-cluster.pools" . | fromYamlArray }}
+{{- if and (gt (len $pools) 1) (ne (int .Values.cluster.shards) 1) }}
+{{- fail "cluster.pools with more than one pool is only supported with cluster.shards=1" }}
+{{- end }}
+apiVersion: clickhouse.altinity.com/v1
+kind: ClickHouseInstallation
+metadata:
+  name: cluster
+spec:
+  defaults:
+    templates:
+      podTemplate: {{ (first $pools).name }}
+      dataVolumeClaimTemplate: default
+  configuration:
+    profiles:
+      {{- with .Values.cluster.profiles }}
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    clusters:
+      - name: "{{ .Values.cluster.name }}"
+        layout:
+          shardsCount: {{ .Values.cluster.shards }}
+          replicasCount: {{ include "vsoft-clickhouse-cluster.totalReplicas" . }}
+          replicas:
+            {{- $names := include "vsoft-clickhouse-cluster.replicaNames" . | fromYamlArray }}
+            {{- $index := 0 }}
+            {{- range $pool := $pools }}
+            {{- range until (int (include "vsoft-clickhouse-cluster.pool.replicas" $pool)) }}
+            - name: "{{ index $names $index }}"
+              templates:
+                podTemplate: {{ $pool.name }}
+                dataVolumeClaimTemplate: {{ if $pool.storage }}{{ $pool.name }}{{ else }}default{{ end }}
+              {{- if $pool.profiles }}
+              files:
+                zz-pool-{{ $pool.name }}-profiles.xml: |
+                  <clickhouse>
+                    <profiles>
+                      {{- include "vsoft-clickhouse-cluster.toXml" $pool.profiles | trim | nindent 22 }}
+                    </profiles>
+                  </clickhouse>
+              {{- end }}
+            {{- $index = add $index 1 }}
+            {{- end }}
+            {{- end }}
+    zookeeper:
+      nodes:
+        - host: "keeper-{{ .Values.cluster.name }}"
+          port: 2181
+    users:
+      {{- range .Values.cluster.users }}
+      {{- $name := .name }}
+      {{ $name }}/k8s_secret_password: clickhouse-users/{{ include "vsoft-clickhouse-cluster.user.secretKey" $name }}
+      {{ $name }}/networks/ip:
+        - {{ .access }}
+      {{- with .profile }}
+      {{ $name }}/profile: {{ . }}
+      {{- end }}
+      {{- with .grants }}
+      {{ $name }}/grants/query:
+        {{- range . }}
+        - {{ . | quote }}
+        {{- end }}
+      {{- end }}
+      {{- end }}
+
+    files:
+      users.d/90-admin-access.xml: |
+        <clickhouse>
+          <users>
+            <admin>
+              <access_management>1</access_management>
+              <named_collection_control>1</named_collection_control>
+              <show_named_collections>1</show_named_collections>
+              <show_named_collections_secrets>1</show_named_collections_secrets>
+            </admin>
+          </users>
+        </clickhouse>
+      users.d/90-custom-profiles.xml: |
+        <clickhouse>
+          <profiles>
+            <default>
+              <max_query_size>5000000</max_query_size>
+            </default>
+          </profiles>
+        </clickhouse>
+      kafka-client-config.xml: |
+        <clickhouse>
+          <kafka>
+            {{- if .Values.cluster.mountCerts }}
+            <ssl_ca_location>/etc/clickhouse-server/secrets.d/ca.crt/pki-clickhouse-cert/issuing_ca</ssl_ca_location>
+            <ssl_certificate_location>/etc/clickhouse-server/secrets.d/cert.crt/pki-clickhouse-cert/certificate</ssl_certificate_location>
+            <ssl_key_location>/etc/clickhouse-server/secrets.d/key.crt/pki-clickhouse-cert/private_key</ssl_key_location>
+            {{- end }}
+            <enable_ssl_certificate_verification>false</enable_ssl_certificate_verification>
+          </kafka>
+        </clickhouse>
+    {{- if .Values.cluster.replicatedAccess.enabled }}
+      config.d/03-user-directories.xml: |
+        <clickhouse>
+          <user_directories replace="1">
+            <users_xml>
+              <path>users.xml</path>
+            </users_xml>
+            <replicated>
+              <zookeeper_path>{{ .Values.cluster.replicatedAccess.zookeeperPath }}</zookeeper_path>
+            </replicated>
+            {{- if .Values.cluster.replicatedAccess.keepLocalDirectory }}
+            <local_directory>
+              <path>/var/lib/clickhouse/access/</path>
+            </local_directory>
+            {{- end }}
+          </user_directories>
+        </clickhouse>
+    {{- end }}
+    {{- if .Values.cluster.systemLogs }}
+      config.d/02-system-logs.xml: |
+        <clickhouse>
+        {{- range .Values.cluster.systemLogs.disable }}
+          <{{ . }} remove="1"/>
+        {{- end }}
+        {{- range .Values.cluster.systemLogs.retention }}
+          <{{ .table }} replace="1">
+            <database>system</database>
+            <table>{{ .table }}</table>
+            <engine>Engine = MergeTree PARTITION BY {{ .partitionBy }} ORDER BY {{ .orderBy }} TTL event_date + interval {{ .ttlDays }} day</engine>
+            <flush_interval_milliseconds>7500</flush_interval_milliseconds>
+          </{{ .table }}>
+        {{- end }}
+        </clickhouse>
+    {{- end }}
+    {{- if .Values.cluster.namedCollections }}
+      config.d/named-collections.xml: |
+        <clickhouse>
+          <named_collections>
+          {{- range $cName, $cVal := .Values.cluster.namedCollections }}
+            <{{ $cName }}>
+            {{- range $fName, $fVal := $cVal.fields }}
+              <{{ $fName }}>{{ $fVal }}</{{ $fName }}>
+            {{- end }}
+            {{- range $fName, $_ := $cVal.secretFields }}
+              <{{ $fName }} from_env="NC_{{ upper $cName }}_{{ upper $fName }}" />
+            {{- end }}
+            </{{ $cName }}>
+          {{- end }}
+          </named_collections>
+        </clickhouse>
+    {{- end }}
+    {{- if .Values.cluster.mountCerts }}
+      ca.crt:
+        valueFrom:
+          secretKeyRef:
+            name: pki-clickhouse-cert
+            key: issuing_ca
+      cert.crt:
+        valueFrom:
+          secretKeyRef:
+            name: pki-clickhouse-cert
+            key: certificate
+      key.crt:
+        valueFrom:
+          secretKeyRef:
+            name: pki-clickhouse-cert
+            key: private_key
+    {{- end }}
+  templates:
+    volumeClaimTemplates:
+      - name: default
+        spec:
+          storageClassName: "{{ .Values.cluster.storage.name }}"
+          accessModes:
+            - "{{ .Values.cluster.storage.mode }}"
+          resources:
+            requests:
+              storage: "{{ .Values.cluster.storage.size }}"
+      {{- range $pool := $pools }}
+      {{- if $pool.storage }}
+      - name: {{ $pool.name }}
+        spec:
+          storageClassName: "{{ dig "name" $.Values.cluster.storage.name $pool.storage }}"
+          accessModes:
+            - "{{ dig "mode" $.Values.cluster.storage.mode $pool.storage }}"
+          resources:
+            requests:
+              storage: "{{ dig "size" $.Values.cluster.storage.size $pool.storage }}"
+      {{- end }}
+      {{- end }}
+    podTemplates:
+      {{- range $pool := $pools }}
+      {{- include "vsoft-clickhouse-cluster.podTemplate" (dict "root" $ "pool" $pool) | nindent 6 }}
+      {{- end }}

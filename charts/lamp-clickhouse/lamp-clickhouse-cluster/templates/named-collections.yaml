@@ -1,0 +1,28 @@
+{{- if .Values.cluster.namedCollections }}
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: clickhouse-named-collections
+spec:
+  refreshInterval: "{{ .Values.externalSecrets.refreshInterval }}"
+  secretStoreRef:
+    kind: "{{ .Values.externalSecrets.kind }}"
+    name: "{{ .Values.externalSecrets.name }}"
+  target:
+    name: clickhouse-named-collections
+    creationPolicy: "{{ .Values.externalSecrets.creationPolicy }}"
+    template:
+      metadata:
+        annotations:
+          argocd.argoproj.io/sync-wave: "-1"
+      type: Opaque
+  data:
+  {{- range $cName, $cVal := .Values.cluster.namedCollections }}
+  {{- range $fName, $ref := $cVal.secretFields }}
+    - secretKey: "NC_{{ upper $cName }}_{{ upper $fName }}"
+      remoteRef:
+        key: "{{ $ref.path }}"
+        property: "{{ $ref.key }}"
+  {{- end }}
+  {{- end }}
+{{- end }}

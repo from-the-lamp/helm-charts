@@ -1,0 +1,24 @@
+{{- $pools := include "vsoft-clickhouse-cluster.pools" . | fromYamlArray }}
+{{- range $pool := $pools }}
+{{- if dig "service" "enabled" false $pool }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ dig "service" "name" (printf "clickhouse-%s" $pool.name) $pool }}
+spec:
+  type: ClusterIP
+  selector:
+    clickhouse.altinity.com/chi: cluster
+    clickhouse.altinity.com/cluster: "{{ $.Values.cluster.name }}"
+    clickhouse.altinity.com/ready: "yes"
+    clickhouse-pool: {{ $pool.name }}
+  ports:
+    - name: http
+      port: 8123
+      targetPort: 8123
+    - name: native
+      port: 9000
+      targetPort: 9000
+{{- end }}
+{{- end }}
