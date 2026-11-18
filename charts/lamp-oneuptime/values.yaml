@@ -33,8 +33,19 @@
 #   tracked by FTL-223), this change only takes postgres out of that chart-
 #   internal mechanism entirely by pointing it at Vault-sourced, stable
 #   credentials instead.
-# - clickhouse/valkey are still left at the chart's own bundled defaults -
-#   same open decision as before, not resolved here.
+# - clickhouse/valkey/oneuptimeSecret/registerProbeKey/encryptionSecret are
+#   now PINNED to fixed literal values below instead of left to the chart's
+#   `randAlphaNum` fallback - confirmed live the bug above isn't
+#   postgres-specific: right after the postgres fix synced, the very next
+#   sync regenerated valkey's password too (new app/nginx/probe-one
+#   replicas WRONGPASS against oneuptime-valkey-master, migrate Job failed
+#   outright on it). Valkey doesn't persist its password in data the way
+#   Postgres does (requirepass is just a container-start argument sourced
+#   from the Secret each time), so pinning it plus restarting the pod once
+#   was enough - no ALTER-equivalent needed. Plain literals here, not
+#   Vault-backed (no FTL-223 Vault entry for these and no write access in
+#   this session) - good enough to stop the regeneration; revisit under
+#   FTL-223 if Vault-backing these specifically is wanted later.
 oneuptime:
   host: oneuptime.from-the-lamp.work
   httpProtocol: http
@@ -66,6 +77,18 @@ oneuptime:
   nginx:
     service:
       type: ClusterIP
+
+  valkey:
+    auth:
+      password: "9mqIqa+mpOMyfrLvxs62HRV5wTQs06DX"
+
+  clickhouse:
+    auth:
+      password: "aESDg8S1PFppqhuj1okdzorQ/3iewDC5"
+
+  oneuptimeSecret: "aae773dc92ab56adaed5572c19f7da561da0391320f14227"
+  registerProbeKey: "48524500951e237d50a49f38227552ecf7308135572a8f38"
+  encryptionSecret: "5a7b269f475bbc0ecffbb28b5a0ae8509c78fd17715e91ef"
 
   # The probe pod's default capabilities add NET_RAW (for ICMP ping-type
   # monitors) - this cluster's default PodSecurity admission (baseline,
