@@ -78,13 +78,19 @@ oneuptime:
     service:
       type: ClusterIP
 
+  # Hex only, deliberately - clickhouse's init container does
+  # `sed -i "s/PLACEHOLDER/$CLICKHOUSE_PASSWORD/g"` against its config
+  # (confirmed live: clickhouse-config-init crash-looped, "sed: couldn't
+  # open file DC5/g" - a `/` in the first base64-generated password broke
+  # sed's own delimiter). Valkey doesn't go through sed, but pinned to hex
+  # here too rather than verify that's true for every version.
   valkey:
     auth:
-      password: "9mqIqa+mpOMyfrLvxs62HRV5wTQs06DX"
+      password: "52756b121de34e5f052b36168ecf58d5000209d73d5571d4"
 
   clickhouse:
     auth:
-      password: "aESDg8S1PFppqhuj1okdzorQ/3iewDC5"
+      password: "bb1988aaef49bfd2fb43066466d0971bb34033beb12261c6"
 
   oneuptimeSecret: "aae773dc92ab56adaed5572c19f7da561da0391320f14227"
   registerProbeKey: "48524500951e237d50a49f38227552ecf7308135572a8f38"

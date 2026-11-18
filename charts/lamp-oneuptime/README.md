@@ -1,6 +1,6 @@
 # lamp-oneuptime
 
-![Version: 0.4.1](https://img.shields.io/badge/Version-0.4.1-informational?style=flat-square)
+![Version: 0.4.2](https://img.shields.io/badge/Version-0.4.2-informational?style=flat-square)
 
 ## Requirements
 
@@ -24,7 +24,7 @@
 | externalSecrets.kind | string | `"ClusterSecretStore"` |  |
 | externalSecrets.name | string | `"vault"` |  |
 | externalSecrets.refreshInterval | string | `"1h"` |  |
-| oneuptime.clickhouse.auth.password | string | `"aESDg8S1PFppqhuj1okdzorQ/3iewDC5"` |  |
+| oneuptime.clickhouse.auth.password | string | `"bb1988aaef49bfd2fb43066466d0971bb34033beb12261c6"` |  |
 | oneuptime.encryptionSecret | string | `"5a7b269f475bbc0ecffbb28b5a0ae8509c78fd17715e91ef"` |  |
 | oneuptime.externalPostgres.database | string | `"oneuptime"` |  |
 | oneuptime.externalPostgres.existingSecret.name | string | `"postgres-oneuptime-password"` |  |
@@ -45,7 +45,7 @@
 | oneuptime.probeContainerSecurityContext.capabilities.add[3] | string | `"SETGID"` |  |
 | oneuptime.probeContainerSecurityContext.capabilities.add[4] | string | `"SETUID"` |  |
 | oneuptime.registerProbeKey | string | `"48524500951e237d50a49f38227552ecf7308135572a8f38"` |  |
-| oneuptime.valkey.auth.password | string | `"9mqIqa+mpOMyfrLvxs62HRV5wTQs06DX"` |  |
+| oneuptime.valkey.auth.password | string | `"52756b121de34e5f052b36168ecf58d5000209d73d5571d4"` |  |
 # Trivy scan - Helm Chart
 
 ## Report Summary
