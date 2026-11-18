@@ -12,19 +12,29 @@
 #   and this app's Helm release name is "oneuptime" - confirmed against the
 #   live litellm Service, whose release name matches its app directory
 #   name, not the ArgoCD Application name "platform-homelab-<app>").
-# - postgresql/clickhouse/valkey are left at the chart's own bundled
-#   defaults (in-cluster StatefulSets). Each one self-generates and
-#   self-persists its own credentials Secret (survives ordinary `helm
-#   upgrade` via the chart's lookup-based reuse in templates/secrets.yaml) -
-#   good enough for a first real deploy. Whether to instead reuse the
-#   existing shared postgres app (apps/homelab/platform/postgres) or
-#   Vault-back these via ExternalSecret is still open, tracked by FTL-223,
-#   not decided here.
-# - oneuptimeSecret/encryptionSecret/registerProbeKey are likewise left for
-#   the chart to auto-generate, same persistence reasoning. Wiring Vault
-#   here would need a platform/oneuptime Vault entry that doesn't exist yet
-#   and this session has no Vault write access to create - deferred to
-#   FTL-223 rather than shipping an ExternalSecret that can't sync.
+# - postgresql is now the shared "postgres" CNPG cluster
+#   (apps/homelab/platform/postgres), not the bundled StatefulSet - see
+#   externalPostgres/database below. Root cause for the switch, confirmed
+#   live: this chart's own secret-generation templates (templates/
+#   secrets.yaml) ALL use a `lookup "v1" "Secret" ...` guard meant to reuse
+#   an existing password across `helm upgrade`, falling back to
+#   `randAlphaNum 32` only when no existing Secret is found. ArgoCD renders
+#   Helm charts with `helm template` (no connected-cluster context), so
+#   `lookup` always returns empty there - every single sync regenerated a
+#   BRAND NEW random postgres-password, while the already-initialized
+#   Postgres container (which only reads its password once, at first
+#   startup) kept the old one. Observed live: new oneuptime-app/-nginx/
+#   -probe-one replicas CrashLoopBackOff on "password authentication failed
+#   for user postgres" while pods running since the original install kept
+#   working on their already-established connections. The exact same
+#   `lookup`-based pattern also covers clickhouse/valkey's passwords and
+#   oneuptimeSecret/registerProbeKey/encryptionSecret - those are NOT fixed
+#   here (still exposed to the same silent-regeneration risk on every sync,
+#   tracked by FTL-223), this change only takes postgres out of that chart-
+#   internal mechanism entirely by pointing it at Vault-sourced, stable
+#   credentials instead.
+# - clickhouse/valkey are still left at the chart's own bundled defaults -
+#   same open decision as before, not resolved here.
 oneuptime:
   host: oneuptime.from-the-lamp.work
   httpProtocol: http
@@ -34,6 +44,24 @@ oneuptime:
 
   image:
     type: community-edition
+
+  postgresql:
+    enabled: false
+
+  # "oneuptime" role/database created on the shared cluster by
+  # apps/homelab/platform/postgres's values.yaml (databases/roles lists).
+  # postgres-rw is that cluster's Service, in the "postgres" namespace -
+  # cross-namespace, so needs the FQDN (bare short names only resolve
+  # same-namespace) - same hostname every other consumer of that cluster
+  # uses (e.g. lamp-immich's own values.yaml).
+  externalPostgres:
+    host: postgres-rw.postgres.svc.cluster.local
+    port: 5432
+    username: oneuptime
+    database: oneuptime
+    existingSecret:
+      name: postgres-oneuptime-password
+      passwordKey: password
 
   nginx:
     service:
@@ -80,3 +108,15 @@ externalSecrets:
   name: vault
   refreshInterval: 1h
   creationPolicy: Orphan
+
+# templates/db-password.yaml: this chart's own copy of the shared postgres
+# cluster's "oneuptime" role password (Secrets are namespace-scoped, so a
+# cross-namespace consumer needs its own ExternalSecret pulling the same
+# Vault property - same pattern as lamp-immich's own database: block).
+# Mirrors apps/homelab/platform/postgres's rolePasswordSources.oneuptime -
+# both must agree on the one Vault property.
+database:
+  passwordSecret:
+    name: postgres-oneuptime-password
+    remoteSecretKey: postgres
+    remoteSecretProperty: users.oneuptime.password
