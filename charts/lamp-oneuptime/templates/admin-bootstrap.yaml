@@ -1,0 +1,96 @@
+{{- if .Values.adminBootstrap.enabled }}
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: oneuptime-admin-bootstrap
+spec:
+  refreshInterval: "{{ .Values.externalSecrets.refreshInterval }}"
+  secretStoreRef:
+    kind: "{{ .Values.externalSecrets.kind }}"
+    name: "{{ .Values.externalSecrets.name }}"
+  target:
+    name: oneuptime-admin-bootstrap
+    creationPolicy: "{{ .Values.externalSecrets.creationPolicy }}"
+  data:
+    - secretKey: email
+      remoteRef:
+        key: {{ .Values.adminBootstrap.remoteSecretKey }}
+        property: {{ .Values.adminBootstrap.emailProperty }}
+    - secretKey: name
+      remoteRef:
+        key: {{ .Values.adminBootstrap.remoteSecretKey }}
+        property: {{ .Values.adminBootstrap.nameProperty }}
+    - secretKey: password
+      remoteRef:
+        key: {{ .Values.adminBootstrap.remoteSecretKey }}
+        property: {{ .Values.adminBootstrap.passwordProperty }}
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: oneuptime-admin-bootstrap
+  annotations:
+    # Jobs are immutable once created - ArgoCD won't touch an existing one
+    # even when its spec changes. Replace=true alone still issues a plain
+    # "kubectl replace" (PUT), which fails with "field is immutable" the
+    # moment the rendered template differs from the live object (selector/
+    # template-hash). Force=true is required too so ArgoCD deletes and
+    # recreates it instead, which is what lets this stay enabled forever
+    # (re-running against an already-bootstrapped instance is a no-op - see
+    # the 400 handling below, same convention as lamp-immich/lamp-home-
+    # assistant's own admin-bootstrap.yaml).
+    argocd.argoproj.io/sync-options: Replace=true,Force=true
+spec:
+  backoffLimit: 3
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: admin-sign-up
+          # renovate: datasource=docker depName=curlimages/curl
+          image: curlimages/curl:8.23.0
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+          envFrom:
+            - secretRef:
+                name: oneuptime-admin-bootstrap
+          command: ["/bin/sh", "-euc"]
+          args:
+            - |
+              base_url="http://{{ .Release.Name }}-app:3002"
+
+              for i in $(seq 1 60); do
+                curl -sf "${base_url}/status/ready" >/dev/null 2>&1 && break
+                echo "waiting for oneuptime-app..."
+                sleep 5
+              done
+
+              # Signing up elects the first user of an empty instance as
+              # Master Admin server-side (UserService.createUserOnSignup, an
+              # atomic "is the User table empty?" check) - there is no
+              # separate "create admin" endpoint to call instead. Confirmed
+              # against the server source (Identity/API/Authentication.ts):
+              # a second call against an email that already has a password
+              # returns a BadDataException (400), which is the idempotent
+              # "already bootstrapped" case below, same as lamp-immich's
+              # admin-sign-up (400 there too) and unlike lamp-home-assistant's
+              # onboarding API (403 there).
+              code=$(curl -s -o /tmp/resp.json -w '%{http_code}' -X POST \
+                "${base_url}/identity/signup" \
+                -H 'Content-Type: application/json' \
+                -d "{\"data\":{\"email\":\"${email}\",\"name\":\"${name}\",\"password\":\"${password}\"},\"miscDataProps\":{}}")
+              cat /tmp/resp.json
+              echo
+              if [ "$code" = "200" ] || [ "$code" = "201" ]; then
+                echo "admin created"
+                exit 0
+              fi
+              if [ "$code" = "400" ]; then
+                echo "signup returned 400 (already bootstrapped), treating as success"
+                exit 0
+              fi
+              echo "unexpected response code: $code"
+              exit 1
+{{- end }}

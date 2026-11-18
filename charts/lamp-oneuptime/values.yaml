@@ -38,3 +38,45 @@ oneuptime:
   nginx:
     service:
       type: ClusterIP
+
+  # The probe pod's default capabilities add NET_RAW (for ICMP ping-type
+  # monitors) - this cluster's default PodSecurity admission (baseline,
+  # applied to every unlabeled namespace) rejects that outright (confirmed
+  # live: ReplicaSet FailedCreate, "must not include NET_RAW"). Dropped
+  # rather than relaxing the oneuptime namespace's PodSecurity level, which
+  # would need its own explicit decision - HTTP(S)/TCP/SSL/API/browser
+  # monitors (the large majority of real usage) don't need it. Only the
+  # ping/ICMP monitor type is unavailable as a result.
+  probeContainerSecurityContext:
+    capabilities:
+      add:
+        - CHOWN
+        - DAC_OVERRIDE
+        - KILL
+        - SETGID
+        - SETUID
+
+# templates/admin-bootstrap.yaml: a Job that signs up the server's first
+# (= Master Admin, per OneUptime's own server-side election - there is no
+# separate "create admin" endpoint) account from Vault-sourced credentials
+# instead of a browser. Same convention as lamp-home-assistant's and
+# lamp-immich's own admin-bootstrap.yaml. Disabled by default - enabling it
+# needs platform/oneuptime written to Vault first (this session has no
+# write access there):
+#   vault kv put platform/oneuptime \
+#     admin-email=<email> admin-name=<name> \
+#     admin-password="$(openssl rand -base64 24)"
+# Password must be >=15 characters and not an obvious pattern (OneUptime's
+# own rule, Common/Types/Password.ts) - openssl rand -base64 24 clears both.
+adminBootstrap:
+  enabled: false
+  remoteSecretKey: platform/oneuptime
+  emailProperty: admin-email
+  nameProperty: admin-name
+  passwordProperty: admin-password
+
+externalSecrets:
+  kind: ClusterSecretStore
+  name: vault
+  refreshInterval: 1h
+  creationPolicy: Orphan
