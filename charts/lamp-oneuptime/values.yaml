@@ -66,6 +66,18 @@ oneuptime:
   image:
     type: community-edition
 
+  email:
+    serverType: custom-smtp
+    fromEmail: artyom.zverev@proton.me
+    fromName: OneUptime
+    smtp:
+      host: smtp-relay.brevo.com
+      port: 587
+      requireTls: true
+      username: c40526001@smtp-brevo.com
+    existingSecret:
+      name: oneuptime-email
+
   postgresql:
     enabled: false
 
@@ -141,6 +153,13 @@ adminBootstrap:
   emailProperty: admin-email
   nameProperty: admin-name
   passwordProperty: admin-password
+
+# templates/email-secret.yaml: the Secret oneuptime.email.existingSecret.name
+# names - the chart reads its smtpPassword key for GLOBAL_EMAIL_SMTP_PASSWORD.
+emailSecret:
+  enabled: true
+  remoteSecretKey: smtp
+  passwordProperty: brevo.smtp-api-key
 
 # templates/global-oidc-bootstrap.yaml: creates the GitLab OIDC GlobalOidc
 # provider (if a provider of this name doesn't already exist) and sets

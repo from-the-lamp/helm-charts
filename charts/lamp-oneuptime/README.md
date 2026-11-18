@@ -1,6 +1,6 @@
 # lamp-oneuptime
 
-![Version: 0.5.1](https://img.shields.io/badge/Version-0.5.1-informational?style=flat-square)
+![Version: 0.6.0](https://img.shields.io/badge/Version-0.6.0-informational?style=flat-square)
 
 ## Requirements
 
@@ -20,6 +20,9 @@
 | database.passwordSecret.name | string | `"postgres-oneuptime-password"` |  |
 | database.passwordSecret.remoteSecretKey | string | `"postgres"` |  |
 | database.passwordSecret.remoteSecretProperty | string | `"users.oneuptime.password"` |  |
+| emailSecret.enabled | bool | `true` |  |
+| emailSecret.passwordProperty | string | `"brevo.smtp-api-key"` |  |
+| emailSecret.remoteSecretKey | string | `"smtp"` |  |
 | externalSecrets.creationPolicy | string | `"Orphan"` |  |
 | externalSecrets.kind | string | `"ClusterSecretStore"` |  |
 | externalSecrets.name | string | `"vault"` |  |
@@ -43,6 +46,14 @@
 | globalOidcBootstrap.restrictToAttachedProjects | bool | `false` |  |
 | globalOidcBootstrap.scopes | string | `"openid email profile"` |  |
 | oneuptime.clickhouse.auth.password | string | `"bb1988aaef49bfd2fb43066466d0971bb34033beb12261c6"` |  |
+| oneuptime.email.existingSecret.name | string | `"oneuptime-email"` |  |
+| oneuptime.email.fromEmail | string | `"artyom.zverev@proton.me"` |  |
+| oneuptime.email.fromName | string | `"OneUptime"` |  |
+| oneuptime.email.serverType | string | `"custom-smtp"` |  |
+| oneuptime.email.smtp.host | string | `"smtp-relay.brevo.com"` |  |
+| oneuptime.email.smtp.port | int | `587` |  |
+| oneuptime.email.smtp.requireTls | bool | `true` |  |
+| oneuptime.email.smtp.username | string | `"c40526001@smtp-brevo.com"` |  |
 | oneuptime.encryptionSecret | string | `"5a7b269f475bbc0ecffbb28b5a0ae8509c78fd17715e91ef"` |  |
 | oneuptime.externalPostgres.database | string | `"oneuptime"` |  |
 | oneuptime.externalPostgres.existingSecret.name | string | `"postgres-oneuptime-password"` |  |
