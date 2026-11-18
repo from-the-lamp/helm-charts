@@ -88,12 +88,16 @@ spec:
                 exit 0
               fi
               # A 400 is also what an actual validation error returns (bad
-              # password, missing field), so only the specific "already
-              # exists" message (Common/Types/Accounts/SignInMessages.ts'
-              # getAccountAlreadyExistsMessage) counts as the idempotent
-              # "already bootstrapped" case - not every 400.
-              if [ "$code" = "400" ] && grep -q "already exists" /tmp/resp.json; then
-                echo "signup returned 400 (already bootstrapped), treating as success"
+              # password, missing field), so only two specific messages count
+              # as the idempotent "already bootstrapped" case - not every 400:
+              # "already exists" (Common/Types/Accounts/SignInMessages.ts'
+              # getAccountAlreadyExistsMessage), and, once
+              # GlobalConfig.requireSsoForLogin is on, SsoRequiredSignIn's own
+              # refusal - /signup is refused outright then, before it even
+              # checks whether the account exists, so the first message never
+              # fires again once SSO is required; confirmed live (FTL-223).
+              if [ "$code" = "400" ] && { grep -q "already exists" /tmp/resp.json || grep -q "single sign-on" /tmp/resp.json; }; then
+                echo "signup refused (already bootstrapped or SSO-required), treating as success"
                 exit 0
               fi
               echo "unexpected response code: $code"
