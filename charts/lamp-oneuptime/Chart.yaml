@@ -1,0 +1,8 @@
+apiVersion: v2
+name: lamp-oneuptime
+version: 0.1.0
+
+dependencies:
+  - name: oneuptime
+    version: 15.0.0
+    repository: https://helm-chart.oneuptime.com

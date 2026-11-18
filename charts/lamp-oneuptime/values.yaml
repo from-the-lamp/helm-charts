@@ -1,0 +1,26 @@
+# Scaffold only - this chart is not wired for a real homelab rollout yet
+# (see the Jira task tracking the proper integration). Every value below is
+# a placeholder/decision point, not a verified-working deployment:
+#
+# - host still needs a real apex name (e.g. oneuptime.from-the-lamp.work)
+#   and a matching Istio HTTPRoute/Gateway wire-up, the same way every other
+#   homelab app routes (apps/homelab/platform/*/values.yaml's routes-*
+#   blocks) - nginx.enabled's LoadBalancer Service below will never get an
+#   external IP on this tailnet-only, no-public-LB cluster.
+# - postgresql/clickhouse/valkey are left at the chart's own bundled
+#   defaults (in-cluster StatefulSets with their own storage) rather than
+#   pointed at the existing shared Postgres (apps/homelab/platform/postgres)
+#   or given Vault-backed credentials via ExternalSecret - whether to reuse
+#   the shared Postgres instance or keep OneUptime's own is an open decision
+#   for that follow-up, not decided here.
+# - oneuptimeSecret/encryptionSecret/registerProbeKey are left unset (chart
+#   generates them on install) - no Vault wiring yet.
+oneuptime:
+  host: oneuptime.from-the-lamp.work
+  httpProtocol: http
+
+  global:
+    storageClass: local-path
+
+  image:
+    type: community-edition

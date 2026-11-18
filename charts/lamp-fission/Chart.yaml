@@ -1,0 +1,8 @@
+apiVersion: v2
+name: lamp-fission
+version: 0.0.1
+
+dependencies:
+  - name: fission-all
+    version: 1.27.0
+    repository: https://fission-charts.storage.googleapis.com
