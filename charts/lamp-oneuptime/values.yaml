@@ -1,20 +1,30 @@
-# Scaffold only - this chart is not wired for a real homelab rollout yet
-# (see the Jira task tracking the proper integration). Every value below is
-# a placeholder/decision point, not a verified-working deployment:
+# FTL-223: first real (not scaffold) pass. Verified against the actual
+# upstream chart source (pulled oneuptime-15.0.0.tgz from
+# https://helm-chart.oneuptime.com and read templates/nginx.yaml,
+# templates/_helpers.tpl, templates/secrets.yaml directly) rather than
+# guessed from docs:
 #
-# - host still needs a real apex name (e.g. oneuptime.from-the-lamp.work)
-#   and a matching Istio HTTPRoute/Gateway wire-up, the same way every other
-#   homelab app routes (apps/homelab/platform/*/values.yaml's routes-*
-#   blocks) - nginx.enabled's LoadBalancer Service below will never get an
-#   external IP on this tailnet-only, no-public-LB cluster.
+# - nginx.service.type defaults to LoadBalancer - homelab has no public LB
+#   (apps/homelab/platform README). Forced to ClusterIP below; the
+#   apps/homelab/platform/oneuptime app's own lamp-istio-routes dependency
+#   fronts it via istio-gateway-internal instead, backendRef
+#   oneuptime-nginx:80 (Service name is always "{{ .Release.Name }}-nginx",
+#   and this app's Helm release name is "oneuptime" - confirmed against the
+#   live litellm Service, whose release name matches its app directory
+#   name, not the ArgoCD Application name "platform-homelab-<app>").
 # - postgresql/clickhouse/valkey are left at the chart's own bundled
-#   defaults (in-cluster StatefulSets with their own storage) rather than
-#   pointed at the existing shared Postgres (apps/homelab/platform/postgres)
-#   or given Vault-backed credentials via ExternalSecret - whether to reuse
-#   the shared Postgres instance or keep OneUptime's own is an open decision
-#   for that follow-up, not decided here.
-# - oneuptimeSecret/encryptionSecret/registerProbeKey are left unset (chart
-#   generates them on install) - no Vault wiring yet.
+#   defaults (in-cluster StatefulSets). Each one self-generates and
+#   self-persists its own credentials Secret (survives ordinary `helm
+#   upgrade` via the chart's lookup-based reuse in templates/secrets.yaml) -
+#   good enough for a first real deploy. Whether to instead reuse the
+#   existing shared postgres app (apps/homelab/platform/postgres) or
+#   Vault-back these via ExternalSecret is still open, tracked by FTL-223,
+#   not decided here.
+# - oneuptimeSecret/encryptionSecret/registerProbeKey are likewise left for
+#   the chart to auto-generate, same persistence reasoning. Wiring Vault
+#   here would need a platform/oneuptime Vault entry that doesn't exist yet
+#   and this session has no Vault write access to create - deferred to
+#   FTL-223 rather than shipping an ExternalSecret that can't sync.
 oneuptime:
   host: oneuptime.from-the-lamp.work
   httpProtocol: http
@@ -24,3 +34,7 @@ oneuptime:
 
   image:
     type: community-edition
+
+  nginx:
+    service:
+      type: ClusterIP
