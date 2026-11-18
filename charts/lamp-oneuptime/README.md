@@ -1,6 +1,6 @@
 # lamp-oneuptime
 
-![Version: 0.5.0](https://img.shields.io/badge/Version-0.5.0-informational?style=flat-square)
+![Version: 0.5.1](https://img.shields.io/badge/Version-0.5.1-informational?style=flat-square)
 
 ## Requirements
 
@@ -26,6 +26,8 @@
 | externalSecrets.refreshInterval | string | `"1h"` |  |
 | globalConfig.disableSignup | bool | `true` |  |
 | globalConfig.requireSsoForLogin | bool | `true` |  |
+| globalConfig.setupChecklist.backups | string | `"confirmed"` |  |
+| globalConfig.setupChecklist.smsAndCalls | string | `"skipped"` |  |
 | globalOidcBootstrap.clientIdProperty | string | `"client-id"` |  |
 | globalOidcBootstrap.clientSecretProperty | string | `"client-secret"` |  |
 | globalOidcBootstrap.description | string | `"GitLab OIDC SSO for homelab OneUptime, group from-the-lamp"` |  |

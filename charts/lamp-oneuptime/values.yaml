@@ -166,6 +166,9 @@ globalOidcBootstrap:
 globalConfig:
   requireSsoForLogin: true
   disableSignup: true
+  setupChecklist:
+    smsAndCalls: skipped
+    backups: confirmed
 
 externalSecrets:
   kind: ClusterSecretStore

@@ -70,6 +70,10 @@ spec:
               value: {{ .Values.globalConfig.requireSsoForLogin | quote }}
             - name: DISABLE_SIGNUP
               value: {{ .Values.globalConfig.disableSignup | quote }}
+            - name: SETUP_CHECKLIST_SMS_AND_CALLS
+              value: {{ .Values.globalConfig.setupChecklist.smsAndCalls | quote }}
+            - name: SETUP_CHECKLIST_BACKUPS
+              value: {{ .Values.globalConfig.setupChecklist.backups | quote }}
           command: ["/bin/sh", "-euc"]
           args:
             - |
@@ -110,4 +114,14 @@ spec:
                 "${base_url}/api/global-config/00000000-0000-0000-0000-000000000000" \
                 -H 'Content-Type: application/json' \
                 -d "{\"data\":{\"requireSsoForLogin\":${REQUIRE_SSO_FOR_LOGIN},\"disableSignup\":${DISABLE_SIGNUP}}}"
+
+              curl -sf -b "${cookie_jar}" -o /dev/null -X POST \
+                "${base_url}/api/global-config/setup-checklist/choice" \
+                -H 'Content-Type: application/json' \
+                -d "{\"check\":\"sms-and-calls\",\"choice\":\"${SETUP_CHECKLIST_SMS_AND_CALLS}\"}"
+
+              curl -sf -b "${cookie_jar}" -o /dev/null -X POST \
+                "${base_url}/api/global-config/setup-checklist/choice" \
+                -H 'Content-Type: application/json' \
+                -d "{\"check\":\"backups\",\"choice\":\"${SETUP_CHECKLIST_BACKUPS}\"}"
 {{- end }}
