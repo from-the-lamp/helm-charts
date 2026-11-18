@@ -131,9 +131,25 @@ oneuptime:
     auth:
       password: "52756b121de34e5f052b36168ecf58d5000209d73d5571d4"
 
+  # Moved off the bundled StatefulSet onto the shared central ClickHouse
+  # (apps/homelab/platform/clickhouse, lamp-clickhouse-cluster) - same
+  # reasoning as externalPostgres above: one cluster instead of one per
+  # consumer. The "oneuptime" user there is scoped to database "oneuptime"
+  # only (CREATE DATABASE + DML/DDL, see that chart's values.yaml).
   clickhouse:
-    auth:
-      password: "bb1988aaef49bfd2fb43066466d0971bb34033beb12261c6"
+    enabled: false
+
+  externalClickhouse:
+    host: clickhouse-cluster.clickhouse.svc.cluster.local
+    isHostHttps: false
+    port: 8123
+    username: oneuptime
+    database: oneuptime
+    existingSecret:
+      name: clickhouse-oneuptime-password
+      passwordKey: password
+    tls:
+      enabled: false
 
   oneuptimeSecret: "aae773dc92ab56adaed5572c19f7da561da0391320f14227"
   registerProbeKey: "48524500951e237d50a49f38227552ecf7308135572a8f38"
@@ -236,3 +252,11 @@ database:
     name: postgres-oneuptime-password
     remoteSecretKey: postgres
     remoteSecretProperty: users.oneuptime.password
+
+# templates/clickhouse-password.yaml: same cross-namespace pattern as
+# database.passwordSecret above, for the shared central ClickHouse's
+# "oneuptime" user (apps/homelab/platform/clickhouse's userPasswordSources).
+clickhousePasswordSecret:
+  name: clickhouse-oneuptime-password
+  remoteSecretKey: clickhouse
+  remoteSecretProperty: users.oneuptime.password

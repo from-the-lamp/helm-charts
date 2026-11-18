@@ -1,6 +1,6 @@
 # lamp-oneuptime
 
-![Version: 0.6.4](https://img.shields.io/badge/Version-0.6.4-informational?style=flat-square)
+![Version: 0.7.0](https://img.shields.io/badge/Version-0.7.0-informational?style=flat-square)
 
 ## Requirements
 
@@ -17,6 +17,9 @@
 | adminBootstrap.nameProperty | string | `"admin-name"` |  |
 | adminBootstrap.passwordProperty | string | `"admin-password"` |  |
 | adminBootstrap.remoteSecretKey | string | `"platform/oneuptime"` |  |
+| clickhousePasswordSecret.name | string | `"clickhouse-oneuptime-password"` |  |
+| clickhousePasswordSecret.remoteSecretKey | string | `"clickhouse"` |  |
+| clickhousePasswordSecret.remoteSecretProperty | string | `"users.oneuptime.password"` |  |
 | database.passwordSecret.name | string | `"postgres-oneuptime-password"` |  |
 | database.passwordSecret.remoteSecretKey | string | `"postgres"` |  |
 | database.passwordSecret.remoteSecretProperty | string | `"users.oneuptime.password"` |  |
@@ -45,7 +48,7 @@
 | globalOidcBootstrap.remoteSecretKey | string | `"platform/oneuptime"` |  |
 | globalOidcBootstrap.restrictToAttachedProjects | bool | `false` |  |
 | globalOidcBootstrap.scopes | string | `"openid email profile"` |  |
-| oneuptime.clickhouse.auth.password | string | `"bb1988aaef49bfd2fb43066466d0971bb34033beb12261c6"` |  |
+| oneuptime.clickhouse.enabled | bool | `false` |  |
 | oneuptime.email.existingSecret.name | string | `"oneuptime-email"` |  |
 | oneuptime.email.fromEmail | string | `"artyom.zverev@proton.me"` |  |
 | oneuptime.email.fromName | string | `"OneUptime"` |  |
@@ -55,6 +58,14 @@
 | oneuptime.email.smtp.requireTls | bool | `true` |  |
 | oneuptime.email.smtp.username | string | `"c40526001@smtp-brevo.com"` |  |
 | oneuptime.encryptionSecret | string | `"5a7b269f475bbc0ecffbb28b5a0ae8509c78fd17715e91ef"` |  |
+| oneuptime.externalClickhouse.database | string | `"oneuptime"` |  |
+| oneuptime.externalClickhouse.existingSecret.name | string | `"clickhouse-oneuptime-password"` |  |
+| oneuptime.externalClickhouse.existingSecret.passwordKey | string | `"password"` |  |
+| oneuptime.externalClickhouse.host | string | `"clickhouse-cluster.clickhouse.svc.cluster.local"` |  |
+| oneuptime.externalClickhouse.isHostHttps | bool | `false` |  |
+| oneuptime.externalClickhouse.port | int | `8123` |  |
+| oneuptime.externalClickhouse.tls.enabled | bool | `false` |  |
+| oneuptime.externalClickhouse.username | string | `"oneuptime"` |  |
 | oneuptime.externalPostgres.database | string | `"oneuptime"` |  |
 | oneuptime.externalPostgres.existingSecret.name | string | `"postgres-oneuptime-password"` |  |
 | oneuptime.externalPostgres.existingSecret.passwordKey | string | `"password"` |  |
