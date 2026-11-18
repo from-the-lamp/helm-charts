@@ -78,6 +78,13 @@ oneuptime:
     existingSecret:
       name: oneuptime-email
 
+  slackApp:
+    clientId: "6547522206593.12639247996437"
+    existingSecret:
+      name: oneuptime-slack
+      clientSecretKey: clientSecret
+      signingSecretKey: signingSecret
+
   postgresql:
     enabled: false
 
@@ -160,6 +167,14 @@ emailSecret:
   enabled: true
   remoteSecretKey: smtp
   passwordProperty: brevo.smtp-api-key
+
+# templates/slack-secret.yaml: the Secret oneuptime.slackApp.existingSecret.name
+# names - the chart reads clientSecret/signingSecret from it.
+slackSecret:
+  enabled: true
+  remoteSecretKey: slack
+  clientSecretProperty: oneuptime.client-secret
+  signingSecretProperty: oneuptime.signing-secret
 
 # templates/global-oidc-bootstrap.yaml: creates the GitLab OIDC GlobalOidc
 # provider (if a provider of this name doesn't already exist) and sets

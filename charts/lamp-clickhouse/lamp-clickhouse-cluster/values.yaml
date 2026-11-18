@@ -1,0 +1,45 @@
+clickhouse:
+  shardsCount: 1
+  replicasCount: 1
+  image: clickhouse/clickhouse-server:26.2.3
+  storage:
+    size: 10Gi
+    storageClass: local-path
+  resources: {}
+
+  # Named settings profiles, referenced by users[].profile.
+  profiles: {}
+    # analytics:
+    #   max_memory_usage: 8589934592
+
+  users: []
+    # - name: admin
+    #   accessManagement: true
+    #   passwordSecret:
+    #     name: clickhouse-admin-password
+    # - name: agent-readonly
+    #   profile: readonly
+    #   grants:
+    #     - "GRANT SELECT ON *.*"
+    #   passwordSecret:
+    #     name: clickhouse-agent-readonly-password
+
+  # Logical databases to create on first start, via a ConfigMap mounted at
+  # /docker-entrypoint-initdb.d/ - the operator has no Database CRD like
+  # CNPG's, so this is the ClickHouse-native equivalent.
+  databases: []
+    # - name: example
+
+# Vault source for each clickhouse.users[].passwordSecret, keyed by user
+# name - kept out of that list so it never reaches the live CHI CR (same
+# reasoning as lamp-postgres-cluster's rolePasswordSources).
+userPasswordSources: {}
+  # admin:
+  #   key: clickhouse
+  #   property: users.admin.password
+
+externalSecrets:
+  kind: ClusterSecretStore
+  name: ""
+  refreshInterval: 1h
+  creationPolicy: Orphan

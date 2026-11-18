@@ -1,0 +1,11 @@
+{{- if .Values.clickhouse.databases }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: clickhouse-init-db
+data:
+  {{- range .Values.clickhouse.databases }}
+  {{ .name }}.sql: |
+    CREATE DATABASE IF NOT EXISTS `{{ .name }}`;
+  {{- end }}
+{{- end }}
