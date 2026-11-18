@@ -1,6 +1,6 @@
 # lamp-oneuptime
 
-![Version: 0.7.3](https://img.shields.io/badge/Version-0.7.3-informational?style=flat-square)
+![Version: 0.7.4](https://img.shields.io/badge/Version-0.7.4-informational?style=flat-square)
 
 ## Requirements
 
@@ -114,6 +114,7 @@
 | oneuptime.valkey.master.resources.limits.memory | string | `"128Mi"` |  |
 | oneuptime.valkey.master.resources.requests.cpu | string | `"10m"` |  |
 | oneuptime.valkey.master.resources.requests.memory | string | `"32Mi"` |  |
+| oneuptime.webhooks.privateNetworkAllowlist | string | `"kelos-webhook-generic.kelos.svc.cluster.local"` |  |
 | slackSecret.clientIdProperty | string | `"oneuptime.client-id"` |  |
 | slackSecret.clientSecretProperty | string | `"oneuptime.client-secret"` |  |
 | slackSecret.enabled | bool | `true` |  |

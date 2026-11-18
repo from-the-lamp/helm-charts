@@ -1,6 +1,6 @@
 apiVersion: v2
 name: lamp-oneuptime
-version: 0.7.3
+version: 0.7.4
 
 dependencies:
   - name: oneuptime
