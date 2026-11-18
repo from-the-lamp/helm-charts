@@ -69,7 +69,7 @@ oneuptime:
 # Password must be >=15 characters and not an obvious pattern (OneUptime's
 # own rule, Common/Types/Password.ts) - openssl rand -base64 24 clears both.
 adminBootstrap:
-  enabled: false
+  enabled: true
   remoteSecretKey: platform/oneuptime
   emailProperty: admin-email
   nameProperty: admin-name

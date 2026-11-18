@@ -1,6 +1,6 @@
 # lamp-oneuptime
 
-![Version: 0.3.0](https://img.shields.io/badge/Version-0.3.0-informational?style=flat-square)
+![Version: 0.3.1](https://img.shields.io/badge/Version-0.3.1-informational?style=flat-square)
 
 ## Requirements
 
@@ -13,7 +13,7 @@
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | adminBootstrap.emailProperty | string | `"admin-email"` |  |
-| adminBootstrap.enabled | bool | `false` |  |
+| adminBootstrap.enabled | bool | `true` |  |
 | adminBootstrap.nameProperty | string | `"admin-name"` |  |
 | adminBootstrap.passwordProperty | string | `"admin-password"` |  |
 | adminBootstrap.remoteSecretKey | string | `"platform/oneuptime"` |  |
