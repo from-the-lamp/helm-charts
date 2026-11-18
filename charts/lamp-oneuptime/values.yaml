@@ -82,6 +82,7 @@ oneuptime:
     clientId: "6547522206593.12639247996437"
     existingSecret:
       name: oneuptime-slack
+      clientIdKey: clientId
       clientSecretKey: clientSecret
       signingSecretKey: signingSecret
 
@@ -173,6 +174,7 @@ emailSecret:
 slackSecret:
   enabled: true
   remoteSecretKey: slack
+  clientIdProperty: oneuptime.client-id
   clientSecretProperty: oneuptime.client-secret
   signingSecretProperty: oneuptime.signing-secret
 

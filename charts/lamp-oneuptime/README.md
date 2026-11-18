@@ -1,6 +1,6 @@
 # lamp-oneuptime
 
-![Version: 0.6.2](https://img.shields.io/badge/Version-0.6.2-informational?style=flat-square)
+![Version: 0.6.3](https://img.shields.io/badge/Version-0.6.3-informational?style=flat-square)
 
 ## Requirements
 
@@ -75,10 +75,12 @@
 | oneuptime.probeContainerSecurityContext.capabilities.add[4] | string | `"SETUID"` |  |
 | oneuptime.registerProbeKey | string | `"48524500951e237d50a49f38227552ecf7308135572a8f38"` |  |
 | oneuptime.slackApp.clientId | string | `"6547522206593.12639247996437"` |  |
+| oneuptime.slackApp.existingSecret.clientIdKey | string | `"clientId"` |  |
 | oneuptime.slackApp.existingSecret.clientSecretKey | string | `"clientSecret"` |  |
 | oneuptime.slackApp.existingSecret.name | string | `"oneuptime-slack"` |  |
 | oneuptime.slackApp.existingSecret.signingSecretKey | string | `"signingSecret"` |  |
 | oneuptime.valkey.auth.password | string | `"52756b121de34e5f052b36168ecf58d5000209d73d5571d4"` |  |
+| slackSecret.clientIdProperty | string | `"oneuptime.client-id"` |  |
 | slackSecret.clientSecretProperty | string | `"oneuptime.client-secret"` |  |
 | slackSecret.enabled | bool | `true` |  |
 | slackSecret.remoteSecretKey | string | `"slack"` |  |
