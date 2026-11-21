@@ -89,7 +89,7 @@ model:
   sha256: 65b8fcd92af6b4fefa935c625d1ac27ea29dcb6ee14589c55a8f115ceaaa1423
   fetchImage:
     repository: curlimages/curl
-    tag: 8.12.1
+    tag: 8.23.0
 
 server:
   contextSize: 8192
