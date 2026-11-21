@@ -9,7 +9,7 @@ cloudflare:
 image:
   repository: cloudflare/cloudflared
   pullPolicy: IfNotPresent
-  tag: 2026.11.0
+  tag: 2026.11.1
 imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: cloudflared
