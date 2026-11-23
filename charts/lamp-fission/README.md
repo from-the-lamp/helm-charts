@@ -1,6 +1,6 @@
 # lamp-fission
 
-![Version: 0.0.2](https://img.shields.io/badge/Version-0.0.2-informational?style=flat-square)
+![Version: 0.0.3](https://img.shields.io/badge/Version-0.0.3-informational?style=flat-square)
 
 ## Requirements
 
@@ -14,3 +14,12 @@
 
 | Target | Type | Misconfigurations |
 | --- | --- | --- |
+| templates/crds/fission.io_canaryconfigs.yaml | kubernetes | 0 |
+| templates/crds/fission.io_environments.yaml | kubernetes | 0 |
+| templates/crds/fission.io_fissiontenants.yaml | kubernetes | 0 |
+| templates/crds/fission.io_functions.yaml | kubernetes | 0 |
+| templates/crds/fission.io_httptriggers.yaml | kubernetes | 0 |
+| templates/crds/fission.io_kuberneteswatchtriggers.yaml | kubernetes | 0 |
+| templates/crds/fission.io_messagequeuetriggers.yaml | kubernetes | 0 |
+| templates/crds/fission.io_packages.yaml | kubernetes | 0 |
+| templates/crds/fission.io_timetriggers.yaml | kubernetes | 0 |

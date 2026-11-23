@@ -11,6 +11,7 @@ repos:
         exclude: ^.*/templates/.*\.ya?ml$
       - id: check-added-large-files
         args: ["--maxkb=512"]
+        exclude: ^charts/lamp-fission/templates/crds/
       - id: detect-private-key
 
   - repo: local
