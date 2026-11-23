@@ -20,7 +20,7 @@ mcp:
 
   github:
     enabled: true
-    image: ghcr.io/github/github-mcp-server:v2.1.0
+    image: ghcr.io/github/github-mcp-server:v2.2.0
     mcps:
       - name: github-xdata
         token:
@@ -29,7 +29,7 @@ mcp:
 
   gitlab:
     enabled: true
-    image: zereight050/gitlab-mcp:2.3.27
+    image: zereight050/gitlab-mcp:2.3.30
     mcps:
       - name: gitlab
         apiUrl: https://gitlab.com/api/v4
@@ -157,17 +157,17 @@ mcp:
 
   clickhouse:
     enabled: false
-    image: us-central1-docker.pkg.dev/database-toolbox/toolbox/toolbox:1.17.0
+    image: us-central1-docker.pkg.dev/database-toolbox/toolbox/toolbox:1.18.0
     mcps: []
 
   postgres:
     enabled: false
-    image: us-central1-docker.pkg.dev/database-toolbox/toolbox/toolbox:1.17.0
+    image: us-central1-docker.pkg.dev/database-toolbox/toolbox/toolbox:1.18.0
     mcps: []
 
   redis:
     enabled: false
-    image: us-central1-docker.pkg.dev/database-toolbox/toolbox/toolbox:1.17.0
+    image: us-central1-docker.pkg.dev/database-toolbox/toolbox/toolbox:1.18.0
     mcps: []
 
   kafka:
@@ -396,7 +396,7 @@ mcp:
 
   playwright:
     enabled: false
-    image: mcr.microsoft.com/playwright/mcp:v0.0.85
+    image: mcr.microsoft.com/playwright/mcp:v0.0.86
     mcpPort: 8931
     mcps: []
 
