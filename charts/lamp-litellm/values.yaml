@@ -56,15 +56,30 @@ deepseekApiKey:
 deepseekModels:
   - deepseek-v4-flash
 
-# Anthropic Claude models via a direct API key (platform/litellm vault
-# secret, property claude_api_token - ~$100/mo of API credit). Same shape
-# as deepseekApiKey/deepseekModels: each entry becomes `anthropic/<model>`
-# in litellm's model_list.
-claudeApiKey:
-  secretName: litellm-claude
-  remoteRef:
-    key: litellm
-    property: claude_api_token
+# Anthropic Claude models, served via one or more direct API keys - nested
+# properties of the platform/litellm vault secret's claude_api object, one
+# per from-the-lamp identity (claude_api.token-djinn, claude_api.token-morra).
+# Each entry here becomes its own ExternalSecret plus its own env var
+# (envVar), and configmap-litellm-config.yaml renders one model_list
+# deployment per (key, model) pair, all sharing the same model_name -
+# router_settings.routing_strategy: simple-shuffle then load-balances across
+# the keys, and allowed_fails/cooldown_time fail over to the other key before
+# a request ever reaches modelFallbacks. Adding a key: append an entry here
+# (distinct secretName/envVar/remoteRef.property) and add its secretName to
+# litellm-helm.environmentSecrets below.
+claudeApiKeys:
+  - name: djinn
+    secretName: litellm-claude-djinn
+    envVar: ANTHROPIC_API_KEY
+    remoteRef:
+      key: litellm
+      property: claude_api.token-djinn
+  - name: morra
+    secretName: litellm-claude-morra
+    envVar: ANTHROPIC_API_KEY_MORRA
+    remoteRef:
+      key: litellm
+      property: claude_api.token-morra
 claudeModels:
   - claude-opus-5
   - claude-sonnet-5
@@ -78,7 +93,7 @@ claudeModels:
 # that can serve an image request - chatgptModels' chatgpt/ provider only
 # exposes /chat/completions and /responses, and none of
 # claudeModels/deepseekModels do image generation at all. Same shape as
-# claudeApiKey/claudeModels, but each entry becomes `gemini/<model>` tagged
+# deepseekApiKey/deepseekModels, but each entry becomes `gemini/<model>` tagged
 # model_info.mode: image_generation so litellm only ever routes an image
 # request to it, never a chat completion.
 geminiApiKey:
@@ -164,10 +179,16 @@ proxyConfigMap:
   key: config.yaml
 
 litellm-helm:
+  # One entry per secretName in claudeApiKeys above, plus the other providers'
+  # secrets - this list isn't derived from claudeApiKeys automatically (it's
+  # a plain value consumed by the litellm-helm subchart, not one of our own
+  # templates), so a consumer adding a key to claudeApiKeys must also list
+  # its secretName here, or the key's env var never reaches the pod.
   environmentSecrets:
     - litellm-deepseek
     - litellm-groq
-    - litellm-claude
+    - litellm-claude-djinn
+    - litellm-claude-morra
     - litellm-gemini
     - litellm-postgres-secret
     - litellm-salt
