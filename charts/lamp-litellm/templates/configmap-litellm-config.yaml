@@ -72,6 +72,7 @@ data:
       {{- end }}
     router_settings:
       routing_strategy: simple-shuffle
+      enable_weighted_failover: true
       num_retries: 2
       timeout: 120
       # 2026-11-14 incident: Anthropic credit exhaustion and the ChatGPT
