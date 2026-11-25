@@ -165,3 +165,13 @@ networkPolicy:
   policyTypes: ["Ingress"]
   ingress: []
   egress: []
+
+# Real template, default off - most consumers of this chart don't expose
+# Prometheus-format metrics yet (see libs/telemetry in the monorepo repo,
+# FTL-187); opt in once the app actually serves /metrics on its existing
+# service.port. Scraped by vmagent directly from the ServiceMonitor object,
+# no Prometheus Operator controller running on homelab.
+serviceMonitor:
+  enabled: false
+  path: /metrics
+  interval: 30s

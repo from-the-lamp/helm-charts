@@ -1,6 +1,6 @@
 # lamp-base
 
-![Version: 1.1.0](https://img.shields.io/badge/Version-1.1.0-informational?style=flat-square)
+![Version: 1.2.0](https://img.shields.io/badge/Version-1.2.0-informational?style=flat-square)
 
 Base platform chart - standardized Rollout/Service/ServiceAccount/ExternalSecret/PDB/HPA/NetworkPolicy for any from-the-lamp app
 
@@ -71,6 +71,9 @@ Base platform chart - standardized Rollout/Service/ServiceAccount/ExternalSecret
 | serviceAccount.automountServiceAccountToken | bool | `false` |  |
 | serviceAccount.create | bool | `false` |  |
 | serviceAccount.name | string | `""` |  |
+| serviceMonitor.enabled | bool | `false` |  |
+| serviceMonitor.interval | string | `"30s"` |  |
+| serviceMonitor.path | string | `"/metrics"` |  |
 | volumes.emptyDirMounts | list | `[]` |  |
 | volumes.extra | list | `[]` |  |
 | volumes.extraVolumeMounts | list | `[]` |  |
