@@ -29,3 +29,10 @@ restate:
       value: localcluster
     - name: RESTATE_ROCKSDB_TOTAL_MEMORY_SIZE
       value: 512MB
+
+  # FTL-187 step 4: Restate already exposes Prometheus /metrics on its
+  # "node" port (5122) - the chart's own ServiceMonitor just needs
+  # enabling, same pull model as lamp-base's serviceMonitor (FTL-187 step
+  # 3), picked up by the VictoriaMetrics operator's converter.
+  serviceMonitor:
+    enabled: true

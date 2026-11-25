@@ -17,3 +17,15 @@ nats:
         pvc:
           size: 5Gi
           storageClassName: local-path
+
+  # FTL-187 step 4: scrape NATS server metrics the same way as every other
+  # homelab workload (pull-based ServiceMonitor/PodMonitor, picked up by
+  # the VictoriaMetrics operator's converter - see lamp-base's
+  # serviceMonitor from FTL-187 step 3). The NATS server itself only
+  # exposes varz/connz, not Prometheus exposition format, so the chart's
+  # own promExporter sidecar (natsio/prometheus-nats-exporter) is required
+  # to get a /metrics endpoint at all.
+  promExporter:
+    enabled: true
+    podMonitor:
+      enabled: true
