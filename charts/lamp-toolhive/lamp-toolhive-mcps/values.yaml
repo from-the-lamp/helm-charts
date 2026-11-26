@@ -21,11 +21,7 @@ mcp:
   github:
     enabled: true
     image: ghcr.io/github/github-mcp-server:v2.2.0
-    mcps:
-      - name: github-xdata
-        token:
-          key: toolhive
-          property: github_xdata_token
+    mcps: []
 
   gitlab:
     enabled: true
@@ -77,14 +73,6 @@ mcp:
         token:
           key: toolhive
           property: slack_token_cas
-      - name: slack-xdata
-        token:
-          key: toolhive
-          property: slack_token_xdata
-      - name: slack-currency
-        token:
-          key: toolhive
-          property: slack_token_currency
 
   jira:
     enabled: false
@@ -101,18 +89,6 @@ mcp:
         token:
           key: toolhive
           property: atlassian_token_cas
-      - name: jira-xdata
-        domain: xdatagroup.atlassian.net
-        email: artem.zverev@xdatagroup.io
-        token:
-          key: toolhive
-          property: atlassian_token_xdata
-      - name: jira-currency
-        domain: cx-labs-io.atlassian.net
-        email: a.zverev@cx-labs.io
-        token:
-          key: toolhive
-          property: atlassian_token_currency
       - name: jira-from-the-lamp
         domain: artyomzverev.atlassian.net
         email: artyom.zverev@protonmail.com
@@ -121,15 +97,9 @@ mcp:
           property: jira_token_from_the_lamp
 
   bitbucket:
-    enabled: true
+    enabled: false
     image: registry.gitlab.com/from-the-lamp/infra/docker-images/lamp-bitbucket-mcp:latest
-    mcps:
-      - name: bitbucket
-        username: a.zverev@cx-labs.io
-        workspace: currencycom
-        token:
-          key: toolhive
-          property: atlassian_token_currency
+    mcps: []
 
   victoriametrics:
     enabled: false
