@@ -250,7 +250,7 @@ litellm-helm:
     - name: migrate-chatgpt-auth
       # v1.109.1, pinned by digest - same FTL-174 reasoning as the main
       # image in docker-images/images/lamp-litellm/Dockerfile.
-      image: ghcr.io/berriai/litellm@sha256:11175975a3093e05e92faee2fe2fe3412a3ae2fcaa849eb0fe25d5f0d8bcb2e9
+      image: ghcr.io/berriai/litellm@sha256:ce00096d012719d58c52cecfa373f7c6256dd1b0ff08f6fa607e10e9628f1f46
       command:
         - python3
         - -c
