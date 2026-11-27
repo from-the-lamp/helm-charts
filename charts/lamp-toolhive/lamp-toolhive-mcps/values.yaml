@@ -56,6 +56,7 @@ mcp:
     mcps:
       - name: kubernetes
         serviceAccount: kubernetes-mcp
+        readAllResources: false
       - name: oracle-1
         kubeconfig:
           key: toolhive

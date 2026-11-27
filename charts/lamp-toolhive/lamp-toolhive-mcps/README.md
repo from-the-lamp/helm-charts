@@ -1,6 +1,6 @@
 # lamp-toolhive-mcps
 
-![Version: 0.0.69](https://img.shields.io/badge/Version-0.0.69-informational?style=flat-square)
+![Version: 0.0.70](https://img.shields.io/badge/Version-0.0.70-informational?style=flat-square)
 
 ## Values
 
@@ -123,6 +123,7 @@
 | mcp.kubernetes.image | string | `"quay.io/containers/kubernetes_mcp_server:v0.1.3"` |  |
 | mcp.kubernetes.mcpPort | int | `8080` |  |
 | mcp.kubernetes.mcps[0].name | string | `"kubernetes"` |  |
+| mcp.kubernetes.mcps[0].readAllResources | bool | `false` |  |
 | mcp.kubernetes.mcps[0].serviceAccount | string | `"kubernetes-mcp"` |  |
 | mcp.kubernetes.mcps[1].kubeconfig.key | string | `"toolhive"` |  |
 | mcp.kubernetes.mcps[1].kubeconfig.property | string | `"kubeconfig-prod-1"` |  |
