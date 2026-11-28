@@ -25,7 +25,7 @@ mcp:
 
   gitlab:
     enabled: true
-    image: zereight050/gitlab-mcp:2.3.30
+    image: zereight050/gitlab-mcp:3.1.0
     mcps:
       - name: gitlab
         apiUrl: https://gitlab.com/api/v4
