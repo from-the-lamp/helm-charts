@@ -5,10 +5,15 @@ metadata:
 data:
   {{ .Values.proxyConfigMap.key }}: |
     model_list:
+      {{- $accounts := .Values.chatgptAccounts }}
+      {{- $mode := .Values.chatgptAccountMode }}
       {{- range $model := .Values.chatgptModels }}
+      {{- if or (eq $mode "balancer") (le (len $accounts) 1) }}
+      {{- range $acct := $accounts }}
       - model_name: {{ $model }}
         litellm_params:
           model: chatgpt/{{ $model }}
+          chatgpt_auth_file: {{ $acct.authFile }}
           # The ChatGPT/Codex OAuth backend rejects any request carrying a
           # system-role input item (400 "System messages are not allowed")
           # - a bug in litellm's chatgpt provider, fixed upstream for
@@ -23,6 +28,16 @@ data:
           # model setting, independent of the chatgpt-provider-specific
           # fix still pending upstream.
           supports_system_message: false
+      {{- end }}
+      {{- else }}
+      {{- range $acct := $accounts }}
+      - model_name: {{ if eq $acct.name "primary" }}{{ $model }}{{ else }}{{ $model }}-{{ $acct.name }}{{ end }}
+        litellm_params:
+          model: chatgpt/{{ $model }}
+          chatgpt_auth_file: {{ $acct.authFile }}
+          supports_system_message: false
+      {{- end }}
+      {{- end }}
       {{- end }}
       {{- range $model := .Values.deepseekModels }}
       - model_name: {{ $model }}
@@ -97,6 +112,13 @@ data:
       fallbacks:
         {{- range $model := .Values.chatgptModels }}
         - {{ $model }}:
+            {{- if and (eq $mode "fallback") (gt (len $accounts) 1) }}
+            {{- range $acct := $accounts }}
+            {{- if ne $acct.name "primary" }}
+            - {{ $model }}-{{ $acct.name }}
+            {{- end }}
+            {{- end }}
+            {{- end }}
             {{- range $other := $.Values.chatgptModels }}
             {{- if ne $other $model }}
             - {{ $other }}

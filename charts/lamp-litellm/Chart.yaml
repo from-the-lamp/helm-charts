@@ -1,6 +1,6 @@
 apiVersion: v2
 name: lamp-litellm
-version: 0.6.1
+version: 0.7.0
 
 dependencies:
   - name: litellm-helm
@@ -8,4 +8,4 @@ dependencies:
     repository: oci://ghcr.io/berriai
 
 annotations:
-  notes: "LITELLM_SALT_KEY from Vault (saltKey, property salt_key - must exist before upgrading), LITELLM_MODE=PRODUCTION, JSON logs at WARNING level, router enable_pre_call_checks, localOpenAICompatibleServers[].maxInputTokens to declare each local server's context window, and claudeApiKey/claudeModels replaced by a claudeApiKeys[] list (multiple Anthropic keys load-balanced per model via router_settings.routing_strategy: simple-shuffle) - requires platform/litellm's flat claude_api_token property to be migrated to a nested claude_api.<name> object in Vault before upgrading."
+  notes: "chatgptModels/chatgptAccounts[] now support more than one ChatGPT OAuth session via chatgptAccountMode (single/balancer/fallback) and litellm_params.chatgpt_auth_file per account; the migrate-chatgpt-auth init container's script moved into a new litellm-chatgpt-migrate ConfigMap, generated from chatgptAccounts instead of being hardcoded in values.yaml - no action needed for an existing single-account deployment, chatgptAccounts defaults to the same primary account/paths as before."

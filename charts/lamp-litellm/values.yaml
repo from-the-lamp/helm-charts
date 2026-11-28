@@ -31,6 +31,13 @@ chatgptAuthPersistence:
   size: 64Mi
   storageClass: hcloud-volumes
 
+chatgptAccounts:
+  - name: primary
+    oldFile: /var/lib/litellm/chatgpt-auth/auth.json
+    authFile: /var/lib/litellm/chatgpt-auth/chatgpt-auth.json
+
+chatgptAccountMode: single
+
 imagePullSecret:
   secretName: litellm-image-pull
   registry: registry.gitlab.com/from-the-lamp
@@ -242,58 +249,25 @@ litellm-helm:
     LITELLM_LOG: WARNING
     JSON_LOGS: "true"
 
-  # One-time, idempotent migration of the already-authenticated OAuth
-  # session from the previous custom bridge's nested auth.json shape
-  # ({"tokens": {...}}) to the flat shape litellm's native chatgpt provider
-  # expects. Runs on every pod start; no-ops once chatgpt-auth.json exists.
   extraInitContainers:
     - name: migrate-chatgpt-auth
-      # v1.109.1, pinned by digest - same FTL-174 reasoning as the main
-      # image in docker-images/images/lamp-litellm/Dockerfile.
       image: ghcr.io/berriai/litellm@sha256:11175975a3093e05e92faee2fe2fe3412a3ae2fcaa849eb0fe25d5f0d8bcb2e9
       command:
         - python3
-        - -c
-        - |
-          import json, os
-
-          token_dir = "/var/lib/litellm/chatgpt-auth"
-          old_file = os.path.join(token_dir, "auth.json")
-          new_file = os.path.join(token_dir, "chatgpt-auth.json")
-
-          if os.path.exists(new_file):
-              print("chatgpt-auth.json already present, nothing to migrate")
-          elif os.path.exists(old_file):
-              with open(old_file) as f:
-                  nested = json.load(f)
-              tokens = nested.get("tokens", {})
-              flat = {
-                  "access_token": tokens.get("access_token"),
-                  "refresh_token": tokens.get("refresh_token"),
-                  "id_token": tokens.get("id_token"),
-              }
-              if flat["access_token"] and flat["refresh_token"]:
-                  with open(new_file, "w") as f:
-                      json.dump(flat, f)
-                  os.chmod(new_file, 0o600)
-                  print("migrated nested auth.json -> flat chatgpt-auth.json")
-              else:
-                  print("old auth.json missing required fields, skipping migration")
-          else:
-              print("no existing session found, native provider will require a device-code login")
-
-          os.chown(token_dir, 10001, 10001)
-          for entry in os.scandir(token_dir):
-              os.chown(entry.path, 10001, 10001)
-          print("token dir owned by 10001:10001")
+        - /scripts/migrate-chatgpt-auth.py
       volumeMounts:
         - name: chatgpt-auth-persistent
           mountPath: /var/lib/litellm/chatgpt-auth
+        - name: chatgpt-migrate-script
+          mountPath: /scripts
 
   volumes:
     - name: chatgpt-auth-persistent
       persistentVolumeClaim:
         claimName: litellm-codex-auth-persistent
+    - name: chatgpt-migrate-script
+      configMap:
+        name: litellm-chatgpt-migrate
   volumeMounts:
     - name: chatgpt-auth-persistent
       mountPath: /var/lib/litellm/chatgpt-auth

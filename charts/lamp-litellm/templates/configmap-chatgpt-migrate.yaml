@@ -1,0 +1,44 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: litellm-chatgpt-migrate
+data:
+  migrate-chatgpt-auth.py: |
+    import json, os
+
+    token_dir = "/var/lib/litellm/chatgpt-auth"
+    accounts = [
+    {{- range .Values.chatgptAccounts }}
+        ("{{ .oldFile }}", "{{ .authFile }}"),
+    {{- end }}
+    ]
+
+    for old_file, new_file in accounts:
+        if os.path.exists(new_file):
+            print(f"{new_file} already present, nothing to migrate")
+            continue
+        if not os.path.exists(old_file):
+            print(f"no existing session found for {new_file}, native provider will require a device-code login")
+            continue
+        with open(old_file) as f:
+            nested = json.load(f)
+        tokens = nested.get("tokens", {})
+        flat = {
+            "access_token": tokens.get("access_token"),
+            "refresh_token": tokens.get("refresh_token"),
+            "id_token": tokens.get("id_token"),
+        }
+        if flat["access_token"] and flat["refresh_token"]:
+            os.makedirs(os.path.dirname(new_file), exist_ok=True)
+            with open(new_file, "w") as f:
+                json.dump(flat, f)
+            os.chmod(new_file, 0o600)
+            print(f"migrated {old_file} -> {new_file}")
+        else:
+            print(f"{old_file} missing required fields, skipping migration")
+
+    os.chown(token_dir, 10001, 10001)
+    for root, dirs, files in os.walk(token_dir):
+        for name in dirs + files:
+            os.chown(os.path.join(root, name), 10001, 10001)
+    print("token dir owned by 10001:10001")
