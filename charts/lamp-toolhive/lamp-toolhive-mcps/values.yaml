@@ -15,7 +15,7 @@ mcp:
 
   grafana:
     enabled: false
-    image: grafana/mcp-grafana:2.3.0
+    image: grafana/mcp-grafana:2.4.0
     mcps: []
 
   github:
