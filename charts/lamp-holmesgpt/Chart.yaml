@@ -5,5 +5,5 @@ description: Thin wrapper around the upstream HolmesGPT chart (read-only alert/i
 
 dependencies:
   - name: holmes
-    version: 0.46.0
+    version: 0.48.0
     repository: https://robusta-charts.storage.googleapis.com
