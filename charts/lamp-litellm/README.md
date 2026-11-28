@@ -1,6 +1,6 @@
 # lamp-litellm
 
-![Version: 0.9.0](https://img.shields.io/badge/Version-0.9.0-informational?style=flat-square)
+![Version: 0.9.1](https://img.shields.io/badge/Version-0.9.1-informational?style=flat-square)
 
 ## Requirements
 
@@ -19,9 +19,8 @@
 | chatgptAuthPersistence.pvcName | string | `"litellm-codex-auth-persistent"` |  |
 | chatgptAuthPersistence.size | string | `"64Mi"` |  |
 | chatgptAuthPersistence.storageClass | string | `"hcloud-volumes"` |  |
-| chatgptModels[0] | string | `"gpt-5.6-sol"` |  |
-| chatgptModels[1] | string | `"gpt-5.6-terra"` |  |
-| chatgptModels[2] | string | `"gpt-5.6-luna"` |  |
+| chatgptModels[0] | string | `"gpt-5.6-terra"` |  |
+| chatgptModels[1] | string | `"gpt-5.6-luna"` |  |
 | claudeApiKeys[0].envVar | string | `"ANTHROPIC_API_KEY"` |  |
 | claudeApiKeys[0].name | string | `"djinn"` |  |
 | claudeApiKeys[0].remoteRef.key | string | `"litellm"` |  |
