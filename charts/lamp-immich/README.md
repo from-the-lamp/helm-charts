@@ -1,6 +1,6 @@
 # lamp-immich
 
-![Version: 0.1.3](https://img.shields.io/badge/Version-0.1.3-informational?style=flat-square)
+![Version: 0.1.4](https://img.shields.io/badge/Version-0.1.4-informational?style=flat-square)
 
 ## Requirements
 
@@ -17,20 +17,6 @@
 | adminBootstrap.nameProperty | string | `"admin-name"` |  |
 | adminBootstrap.passwordProperty | string | `"admin-password"` |  |
 | adminBootstrap.remoteSecretKey | string | `"immich"` |  |
-| backup.bucket | string | `""` |  |
-| backup.deploymentName | string | `"immich-server"` |  |
-| backup.enabled | bool | `false` |  |
-| backup.keep | int | `28` |  |
-| backup.path | string | `"immich"` |  |
-| backup.podSelector | string | `"app.kubernetes.io/instance=immich,app.kubernetes.io/name=server"` |  |
-| backup.pvcClaimName | string | `"immich-library"` |  |
-| backup.rclone.endpoint | string | `""` |  |
-| backup.rclone.provider | string | `"Other"` |  |
-| backup.rclone.region | string | `""` |  |
-| backup.schedule | string | `"0 */6 * * *"` |  |
-| backup.vault.accessKeyProperty | string | `""` |  |
-| backup.vault.remoteSecretKey | string | `"s3"` |  |
-| backup.vault.secretKeyProperty | string | `""` |  |
 | configuration | object | `{}` |  |
 | database.passwordSecret.name | string | `"postgres-immich-password"` |  |
 | database.passwordSecret.remoteSecretKey | string | `"postgres"` |  |
