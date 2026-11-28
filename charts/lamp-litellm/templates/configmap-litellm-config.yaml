@@ -64,6 +64,12 @@ data:
         model_info:
           mode: audio_transcription
       {{- end }}
+      {{- range $model := .Values.groqChatModels }}
+      - model_name: {{ $model }}
+        litellm_params:
+          model: groq/{{ $model }}
+          api_key: os.environ/GROQ_API_KEY
+      {{- end }}
       {{- range $server := .Values.localOpenAICompatibleServers }}
       {{- range $model := $server.models }}
       - model_name: {{ $model }}

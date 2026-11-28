@@ -1,6 +1,6 @@
 apiVersion: v2
 name: lamp-litellm
-version: 0.7.0
+version: 0.8.0
 
 dependencies:
   - name: litellm-helm
@@ -8,4 +8,4 @@ dependencies:
     repository: oci://ghcr.io/berriai
 
 annotations:
-  notes: "chatgptModels/chatgptAccounts[] now support more than one ChatGPT OAuth session via chatgptAccountMode (single/balancer/fallback) and litellm_params.chatgpt_auth_file per account; the migrate-chatgpt-auth init container's script moved into a new litellm-chatgpt-migrate ConfigMap, generated from chatgptAccounts instead of being hardcoded in values.yaml - no action needed for an existing single-account deployment, chatgptAccounts defaults to the same primary account/paths as before."
+  notes: "New groqChatModels[] list (default []) adds Groq chat-completion models to model_list, each as model: groq/<model> reusing the existing groqApiKey/GROQ_API_KEY wiring whisperModels already relies on - no action needed for an existing deployment, groqChatModels defaults to empty. chatgptModels/chatgptAccounts[] now support more than one ChatGPT OAuth session via chatgptAccountMode (single/balancer/fallback) and litellm_params.chatgpt_auth_file per account; the migrate-chatgpt-auth init container's script moved into a new litellm-chatgpt-migrate ConfigMap, generated from chatgptAccounts instead of being hardcoded in values.yaml - no action needed for an existing single-account deployment, chatgptAccounts defaults to the same primary account/paths as before."

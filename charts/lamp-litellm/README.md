@@ -1,6 +1,6 @@
 # lamp-litellm
 
-![Version: 0.7.0](https://img.shields.io/badge/Version-0.7.0-informational?style=flat-square)
+![Version: 0.8.0](https://img.shields.io/badge/Version-0.8.0-informational?style=flat-square)
 
 ## Requirements
 
@@ -52,6 +52,7 @@
 | groqApiKey.remoteRef.key | string | `"litellm"` |  |
 | groqApiKey.remoteRef.property | string | `"groq_api_key"` |  |
 | groqApiKey.secretName | string | `"litellm-groq"` |  |
+| groqChatModels | list | `[]` |  |
 | imagePullSecret.registry | string | `"registry.gitlab.com/from-the-lamp"` |  |
 | imagePullSecret.remoteKey | string | `"gitlab"` |  |
 | imagePullSecret.remoteProperty | string | `"image-pull-secret"` |  |

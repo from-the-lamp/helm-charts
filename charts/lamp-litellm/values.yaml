@@ -140,6 +140,7 @@ groqApiKey:
     property: groq_api_key
 whisperModels:
   - whisper-large-v3
+groqChatModels: []
 
 # Local OpenAI-compatible inference servers (LM Studio over Tailscale,
 # an in-cluster llama.cpp Service, etc) - no API key needed/possible, so
