@@ -70,6 +70,12 @@ data:
           model: groq/{{ $model }}
           api_key: os.environ/GROQ_API_KEY
       {{- end }}
+      {{- range $model := .Values.openrouterModels }}
+      - model_name: {{ $model }}
+        litellm_params:
+          model: openrouter/{{ $model }}
+          api_key: os.environ/OPENROUTER_API_KEY
+      {{- end }}
       {{- range $server := .Values.localOpenAICompatibleServers }}
       {{- range $model := $server.models }}
       - model_name: {{ $model }}

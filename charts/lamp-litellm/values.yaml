@@ -142,6 +142,13 @@ whisperModels:
   - whisper-large-v3
 groqChatModels: []
 
+openrouterApiKey:
+  secretName: litellm-openrouter
+  remoteRef:
+    key: litellm
+    property: openrouter.api_key
+openrouterModels: []
+
 # Local OpenAI-compatible inference servers (LM Studio over Tailscale,
 # an in-cluster llama.cpp Service, etc) - no API key needed/possible, so
 # unlike deepseekModels/claudeModels these have no *ApiKey sibling.
@@ -200,6 +207,7 @@ litellm-helm:
     - litellm-gemini
     - litellm-postgres-secret
     - litellm-salt
+    - litellm-openrouter
 
   image:
     repository: registry.gitlab.com/from-the-lamp/infra/docker-images/lamp-litellm

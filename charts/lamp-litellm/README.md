@@ -1,6 +1,6 @@
 # lamp-litellm
 
-![Version: 0.8.0](https://img.shields.io/badge/Version-0.8.0-informational?style=flat-square)
+![Version: 0.9.0](https://img.shields.io/badge/Version-0.9.0-informational?style=flat-square)
 
 ## Requirements
 
@@ -74,6 +74,7 @@
 | litellm-helm.environmentSecrets[4] | string | `"litellm-gemini"` |  |
 | litellm-helm.environmentSecrets[5] | string | `"litellm-postgres-secret"` |  |
 | litellm-helm.environmentSecrets[6] | string | `"litellm-salt"` |  |
+| litellm-helm.environmentSecrets[7] | string | `"litellm-openrouter"` |  |
 | litellm-helm.extraInitContainers[0].command[0] | string | `"python3"` |  |
 | litellm-helm.extraInitContainers[0].command[1] | string | `"/scripts/migrate-chatgpt-auth.py"` |  |
 | litellm-helm.extraInitContainers[0].image | string | `"ghcr.io/berriai/litellm@sha256:11175975a3093e05e92faee2fe2fe3412a3ae2fcaa849eb0fe25d5f0d8bcb2e9"` |  |
@@ -115,6 +116,10 @@
 | masterKey.secretName | string | `"litellm-masterkey"` |  |
 | metrics.enabled | bool | `false` |  |
 | modelFallbacks.claude-sonnet-5[0] | string | `"gpt-5.6-terra"` |  |
+| openrouterApiKey.remoteRef.key | string | `"litellm"` |  |
+| openrouterApiKey.remoteRef.property | string | `"openrouter.api_key"` |  |
+| openrouterApiKey.secretName | string | `"litellm-openrouter"` |  |
+| openrouterModels | list | `[]` |  |
 | otel.enabled | bool | `true` |  |
 | postgres.database | string | `"litellm"` |  |
 | postgres.enabled | bool | `true` |  |

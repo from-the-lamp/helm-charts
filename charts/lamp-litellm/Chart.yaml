@@ -1,6 +1,6 @@
 apiVersion: v2
 name: lamp-litellm
-version: 0.8.0
+version: 0.9.0
 
 dependencies:
   - name: litellm-helm
@@ -8,4 +8,4 @@ dependencies:
     repository: oci://ghcr.io/berriai
 
 annotations:
-  notes: "New groqChatModels[] list (default []) adds Groq chat-completion models to model_list, each as model: groq/<model> reusing the existing groqApiKey/GROQ_API_KEY wiring whisperModels already relies on - no action needed for an existing deployment, groqChatModels defaults to empty. chatgptModels/chatgptAccounts[] now support more than one ChatGPT OAuth session via chatgptAccountMode (single/balancer/fallback) and litellm_params.chatgpt_auth_file per account; the migrate-chatgpt-auth init container's script moved into a new litellm-chatgpt-migrate ConfigMap, generated from chatgptAccounts instead of being hardcoded in values.yaml - no action needed for an existing single-account deployment, chatgptAccounts defaults to the same primary account/paths as before."
+  notes: "New openrouterApiKey/openrouterModels[] list (default []) adds OpenRouter models to model_list as model: openrouter/<model>, new ExternalSecret litellm-openrouter (remoteRef property openrouter.api_key) - requires that property to exist in Vault's platform/litellm secret before upgrading, otherwise the ExternalSecret just fails to sync (no impact on an existing deployment that leaves openrouterModels empty). New groqChatModels[] list (default []) adds Groq chat-completion models to model_list, each as model: groq/<model> reusing the existing groqApiKey/GROQ_API_KEY wiring whisperModels already relies on - no action needed for an existing deployment, groqChatModels defaults to empty. chatgptModels/chatgptAccounts[] now support more than one ChatGPT OAuth session via chatgptAccountMode (single/balancer/fallback) and litellm_params.chatgpt_auth_file per account; the migrate-chatgpt-auth init container's script moved into a new litellm-chatgpt-migrate ConfigMap, generated from chatgptAccounts instead of being hardcoded in values.yaml - no action needed for an existing single-account deployment, chatgptAccounts defaults to the same primary account/paths as before."
